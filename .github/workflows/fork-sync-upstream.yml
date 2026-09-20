@@ -35,6 +35,11 @@ on:
         required: false
         type: boolean
         default: false
+      retranslate:
+        description: "Re-translate every string, not just the untranslated ones. For a model or glossary change."
+        required: false
+        type: boolean
+        default: false
 
 # One sync at a time, and never cancel: a run interrupted between `git push` and
 # the tag push would leave the branch advanced with no release.
@@ -219,7 +224,17 @@ jobs:
           OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
           OPENROUTER_BASE_URL: ${{ vars.OPENROUTER_BASE_URL }}
           I18N_CONCURRENCY: ${{ vars.I18N_CONCURRENCY }}
-        run: node tools/i18n/translate.mjs --locale "$LOCALE"
+          # Scheduled runs never set this: a retranslation throws away human
+          # corrections along with the machine output, so it stays a deliberate
+          # act rather than something a cron can do on its own.
+          RETRANSLATE: ${{ inputs.retranslate }}
+        run: |
+          set -euo pipefail
+          if [ "${RETRANSLATE:-false}" = "true" ]; then
+            node tools/i18n/translate.mjs --locale "$LOCALE" --retranslate
+          else
+            node tools/i18n/translate.mjs --locale "$LOCALE"
+          fi
 
       # ---- gates: nothing is pushed unless all of these pass ----
 
