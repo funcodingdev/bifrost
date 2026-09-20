@@ -239,8 +239,10 @@ jobs:
           set -euo pipefail
           git fetch origin --tags --force
           VERSION="$(tr -d '[:space:]' < transports/version)"
-          # Same reasoning as the upstream tag check: this reaches a `run:` block
-          # through ${{ }}, so reject anything that is not a plain version.
+          # Same reasoning as the upstream tag check: this value reaches a `run:`
+          # block through expression interpolation, so reject anything that is not a
+          # plain version. (The token itself cannot appear in this comment: GitHub
+          # parses expressions inside run blocks, comments included.)
           if ! printf '%s' "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
             echo "::error::Unexpected transports/version contents: $VERSION"
             exit 1

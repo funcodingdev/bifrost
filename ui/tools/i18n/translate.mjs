@@ -106,7 +106,7 @@ async function translateBatch(keys, attempt = 1) {
 		headers: {
 			"Content-Type": "application/json",
 			Authorization: `Bearer ${apiKey}`,
-			"HTTP-Referer": "https://github.com/funcodingdev/bifrost",
+			"HTTP-Referer": "https://github.com/funcodingdev/bifrost-i18n",
 			"X-Title": "bifrost-fork-i18n",
 		},
 		body: JSON.stringify({
