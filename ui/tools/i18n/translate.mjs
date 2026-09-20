@@ -118,6 +118,11 @@ async function translateBatch(keys, attempt = 1) {
 			model,
 			temperature: 0,
 			response_format: { type: "json_object" },
+			// Without an explicit budget the provider applies its own default, and
+			// a 40-string batch can run past it: the reply comes back cut in half
+			// with finish_reason "length". Scaled to the batch rather than fixed,
+			// so a one-key retry does not ask for a budget it cannot use.
+			max_tokens: Math.min(16000, Math.max(2000, keys.length * 250)),
 			messages: [
 				{ role: "system", content: SYSTEM_PROMPT },
 				{ role: "user", content: JSON.stringify(payload, null, 1) },
@@ -138,16 +143,30 @@ async function translateBatch(keys, attempt = 1) {
 	}
 
 	const data = await response.json();
-	const content = data?.choices?.[0]?.message?.content;
-	if (typeof content !== "string") throw new Error(`Unexpected response shape: ${JSON.stringify(data).slice(0, 300)}`);
+	const choice = data?.choices?.[0];
+	const content = choice?.message?.content;
+	const finish = choice?.finish_reason ?? choice?.native_finish_reason ?? "unknown";
+
+	// A reply cut off at the token ceiling is a size problem, not a model problem:
+	// retrying the same batch truncates again at the same place. Halving it is the
+	// only thing that actually helps, and it keeps the strings that would
+	// otherwise be dropped wholesale.
+	if (finish === "length" || typeof content !== "string" || !content.trim()) {
+		if (keys.length > 1) return translateSplit(keys, finish);
+		if (attempt < MAX_ATTEMPTS) return translateBatch(keys, attempt + 1);
+		throw new Error(`truncated or empty reply (finish_reason=${finish}, provider=${data?.provider ?? "?"})`);
+	}
 
 	let parsed;
 	try {
 		// Some models still wrap JSON in a fence despite response_format.
 		parsed = JSON.parse(content.replace(/^\s*```(?:json)?\s*|\s*```\s*$/g, ""));
 	} catch {
+		// Truncated JSON is indistinguishable from malformed JSON here, so try
+		// splitting before burning retries on the same oversized request.
+		if (keys.length > 1) return translateSplit(keys, "unparseable");
 		if (attempt < MAX_ATTEMPTS) return translateBatch(keys, attempt + 1);
-		throw new Error(`Model did not return JSON: ${content.slice(0, 200)}`);
+		throw new Error(`model did not return JSON (finish_reason=${finish}): ${content.slice(0, 200)}`);
 	}
 
 	const accepted = {};
@@ -159,6 +178,32 @@ async function translateBatch(keys, attempt = 1) {
 		else accepted[key] = value;
 	});
 	return { accepted, failed };
+}
+
+/**
+ * Translate a batch in two halves after an oversized reply.
+ *
+ * Each half is isolated: one that still fails costs only its own keys, which
+ * then fall back to English and are retried by the next sync.
+ */
+async function translateSplit(keys, reason) {
+	const mid = Math.ceil(keys.length / 2);
+	console.log(`  reply ${reason} for ${keys.length} keys — splitting into ${mid} + ${keys.length - mid}`);
+
+	const halves = await Promise.all(
+		[keys.slice(0, mid), keys.slice(mid)].map(async (half) => {
+			try {
+				return await translateBatch(half);
+			} catch (err) {
+				return { accepted: {}, failed: half.map((key) => ({ key, problem: `split failed: ${err.message}` })) };
+			}
+		}),
+	);
+
+	return {
+		accepted: Object.assign({}, ...halves.map((h) => h.accepted)),
+		failed: halves.flatMap((h) => h.failed),
+	};
 }
 
 function validate(sourceText, translated) {
