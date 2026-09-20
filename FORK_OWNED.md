@@ -11,14 +11,24 @@ built around one rule:
 Everything below is the complete list of what this fork changes. Keep it that
 way: each file added here is a merge conflict you will resolve forever.
 
-## Modified upstream files (2)
+## Modified upstream files (4)
 
 | File | Change | Upstream commits / 90d |
 | --- | --- | --- |
 | `ui/vite.config.mts` | imports `autoI18n()` and puts it first in `plugins` | 1 |
 | `ui/package.json` | adds the `i18n:extract` / `i18n:diff` / `i18n:check` scripts | 7 |
+| `.gitattributes` | one line: `README.md merge=ours` | 0 (2 in all history) |
+| `README.md` | replaced with this fork's own README (Chinese) | 4 |
 
-Both are additive and low-churn. A rebase conflict here is a one-line re-apply.
+The first three are additive and low-churn; a conflict is a one-line re-apply.
+
+`README.md` is the exception: it is fully replaced, so an upstream edit would
+conflict every time — about four times a year, each one halting an unattended
+sync before it can publish a release. `merge=ours` in `.gitattributes` resolves
+it in our favour automatically. That means upstream README changes are silently
+discarded, which is intended: this fork's README describes the fork, and links
+to upstream for the product itself. `README.en.md` is a new file and never
+conflicts.
 
 ## Added files (never conflict)
 

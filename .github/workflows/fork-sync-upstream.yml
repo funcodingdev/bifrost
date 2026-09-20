@@ -83,6 +83,10 @@ jobs:
         run: |
           git config user.name "bifrost-fork-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # `ours` is not a built-in merge driver — .gitattributes naming it does
+          # nothing until it is defined. Without this, README.md conflicts on every
+          # upstream README change and halts the sync before any release.
+          git config merge.ours.driver true
 
       - name: Detect new upstream release tag
         id: detect

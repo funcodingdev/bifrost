@@ -10,3 +10,8 @@ docker-entrypoint.sh text eol=lf
 # Mark dummy credentials as generated to avoid security scanner false positives
 tests/integrations/dummy-gcp-credentials.json linguist-generated=true
 
+# FORK-OWNED (see FORK_OWNED.md): this fork's README is its own document, not a
+# translation of upstream's. `merge=ours` keeps an upstream README change from
+# halting the unattended sync — a conflict there would stop the whole release.
+# Requires `git config merge.ours.driver true`, which fork-sync-upstream.yml sets.
+README.md merge=ours
