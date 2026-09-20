@@ -23,13 +23,20 @@ Both are additive and low-churn. A rebase conflict here is a one-line re-apply.
 ## Added files (never conflict)
 
 ```
-ui/tools/i18n/          extraction + transform tooling, tests
+ui/tools/i18n/          extraction + transform tooling, translator, tests
 ui/i18n/runtime.ts      __t / __tx and locale selection
 ui/i18n/catalogs/       en.json (generated) + one JSON per locale
+ui/i18n/glossary.json   terminology the translator must use verbatim
 ui/i18n/extracted.json  key -> where it appears, for translator context
 ui/i18n/rejected.json   literals the rules skipped, for auditing
+.fork/last-upstream-tag the upstream release this fork is synced to
+.github/workflows/fork-sync-upstream.yml
+.github/workflows/fork-release.yml
 FORK_OWNED.md           this file
 ```
+
+Fork workflow files are prefixed `fork-` so they can never collide with a file
+upstream adds.
 
 ## How it works
 
@@ -56,24 +63,84 @@ the standalone plugin.
 tree is byte-for-byte identical to a build from unmodified upstream config
 (548 files, matching SHA-256). Use it to prove a bug is not the fork's fault.
 
-## Upstream sync runbook
+## Branches
+
+| Branch | Role |
+| --- | --- |
+| `main` | mirrors `upstream/main` — upstream's **release** branch, where `transports/vX.Y.Z` tags are cut |
+| `i18n` | the fork trunk. Every fork commit lives here, based on `main` |
+| `dev` | leftover mirror of upstream's integration branch; not used by the automation |
+
+Track `main`, not `dev`: `dev` is upstream's integration branch and never
+corresponds to a release.
+
+## Automation
+
+`fork-sync-upstream.yml` polls upstream every 6 hours for a new
+`transports/vX.Y.Z` tag (prereleases excluded). On a new one it merges **that
+tag** — not a branch, so the fork pins to exactly the released tree — then
+re-extracts, machine-translates the new copy via OpenRouter, and runs the gates:
+
+1. `i18n:check --strict` — catalog matches source, placeholders intact
+2. `vitest run tools/i18n` — transform and runtime invariants
+3. `vite build` + `tsc --noEmit`
+4. the bot's own edits touch nothing outside `ui/i18n/` and `.fork/`
+
+Only if all four pass does it push `i18n`, tag `transports/vX.Y.Z-zh.N`, and
+call `fork-release.yml` to build and publish
+`ghcr.io/<owner>/bifrost:vX.Y.Z-zh.N`. Any failure leaves the branch untouched
+and opens one issue per upstream tag.
+
+`-zh.N` rather than `+zh`: Docker tags cannot contain `+`, so the suffix has to
+be a semver prerelease. `N` lets the same upstream version be re-released after
+a translation fix.
+
+The release workflow is invoked through `workflow_call`, not by its own tag
+trigger, because a tag pushed with `GITHUB_TOKEN` does not start another
+workflow. The `push: tags` trigger is there for tags you create by hand.
+
+### Required repo setup
+
+- Secret `OPENROUTER_API_KEY`. Only `schedule` and `workflow_dispatch` runs use
+  it — never give it to a `pull_request` trigger, or a fork PR can exfiltrate it.
+- Optional vars `OPENROUTER_MODEL`, `OPENROUTER_BASE_URL` (point the latter at a
+  Bifrost instance to dogfood the gateway).
+- Settings → Actions → Workflow permissions: **Read and write**.
+- **Disable the inherited upstream workflows.** All 20 of them come along with
+  the merge. `release-pipeline.yml` fires on push to `main` and will try to push
+  images to upstream's Docker Hub account; others run on schedules. In a fork
+  they fail loudly and burn Actions minutes. Turn them off in Settings → Actions
+  before pushing `main`.
+- If `i18n` is a protected branch, allow the Actions bot to push to it, or the
+  sync will fail at the last step.
+
+Note: upstream's own `workflow-lint.yml` currently fails on `release-pipeline.yml`
+and `run-core-tests.yml` (missing `ai.google.dev`, `learn.microsoft.com` in their
+egress allowlists). That is pre-existing upstream breakage, not something the
+fork introduced, but it will show up on any PR you open that touches
+`.github/workflows/`.
+
+## Manual sync runbook
+
+Only needed when the automation opens a conflict issue.
 
 ```bash
-git fetch upstream
-git rebase upstream/dev          # conflicts only in the 2 files above
+git fetch upstream --tags
+git checkout i18n
+git merge transports/vX.Y.Z      # conflicts only in the files listed above
 
 cd ui && npm ci
 npm run i18n:diff                # what copy did upstream add/remove?
 npm run i18n:extract             # refresh catalogs; new keys stay untranslated
-# translate the new keys in ui/i18n/catalogs/<locale>.json
-npm run i18n:check               # coverage per locale
-npx vitest run tools/i18n        # transform + runtime invariants
+node tools/i18n/translate.mjs --locale zh-CN
+npm run i18n:check -- --strict   # catalog freshness + placeholder integrity
+npx vitest run tools/i18n
 npx vite build && npm run typecheck
 ```
 
-CI should run `npm run i18n:check -- --strict`, which fails when `en.json` no
-longer matches the source — i.e. someone rebased without re-extracting. That is
-the one way this setup rots silently.
+`i18n:check --strict` failing means someone merged without re-extracting, or a
+translation's placeholders drifted. That is the one way this setup rots
+silently, which is why it is a gate rather than a report.
 
 ## Rules
 

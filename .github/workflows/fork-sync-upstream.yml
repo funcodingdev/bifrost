@@ -1,0 +1,339 @@
+# FORK-OWNED. Not an upstream workflow — see FORK_OWNED.md.
+#
+# Watches upstream for a new `transports/vX.Y.Z` release tag, merges that exact
+# tag into the fork's trunk, re-extracts the string catalog, machine-translates
+# whatever copy upstream added, and — only if every gate passes — pushes the
+# result and cuts a matching `-zh.N` release.
+#
+# Why poll rather than react to a release event: GitHub does not deliver another
+# repository's events here. `git ls-remote` on a schedule costs a few seconds
+# and is exact, because upstream tags every release.
+#
+# Nothing is pushed until the gates are green. A failed run leaves the fork
+# untouched and opens one issue per upstream tag.
+#
+# Values that originate outside this file (workflow inputs, `transports/version`,
+# ls-remote output) are format-checked and then passed to shells through `env:`
+# rather than interpolated into `run:`. GitHub expands ${{ }} textually BEFORE
+# the shell parses the line, so a version file containing command substitution
+# would execute — the same hole upstream's version-format guard exists to close.
+
+name: Sync upstream release and translate
+
+on:
+  schedule:
+    # Every 6 hours. The no-op path (no new tag) finishes in well under a minute.
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      upstream_tag:
+        description: "Force a specific upstream tag (e.g. transports/v2.2.1). Empty = latest release."
+        required: false
+        type: string
+      skip_translate:
+        description: "Merge and extract only; leave new copy untranslated"
+        required: false
+        type: boolean
+        default: false
+
+# One sync at a time, and never cancel: a run interrupted between `git push` and
+# the tag push would leave the branch advanced with no release.
+concurrency:
+  group: fork-sync-upstream
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  FORK_BRANCH: i18n
+  UPSTREAM_REPO: https://github.com/maximhq/bifrost.git
+  STATE_FILE: .fork/last-upstream-tag
+  LOCALE: zh-CN
+
+jobs:
+  sync:
+    name: Merge upstream, translate, gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+      issues: write
+    outputs:
+      fork_tag: ${{ steps.tag.outputs.fork_tag }}
+      upstream_tag: ${{ steps.detect.outputs.tag }}
+    steps:
+      # audit, not block: this job reaches npm, the OpenRouter endpoint (which is
+      # configurable) and GitHub. A block-mode allowlist here would fail closed
+      # the first time any of those changed a hostname, and the repo's egress
+      # lint only mandates allowlists for apt / provider-harness jobs.
+      - name: Harden Runner
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout fork trunk
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: i18n
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Configure git identity
+        run: |
+          git config user.name "bifrost-fork-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Detect new upstream release tag
+        id: detect
+        env:
+          FORCED_TAG: ${{ inputs.upstream_tag }}
+        run: |
+          set -euo pipefail
+          git remote add upstream "$UPSTREAM_REPO" 2>/dev/null || git remote set-url upstream "$UPSTREAM_REPO"
+
+          if [ -n "${FORCED_TAG:-}" ]; then
+            TAG="$FORCED_TAG"
+          else
+            # --refs drops the peeled ^{} entries. The strict regex excludes
+            # prereleases (transports/v2.0.0-prerelease1): a fork tracking
+            # releases should not chase those. Pass one explicitly to sync it.
+            LATEST="$(git ls-remote --tags --refs upstream 'refs/tags/transports/v*' \
+              | awk '{print $2}' \
+              | sed 's|refs/tags/transports/||' \
+              | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+              | sort -V | tail -1)"
+            TAG="transports/${LATEST}"
+          fi
+
+          # This value is interpolated into later steps; anything but a plain tag
+          # is rejected here rather than reaching a shell.
+          if ! printf '%s' "$TAG" | grep -qE '^transports/v[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?$'; then
+            echo "::error::Refusing to use malformed upstream tag: $TAG"
+            exit 1
+          fi
+
+          LAST="$(cat "$STATE_FILE" 2>/dev/null || echo none)"
+          echo "latest upstream release : $TAG"
+          echo "last synced             : $LAST"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+          if [ "$TAG" = "$LAST" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Already in sync — nothing to do."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Merge the upstream release tag
+        id: merge
+        if: steps.detect.outputs.changed == 'true'
+        env:
+          TAG: ${{ steps.detect.outputs.tag }}
+        run: |
+          set -euo pipefail
+          git fetch upstream "refs/tags/${TAG}:refs/tags/${TAG}" --force
+
+          # Merging the TAG rather than a branch pins the fork to exactly the
+          # released tree, with none of the post-release work sitting on main.
+          if ! git merge --no-ff "$TAG" -m "chore: merge upstream ${TAG}"; then
+            CONFLICTS="$(git diff --name-only --diff-filter=U || true)"
+            git merge --abort || true
+            {
+              echo "conflict=true"
+              echo "conflicts<<CONFLICT_EOF"
+              echo "$CONFLICTS"
+              echo "CONFLICT_EOF"
+            } >> "$GITHUB_OUTPUT"
+            echo "::error::Merge conflict with ${TAG}"
+            echo "$CONFLICTS"
+            exit 1
+          fi
+
+      - name: Set up Node
+        if: steps.detect.outputs.changed == 'true'
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install UI dependencies
+        if: steps.detect.outputs.changed == 'true'
+        working-directory: ui
+        run: npm ci --no-audit --no-fund
+
+      - name: Extract strings
+        id: extract
+        if: steps.detect.outputs.changed == 'true'
+        working-directory: ui
+        run: |
+          set -euo pipefail
+          npm run i18n:extract | tee /tmp/extract.log
+          ADDED="$(grep -oE 'vs committed en\.json:  \+[0-9]+' /tmp/extract.log | grep -oE '[0-9]+$' || true)"
+          echo "added=${ADDED:-0}" >> "$GITHUB_OUTPUT"
+
+      - name: Translate new copy
+        if: steps.detect.outputs.changed == 'true' && inputs.skip_translate != true
+        working-directory: ui
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
+          OPENROUTER_BASE_URL: ${{ vars.OPENROUTER_BASE_URL }}
+        run: node tools/i18n/translate.mjs --locale "$LOCALE"
+
+      # ---- gates: nothing is pushed unless all of these pass ----
+
+      - name: Gate — catalog integrity
+        if: steps.detect.outputs.changed == 'true'
+        working-directory: ui
+        run: node tools/i18n/check.mjs --strict
+
+      - name: Gate — transform and runtime invariants
+        if: steps.detect.outputs.changed == 'true'
+        working-directory: ui
+        run: npx vitest run tools/i18n
+
+      - name: Gate — UI build and typecheck
+        if: steps.detect.outputs.changed == 'true'
+        working-directory: ui
+        run: |
+          npx vite build
+          npm run typecheck
+
+      - name: Gate — the bot touched only catalog files
+        if: steps.detect.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          # The merge commit may touch anything. The bot's own edits may not:
+          # a change outside these paths means the tooling went rogue, and this
+          # is the one thing standing between an unattended job and the trunk.
+          STRAY="$(git status --porcelain | awk '{print $NF}' | grep -vE '^(ui/i18n/|\.fork/)' || true)"
+          if [ -n "$STRAY" ]; then
+            echo "::error::Bot modified files outside ui/i18n/ and .fork/:"
+            echo "$STRAY"
+            exit 1
+          fi
+          git status --porcelain
+
+      - name: Commit catalogs
+        if: steps.detect.outputs.changed == 'true'
+        env:
+          TAG: ${{ steps.detect.outputs.tag }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "$STATE_FILE")"
+          printf '%s\n' "$TAG" > "$STATE_FILE"
+          git add ui/i18n "$STATE_FILE"
+          if git diff --cached --quiet; then
+            echo "No catalog changes; the merge commit stands alone."
+          else
+            STATS="$(cd ui && node tools/i18n/check.mjs --json)"
+            git commit -m "chore(i18n): refresh catalogs for ${TAG}" -m "$STATS"
+          fi
+
+      - name: Compute fork release tag
+        id: tag
+        if: steps.detect.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          git fetch origin --tags --force
+          VERSION="$(tr -d '[:space:]' < transports/version)"
+          # Same reasoning as the upstream tag check: this reaches a `run:` block
+          # through ${{ }}, so reject anything that is not a plain version.
+          if ! printf '%s' "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::Unexpected transports/version contents: $VERSION"
+            exit 1
+          fi
+
+          # -zh.N lets the same upstream version be re-released (a translation
+          # fix, say) without inventing a fake upstream bump.
+          LAST_N="$(git tag -l "transports/v${VERSION}-zh.*" \
+            | sed 's|.*-zh\.||' | grep -E '^[0-9]+$' | sort -n | tail -1 || true)"
+          NEXT=$(( ${LAST_N:-0} + 1 ))
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "fork_tag=transports/v${VERSION}-zh.${NEXT}" >> "$GITHUB_OUTPUT"
+          echo "Will release transports/v${VERSION}-zh.${NEXT}"
+
+      - name: Push branch and tag
+        if: steps.detect.outputs.changed == 'true'
+        env:
+          FORK_TAG: ${{ steps.tag.outputs.fork_tag }}
+          VERSION: ${{ steps.tag.outputs.version }}
+          TAG: ${{ steps.detect.outputs.tag }}
+        run: |
+          set -euo pipefail
+          git push origin "HEAD:${FORK_BRANCH}"
+          git tag -a "$FORK_TAG" -m "Bifrost ${VERSION} with ${LOCALE} localisation (upstream ${TAG})"
+          git push origin "$FORK_TAG"
+
+      - name: Write run summary
+        if: steps.detect.outputs.changed == 'true'
+        env:
+          TAG: ${{ steps.detect.outputs.tag }}
+          FORK_TAG: ${{ steps.tag.outputs.fork_tag }}
+          ADDED: ${{ steps.extract.outputs.added }}
+        run: |
+          {
+            echo "### Synced \`${TAG}\` → \`${FORK_TAG}\`"
+            echo
+            echo "New strings from upstream: **${ADDED}**"
+            echo
+            echo '```json'
+            (cd ui && node tools/i18n/check.mjs --json)
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open an issue on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.detect.outputs.tag }}
+          CONFLICT: ${{ steps.merge.outputs.conflict }}
+          CONFLICTS: ${{ steps.merge.outputs.conflicts }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -uo pipefail
+          TITLE="Upstream sync failed for ${TAG:-unknown}"
+          # One open issue per upstream tag, so a 6-hourly schedule cannot spam.
+          OPEN="$(gh issue list --state open --search "$TITLE in:title" --json number --jq 'length' || echo 0)"
+          if [ "${OPEN:-0}" != "0" ]; then
+            echo "An issue for ${TAG} is already open."
+            exit 0
+          fi
+
+          {
+            echo "The automated upstream sync failed. The fork branch was **not** modified."
+            echo
+            if [ "${CONFLICT:-}" = "true" ]; then
+              echo "**Merge conflict** in:"
+              echo
+              printf '%s\n' "$CONFLICTS" | sed 's/^/- /'
+              echo
+              echo "Only files listed in \`FORK_OWNED.md\` should ever conflict. If something"
+              echo "else did, upstream changed a file this fork also owns — reconcile by hand,"
+              echo "then re-run this workflow with \`upstream_tag: ${TAG}\`."
+            else
+              echo "A gate failed after a clean merge. The usual causes are a catalog that no"
+              echo "longer matches the source, a translation whose placeholders drifted, or an"
+              echo "upstream UI change the transform does not handle."
+            fi
+            echo
+            echo "Run: ${RUN_URL}"
+          } > /tmp/issue.md
+
+          gh issue create --title "$TITLE" --body-file /tmp/issue.md
+
+  release:
+    name: Publish localised release
+    needs: sync
+    if: needs.sync.outputs.fork_tag != ''
+    uses: ./.github/workflows/fork-release.yml
+    permissions:
+      contents: write
+      packages: write
+    with:
+      tag: ${{ needs.sync.outputs.fork_tag }}
+      upstream_tag: ${{ needs.sync.outputs.upstream_tag }}
+    secrets: inherit

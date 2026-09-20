@@ -17,6 +17,8 @@ const require = createRequire(import.meta.url);
 const { placeholdersOf } = require("./rules.cjs");
 
 const strict = process.argv.includes("--strict");
+// Machine-readable one-liner for CI release notes.
+const asJson = process.argv.includes("--json");
 
 const { keys } = scanUi();
 const committed = Object.keys(readCatalog(path.join(CATALOG_DIR, "en.json")));
@@ -26,6 +28,22 @@ const currentSet = new Set(keys);
 const added = keys.filter((k) => !committedSet.has(k));
 const removed = committed.filter((k) => !currentSet.has(k));
 const stale = added.length > 0 || removed.length > 0;
+
+if (asJson) {
+	const locales = {};
+	for (const file of localeCatalogFiles()) {
+		const entries = readCatalog(path.join(CATALOG_DIR, file));
+		const locale = file.replace(/\.json$/, "");
+		const translated = keys.filter((k) => typeof entries[k] === "string" && entries[k] !== "").length;
+		const broken = Object.entries(entries).filter(
+			([key, value]) =>
+				typeof value === "string" && currentSet.has(key) && placeholdersOf(key).join(",") !== placeholdersOf(value).join(","),
+		).length;
+		locales[locale] = { translated, broken, coverage: keys.length ? Number(((translated / keys.length) * 100).toFixed(1)) : 0 };
+	}
+	console.log(JSON.stringify({ strings: keys.length, stale, added: added.length, removed: removed.length, locales }));
+	process.exit(strict && (stale || Object.values(locales).some((l) => l.broken)) ? 1 : 0);
+}
 
 console.log(`source strings   ${keys.length}`);
 console.log(`en.json          ${committed.length}`);

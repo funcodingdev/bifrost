@@ -1,0 +1,189 @@
+# FORK-OWNED. Not an upstream workflow — see FORK_OWNED.md.
+#
+# Builds and publishes a localised Bifrost image for a `transports/vX.Y.Z-zh.N`
+# tag, then cuts the GitHub Release.
+#
+# This deliberately does NOT reuse upstream's release-pipeline.yml. That workflow
+# gates on a ~90 minute provider harness against eight live third-party APIs and
+# publishes to Docker Hub and npm under upstream's accounts — neither is
+# reproducible in a fork. Upstream already ran that gate before cutting the tag
+# this build is based on, and the fork's delta over it is two config files plus a
+# JSON catalog, so what remains to verify is that the image still builds.
+#
+# Invoked by fork-sync-upstream.yml through workflow_call rather than by its own
+# tag push: a tag pushed with GITHUB_TOKEN does not start another workflow. The
+# push trigger below is for tags created by hand.
+
+name: Release localised image
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: "Fork tag to release, e.g. transports/v2.2.1-zh.1"
+        required: true
+        type: string
+      upstream_tag:
+        description: "Upstream tag this was built from"
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Fork tag to release, e.g. transports/v2.2.1-zh.1"
+        required: true
+        type: string
+  push:
+    tags:
+      - "transports/v*-zh.*"
+
+concurrency:
+  group: fork-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Build image and publish release
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        with:
+          egress-policy: audit
+
+      - name: Resolve and validate the tag
+        id: ref
+        env:
+          # workflow_call / workflow_dispatch pass `tag`; a push trigger leaves it
+          # empty and the ref itself is the tag.
+          INPUT_TAG: ${{ inputs.tag }}
+          REF_NAME: ${{ github.ref_name }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          TAG="${INPUT_TAG:-$REF_NAME}"
+          # Validated before it reaches any other `run:` block through ${{ }}.
+          if ! printf '%s' "$TAG" | grep -qE '^transports/v[0-9]+\.[0-9]+\.[0-9]+-zh\.[0-9]+$'; then
+            echo "::error::Unexpected tag '$TAG' — expected transports/vX.Y.Z-zh.N"
+            exit 1
+          fi
+          IMAGE_TAG="${TAG#transports/}"   # v2.2.1-zh.1 — a valid Docker tag ('+' would not be,
+                                           # which is why the suffix is a prerelease, not build metadata)
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${IMAGE_TAG#v}" >> "$GITHUB_OUTPUT"
+          echo "repo=ghcr.io/$(printf '%s' "$REPOSITORY" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout the tagged tree
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ steps.ref.outputs.tag }}
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Set up Buildx
+        uses: step-security/setup-buildx-action@f931205d68723ad9589fd2a7e2ece238bf9de341 # v4.0.0
+
+      - name: Log in to GitHub Container Registry
+        uses: step-security/docker-login-action@870af644803bf9f204aed474adbad2958fec048b # v4.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # The Dockerfile builds the UI itself (`npm run build-enterprise` in its
+      # ui-builder stage), so the auto-i18n Vite plugin runs inside the image
+      # build and nothing needs prebuilding here. .dockerignore excludes *.md but
+      # not ui/tools or ui/i18n, so the tooling and catalogs are in the context.
+      #
+      # amd64 only: an arm64 build runs the CGO/sqlite Go compile under QEMU and
+      # takes the better part of an hour. Add linux/arm64 if you deploy on arm.
+      - name: Build and push image
+        uses: step-security/docker-build-push-action@846549baaf047e867d038826129a64d81df0f704 # v7.1.0
+        with:
+          context: .
+          file: ./transports/Dockerfile
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            VERSION=${{ steps.ref.outputs.version }}
+          tags: |
+            ${{ steps.ref.outputs.repo }}:${{ steps.ref.outputs.image_tag }}
+            ${{ steps.ref.outputs.repo }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Set up Node for the coverage figure
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
+      - name: Read translation coverage
+        id: stats
+        working-directory: ui
+        run: |
+          set -uo pipefail
+          # Release notes are not worth failing a published image over.
+          STATS="$(node tools/i18n/check.mjs --json 2>/dev/null || echo '{}')"
+          echo "json=$STATS" >> "$GITHUB_OUTPUT"
+
+      - name: Create the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.ref.outputs.tag }}
+          IMAGE: ${{ steps.ref.outputs.repo }}:${{ steps.ref.outputs.image_tag }}
+          IMAGE_TAG: ${{ steps.ref.outputs.image_tag }}
+          VERSION: ${{ steps.ref.outputs.version }}
+          UPSTREAM: ${{ inputs.upstream_tag }}
+          STATS: ${{ steps.stats.outputs.json }}
+        run: |
+          set -euo pipefail
+          {
+            echo "Localised build of Bifrost **${VERSION%%-zh.*}**."
+            echo
+            if [ -n "${UPSTREAM:-}" ]; then
+              echo "Upstream release: [\`${UPSTREAM}\`](https://github.com/maximhq/bifrost/releases/tag/${UPSTREAM})"
+              echo
+            fi
+            echo '```bash'
+            echo "docker pull ${IMAGE}"
+            echo '```'
+            echo
+            echo "The console ships English by default. Untranslated copy falls back to the"
+            echo "upstream English string, so nothing is ever missing — only untranslated."
+            echo
+            echo "Translation coverage:"
+            echo
+            echo '```json'
+            printf '%s\n' "$STATS"
+            echo '```'
+            echo
+            echo "_Localisation only — no functional change over the upstream release._"
+          } > /tmp/notes.md
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --notes-file /tmp/notes.md
+          else
+            gh release create "$TAG" \
+              --title "Bifrost ${IMAGE_TAG}" \
+              --notes-file /tmp/notes.md \
+              --prerelease
+          fi
+
+      - name: Summary
+        env:
+          TAG: ${{ steps.ref.outputs.tag }}
+          IMAGE: ${{ steps.ref.outputs.repo }}:${{ steps.ref.outputs.image_tag }}
+        run: |
+          {
+            echo "### Released \`${TAG}\`"
+            echo
+            echo "\`${IMAGE}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
