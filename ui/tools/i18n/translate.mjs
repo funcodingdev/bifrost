@@ -29,6 +29,10 @@ const DEFAULT_MODEL = "anthropic/claude-opus-5";
 const DEFAULT_BASE_URL = "https://openrouter.ai/api/v1";
 const BATCH_SIZE = 40;
 const MAX_ATTEMPTS = 3;
+// Six in flight keeps a full 73-batch pass under ten minutes without tripping
+// provider rate limits. Override with I18N_CONCURRENCY when a model is slower
+// or stricter.
+const CONCURRENCY = Math.max(1, Number(process.env.I18N_CONCURRENCY) || 6);
 
 function arg(name, fallback = null) {
 	const index = process.argv.indexOf(`--${name}`);
@@ -79,7 +83,8 @@ if (!apiKey) {
 }
 
 console.log(`model      ${model}`);
-console.log(`endpoint   ${baseUrl}\n`);
+console.log(`endpoint   ${baseUrl}`);
+console.log(`batches    ${Math.ceil(pending.length / BATCH_SIZE)} × ${BATCH_SIZE}, ${CONCURRENCY} in flight\n`);
 
 const SYSTEM_PROMPT = `You translate UI strings for Bifrost, a self-hosted LLM gateway's admin console, from English into ${locale}.
 
@@ -173,17 +178,35 @@ const batches = [];
 for (let i = 0; i < pending.length; i += BATCH_SIZE) batches.push(pending.slice(i, i + BATCH_SIZE));
 
 let translated = 0;
+let finished = 0;
 const rejected = [];
 
-for (const [index, batch] of batches.entries()) {
-	process.stdout.write(`batch ${index + 1}/${batches.length} (${batch.length}) ... `);
+/**
+ * Persist what has been translated so far.
+ *
+ * Called after every batch, not once at the end. A first full pass is ~73
+ * requests; run sequentially that took 44 minutes and a CI job timeout killed it
+ * at batch 67, discarding all of it. Because the script only ever translates
+ * keys the catalog is missing, a flushed catalog turns a killed run into
+ * progress: the next run picks up exactly where this one stopped.
+ */
+function flush() {
+	const sorted = {};
+	for (const key of Object.keys(source)) {
+		if (typeof target[key] === "string" && target[key] !== "") sorted[key] = target[key];
+	}
+	fs.writeFileSync(catalogPath, `${JSON.stringify(sorted, null, "\t")}\n`, "utf8");
+	return sorted;
+}
+
+async function runBatch(batch, index) {
 	let result;
 	try {
 		result = await translateBatch(batch);
 	} catch (err) {
-		console.log(`FAILED: ${err.message}`);
+		console.log(`batch ${index + 1}/${batches.length} FAILED: ${err.message}`);
 		rejected.push(...batch.map((key) => ({ key, problem: "request failed" })));
-		continue;
+		return;
 	}
 
 	Object.assign(target, result.accepted);
@@ -206,16 +229,28 @@ for (const [index, batch] of batches.entries()) {
 		rejected.push({ key: item.key, problem: item.problem });
 	}
 
+	flush();
+	finished++;
 	console.log(
-		`ok ${Object.keys(result.accepted).length}${result.failed.length ? `, recovered ${recovered}, dropped ${result.failed.length - recovered}` : ""}`,
+		`batch ${String(index + 1).padStart(3)}/${batches.length} (${batch.length}) ok ${Object.keys(result.accepted).length}` +
+			`${result.failed.length ? `, recovered ${recovered}, dropped ${result.failed.length - recovered}` : ""}` +
+			`  [${finished}/${batches.length} done]`,
 	);
 }
 
-const sorted = {};
-for (const key of Object.keys(source)) {
-	if (typeof target[key] === "string" && target[key] !== "") sorted[key] = target[key];
-}
-fs.writeFileSync(catalogPath, `${JSON.stringify(sorted, null, "\t")}\n`, "utf8");
+// A worker pool rather than a loop: these are network round trips, and running
+// them one at a time is what pushed the first full pass past three quarters of
+// an hour. Bounded so a large catalog cannot hammer the provider.
+let cursor = 0;
+const workers = Array.from({ length: Math.min(CONCURRENCY, batches.length) }, async () => {
+	while (cursor < batches.length) {
+		const index = cursor++;
+		await runBatch(batches[index], index);
+	}
+});
+await Promise.all(workers);
+
+const sorted = flush();
 
 const total = Object.keys(source).length;
 const done = Object.keys(sorted).length;

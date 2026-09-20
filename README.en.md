@@ -1,59 +1,15 @@
-# Bifrost, localised
-
 [简体中文](README.md) · **English**
 
-A localisation fork of [Bifrost](https://github.com/maximhq/bifrost) — the admin console is translated; gateway behaviour is identical to upstream.
-
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
-[![Upstream](https://img.shields.io/badge/upstream-maximhq%2Fbifrost-181717?logo=github)](https://github.com/maximhq/bifrost)
-
-## Quick start
-
-```bash
-docker run -p 8080:8080 ghcr.io/funcodingdev/bifrost-i18n:latest
-```
-
-The console is at <http://localhost:8080>.
-
-Image tags look like `v2.2.1-zh.1`: `v2.2.1` is the upstream version, `-zh.N` is this fork's localisation revision on top of it.
-
-## Switching language
-
-The console ships English. To switch:
-
-```js
-localStorage.setItem("bifrost.locale", "zh-CN");
-location.reload();
-```
-
-> An in-console language switcher is still being built; use the above until then.
-
-Untranslated copy renders as upstream's own English, never a blank — a feature upstream shipped an hour ago is fully usable before anyone has translated it.
-
-## About this fork
-
-- **No functional changes.** Translation only; gateway behaviour, APIs and configuration match upstream exactly.
-- **Follows upstream releases.** Each upstream release is synced automatically and published with its localised counterpart.
-- The list of modified upstream files is in [FORK_OWNED.md](FORK_OWNED.md).
-
-Spotted a bad translation or want to improve the wording? Edit [`ui/i18n/catalogs/zh-CN.json`](ui/i18n/catalogs/zh-CN.json) and open a PR — the key is the English source string. Terminology lives in [`ui/i18n/glossary.json`](ui/i18n/glossary.json).
-
-Please report issues with Bifrost itself [upstream](https://github.com/maximhq/bifrost/issues); translation issues belong here.
-
----
-
-> Below is upstream's own README, kept in sync automatically.
+> This is a Chinese localisation fork of [Bifrost](https://github.com/maximhq/bifrost): the admin console is translated, and gateway behaviour is identical to upstream. This is upstream's README with **only the install instructions swapped for this fork's image**.
 
 # Bifrost AI Gateway
 
 <a href="https://trendshift.io/repositories/14529?utm_source=repository-badge&amp;utm_medium=badge&amp;utm_campaign=badge-repository-14529" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/repositories/14529" alt="maximhq%2Fbifrost | Trendshift" width="250" height="55"/></a>
 
 [![Discord badge](https://img.shields.io/badge/Discord-Join%20Community-5865F2?logo=discord&logoColor=white)](https://discord.gg/exN5KAydbU)
-[![codecov](https://codecov.io/gh/maximhq/bifrost/branch/main/graph/badge.svg)](https://codecov.io/gh/maximhq/bifrost)
-![Docker Pulls](https://img.shields.io/docker/pulls/maximhq/bifrost)
-[<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 95px; height: 21px;">](https://app.getpostman.com/run-collection/31642484-2ba0e658-4dcd-49f4-845a-0c7ed745b916?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D31642484-2ba0e658-4dcd-49f4-845a-0c7ed745b916%26entityType%3Dcollection%26workspaceId%3D63e853c8-9aec-477f-909c-7f02f543150e)
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/bifrost)](https://artifacthub.io/packages/search?repo=bifrost)
-[![License](https://img.shields.io/github/license/maximhq/bifrost)](LICENSE)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
+[![Upstream](https://img.shields.io/badge/upstream-maximhq%2Fbifrost-181717?logo=github)](https://github.com/maximhq/bifrost)
 
 ## The fastest way to build AI applications that never go down
 
@@ -68,12 +24,12 @@ Bifrost is a high-performance AI gateway that unifies access to 23+ providers (O
 **Step 1:** Start Bifrost Gateway
 
 ```bash
-# Install and run locally
-npx -y @maximhq/bifrost
-
-# Or use Docker
-docker run -p 8080:8080 maximhq/bifrost
+# Localised image
+docker run -p 8080:8080 ghcr.io/funcodingdev/bifrost-i18n:latest
 ```
+
+> Image tags look like `v2.2.1-zh.1`: `v2.2.1` is the upstream version, `-zh.N` is this fork's localisation revision on top of it.
+> For upstream's own build, use `maximhq/bifrost` or run `npx -y @maximhq/bifrost`.
 
 **Step 2:** Configure via Web UI
 
@@ -81,6 +37,8 @@ docker run -p 8080:8080 maximhq/bifrost
 # Open the built-in web interface
 open http://localhost:8080
 ```
+
+The console follows your browser's language on first load. Use the <kbd>文A</kbd> control in the top bar to change it; your choice is remembered.
 
 **Step 3:** Make your first API call
 
@@ -108,7 +66,6 @@ Bifrost supports enterprise-grade, private deployments for teams running product
 In addition to private networking, custom security controls, and governance, enterprise deployments unlock advanced capabilities including adaptive load balancing, clustering, guardrails, MCP gateway, and other features designed for enterprise-grade scale and reliability.
 
 <img src=".github/assets/features.png" alt="Book a Demo" width="100%" style="margin-top:5px;"/>
-
 
 <div align="center" style="display: flex; flex-direction: column;">
   <a href="https://calendly.com/maximai/bifrost-demo">
@@ -195,11 +152,8 @@ Choose the deployment method that fits your needs:
 **Best for:** Language-agnostic integration, microservices, and production deployments
 
 ```bash
-# NPX - Get started in 30 seconds
-npx -y @maximhq/bifrost
-
-# Docker - Production ready
-docker run -p 8080:8080 -v $(pwd)/data:/app/data maximhq/bifrost
+# Docker - production ready (localised)
+docker run -p 8080:8080 -v $(pwd)/data:/app/data ghcr.io/funcodingdev/bifrost-i18n:latest
 ```
 
 **Features:** Web UI, real-time monitoring, multi-provider management, zero-config startup
@@ -213,6 +167,8 @@ docker run -p 8080:8080 -v $(pwd)/data:/app/data maximhq/bifrost
 ```bash
 go get github.com/maximhq/bifrost/core
 ```
+
+> The Go SDK has no user interface, so it is taken from upstream unchanged — there is no localised variant.
 
 **Features:** Native Go APIs, embedded deployment, custom middleware integration
 
@@ -309,6 +265,8 @@ Get help with:
 - Community discussions and support
 - Real-time help with integrations
 
+> Report issues with Bifrost itself [upstream](https://github.com/maximhq/bifrost/issues); **translation errors, wording and terminology** belong in [this repository](https://github.com/funcodingdev/bifrost-i18n/issues).
+
 ---
 
 ## Contributing
@@ -321,6 +279,8 @@ We welcome contributions of all kinds! See our [Contributing Guide](https://docs
 - Building and testing locally
 
 For development requirements and build instructions, see our [Development Setup Guide](https://docs.getbifrost.ai/contributing/setting-up-repo#development-environment-setup).
+
+**Improving translations:** they live in [`ui/i18n/catalogs/zh-CN.json`](ui/i18n/catalogs/zh-CN.json), keyed by the English source string; terminology is in [`ui/i18n/glossary.json`](ui/i18n/glossary.json). Run `cd ui && npm run i18n:check -- --strict` to check your work. The list of upstream files this fork modifies is in [FORK_OWNED.md](FORK_OWNED.md).
 
 ---
 

@@ -46,6 +46,10 @@ export default defineConfig({
 		// resolve against this ui/node_modules rather than the symlink target's tree.
 		preserveSymlinks: true,
 		alias: {
+			// FORK-OWNED: the locale switcher rides along with ThemeToggle so the
+			// topbar (upstream's highest-churn UI file) stays untouched. This entry
+			// must precede "@" — alias keys are matched by prefix, first match wins.
+			...(i18nEnabled ? { "@/components/themeToggle": path.resolve(__dirname, "i18n", "overrides", "themeToggle") } : {}),
 			"@": path.resolve(__dirname),
 			"@enterprise": isEnterpriseBuild
 				? path.resolve(__dirname, "app", "enterprise")

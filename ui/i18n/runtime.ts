@@ -35,14 +35,33 @@ function isSupported(code: string): code is LocaleCode {
 }
 
 function readStoredLocale(): LocaleCode {
-	// Opt-in only: without an explicit choice the fork behaves exactly like
-	// upstream, which keeps the P1 rollout a no-op for existing users.
+	// An explicit choice always wins and is never second-guessed.
 	try {
 		const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
 		if (stored && isSupported(stored)) return stored;
 	} catch {
-		// Private mode / blocked storage — fall through to the source locale.
+		// Private mode / blocked storage — fall through to detection.
 	}
+
+	// No choice made yet: follow the browser. Someone running the localised
+	// build in a Chinese browser should not have to discover a menu to see
+	// Chinese, and an English browser still gets upstream's own wording.
+	try {
+		const tags = navigator.languages?.length ? navigator.languages : [navigator.language];
+		for (const tag of tags) {
+			if (!tag) continue;
+			const exact = SUPPORTED_LOCALES.find((l) => l.code.toLowerCase() === tag.toLowerCase());
+			if (exact) return exact.code;
+			// zh-TW / zh-HK land on zh-CN until a closer catalog exists — imperfect
+			// Chinese beats English for a reader who asked for Chinese.
+			const primary = tag.split("-")[0].toLowerCase();
+			const byPrimary = SUPPORTED_LOCALES.find((l) => l.code.split("-")[0].toLowerCase() === primary);
+			if (byPrimary) return byPrimary.code;
+		}
+	} catch {
+		// No navigator (SSR, tests) — fall through.
+	}
+
 	return SOURCE_LOCALE;
 }
 
@@ -62,11 +81,21 @@ export function getLocale(): LocaleCode {
  * has to touch an upstream component.
  */
 export function setLocale(code: LocaleCode): void {
-	if (!isSupported(code) || code === currentLocale) return;
+	if (!isSupported(code)) return;
+
+	// Persist even when the code matches what detection already chose: picking a
+	// language is how you pin it, and without this the UI would flip the next
+	// time the browser's language changed.
+	let persisted = false;
 	try {
 		localStorage.setItem(LOCALE_STORAGE_KEY, code);
+		persisted = true;
 	} catch {
-		// Non-persistent switch is still better than silently doing nothing.
+		// Blocked storage — switch for this page only.
+	}
+
+	if (code === currentLocale) return;
+	if (!persisted) {
 		currentLocale = code;
 		catalog = CATALOGS[code] ?? {};
 		return;

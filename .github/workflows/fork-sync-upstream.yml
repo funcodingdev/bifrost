@@ -55,7 +55,10 @@ jobs:
   sync:
     name: Merge upstream, translate, gate
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # A first full translation pass is the long pole; later syncs translate a
+    # few dozen strings and finish in minutes. Generous so a slow provider costs
+    # a slow run rather than a killed one.
+    timeout-minutes: 90
     permissions:
       contents: write
       issues: write
@@ -162,16 +165,28 @@ jobs:
             exit 1
           fi
 
-      # README.md is generated: a fork-owned header plus upstream's own README
-      # body, taken from the tag just merged. That keeps the English half current
-      # with upstream instead of decaying into a stale snapshot, and is why
-      # .gitattributes marks the file merge=ours — a conflict in a generated file
-      # is noise.
-      - name: Re-render READMEs from upstream
+      # README.md is a translation of upstream's, and README.en.md is upstream's
+      # with the install commands swapped. Neither can be regenerated mechanically,
+      # so the sync does not touch them — it only notices when upstream's original
+      # changed, and says so, because a silently stale translation is the failure
+      # mode worth guarding against.
+      - name: Check upstream README for drift
+        id: readme
         if: steps.detect.outputs.changed == 'true'
         env:
           TAG: ${{ steps.detect.outputs.tag }}
-        run: ./.fork/render-readme.sh "$TAG"
+        run: |
+          set -euo pipefail
+          NEW="$(git show "${TAG}:README.md" | shasum -a 256 | awk '{print $1}')"
+          OLD="$(cat .fork/upstream-readme.sha256 2>/dev/null || echo none)"
+          if [ "$NEW" = "$OLD" ]; then
+            echo "drift=false" >> "$GITHUB_OUTPUT"
+            echo "Upstream README unchanged."
+          else
+            echo "drift=true" >> "$GITHUB_OUTPUT"
+            echo "::warning::Upstream README changed — the translation in README.md needs porting."
+            printf '%s\n' "$NEW" > .fork/upstream-readme.sha256
+          fi
 
       - name: Set up Node
         if: steps.detect.outputs.changed == 'true'
@@ -203,6 +218,7 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
           OPENROUTER_BASE_URL: ${{ vars.OPENROUTER_BASE_URL }}
+          I18N_CONCURRENCY: ${{ vars.I18N_CONCURRENCY }}
         run: node tools/i18n/translate.mjs --locale "$LOCALE"
 
       # ---- gates: nothing is pushed unless all of these pass ----
@@ -231,15 +247,15 @@ jobs:
           # The merge commit may touch anything. The bot's own edits may not:
           # a change outside these paths means the tooling went rogue, and this
           # is the one thing standing between an unattended job and the trunk.
-          STRAY="$(git status --porcelain | awk '{print $NF}' | grep -vE '^(ui/i18n/|\.fork/|README\.md$|README\.en\.md$)' || true)"
+          STRAY="$(git status --porcelain | awk '{print $NF}' | grep -vE '^(ui/i18n/|\.fork/)' || true)"
           if [ -n "$STRAY" ]; then
-            echo "::error::Bot modified files outside ui/i18n/, .fork/ and the generated READMEs:"
+            echo "::error::Bot modified files outside ui/i18n/ and .fork/:"
             echo "$STRAY"
             exit 1
           fi
           git status --porcelain
 
-      - name: Commit catalogs and rendered READMEs
+      - name: Commit catalogs
         if: steps.detect.outputs.changed == 'true'
         env:
           TAG: ${{ steps.detect.outputs.tag }}
@@ -247,12 +263,12 @@ jobs:
           set -euo pipefail
           mkdir -p "$(dirname "$STATE_FILE")"
           printf '%s\n' "$TAG" > "$STATE_FILE"
-          git add ui/i18n README.md README.en.md "$STATE_FILE"
+          git add ui/i18n .fork
           if git diff --cached --quiet; then
             echo "Nothing to record; the merge commit stands alone."
           else
             STATS="$(cd ui && node tools/i18n/check.mjs --json)"
-            git commit -m "chore(i18n): refresh catalogs and READMEs for ${TAG}" -m "$STATS"
+            git commit -m "chore(i18n): refresh catalogs for ${TAG}" -m "$STATS"
           fi
 
       - name: Compute fork release tag
@@ -309,6 +325,29 @@ jobs:
             (cd ui && node tools/i18n/check.mjs --json)
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Flag an upstream README change
+        if: steps.detect.outputs.changed == 'true' && steps.readme.outputs.drift == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.detect.outputs.tag }}
+        run: |
+          set -uo pipefail
+          TITLE="Port upstream README changes (${TAG})"
+          OPEN="$(gh issue list --state open --search "$TITLE in:title" --json number --jq 'length' || echo 0)"
+          [ "${OPEN:-0}" != "0" ] && { echo "Already tracked."; exit 0; }
+          {
+            echo "Upstream's README changed in \`${TAG}\`. This fork keeps a Chinese"
+            echo "translation in \`README.md\` and upstream's English in \`README.en.md\`"
+            echo "with the install commands swapped, so neither updates itself."
+            echo
+            echo "Diff upstream's README against the previously synced tag and port"
+            echo "anything substantive into both files. Cosmetic badge churn can be"
+            echo "ignored — closing this issue is the record that it was looked at."
+            echo
+            echo "The release itself already published; this is documentation only."
+          } > /tmp/readme-issue.md
+          gh issue create --title "$TITLE" --body-file /tmp/readme-issue.md
 
       - name: Open an issue on failure
         if: failure()
