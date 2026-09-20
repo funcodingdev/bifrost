@@ -162,6 +162,17 @@ jobs:
             exit 1
           fi
 
+      # README.md is generated: a fork-owned header plus upstream's own README
+      # body, taken from the tag just merged. That keeps the English half current
+      # with upstream instead of decaying into a stale snapshot, and is why
+      # .gitattributes marks the file merge=ours — a conflict in a generated file
+      # is noise.
+      - name: Re-render READMEs from upstream
+        if: steps.detect.outputs.changed == 'true'
+        env:
+          TAG: ${{ steps.detect.outputs.tag }}
+        run: ./.fork/render-readme.sh "$TAG"
+
       - name: Set up Node
         if: steps.detect.outputs.changed == 'true'
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -220,15 +231,15 @@ jobs:
           # The merge commit may touch anything. The bot's own edits may not:
           # a change outside these paths means the tooling went rogue, and this
           # is the one thing standing between an unattended job and the trunk.
-          STRAY="$(git status --porcelain | awk '{print $NF}' | grep -vE '^(ui/i18n/|\.fork/)' || true)"
+          STRAY="$(git status --porcelain | awk '{print $NF}' | grep -vE '^(ui/i18n/|\.fork/|README\.md$|README\.en\.md$)' || true)"
           if [ -n "$STRAY" ]; then
-            echo "::error::Bot modified files outside ui/i18n/ and .fork/:"
+            echo "::error::Bot modified files outside ui/i18n/, .fork/ and the generated READMEs:"
             echo "$STRAY"
             exit 1
           fi
           git status --porcelain
 
-      - name: Commit catalogs
+      - name: Commit catalogs and rendered READMEs
         if: steps.detect.outputs.changed == 'true'
         env:
           TAG: ${{ steps.detect.outputs.tag }}
@@ -236,12 +247,12 @@ jobs:
           set -euo pipefail
           mkdir -p "$(dirname "$STATE_FILE")"
           printf '%s\n' "$TAG" > "$STATE_FILE"
-          git add ui/i18n "$STATE_FILE"
+          git add ui/i18n README.md README.en.md "$STATE_FILE"
           if git diff --cached --quiet; then
-            echo "No catalog changes; the merge commit stands alone."
+            echo "Nothing to record; the merge commit stands alone."
           else
             STATS="$(cd ui && node tools/i18n/check.mjs --json)"
-            git commit -m "chore(i18n): refresh catalogs for ${TAG}" -m "$STATS"
+            git commit -m "chore(i18n): refresh catalogs and READMEs for ${TAG}" -m "$STATS"
           fi
 
       - name: Compute fork release tag
