@@ -63,6 +63,77 @@ const source = readCatalog(path.join(CATALOG_DIR, "en.json"));
 const target = readCatalog(catalogPath);
 const glossaryAll = readCatalog(path.join(UI_ROOT, "i18n", "glossary.json"));
 const glossary = glossaryAll[locale] ?? {};
+// Written by the extractor: where each string appears and in what position.
+// Optional — without it the model still gets the string, just no context.
+const extracted = readCatalog(path.join(UI_ROOT, "i18n", "extracted.json"));
+
+// The extractor's internal kinds say where a string sits in the AST. A model
+// needs to know what it *is* on screen: a button reads differently from a
+// tooltip, and a form error differently from a nav item.
+const ROLE_BY_KIND = {
+	"jsx-text": "body text",
+	"jsx-template": "sentence with placeholders",
+	"jsx-attribute:placeholder": "input placeholder",
+	"jsx-attribute:title": "tooltip",
+	"jsx-attribute:alt": "image alt text",
+	"jsx-attribute:aria-label": "screen-reader label",
+	"jsx-attribute:label": "form field label",
+	"jsx-attribute:description": "help text under a field",
+	toast: "toast notification",
+	"toast:description": "toast detail line",
+	"object:title": "heading or navigation item",
+	"object:label": "label, often a dropdown option",
+	"object:description": "description under a heading",
+	"object:message": "form validation error",
+	"object:placeholder": "input placeholder",
+	"object:tooltip": "tooltip",
+	"object:buttonText": "button",
+};
+
+const UNINFORMATIVE_AREAS = new Set([
+	"ui",
+	"views",
+	"components",
+	"fragments",
+	"sheets",
+	"dialogs",
+	"forms",
+	"lib",
+	"utils",
+	"types",
+	"hooks",
+	"store",
+]);
+
+/**
+ * "app/workspace/virtual-keys/views/sheet.tsx:217" -> "virtual-keys"
+ *
+ * The feature area is the part worth spending tokens on: it is what
+ * disambiguates a bare "Key" between API keys and virtual keys. The file and
+ * line would only add noise the model cannot act on.
+ */
+function areaOf(sources) {
+	for (const source of sources ?? []) {
+		const match = /^app\/workspace\/([^/]+)\//.exec(source) ?? /^(?:app|components|lib|hooks)\/([^/]+)\//.exec(source);
+		// Structural directories say nothing about meaning; keep looking for a
+		// feature name, and send no hint rather than a misleading one.
+		if (match && !UNINFORMATIVE_AREAS.has(match[1])) return match[1];
+	}
+	return null;
+}
+
+/** The payload entry for one string: the text, plus whatever context is known. */
+function describe(key) {
+	const meta = extracted[key];
+	if (!meta) return { t: key };
+
+	const role = (meta.kinds ?? []).map((kind) => ROLE_BY_KIND[kind]).find(Boolean);
+	const area = areaOf(meta.sources);
+	const entry = { t: key };
+	if (role) entry.as = role;
+	if (area) entry.in = area;
+	return entry;
+}
 
 const pending = Object.keys(source)
 	.filter((key) => retranslate || typeof target[key] !== "string" || target[key] === "")
@@ -105,7 +176,13 @@ ${Object.entries(glossary)
 	.map(([en, zh]) => `  ${en} -> ${zh}`)
 	.join("\n")}
 
-Reply with ONLY a JSON object mapping every input id to its translated string. No prose, no markdown fence, no extra keys, no missing keys.`;
+Input is a JSON object keyed by id. Each value carries the string to translate and, when known, context:
+  "t"  — the text to translate. This is the ONLY field you translate.
+  "as" — what it is on screen (a button, a tooltip, a form validation error, a nav item). Let it set the register and the length you aim for.
+  "in" — the feature area of the console it belongs to. Use it to disambiguate: "Key" under virtual-keys is a virtual key, under providers it is an API key.
+Context fields are hints, never content. Never translate them and never echo them back.
+
+Reply with ONLY a JSON object mapping every input id to its translated string — a plain string per id, not an object. No prose, no markdown fence, no extra keys, no missing keys.`;
 
 /**
  * One completion request, start to finish, under a single timeout.
@@ -139,7 +216,9 @@ async function requestCompletion(payload, size) {
 			max_tokens: Math.min(16000, Math.max(2000, size * 250)),
 			messages: [
 				{ role: "system", content: SYSTEM_PROMPT },
-				{ role: "user", content: JSON.stringify(payload, null, 1) },
+				// Compact, not pretty-printed: each entry is an object now, and the
+				// indentation was costing more tokens than the context it wrapped.
+				{ role: "user", content: JSON.stringify(payload) },
 			],
 		}),
 	});
@@ -166,7 +245,7 @@ function describeRequestError(err) {
 }
 
 async function translateBatch(keys, attempt = 1) {
-	const payload = Object.fromEntries(keys.map((key, i) => [String(i), key]));
+	const payload = Object.fromEntries(keys.map((key, i) => [String(i), describe(key)]));
 
 	let data;
 	try {
