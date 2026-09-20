@@ -52,6 +52,41 @@ const ATTR_WHITELIST = new Set([
 	"tooltip",
 ]);
 
+// Copy held in object literals: config arrays, zod schemas, nav definitions.
+// A large share of this codebase's UI text lives here rather than in JSX — the
+// whole sidebar, page descriptions, the onboarding checklist, form validation.
+//
+// Same conservative principle as the attribute list: only keys that are
+// display-only by convention. `name`, `id`, `type`, `value`, `route` and `key`
+// are excluded because they carry identity, and a translated identifier breaks
+// behaviour rather than just wording.
+const OBJECT_KEY_WHITELIST = new Set([
+	"actionLabel",
+	"buttonText",
+	"cancelLabel",
+	"cancelText",
+	"confirmText",
+	"cta",
+	"description",
+	"emptyMessage",
+	"emptyText",
+	"errorMessage",
+	"heading",
+	"helperText",
+	"label",
+	"loadingText",
+	// zod's validation messages are display-only. The one place a `message`
+	// literal is compared rather than shown is a .test.ts fixture, which
+	// SKIP_FILE_PATTERNS already excludes.
+	"message",
+	"placeholder",
+	"subheading",
+	"subtitle",
+	"successMessage",
+	"title",
+	"tooltip",
+]);
+
 // `toast.success("Saved")` and friends. The first string argument is copy; a
 // `description` property in the options object is too.
 const TOAST_OBJECTS = new Set(["toast", "sonnerToast"]);
@@ -75,6 +110,12 @@ const FILE_OPT_OUT = /@no-i18n\b/;
 // Opt-out marker on a single node's leading comments.
 const NODE_OPT_OUT = /i18n-ignore\b/;
 
+// Cheap pre-filter for the Vite plugin: does this file plausibly contain copy at
+// all? Derived from the whitelist above so the two cannot drift apart — and they
+// must not, because a file the plugin skips but the extractor reads produces a
+// catalog key that nothing ever looks up.
+const OBJECT_COPY_HINT = new RegExp(`\\b(${[...OBJECT_KEY_WHITELIST].join("|")})\\s*:\\s*["'\`]`);
+
 function shouldSkipFile(filename) {
 	if (!filename) return true;
 	const normalized = filename.split("\\").join("/");
@@ -94,6 +135,20 @@ function hasNodeOptOut(node) {
 
 // Rejection reasons are reported by the extractor so the skip rules stay
 // auditable instead of silently swallowing real copy.
+// Copy that is also compared somewhere, so translating it changes behaviour
+// rather than wording. Each entry needs a reason and a call site: this list is a
+// last resort, not a dumping ground — tools/i18n/collision.test.mjs is what finds
+// candidates for it.
+const NEVER_TRANSLATE = new Map([
+	[
+		"An unexpected error occurred",
+		// lib/store/apis/baseApi.ts returns this as an error message, and both
+		// emptyState components branch on `error.includes("An unexpected error
+		// occurred")`. Translate it and the branch is simply never taken.
+		"matched with String.includes in logs/mcp-logs emptyState",
+	],
+]);
+
 const REJECT = {
 	TOO_SHORT: "too-short",
 	NO_LETTERS: "no-letters",
@@ -101,6 +156,7 @@ const REJECT = {
 	URL: "url-or-path",
 	NUMERIC: "numeric",
 	TEMPLATE: "template-placeholder",
+	DENIED: "deny-listed",
 };
 
 const URL_LIKE = /^(https?:\/\/|\/\/|\.{0,2}\/|mailto:|tel:|data:)/i;
@@ -116,6 +172,7 @@ const IDENTIFIER_LIKE = /^[a-z0-9_.:\-/]+$/;
  */
 function rejectReason(raw) {
 	const s = String(raw).trim();
+	if (NEVER_TRANSLATE.has(s)) return REJECT.DENIED;
 	if (s.length < 2) return REJECT.TOO_SHORT;
 	if (!/[A-Za-z]/.test(s)) return REJECT.NO_LETTERS;
 	if (URL_LIKE.test(s) || s.includes("://")) return REJECT.URL;
@@ -171,6 +228,9 @@ function cleanJSXText(raw) {
 
 module.exports = {
 	ATTR_WHITELIST,
+	NEVER_TRANSLATE,
+	OBJECT_COPY_HINT,
+	OBJECT_KEY_WHITELIST,
 	REJECT,
 	SKIP_ELEMENTS,
 	TOAST_METHODS,

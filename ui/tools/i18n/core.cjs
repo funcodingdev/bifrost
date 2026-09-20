@@ -11,6 +11,7 @@
 
 const {
 	ATTR_WHITELIST,
+	OBJECT_KEY_WHITELIST,
 	SKIP_ELEMENTS,
 	TOAST_METHODS,
 	TOAST_OBJECTS,
@@ -50,6 +51,9 @@ function createI18nVisitor({ t, transform, ctx }) {
 	// Text nodes folded into a template key, so the JSXText visitor does not
 	// record them a second time as standalone fragments during extraction.
 	const consumedTextNodes = new WeakSet();
+	// Literals already claimed by a more specific rule (a toast's options bag),
+	// so the generic object-property rule does not record them twice.
+	const claimedLiterals = new WeakSet();
 
 	const lineOf = (node) => (node && node.loc ? node.loc.start.line : 0);
 
@@ -247,6 +251,35 @@ function createI18nVisitor({ t, transform, ctx }) {
 			}
 		},
 
+		/**
+		 * Copy declared as object properties: config arrays, zod schemas, the nav
+		 * definition, the onboarding checklist. A large share of this codebase's
+		 * user-facing text lives here rather than in JSX, and none of it is
+		 * reachable from the JSX rules above.
+		 */
+		ObjectProperty(path) {
+			if (hasNodeOptOut(path.node) || path.node.computed) return;
+
+			const keyNode = path.node.key;
+			const key = keyNode.type === "Identifier" ? keyNode.name : keyNode.type === "StringLiteral" ? keyNode.value : "";
+			if (!OBJECT_KEY_WHITELIST.has(key)) return;
+
+			const value = path.node.value;
+			// Only literals. A computed or templated value is either dynamic or
+			// already translated somewhere upstream of here.
+			if (value.type !== "StringLiteral" || claimedLiterals.has(value)) return;
+
+			const core = value.value.trim();
+			if (!isTranslatable(core)) {
+				reject(core, `object:${key}`, value);
+				return;
+			}
+			record(core, `object:${key}`, value);
+			claimedLiterals.add(value);
+			if (!transform) return;
+			path.get("value").replaceWith(callHelper(core, null));
+		},
+
 		CallExpression(path) {
 			if (!isToastCall(path.node.callee) || hasNodeOptOut(path.node)) return;
 			const args = path.node.arguments;
@@ -275,6 +308,7 @@ function createI18nVisitor({ t, transform, ctx }) {
 					return;
 				}
 				record(core, `toast:${key}`, prop.value);
+				claimedLiterals.add(prop.value);
 				if (transform) path.get(`arguments.1.properties.${index}.value`).replaceWith(callHelper(core, null));
 			});
 		},

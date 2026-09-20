@@ -14,7 +14,7 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const babel = require("@babel/core");
 const i18nBabelPlugin = require("./babel-plugin.cjs");
-const { hasFileOptOut, shouldSkipFile } = require("./rules.cjs");
+const { OBJECT_COPY_HINT, hasFileOptOut, shouldSkipFile } = require("./rules.cjs");
 
 const SOURCE_RE = /\.[jt]sx?$/;
 const TOAST_RE = /\btoast\s*[.(]/;
@@ -32,10 +32,15 @@ export function autoI18n(options = {}) {
 			const file = id.split("?")[0];
 			if (!SOURCE_RE.test(file) || shouldSkipFile(file)) return null;
 			if (hasFileOptOut(code)) return null;
-			// JSX only lives in .tsx/.jsx; a .ts file is only interesting if it
-			// raises a toast. Skipping the rest keeps the Babel pass off ~70% of
-			// the module graph.
-			if (!/\.[jt]sx$/.test(file) && !TOAST_RE.test(code)) return null;
+			// JSX only lives in .tsx/.jsx, but plenty of copy does not: config
+			// arrays, zod schemas and nav definitions in plain .ts files hold the
+			// sidebar, the onboarding checklist and every form validation message.
+			//
+			// This filter previously stopped at JSX and toasts, so those files were
+			// extracted into the catalog and then never transformed — keys nothing
+			// looked up, and copy that stayed English no matter how well it was
+			// translated. tools/i18n/coverage.test.mjs now guards the invariant.
+			if (!/\.[jt]sx$/.test(file) && !TOAST_RE.test(code) && !OBJECT_COPY_HINT.test(code)) return null;
 
 			let result;
 			try {
