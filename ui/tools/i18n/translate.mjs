@@ -107,65 +107,88 @@ ${Object.entries(glossary)
 
 Reply with ONLY a JSON object mapping every input id to its translated string. No prose, no markdown fence, no extra keys, no missing keys.`;
 
+/**
+ * One completion request, start to finish, under a single timeout.
+ *
+ * Returns the parsed envelope. Throws with `retryable` set when the caller
+ * should back off and try again; anything without that flag (a transport error,
+ * a timeout, a malformed envelope) is retryable by default.
+ */
+async function requestCompletion(payload, size) {
+	const response = await fetch(`${baseUrl}/chat/completions`, {
+		method: "POST",
+		// Node's fetch waits forever on a server that accepts the connection and
+		// then says nothing. Inside the worker pool one such request pins the whole
+		// step until the CI job timeout, long after the other workers have drained
+		// the queue — indistinguishable, from the outside, from work still running.
+		signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${apiKey}`,
+			"HTTP-Referer": "https://github.com/funcodingdev/bifrost-i18n",
+			"X-Title": "bifrost-fork-i18n",
+		},
+		body: JSON.stringify({
+			model,
+			temperature: 0,
+			response_format: { type: "json_object" },
+			// Without an explicit budget the provider applies its own default, and a
+			// 40-string batch can run past it: the reply comes back cut in half with
+			// finish_reason "length". Scaled to the batch rather than fixed, so a
+			// one-key retry does not ask for a budget it cannot use.
+			max_tokens: Math.min(16000, Math.max(2000, size * 250)),
+			messages: [
+				{ role: "system", content: SYSTEM_PROMPT },
+				{ role: "user", content: JSON.stringify(payload, null, 1) },
+			],
+		}),
+	});
+
+	const raw = await response.text();
+
+	if (!response.ok) {
+		const err = new Error(`HTTP ${response.status}: ${raw.slice(0, 200)}`);
+		// A 4xx that is not 429 is our own payload's fault; repeating it repeats it.
+		err.retryable = response.status === 429 || response.status >= 500;
+		throw err;
+	}
+
+	return JSON.parse(raw);
+}
+
+function describeRequestError(err) {
+	// Node has reported this both as a named TimeoutError and as a plain abort,
+	// so match on either rather than trusting the name.
+	if (err.name === "TimeoutError" || /aborted due to timeout/i.test(err.message ?? "")) {
+		return `no reply in ${REQUEST_TIMEOUT_MS / 1000}s`;
+	}
+	return err.message;
+}
+
 async function translateBatch(keys, attempt = 1) {
 	const payload = Object.fromEntries(keys.map((key, i) => [String(i), key]));
 
-	let response;
+	let data;
 	try {
-		response = await fetch(`${baseUrl}/chat/completions`, {
-			method: "POST",
-			// Node's fetch will wait forever on a server that holds the connection
-			// open. With a worker pool that means one stuck request pins the whole
-			// step until the job timeout, long after the other workers have drained
-			// the queue — which looks exactly like "translation is still running".
-			signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${apiKey}`,
-				"HTTP-Referer": "https://github.com/funcodingdev/bifrost-i18n",
-				"X-Title": "bifrost-fork-i18n",
-			},
-			body: JSON.stringify({
-				model,
-				temperature: 0,
-				response_format: { type: "json_object" },
-				// Without an explicit budget the provider applies its own default, and
-				// a 40-string batch can run past it: the reply comes back cut in half
-				// with finish_reason "length". Scaled to the batch rather than fixed,
-				// so a one-key retry does not ask for a budget it cannot use.
-				max_tokens: Math.min(16000, Math.max(2000, keys.length * 250)),
-				messages: [
-					{ role: "system", content: SYSTEM_PROMPT },
-					{ role: "user", content: JSON.stringify(payload, null, 1) },
-				],
-			}),
-		});
+		data = await requestCompletion(payload, keys.length);
 	} catch (err) {
-		// Timeout or transport failure. Both deserve another go: the retry opens a
-		// fresh connection, which is the entire point of bounding the first one.
-		const what = err.name === "TimeoutError" ? `no reply in ${REQUEST_TIMEOUT_MS / 1000}s` : err.message;
-		if (attempt < MAX_ATTEMPTS) {
+		// Timeout, transport failure, a retryable status, or a reply that was not
+		// JSON at all.
+		//
+		// This has to wrap the body read as well as the fetch: AbortSignal.timeout
+		// cancels the whole exchange, so a stall after the response headers arrive
+		// throws from response.text(). Guarding only the fetch call is what let six
+		// timeouts skip retrying entirely and drop 240 strings on the first run.
+		const what = describeRequestError(err);
+		if (err.retryable !== false && attempt < MAX_ATTEMPTS) {
 			const wait = 2 ** attempt * 1000;
 			console.log(`  ${what}, retrying in ${wait / 1000}s`);
 			await new Promise((r) => setTimeout(r, wait));
 			return translateBatch(keys, attempt + 1);
 		}
-		throw new Error(`${what} after ${MAX_ATTEMPTS} attempts`);
+		throw new Error(`${what} after ${attempt} attempt(s)`);
 	}
 
-	if (!response.ok) {
-		const body = await response.text();
-		// 429 / 5xx are worth another go; a 400 is our own payload's fault.
-		if (attempt < MAX_ATTEMPTS && (response.status === 429 || response.status >= 500)) {
-			const wait = 2 ** attempt * 1000;
-			console.log(`  HTTP ${response.status}, retrying in ${wait / 1000}s`);
-			await new Promise((r) => setTimeout(r, wait));
-			return translateBatch(keys, attempt + 1);
-		}
-		throw new Error(`OpenRouter HTTP ${response.status}: ${body.slice(0, 300)}`);
-	}
-
-	const data = await response.json();
 	const choice = data?.choices?.[0];
 	const content = choice?.message?.content;
 	const finish = choice?.finish_reason ?? choice?.native_finish_reason ?? "unknown";

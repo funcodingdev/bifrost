@@ -172,10 +172,14 @@ jobs:
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release edit "$TAG" --notes-file /tmp/notes.md
           else
+            # Not --prerelease. The -zh.N suffix is a semver prerelease because a
+            # Docker tag cannot contain '+', but the build itself is a finished,
+            # deployable release — and GitHub hides prereleases from the Releases
+            # panel on the repository home page, where people actually look for it.
             gh release create "$TAG" \
               --title "Bifrost ${IMAGE_TAG}" \
               --notes-file /tmp/notes.md \
-              --prerelease
+              --latest
           fi
 
       - name: Summary
