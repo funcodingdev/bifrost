@@ -24,6 +24,7 @@ import { CATALOG_DIR, UI_ROOT, readCatalog } from "./scan.mjs";
 
 const require = createRequire(import.meta.url);
 const { placeholdersOf } = require("./rules.cjs");
+const { normalizeTranslation } = require("./normalize.cjs");
 
 const DEFAULT_MODEL = "anthropic/claude-opus-5";
 const DEFAULT_BASE_URL = "https://openrouter.ai/api/v1";
@@ -297,7 +298,11 @@ async function translateBatch(keys, attempt = 1) {
 	const accepted = {};
 	const failed = [];
 	keys.forEach((key, i) => {
-		const value = parsed[String(i)];
+		// Normalise before validating: typography is decided in code, so the
+		// model's wobble on it never reaches the catalog and never shows up as a
+		// diff on a later run.
+		const raw = parsed[String(i)];
+		const value = typeof raw === "string" ? normalizeTranslation(raw, locale) : raw;
 		const problem = validate(key, value);
 		if (problem) failed.push({ key, value, problem });
 		else accepted[key] = value;
