@@ -27,7 +27,7 @@ on:
   workflow_dispatch:
     inputs:
       upstream_tag:
-        description: "Force a specific upstream tag (e.g. transports/v2.2.1). Empty = latest release."
+        description: "Force a specific upstream tag (e.g. transports/v2.2.1). Runs even if already synced. Empty = latest release."
         required: false
         type: string
       skip_translate:
@@ -118,7 +118,15 @@ jobs:
           echo "last synced             : $LAST"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-          if [ "$TAG" = "$LAST" ]; then
+          # Naming a tag by hand means "run this anyway": it is how the first
+          # full translation gets bootstrapped, and how a locale is re-translated
+          # after a glossary or model change. Only the scheduled path consults the
+          # state file. Re-merging an already-merged tag is a no-op, so the rest
+          # of the job is safe to repeat.
+          if [ -n "${FORCED_TAG:-}" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Forced run for $TAG."
+          elif [ "$TAG" = "$LAST" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "Already in sync — nothing to do."
           else
