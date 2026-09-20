@@ -28,22 +28,30 @@
 	"60": {
 		"reason": "no-letters",
 		"count": 1,
-		"sources": ["app/workspace/providers/fragments/networkFormFragment.tsx:248"]
+		"sources": [
+			"app/workspace/providers/fragments/networkFormFragment.tsx:248"
+		]
 	},
 	"404": {
 		"reason": "no-letters",
 		"count": 1,
-		"sources": ["app/__notFound.tsx:7"]
+		"sources": [
+			"app/__notFound.tsx:7"
+		]
 	},
 	"500": {
 		"reason": "no-letters",
 		"count": 1,
-		"sources": ["app/__error.tsx:22"]
+		"sources": [
+			"app/__error.tsx:22"
+		]
 	},
 	"5000": {
 		"reason": "no-letters",
 		"count": 1,
-		"sources": ["app/workspace/providers/fragments/networkFormFragment.tsx:378"]
+		"sources": [
+			"app/workspace/providers/fragments/networkFormFragment.tsx:378"
+		]
 	},
 	"": {
 		"reason": "too-short",
@@ -74,7 +82,10 @@
 	"\" \"": {
 		"reason": "no-letters",
 		"count": 2,
-		"sources": ["components/filters/logsFilterSidebar.tsx:355", "components/filters/primitives.tsx:214"]
+		"sources": [
+			"components/filters/logsFilterSidebar.tsx:355",
+			"components/filters/primitives.tsx:214"
+		]
 	},
 	"#": {
 		"reason": "too-short",
@@ -132,7 +143,9 @@
 	"( )": {
 		"reason": "no-letters",
 		"count": 1,
-		"sources": ["app/workspace/virtual-keys/views/virtualKeyDetailsSheet.tsx:194"]
+		"sources": [
+			"app/workspace/virtual-keys/views/virtualKeyDetailsSheet.tsx:194"
+		]
 	},
 	")": {
 		"reason": "too-short",
@@ -173,7 +186,9 @@
 	"+ %": {
 		"reason": "no-letters",
 		"count": 1,
-		"sources": ["components/devProfiler.tsx:181"]
+		"sources": [
+			"components/devProfiler.tsx:181"
+		]
 	},
 	",": {
 		"reason": "too-short",
@@ -214,7 +229,10 @@
 	"/   ( )": {
 		"reason": "no-letters",
 		"count": 2,
-		"sources": ["app/workspace/model-limits/views/modelLimitSheet.tsx:381", "app/workspace/model-limits/views/modelLimitSheet.tsx:393"]
+		"sources": [
+			"app/workspace/model-limits/views/modelLimitSheet.tsx:381",
+			"app/workspace/model-limits/views/modelLimitSheet.tsx:393"
+		]
 	},
 	"/   requests": {
 		"reason": "url-or-path",
@@ -245,27 +263,38 @@
 	"/1024": {
 		"reason": "no-letters",
 		"count": 2,
-		"sources": ["app/workspace/skills-repo/forms/skillEditForm.tsx:673", "app/workspace/skills-repo/forms/skillEditForm.tsx:673"]
+		"sources": [
+			"app/workspace/skills-repo/forms/skillEditForm.tsx:673",
+			"app/workspace/skills-repo/forms/skillEditForm.tsx:673"
+		]
 	},
 	"/api/custom-webhook, /api/public-endpoint": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/config/views/securityView.tsx:532"]
+		"sources": [
+			"app/workspace/config/views/securityView.tsx:532"
+		]
 	},
 	"/api/session/is-auth-enabled": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/config/views/securityView.tsx:524"]
+		"sources": [
+			"app/workspace/config/views/securityView.tsx:524"
+		]
 	},
 	"/api/session/login": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/config/views/securityView.tsx:524"]
+		"sources": [
+			"app/workspace/config/views/securityView.tsx:524"
+		]
 	},
 	"/health": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/config/views/securityView.tsx:524"]
+		"sources": [
+			"app/workspace/config/views/securityView.tsx:524"
+		]
 	},
 	"/mcp/": {
 		"reason": "url-or-path",
@@ -279,22 +308,31 @@
 	"/mcp/<slug>": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["components/mcp/virtualMcpAssignmentsEditor.tsx:14"]
+		"sources": [
+			"components/mcp/virtualMcpAssignmentsEditor.tsx:14"
+		]
 	},
 	"/path/to/ca.crt": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/observability/fragments/otelFormFragment.tsx:509"]
+		"sources": [
+			"app/workspace/observability/fragments/otelFormFragment.tsx:509"
+		]
 	},
 	"/req": {
 		"reason": "url-or-path",
 		"count": 2,
-		"sources": ["app/workspace/logs/views/metricStrip.tsx:549", "app/workspace/logs/views/metricStrip.tsx:549"]
+		"sources": [
+			"app/workspace/logs/views/metricStrip.tsx:549",
+			"app/workspace/logs/views/metricStrip.tsx:549"
+		]
 	},
 	"0.0": {
 		"reason": "no-letters",
 		"count": 1,
-		"sources": ["app/workspace/custom-pricing/overrides/pricingFieldSelector.tsx:161"]
+		"sources": [
+			"app/workspace/custom-pricing/overrides/pricingFieldSelector.tsx:161"
+		]
 	},
 	"0.00": {
 		"reason": "no-letters",
@@ -308,52 +346,73 @@
 	"1.": {
 		"reason": "no-letters",
 		"count": 1,
-		"sources": ["app/workspace/mcp-logs/views/emptyState.tsx:301"]
+		"sources": [
+			"app/workspace/mcp-logs/views/emptyState.tsx:301"
+		]
 	},
 	"1.0": {
 		"reason": "no-letters",
 		"count": 1,
-		"sources": ["app/workspace/providers/fragments/apiKeysFormFragment.tsx:317"]
+		"sources": [
+			"app/workspace/providers/fragments/apiKeysFormFragment.tsx:317"
+		]
 	},
 	"1.0.0": {
 		"reason": "no-letters",
 		"count": 1,
-		"sources": ["app/workspace/skills-repo/forms/skillEditForm.tsx:823"]
+		"sources": [
+			"app/workspace/skills-repo/forms/skillEditForm.tsx:823"
+		]
 	},
 	"1h": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/securityView.tsx:439"]
+		"sources": [
+			"app/workspace/config/views/securityView.tsx:439"
+		]
 	},
 	"2.": {
 		"reason": "no-letters",
 		"count": 1,
-		"sources": ["app/workspace/mcp-logs/views/emptyState.tsx:305"]
+		"sources": [
+			"app/workspace/mcp-logs/views/emptyState.tsx:305"
+		]
 	},
 	"2023-06-01": {
 		"reason": "no-letters",
 		"count": 1,
-		"sources": ["app/workspace/providers/fragments/deploymentsTable.tsx:192"]
+		"sources": [
+			"app/workspace/providers/fragments/deploymentsTable.tsx:192"
+		]
 	},
 	"2024-10-21": {
 		"reason": "no-letters",
 		"count": 1,
-		"sources": ["app/workspace/providers/fragments/deploymentsTable.tsx:184"]
+		"sources": [
+			"app/workspace/providers/fragments/deploymentsTable.tsx:184"
+		]
 	},
 	"3.": {
 		"reason": "no-letters",
 		"count": 1,
-		"sources": ["app/workspace/mcp-logs/views/emptyState.tsx:311"]
+		"sources": [
+			"app/workspace/mcp-logs/views/emptyState.tsx:311"
+		]
 	},
 	"30s": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/securityView.tsx:439"]
+		"sources": [
+			"app/workspace/config/views/securityView.tsx:439"
+		]
 	},
 	"5m": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/config/views/securityView.tsx:439", "app/workspace/config/views/securityView.tsx:447"]
+		"sources": [
+			"app/workspace/config/views/securityView.tsx:439",
+			"app/workspace/config/views/securityView.tsx:447"
+		]
 	},
 	":": {
 		"reason": "too-short",
@@ -367,62 +426,87 @@
 	"Base URL of the vLLM server (e.g. http://vllm-server:8000 or env.VLLM_URL)": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/providers/fragments/apiKeysFormFragment.tsx:826"]
+		"sources": [
+			"app/workspace/providers/fragments/apiKeysFormFragment.tsx:826"
+		]
 	},
 	"Comma-separated list of allowed origins for CORS and WebSocket connections. Localhost origins are always allowed. Each origin must be a complete URL with protocol (e.g., https://app.example.com, http://10.0.0.100:3000). Wildcards are supported for subdomains (e.g., https://*.example.com) or use \"*\" to allow all origins.": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/config/views/securityView.tsx:460"]
+		"sources": [
+			"app/workspace/config/views/securityView.tsx:460"
+		]
 	},
 	"K": {
 		"reason": "too-short",
 		"count": 1,
-		"sources": ["components/sidebar.tsx:1513"]
+		"sources": [
+			"components/sidebar.tsx:1513"
+		]
 	},
 	"Optional OAuth scopes for token requests. By default we use https://cognitiveservices.azure.com/.default - add additional scopes here if your setup requires extra permissions.": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/providers/fragments/apiKeysFormFragment.tsx:618"]
+		"sources": [
+			"app/workspace/providers/fragments/apiKeysFormFragment.tsx:618"
+		]
 	},
 	"Override with a path (e.g., /v1/chat) or a full URL (e.g., https://api.example.com/chat) to bypass base_url": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/providers/fragments/allowedRequestsFields.tsx:160"]
+		"sources": [
+			"app/workspace/providers/fragments/allowedRequestsFields.tsx:160"
+		]
 	},
 	"Your Databricks workspace URL (e.g. https://dbc-1234abcd-5678.cloud.databricks.com or env.DATABRICKS_WORKSPACE_URL)": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/providers/fragments/apiKeysFormFragment.tsx:858"]
+		"sources": [
+			"app/workspace/providers/fragments/apiKeysFormFragment.tsx:858"
+		]
 	},
 	"acme.ghe.com": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/providers/fragments/apiKeysFormFragment.tsx:1182"]
+		"sources": [
+			"app/workspace/providers/fragments/apiKeysFormFragment.tsx:1182"
+		]
 	},
 	"allocs": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["components/devProfiler.tsx:690", "components/devProfiler.tsx:690"]
+		"sources": [
+			"components/devProfiler.tsx:690",
+			"components/devProfiler.tsx:690"
+		]
 	},
 	"and": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/loggingView.tsx:261"]
+		"sources": [
+			"app/workspace/config/views/loggingView.tsx:261"
+		]
 	},
 	"api://my-mcp-server": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/mcp-registry/views/tokenExchangeFields.tsx:275"]
+		"sources": [
+			"app/workspace/mcp-registry/views/tokenExchangeFields.tsx:275"
+		]
 	},
 	"attachment": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["components/prompts/components/messagesView/attachmentViews.tsx:24"]
+		"sources": [
+			"components/prompts/components/messagesView/attachmentViews.tsx:24"
+		]
 	},
 	"azure": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["lib/constants/icons.tsx:67"]
+		"sources": [
+			"lib/constants/icons.tsx:67"
+		]
 	},
 	"bifrost": {
 		"reason": "identifier-like",
@@ -435,17 +519,24 @@
 	"both": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/config/views/mcpView.tsx:459", "app/workspace/mcp-registry/views/mcpUsageGuide/mcpUsageGuideSheet.tsx:274"]
+		"sources": [
+			"app/workspace/config/views/mcpView.tsx:459",
+			"app/workspace/mcp-registry/views/mcpUsageGuide/mcpUsageGuideSheet.tsx:274"
+		]
 	},
 	"breadcrumb": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["components/ui/breadcrumb.tsx:8"]
+		"sources": [
+			"components/ui/breadcrumb.tsx:8"
+		]
 	},
 	"btn_google_light_normal_ios": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["components/ui/icons.tsx:43"]
+		"sources": [
+			"components/ui/icons.tsx:43"
+		]
 	},
 	"by": {
 		"reason": "identifier-like",
@@ -458,82 +549,119 @@
 	"chars": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/logs/sheets/logDetailView.tsx:969", "app/workspace/logs/sheets/logDetailView.tsx:969"]
+		"sources": [
+			"app/workspace/logs/sheets/logDetailView.tsx:969",
+			"app/workspace/logs/sheets/logDetailView.tsx:969"
+		]
 	},
 	"config.toml": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/mcp-registry/views/mcpUsageGuide/harnesses/codexHarnessInstall.tsx:50"]
+		"sources": [
+			"app/workspace/mcp-registry/views/mcpUsageGuide/harnesses/codexHarnessInstall.tsx:50"
+		]
 	},
 	"data:text/plain;base64,...": {
 		"reason": "url-or-path",
 		"count": 2,
-		"sources": ["app/workspace/skills-repo/components/fileManagerView.tsx:290", "app/workspace/skills-repo/components/filePreview.tsx:446"]
+		"sources": [
+			"app/workspace/skills-repo/components/fileManagerView.tsx:290",
+			"app/workspace/skills-repo/components/filePreview.tsx:446"
+		]
 	},
 	"databricks": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["lib/constants/icons.tsx:824"]
+		"sources": [
+			"lib/constants/icons.tsx:824"
+		]
 	},
 	"delivered": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/webhooks/views/webhookDetailsSheet.tsx:215"]
+		"sources": [
+			"app/workspace/webhooks/views/webhookDetailsSheet.tsx:215"
+		]
 	},
 	"dimension": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/config/views/cachingView.tsx:373", "app/workspace/config/views/cachingView.tsx:373"]
+		"sources": [
+			"app/workspace/config/views/cachingView.tsx:373",
+			"app/workspace/config/views/cachingView.tsx:373"
+		]
 	},
 	"direct": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/cachingView.tsx:269"]
+		"sources": [
+			"app/workspace/config/views/cachingView.tsx:269"
+		]
 	},
 	"disabled": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/webhooks/views/webhookDetailsSheet.tsx:108"]
+		"sources": [
+			"app/workspace/webhooks/views/webhookDetailsSheet.tsx:108"
+		]
 	},
 	"documentation": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/config/views/securityView.tsx:362", "components/notAvailableBanner.tsx:23"]
+		"sources": [
+			"app/workspace/config/views/securityView.tsx:362",
+			"components/notAvailableBanner.tsx:23"
+		]
 	},
 	"e.g., /path/to/plugin.so or https://example.com/plugin.so": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/plugins/fragments/pluginFormFragments.tsx:65"]
+		"sources": [
+			"app/workspace/plugins/fragments/pluginFormFragments.tsx:65"
+		]
 	},
 	"enabled": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/webhooks/views/webhookDetailsSheet.tsx:112"]
+		"sources": [
+			"app/workspace/webhooks/views/webhookDetailsSheet.tsx:112"
+		]
 	},
 	"endpoint.": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/mcpView.tsx:458"]
+		"sources": [
+			"app/workspace/config/views/mcpView.tsx:458"
+		]
 	},
 	"entries": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/virtual-keys/views/virtualKeysTable.tsx:711", "app/workspace/virtual-keys/views/virtualKeysTable.tsx:711"]
+		"sources": [
+			"app/workspace/virtual-keys/views/virtualKeysTable.tsx:711",
+			"app/workspace/virtual-keys/views/virtualKeysTable.tsx:711"
+		]
 	},
 	"every": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/providers/fragments/apiKeysFormFragment.tsx:803"]
+		"sources": [
+			"app/workspace/providers/fragments/apiKeysFormFragment.tsx:803"
+		]
 	},
 	"expression": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/routing-rules/views/routingRuleInfoSheet.tsx:346"]
+		"sources": [
+			"app/workspace/routing-rules/views/routingRuleInfoSheet.tsx:346"
+		]
 	},
 	"failed": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/webhooks/views/webhookDetailsSheet.tsx:222"]
+		"sources": [
+			"app/workspace/webhooks/views/webhookDetailsSheet.tsx:222"
+		]
 	},
 	"filename.ext": {
 		"reason": "identifier-like",
@@ -546,72 +674,103 @@
 	"files": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/skills-repo/components/skillListView.tsx:625"]
+		"sources": [
+			"app/workspace/skills-repo/components/skillListView.tsx:625"
+		]
 	},
 	"folder-name": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/skills-repo/components/fileManagerView.tsx:1023"]
+		"sources": [
+			"app/workspace/skills-repo/components/fileManagerView.tsx:1023"
+		]
 	},
 	"for": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/cachingView.tsx:451"]
+		"sources": [
+			"app/workspace/config/views/cachingView.tsx:451"
+		]
 	},
 	"header": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/routing-rules/views/routingRuleInfoSheet.tsx:132"]
+		"sources": [
+			"app/workspace/routing-rules/views/routingRuleInfoSheet.tsx:132"
+		]
 	},
 	"header.": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/config/views/cachingView.tsx:484", "app/workspace/logs/sheets/logDetailView.tsx:1099"]
+		"sources": [
+			"app/workspace/config/views/cachingView.tsx:484",
+			"app/workspace/logs/sheets/logDetailView.tsx:1099"
+		]
 	},
 	"headers": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/mcpView.tsx:459"]
+		"sources": [
+			"app/workspace/config/views/mcpView.tsx:459"
+		]
 	},
 	"here": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["components/sidebar.tsx:129"]
+		"sources": [
+			"components/sidebar.tsx:129"
+		]
 	},
 	"hidden": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/pprof/page.tsx:1151", "components/devProfiler.tsx:236"]
+		"sources": [
+			"app/pprof/page.tsx:1151",
+			"components/devProfiler.tsx:236"
+		]
 	},
 	"high": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/pprof/page.tsx:1047", "app/pprof/page.tsx:1048"]
+		"sources": [
+			"app/pprof/page.tsx:1047",
+			"app/pprof/page.tsx:1048"
+		]
 	},
 	"http://proxy.example.com or env.OPENAI_PROXY_URL": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/providers/fragments/proxyFormFragment.tsx:140"]
+		"sources": [
+			"app/workspace/providers/fragments/proxyFormFragment.tsx:140"
+		]
 	},
 	"http://proxy.example.com:8080": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/config/views/proxyView.tsx:139"]
+		"sources": [
+			"app/workspace/config/views/proxyView.tsx:139"
+		]
 	},
 	"http://pushgateway:9091 or env.PUSHGATEWAY_URL": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/observability/fragments/prometheusFormFragment.tsx:417"]
+		"sources": [
+			"app/workspace/observability/fragments/prometheusFormFragment.tsx:417"
+		]
 	},
 	"http://vllm-server:8000": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/providers/fragments/apiKeysFormFragment.tsx:828"]
+		"sources": [
+			"app/workspace/providers/fragments/apiKeysFormFragment.tsx:828"
+		]
 	},
 	"http://your-mcp-server:3000 or env.MCP_SERVER_URL": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/mcp-registry/views/mcpClientFormFields.tsx:623"]
+		"sources": [
+			"app/workspace/mcp-registry/views/mcpClientFormFields.tsx:623"
+		]
 	},
 	"https://...": {
 		"reason": "url-or-path",
@@ -624,77 +783,110 @@
 	"https://adb-1234567890123456.7.azuredatabricks.net": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/providers/dialogs/databricksMigrationDialog.tsx:351"]
+		"sources": [
+			"app/workspace/providers/dialogs/databricksMigrationDialog.tsx:351"
+		]
 	},
 	"https://api.your-provider.com": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/providers/dialogs/addNewCustomProviderSheet.tsx:219"]
+		"sources": [
+			"app/workspace/providers/dialogs/addNewCustomProviderSheet.tsx:219"
+		]
 	},
 	"https://app.example.com, https://*.example.com, *": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/config/views/securityView.tsx:469"]
+		"sources": [
+			"app/workspace/config/views/securityView.tsx:469"
+		]
 	},
 	"https://bifrost.example.com or env.BIFROST_ISSUER_URL": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/config/views/mcpView.tsx:532"]
+		"sources": [
+			"app/workspace/config/views/mcpView.tsx:532"
+		]
 	},
 	"https://bifrost.example.com or env.BIFROST_OAUTH_REDIRECT_URL": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/config/views/mcpView.tsx:435"]
+		"sources": [
+			"app/workspace/config/views/mcpView.tsx:435"
+		]
 	},
 	"https://dbc-1234abcd-5678.cloud.databricks.com": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/providers/fragments/apiKeysFormFragment.tsx:864"]
+		"sources": [
+			"app/workspace/providers/fragments/apiKeysFormFragment.tsx:864"
+		]
 	},
 	"https://example.com/file.py": {
 		"reason": "url-or-path",
 		"count": 2,
-		"sources": ["app/workspace/skills-repo/components/fileManagerView.tsx:269", "app/workspace/skills-repo/components/filePreview.tsx:398"]
+		"sources": [
+			"app/workspace/skills-repo/components/fileManagerView.tsx:269",
+			"app/workspace/skills-repo/components/filePreview.tsx:398"
+		]
 	},
 	"https://example.com/hooks/bifrost": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/webhooks/views/webhookSheet.tsx:224"]
+		"sources": [
+			"app/workspace/webhooks/views/webhookSheet.tsx:224"
+		]
 	},
 	"https://example.com/model-parameters.json": {
 		"reason": "url-or-path",
 		"count": 2,
-		"sources": ["app/workspace/config/views/modelSettingsView.tsx:177", "app/workspace/config/views/pricingConfigView.tsx:133"]
+		"sources": [
+			"app/workspace/config/views/modelSettingsView.tsx:177",
+			"app/workspace/config/views/pricingConfigView.tsx:133"
+		]
 	},
 	"https://example.com/pricing.json": {
 		"reason": "url-or-path",
 		"count": 2,
-		"sources": ["app/workspace/config/views/modelSettingsView.tsx:148", "app/workspace/config/views/pricingConfigView.tsx:105"]
+		"sources": [
+			"app/workspace/config/views/modelSettingsView.tsx:148",
+			"app/workspace/config/views/pricingConfigView.tsx:105"
+		]
 	},
 	"https://getbifrost.ai/mcp-library": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/mcp-registry/library/views/mcpLibrarySettingsSheet.tsx:132"]
+		"sources": [
+			"app/workspace/mcp-registry/library/views/mcpLibrarySettingsSheet.tsx:132"
+		]
 	},
 	"https://my-server.internal/mcp": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/mcp-registry/library/views/mcpLibraryAddServerSheet.tsx:267"]
+		"sources": [
+			"app/workspace/mcp-registry/library/views/mcpLibraryAddServerSheet.tsx:267"
+		]
 	},
 	"https://provider.com/oauth/authorize": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/mcp-registry/views/oauthAdvancedFields.tsx:154"]
+		"sources": [
+			"app/workspace/mcp-registry/views/oauthAdvancedFields.tsx:154"
+		]
 	},
 	"https://provider.com/oauth/register": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/mcp-registry/views/oauthAdvancedFields.tsx:200"]
+		"sources": [
+			"app/workspace/mcp-registry/views/oauthAdvancedFields.tsx:200"
+		]
 	},
 	"https://provider.com/oauth/token": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/mcp-registry/views/oauthAdvancedFields.tsx:177"]
+		"sources": [
+			"app/workspace/mcp-registry/views/oauthAdvancedFields.tsx:177"
+		]
 	},
 	"https://provider.example.com/mcp or urn:example:mcp": {
 		"reason": "url-or-path",
@@ -707,7 +899,9 @@
 	"https://your-domain.okta.com/oauth2/your-auth-server-id": {
 		"reason": "url-or-path",
 		"count": 1,
-		"sources": ["app/workspace/mcp-registry/views/tokenExchangeFields.tsx:306"]
+		"sources": [
+			"app/workspace/mcp-registry/views/tokenExchangeFields.tsx:306"
+		]
 	},
 	"https://your-resource.openai.azure.com or env.AZURE_ENDPOINT": {
 		"reason": "url-or-path",
@@ -720,47 +914,70 @@
 	"in": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/securityView.tsx:336"]
+		"sources": [
+			"app/workspace/config/views/securityView.tsx:336"
+		]
 	},
 	"item": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/skills-repo/components/shared.tsx:783", "app/workspace/skills-repo/components/shared.tsx:784"]
+		"sources": [
+			"app/workspace/skills-repo/components/shared.tsx:783",
+			"app/workspace/skills-repo/components/shared.tsx:784"
+		]
 	},
 	"key": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/model-catalog/views/attributeSheet.tsx:427"]
+		"sources": [
+			"app/workspace/model-catalog/views/attributeSheet.tsx:427"
+		]
 	},
 	"lines": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/logs/sheets/logDetailView.tsx:1000", "app/workspace/logs/sheets/logDetailView.tsx:1001"]
+		"sources": [
+			"app/workspace/logs/sheets/logDetailView.tsx:1000",
+			"app/workspace/logs/sheets/logDetailView.tsx:1001"
+		]
 	},
 	"low": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/pprof/page.tsx:1057", "app/pprof/page.tsx:1058"]
+		"sources": [
+			"app/pprof/page.tsx:1057",
+			"app/pprof/page.tsx:1058"
+		]
 	},
 	"medium": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/pprof/page.tsx:1052", "app/pprof/page.tsx:1053"]
+		"sources": [
+			"app/pprof/page.tsx:1052",
+			"app/pprof/page.tsx:1053"
+		]
 	},
 	"message": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/logs/sheets/logDetailView.tsx:2838", "app/workspace/logs/sheets/logDetailView.tsx:2839"]
+		"sources": [
+			"app/workspace/logs/sheets/logDetailView.tsx:2838",
+			"app/workspace/logs/sheets/logDetailView.tsx:2839"
+		]
 	},
 	"missing": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/mcp-registry/views/mcpClientCredentialSection.tsx:224"]
+		"sources": [
+			"app/workspace/mcp-registry/views/mcpClientCredentialSection.tsx:224"
+		]
 	},
 	"model": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/cachingView.tsx:373"]
+		"sources": [
+			"app/workspace/config/views/cachingView.tsx:373"
+		]
 	},
 	"ms": {
 		"reason": "identifier-like",
@@ -774,32 +991,46 @@
 	"my-skill-name": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/skills-repo/forms/skillEditForm.tsx:242"]
+		"sources": [
+			"app/workspace/skills-repo/forms/skillEditForm.tsx:242"
+		]
 	},
 	"nebius": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["lib/constants/icons.tsx:652"]
+		"sources": [
+			"lib/constants/icons.tsx:652"
+		]
 	},
 	"new": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/dashboard/components/rankingsShared.tsx:15", "app/workspace/skills-repo/forms/skillEditForm.tsx:199"]
+		"sources": [
+			"app/workspace/dashboard/components/rankingsShared.tsx:15",
+			"app/workspace/skills-repo/forms/skillEditForm.tsx:199"
+		]
 	},
 	"not": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/cachingView.tsx:375"]
+		"sources": [
+			"app/workspace/config/views/cachingView.tsx:375"
+		]
 	},
 	"npx": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/mcp-registry/library/views/mcpLibraryAddServerSheet.tsx:288"]
+		"sources": [
+			"app/workspace/mcp-registry/library/views/mcpLibraryAddServerSheet.tsx:288"
+		]
 	},
 	"oauth": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/config/views/mcpView.tsx:460", "app/workspace/mcp-registry/views/mcpUsageGuide/mcpUsageGuideSheet.tsx:275"]
+		"sources": [
+			"app/workspace/config/views/mcpView.tsx:460",
+			"app/workspace/mcp-registry/views/mcpUsageGuide/mcpUsageGuideSheet.tsx:275"
+		]
 	},
 	"of": {
 		"reason": "identifier-like",
@@ -813,42 +1044,61 @@
 	"one": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/config/views/cachingView.tsx:372", "app/workspace/providers/fragments/apiKeysFormFragment.tsx:1041"]
+		"sources": [
+			"app/workspace/config/views/cachingView.tsx:372",
+			"app/workspace/providers/fragments/apiKeysFormFragment.tsx:1041"
+		]
 	},
 	"optional": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/skills-repo/components/shared.tsx:303"]
+		"sources": [
+			"app/workspace/skills-repo/components/shared.tsx:303"
+		]
 	},
 	"or": {
 		"reason": "identifier-like",
 		"count": 6,
-		"sources": ["app/oauth/consent/page.tsx:206", "app/oauth/consent/page.tsx:265", "app/workspace/config/views/cachingView.tsx:656"]
+		"sources": [
+			"app/oauth/consent/page.tsx:206",
+			"app/oauth/consent/page.tsx:265",
+			"app/workspace/config/views/cachingView.tsx:656"
+		]
 	},
 	"override": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["components/budgetDisplay.tsx:53"]
+		"sources": [
+			"components/budgetDisplay.tsx:53"
+		]
 	},
 	"param": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/routing-rules/views/routingRuleInfoSheet.tsx:137"]
+		"sources": [
+			"app/workspace/routing-rules/views/routingRuleInfoSheet.tsx:137"
+		]
 	},
 	"plugin_span_filter": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/observability/sheets/pluginTracingSheet.tsx:188"]
+		"sources": [
+			"app/workspace/observability/sheets/pluginTracingSheet.tsx:188"
+		]
 	},
 	"prefix": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/clientSettingsView.tsx:444"]
+		"sources": [
+			"app/workspace/config/views/clientSettingsView.tsx:444"
+		]
 	},
 	"provider": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/cachingView.tsx:373"]
+		"sources": [
+			"app/workspace/config/views/cachingView.tsx:373"
+		]
 	},
 	"refreshed": {
 		"reason": "identifier-like",
@@ -862,12 +1112,17 @@
 	"replace": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/mcp-sessions/auth/page.tsx:173"]
+		"sources": [
+			"app/workspace/mcp-sessions/auth/page.tsx:173"
+		]
 	},
 	"replaces": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/mcp-sessions/auth/page.tsx:314", "app/workspace/providers/fragments/promptCacheFormFragment.tsx:149"]
+		"sources": [
+			"app/workspace/mcp-sessions/auth/page.tsx:314",
+			"app/workspace/providers/fragments/promptCacheFormFragment.tsx:149"
+		]
 	},
 	"req": {
 		"reason": "identifier-like",
@@ -890,17 +1145,24 @@
 	"retrying": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/webhooks/views/webhookDetailsSheet.tsx:218"]
+		"sources": [
+			"app/workspace/webhooks/views/webhookDetailsSheet.tsx:218"
+		]
 	},
 	"review.py": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/skills-repo/components/fileManagerView.tsx:259"]
+		"sources": [
+			"app/workspace/skills-repo/components/fileManagerView.tsx:259"
+		]
 	},
 	"rule:": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/logs/sheets/logDetailView.tsx:1467", "app/workspace/logs/sheets/logDetailView.tsx:1467"]
+		"sources": [
+			"app/workspace/logs/sheets/logDetailView.tsx:1467",
+			"app/workspace/logs/sheets/logDetailView.tsx:1467"
+		]
 	},
 	"s": {
 		"reason": "too-short",
@@ -914,7 +1176,9 @@
 	"s:": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/pprof/page.tsx:498"]
+		"sources": [
+			"app/pprof/page.tsx:498"
+		]
 	},
 	"selected": {
 		"reason": "identifier-like",
@@ -928,7 +1192,9 @@
 	"semantic": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/cachingView.tsx:269"]
+		"sources": [
+			"app/workspace/config/views/cachingView.tsx:269"
+		]
 	},
 	"sends": {
 		"reason": "identifier-like",
@@ -942,32 +1208,45 @@
 	"servers/": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/config/views/mcpView.tsx:389", "app/workspace/config/views/mcpView.tsx:399"]
+		"sources": [
+			"app/workspace/config/views/mcpView.tsx:389",
+			"app/workspace/config/views/mcpView.tsx:399"
+		]
 	},
 	"settings": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/logs/sheets/logDetailView.tsx:1088"]
+		"sources": [
+			"app/workspace/logs/sheets/logDetailView.tsx:1088"
+		]
 	},
 	"sgl": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["lib/constants/icons.tsx:456"]
+		"sources": [
+			"lib/constants/icons.tsx:456"
+		]
 	},
 	"stable": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/pprof/page.tsx:478"]
+		"sources": [
+			"app/pprof/page.tsx:478"
+		]
 	},
 	"success": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/logs/sheets/logDetailView.tsx:3642"]
+		"sources": [
+			"app/workspace/logs/sheets/logDetailView.tsx:3642"
+		]
 	},
 	"tab": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/logs/sheets/logDetailView.tsx:1091"]
+		"sources": [
+			"app/workspace/logs/sheets/logDetailView.tsx:1091"
+		]
 	},
 	"target": {
 		"reason": "identifier-like",
@@ -980,12 +1259,16 @@
 	"the": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/clientSettingsView.tsx:443"]
+		"sources": [
+			"app/workspace/config/views/clientSettingsView.tsx:443"
+		]
 	},
 	"to": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/mcp-registry/views/oauth2Authorizer.tsx:293"]
+		"sources": [
+			"app/workspace/mcp-registry/views/oauth2Authorizer.tsx:293"
+		]
 	},
 	"tokens": {
 		"reason": "identifier-like",
@@ -1008,12 +1291,17 @@
 	"total": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/virtual-keys/views/virtualKeysTable.tsx:724", "app/workspace/virtual-keys/views/virtualKeysTable.tsx:724"]
+		"sources": [
+			"app/workspace/virtual-keys/views/virtualKeysTable.tsx:724",
+			"app/workspace/virtual-keys/views/virtualKeysTable.tsx:724"
+		]
 	},
 	"under": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/mcp-registry/views/mcpUsageGuide/mcpUsageGuideSheet.tsx:275"]
+		"sources": [
+			"app/workspace/mcp-registry/views/mcpUsageGuide/mcpUsageGuideSheet.tsx:275"
+		]
 	},
 	"v": {
 		"reason": "too-short",
@@ -1036,17 +1324,25 @@
 	"without": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/clientSettingsView.tsx:443"]
+		"sources": [
+			"app/workspace/config/views/clientSettingsView.tsx:443"
+		]
 	},
 	"x": {
 		"reason": "too-short",
 		"count": 4,
-		"sources": ["app/pprof/page.tsx:566", "app/pprof/page.tsx:566", "components/devProfiler.tsx:268"]
+		"sources": [
+			"app/pprof/page.tsx:566",
+			"app/pprof/page.tsx:566",
+			"components/devProfiler.tsx:268"
+		]
 	},
 	"x-api-key": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/securityView.tsx:419"]
+		"sources": [
+			"app/workspace/config/views/securityView.tsx:419"
+		]
 	},
 	"x-bf-cache-key": {
 		"reason": "identifier-like",
@@ -1060,32 +1356,46 @@
 	"x-bf-cache-no-store": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/cachingView.tsx:659"]
+		"sources": [
+			"app/workspace/config/views/cachingView.tsx:659"
+		]
 	},
 	"x-bf-cache-threshold": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/config/views/cachingView.tsx:511", "app/workspace/config/views/cachingView.tsx:653"]
+		"sources": [
+			"app/workspace/config/views/cachingView.tsx:511",
+			"app/workspace/config/views/cachingView.tsx:653"
+		]
 	},
 	"x-bf-cache-ttl": {
 		"reason": "identifier-like",
 		"count": 2,
-		"sources": ["app/workspace/config/views/cachingView.tsx:484", "app/workspace/config/views/cachingView.tsx:650"]
+		"sources": [
+			"app/workspace/config/views/cachingView.tsx:484",
+			"app/workspace/config/views/cachingView.tsx:650"
+		]
 	},
 	"x-bf-cache-type": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/cachingView.tsx:656"]
+		"sources": [
+			"app/workspace/config/views/cachingView.tsx:656"
+		]
 	},
 	"x-bf-vk": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/securityView.tsx:384"]
+		"sources": [
+			"app/workspace/config/views/securityView.tsx:384"
+		]
 	},
 	"x-goog-api-key": {
 		"reason": "identifier-like",
 		"count": 1,
-		"sources": ["app/workspace/config/views/securityView.tsx:420"]
+		"sources": [
+			"app/workspace/config/views/securityView.tsx:420"
+		]
 	},
 	"·": {
 		"reason": "too-short",
@@ -1099,7 +1409,9 @@
 	"·   ·": {
 		"reason": "no-letters",
 		"count": 1,
-		"sources": ["components/ui/providerConfigCard.tsx:522"]
+		"sources": [
+			"components/ui/providerConfigCard.tsx:522"
+		]
 	},
 	"—": {
 		"reason": "too-short",
@@ -1113,17 +1425,23 @@
 	"“": {
 		"reason": "too-short",
 		"count": 1,
-		"sources": ["app/workspace/logs/sheets/logDetailView.tsx:1559"]
+		"sources": [
+			"app/workspace/logs/sheets/logDetailView.tsx:1559"
+		]
 	},
 	"“ ”": {
 		"reason": "no-letters",
 		"count": 1,
-		"sources": ["app/workspace/logs/sheets/logDetailView.tsx:1554"]
+		"sources": [
+			"app/workspace/logs/sheets/logDetailView.tsx:1554"
+		]
 	},
 	"”": {
 		"reason": "too-short",
 		"count": 1,
-		"sources": ["app/workspace/logs/sheets/logDetailView.tsx:1560"]
+		"sources": [
+			"app/workspace/logs/sheets/logDetailView.tsx:1560"
+		]
 	},
 	"→": {
 		"reason": "too-short",
@@ -1137,12 +1455,16 @@
 	"↵": {
 		"reason": "too-short",
 		"count": 1,
-		"sources": ["components/prompts/components/newMessageInputView.tsx:275"]
+		"sources": [
+			"components/prompts/components/newMessageInputView.tsx:275"
+		]
 	},
 	"⌘": {
 		"reason": "too-short",
 		"count": 1,
-		"sources": ["components/sidebar.tsx:1512"]
+		"sources": [
+			"components/sidebar.tsx:1512"
+		]
 	},
 	"└": {
 		"reason": "too-short",
@@ -1156,6 +1478,9 @@
 	"👋": {
 		"reason": "no-letters",
 		"count": 2,
-		"sources": ["components/onboardingWidget.tsx:164", "components/onboardingWidget.tsx:255"]
+		"sources": [
+			"components/onboardingWidget.tsx:164",
+			"components/onboardingWidget.tsx:255"
+		]
 	}
 }
