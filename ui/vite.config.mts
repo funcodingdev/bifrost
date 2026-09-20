@@ -6,11 +6,23 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 
+import { autoI18n } from "./tools/i18n/vite-plugin.mjs";
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isEnterpriseBuild = fs.existsSync(path.join(__dirname, "app", "enterprise"));
 
+// FORK-OWNED (see ../FORK_OWNED.md): build-time auto-i18n.
+//
+// Wraps user-facing copy in `__t(...)` on the AST, so no file under app/ or
+// components/ has to be edited to become translatable — which is what keeps
+// this fork rebasable onto a fast-moving upstream.
+//
+// BIFROST_I18N=0 drops the plugin and reproduces upstream's output exactly.
+const i18nEnabled = process.env.BIFROST_I18N !== "0";
+
 export default defineConfig({
 	plugins: [
+		...(i18nEnabled ? [autoI18n()] : []),
 		tanstackRouter({
 			target: "react",
 			routesDirectory: "./app",
