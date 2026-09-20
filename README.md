@@ -28,6 +28,7 @@ Bifrost 是一个高性能 AI 网关，通过单一的 OpenAI 兼容 API 统一�
 docker run -p 8080:8080 ghcr.io/funcodingdev/bifrost-i18n:latest
 ```
 
+> 镜像支持 `linux/amd64` 和 `linux/arm64`（Apple Silicon 可直接运行）。
 > 镜像 tag 形如 `v2.2.1-zh.1`：`v2.2.1` 是上游版本，`-zh.N` 是本分支在该版本上的汉化修订号。
 > 想用上游原版（英文），把镜像换成 `maximhq/bifrost`，或执行 `npx -y @maximhq/bifrost`。
 

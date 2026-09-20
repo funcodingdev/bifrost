@@ -45,13 +45,15 @@ permissions:
   contents: read
 
 jobs:
-  release:
-    name: Build image and publish release
+  prepare:
+    name: Resolve tag
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-    permissions:
-      contents: write
-      packages: write
+    timeout-minutes: 5
+    outputs:
+      tag: ${{ steps.ref.outputs.tag }}
+      image_tag: ${{ steps.ref.outputs.image_tag }}
+      version: ${{ steps.ref.outputs.version }}
+      repo: ${{ steps.ref.outputs.repo }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
@@ -75,17 +77,45 @@ jobs:
             echo "::error::Unexpected tag '$TAG' — expected transports/vX.Y.Z-zh.N"
             exit 1
           fi
-          IMAGE_TAG="${TAG#transports/}"   # v2.2.1-zh.1 — a valid Docker tag ('+' would not be,
-                                           # which is why the suffix is a prerelease, not build metadata)
+          IMAGE_TAG="${TAG#transports/}"   # v2.2.1-zh.1 — a valid Docker tag ('+' would not be)
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
           echo "version=${IMAGE_TAG#v}" >> "$GITHUB_OUTPUT"
           echo "repo=ghcr.io/$(printf '%s' "$REPOSITORY" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
 
+  # One job per architecture, each on a runner of that architecture. Building
+  # arm64 under QEMU on an amd64 runner emulates a CGO/sqlite Go compile and takes
+  # the better part of an hour; a native arm runner takes about as long as amd64.
+  # GitHub hosts these free for public repositories, which is how upstream's own
+  # release pipeline does it.
+  build:
+    name: Build ${{ matrix.arch }}
+    needs: prepare
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            platform: linux/amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            platform: linux/arm64
+            runner: ubuntu-24.04-arm
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        with:
+          egress-policy: audit
+
       - name: Checkout the tagged tree
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ steps.ref.outputs.tag }}
+          ref: ${{ needs.prepare.outputs.tag }}
           fetch-depth: 1
           persist-credentials: true
 
@@ -103,23 +133,69 @@ jobs:
       # ui-builder stage), so the auto-i18n Vite plugin runs inside the image
       # build and nothing needs prebuilding here. .dockerignore excludes *.md but
       # not ui/tools or ui/i18n, so the tooling and catalogs are in the context.
-      #
-      # amd64 only: an arm64 build runs the CGO/sqlite Go compile under QEMU and
-      # takes the better part of an hour. Add linux/arm64 if you deploy on arm.
-      - name: Build and push image
+      - name: Build and push the ${{ matrix.arch }} image
         uses: step-security/docker-build-push-action@846549baaf047e867d038826129a64d81df0f704 # v7.1.0
         with:
           context: .
           file: ./transports/Dockerfile
-          platforms: linux/amd64
+          platforms: ${{ matrix.platform }}
           push: true
           build-args: |
-            VERSION=${{ steps.ref.outputs.version }}
-          tags: |
-            ${{ steps.ref.outputs.repo }}:${{ steps.ref.outputs.image_tag }}
-            ${{ steps.ref.outputs.repo }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            VERSION=${{ needs.prepare.outputs.version }}
+          # Per-arch tags, combined into one manifest list below. A viewer should
+          # never need these: they exist so the merge step has something to point at.
+          tags: ${{ needs.prepare.outputs.repo }}:${{ needs.prepare.outputs.image_tag }}-${{ matrix.arch }}
+          # Scoped per arch, or the two builds evict each other's layers.
+          cache-from: type=gha,scope=${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
+
+  publish:
+    name: Merge manifest and publish release
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout the tagged tree
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Set up Buildx
+        uses: step-security/setup-buildx-action@f931205d68723ad9589fd2a7e2ece238bf9de341 # v4.0.0
+
+      - name: Log in to GitHub Container Registry
+        uses: step-security/docker-login-action@870af644803bf9f204aed474adbad2958fec048b # v4.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # imagetools copies manifests rather than rebuilding, so this is seconds.
+      # Without it `docker run` on an Apple Silicon machine fails outright with
+      # "no matching manifest for linux/arm64/v8".
+      - name: Combine the per-arch images into one manifest list
+        env:
+          REPO: ${{ needs.prepare.outputs.repo }}
+          IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+          docker buildx imagetools create \
+            --tag "${REPO}:${IMAGE_TAG}" \
+            --tag "${REPO}:latest" \
+            "${REPO}:${IMAGE_TAG}-amd64" \
+            "${REPO}:${IMAGE_TAG}-arm64"
+          echo "Platforms in ${REPO}:${IMAGE_TAG}:"
+          docker buildx imagetools inspect "${REPO}:${IMAGE_TAG}" --format '{{range .Manifest.Manifests}}{{.Platform.OS}}/{{.Platform.Architecture}} {{end}}'
 
       - name: Set up Node for the coverage figure
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -138,10 +214,10 @@ jobs:
       - name: Create the GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ steps.ref.outputs.tag }}
-          IMAGE: ${{ steps.ref.outputs.repo }}:${{ steps.ref.outputs.image_tag }}
-          IMAGE_TAG: ${{ steps.ref.outputs.image_tag }}
-          VERSION: ${{ steps.ref.outputs.version }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+          IMAGE: ${{ needs.prepare.outputs.repo }}:${{ needs.prepare.outputs.image_tag }}
+          IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+          VERSION: ${{ needs.prepare.outputs.version }}
           UPSTREAM: ${{ inputs.upstream_tag }}
           STATS: ${{ steps.stats.outputs.json }}
         run: |
@@ -154,11 +230,14 @@ jobs:
               echo
             fi
             echo '```bash'
-            echo "docker pull ${IMAGE}"
+            echo "docker run -p 8080:8080 ${IMAGE}"
             echo '```'
             echo
-            echo "The console ships English by default. Untranslated copy falls back to the"
-            echo "upstream English string, so nothing is ever missing — only untranslated."
+            echo "linux/amd64 and linux/arm64."
+            echo
+            echo "The console follows your browser's language on first load; use the 文A control"
+            echo "in the top bar to change it. Untranslated copy falls back to the upstream"
+            echo "English string, so nothing is ever missing — only untranslated."
             echo
             echo "Translation coverage:"
             echo
@@ -170,7 +249,7 @@ jobs:
           } > /tmp/notes.md
 
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release edit "$TAG" --notes-file /tmp/notes.md
+            gh release edit "$TAG" --notes-file /tmp/notes.md --prerelease=false --latest
           else
             # Not --prerelease. The -zh.N suffix is a semver prerelease because a
             # Docker tag cannot contain '+', but the build itself is a finished,
@@ -184,11 +263,11 @@ jobs:
 
       - name: Summary
         env:
-          TAG: ${{ steps.ref.outputs.tag }}
-          IMAGE: ${{ steps.ref.outputs.repo }}:${{ steps.ref.outputs.image_tag }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+          IMAGE: ${{ needs.prepare.outputs.repo }}:${{ needs.prepare.outputs.image_tag }}
         run: |
           {
             echo "### Released \`${TAG}\`"
             echo
-            echo "\`${IMAGE}\`"
+            echo "\`${IMAGE}\` — linux/amd64, linux/arm64"
           } >> "$GITHUB_STEP_SUMMARY"

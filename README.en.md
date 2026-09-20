@@ -28,6 +28,7 @@ Bifrost is a high-performance AI gateway that unifies access to 23+ providers (O
 docker run -p 8080:8080 ghcr.io/funcodingdev/bifrost-i18n:latest
 ```
 
+> Built for `linux/amd64` and `linux/arm64` (runs natively on Apple Silicon).
 > Image tags look like `v2.2.1-zh.1`: `v2.2.1` is the upstream version, `-zh.N` is this fork's localisation revision on top of it.
 > For upstream's own build, use `maximhq/bifrost` or run `npx -y @maximhq/bifrost`.
 
