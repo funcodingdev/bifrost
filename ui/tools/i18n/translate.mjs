@@ -33,6 +33,10 @@ const MAX_ATTEMPTS = 3;
 // provider rate limits. Override with I18N_CONCURRENCY when a model is slower
 // or stricter.
 const CONCURRENCY = Math.max(1, Number(process.env.I18N_CONCURRENCY) || 6);
+// A single reply should take seconds. Anything past this is a stuck connection,
+// and without a bound one of those pins the worker pool until the CI job times
+// out — every other worker having long since drained the queue.
+const REQUEST_TIMEOUT_MS = Math.max(30_000, Number(process.env.I18N_REQUEST_TIMEOUT_MS) || 120_000);
 
 function arg(name, fallback = null) {
 	const index = process.argv.indexOf(`--${name}`);
@@ -106,29 +110,48 @@ Reply with ONLY a JSON object mapping every input id to its translated string. N
 async function translateBatch(keys, attempt = 1) {
 	const payload = Object.fromEntries(keys.map((key, i) => [String(i), key]));
 
-	const response = await fetch(`${baseUrl}/chat/completions`, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-			Authorization: `Bearer ${apiKey}`,
-			"HTTP-Referer": "https://github.com/funcodingdev/bifrost-i18n",
-			"X-Title": "bifrost-fork-i18n",
-		},
-		body: JSON.stringify({
-			model,
-			temperature: 0,
-			response_format: { type: "json_object" },
-			// Without an explicit budget the provider applies its own default, and
-			// a 40-string batch can run past it: the reply comes back cut in half
-			// with finish_reason "length". Scaled to the batch rather than fixed,
-			// so a one-key retry does not ask for a budget it cannot use.
-			max_tokens: Math.min(16000, Math.max(2000, keys.length * 250)),
-			messages: [
-				{ role: "system", content: SYSTEM_PROMPT },
-				{ role: "user", content: JSON.stringify(payload, null, 1) },
-			],
-		}),
-	});
+	let response;
+	try {
+		response = await fetch(`${baseUrl}/chat/completions`, {
+			method: "POST",
+			// Node's fetch will wait forever on a server that holds the connection
+			// open. With a worker pool that means one stuck request pins the whole
+			// step until the job timeout, long after the other workers have drained
+			// the queue — which looks exactly like "translation is still running".
+			signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${apiKey}`,
+				"HTTP-Referer": "https://github.com/funcodingdev/bifrost-i18n",
+				"X-Title": "bifrost-fork-i18n",
+			},
+			body: JSON.stringify({
+				model,
+				temperature: 0,
+				response_format: { type: "json_object" },
+				// Without an explicit budget the provider applies its own default, and
+				// a 40-string batch can run past it: the reply comes back cut in half
+				// with finish_reason "length". Scaled to the batch rather than fixed,
+				// so a one-key retry does not ask for a budget it cannot use.
+				max_tokens: Math.min(16000, Math.max(2000, keys.length * 250)),
+				messages: [
+					{ role: "system", content: SYSTEM_PROMPT },
+					{ role: "user", content: JSON.stringify(payload, null, 1) },
+				],
+			}),
+		});
+	} catch (err) {
+		// Timeout or transport failure. Both deserve another go: the retry opens a
+		// fresh connection, which is the entire point of bounding the first one.
+		const what = err.name === "TimeoutError" ? `no reply in ${REQUEST_TIMEOUT_MS / 1000}s` : err.message;
+		if (attempt < MAX_ATTEMPTS) {
+			const wait = 2 ** attempt * 1000;
+			console.log(`  ${what}, retrying in ${wait / 1000}s`);
+			await new Promise((r) => setTimeout(r, wait));
+			return translateBatch(keys, attempt + 1);
+		}
+		throw new Error(`${what} after ${MAX_ATTEMPTS} attempts`);
+	}
 
 	if (!response.ok) {
 		const body = await response.text();
