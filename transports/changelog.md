@@ -17,6 +17,7 @@
 - **MCP OAuth Redirect URI Wildcard** - `oauth2_server_config.allowed_redirect_uris` syncs from config.json and accepts a bare `"*"` to approve any remote callback (shape checks still apply; partial patterns return 400). A startup warning and a dashboard alert flag the wildcard, and the MCP settings page has an Allowed redirect URIs input (#8480)
 - **Antigravity Client Detection** - Requests from Antigravity CLI and Antigravity Desktop are logged as their own apps instead of Other or Gemini CLI, including behind the edge proxy (#8543, #8658)
 - **MiniMax Provider** - New `minimax` provider for chat completions, Responses, image generation, async video generation, text-to-speech and speech-to-text, with `thinking` passthrough and the `base_resp` error envelope mapped to HTTP status codes
+- **BytePlus Provider** - New `byteplus` provider for BytePlus ModelArk: Seed chat completions with `reasoning_effort` mapped onto Ark's `thinking` switch, the native Responses API, embeddings through the multimodal endpoint (one call per input entry), Seedream image generation and editing, and async Seedance video generation with list support
 
 ## 🐞 Fixed
 
