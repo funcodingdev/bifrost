@@ -16,6 +16,7 @@
 - **Calendar Date Presets** - The date filter adds Today, This week and This month. The server resolves them in the caller's time zone (#8592)
 - **MCP OAuth Redirect URI Wildcard** - `oauth2_server_config.allowed_redirect_uris` syncs from config.json and accepts a bare `"*"` to approve any remote callback (shape checks still apply; partial patterns return 400). A startup warning and a dashboard alert flag the wildcard, and the MCP settings page has an Allowed redirect URIs input (#8480)
 - **Antigravity Client Detection** - Requests from Antigravity CLI and Antigravity Desktop are logged as their own apps instead of Other or Gemini CLI, including behind the edge proxy (#8543, #8658)
+- **MiniMax Provider** - New `minimax` provider for chat completions, Responses, image generation, async video generation, text-to-speech and speech-to-text, with `thinking` passthrough and the `base_resp` error envelope mapped to HTTP status codes
 
 ## 🐞 Fixed
 
