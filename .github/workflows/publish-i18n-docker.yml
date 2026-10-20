@@ -1,0 +1,166 @@
+name: Publish i18n Docker Image
+
+on:
+  push:
+    branches: [dev-i18n]
+    paths:
+      - ".github/workflows/publish-i18n-docker.yml"
+      - ".dockerignore"
+      - "core/**"
+      - "framework/**"
+      - "plugins/**"
+      - "transports/**"
+      - "ui/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-i18n-docker-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build and test (${{ matrix.arch }})
+    if: github.ref == 'refs/heads/dev-i18n'
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set image name
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          image="ghcr.io/${GITHUB_REPOSITORY,,}"
+          echo "IMAGE=$image" >> "$GITHUB_ENV"
+          echo "IMAGE_TAG=$image:sha-$GITHUB_SHA-$ARCH" >> "$GITHUB_ENV"
+
+      - name: Set up Docker Buildx
+        uses: step-security/setup-buildx-action@f931205d68723ad9589fd2a7e2ece238bf9de341 # v4.0.0
+
+      - name: Log in to GHCR
+        uses: step-security/docker-login-action@870af644803bf9f204aed474adbad2958fec048b # v4.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build image from local module sources
+        uses: step-security/docker-build-push-action@846549baaf047e867d038826129a64d81df0f704 # v7.1.0
+        with:
+          context: .
+          file: transports/Dockerfile.local
+          platforms: linux/${{ matrix.arch }}
+          load: true
+          tags: ${{ env.IMAGE_TAG }}
+          build-args: |
+            VERSION=dev-i18n-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.title=Bifrost multilingual Dashboard
+          cache-from: type=gha,scope=i18n-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=i18n-${{ matrix.arch }}
+
+      - name: Test container health and bundled Chinese UI
+        run: |
+          set -euo pipefail
+          cleanup() {
+            docker logs bifrost-i18n-smoke || true
+            docker rm -f -v bifrost-i18n-smoke >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          docker run -d --name bifrost-i18n-smoke \
+            -p 127.0.0.1:8080:8080 "$IMAGE_TAG"
+          ready=false
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent --max-time 3 http://127.0.0.1:8080/health >/dev/null; then
+              ready=true
+              break
+            fi
+            sleep 2
+          done
+          if [ "$ready" != true ]; then
+            echo "Container did not become healthy" >&2
+            exit 1
+          fi
+          curl --fail --silent --show-error http://127.0.0.1:8080/login -o /tmp/bifrost-login.html
+          asset=$(python3 - <<'PY'
+          import re
+          from pathlib import Path
+          html = Path("/tmp/bifrost-login.html").read_text()
+          match = re.search(r'<script\b[^>]*\bsrc="(/assets/[^"?]+\.js)"', html)
+          if not match:
+              raise SystemExit("Dashboard JavaScript entrypoint not found")
+          print(match[1])
+          PY
+          )
+          curl --fail --silent --show-error "http://127.0.0.1:8080$asset" -o /tmp/bifrost-ui.js
+          grep -Fq 'bifrost.locale' /tmp/bifrost-ui.js
+          grep -Fq 'zh-CN' /tmp/bifrost-ui.js
+
+      - name: Push tested architecture image
+        run: docker push "$IMAGE_TAG"
+
+  publish:
+    name: Publish multi-platform image
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Set up Docker Buildx
+        uses: step-security/setup-buildx-action@f931205d68723ad9589fd2a7e2ece238bf9de341 # v4.0.0
+
+      - name: Log in to GHCR
+        uses: step-security/docker-login-action@870af644803bf9f204aed474adbad2958fec048b # v4.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create and verify multi-platform tags
+        run: |
+          set -euo pipefail
+          image="ghcr.io/${GITHUB_REPOSITORY,,}"
+          docker buildx imagetools create \
+            --tag "$image:dev-i18n" \
+            --tag "$image:sha-$GITHUB_SHA" \
+            "$image:sha-$GITHUB_SHA-amd64" \
+            "$image:sha-$GITHUB_SHA-arm64"
+          docker buildx imagetools inspect "$image:dev-i18n" --raw > /tmp/bifrost-manifest.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path("/tmp/bifrost-manifest.json").read_text())
+          platforms = {(item["platform"]["os"], item["platform"]["architecture"]) for item in manifest["manifests"]}
+          expected = {("linux", "amd64"), ("linux", "arm64")}
+          if not expected.issubset(platforms):
+              raise SystemExit(f"Missing platforms: {expected - platforms}")
+          PY
+          {
+            echo "Published \`$image:dev-i18n\` for linux/amd64 and linux/arm64."
+            echo
+            echo '```sh'
+            echo "docker pull $image:dev-i18n"
+            echo "docker run -d --name bifrost-zh -p 127.0.0.1:8080:8080 -v bifrost-zh-data:/app/data $image:dev-i18n"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
