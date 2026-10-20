@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -11,6 +12,7 @@ import {
 import { ProviderIconType, RenderProviderIcon } from "@/lib/constants/icons";
 import { ProviderLabels } from "@/lib/constants/logs";
 import { KnownProvider } from "@/lib/types/config";
+import { Trans, useTranslation } from "react-i18next";
 
 interface Props {
 	show: boolean;
@@ -21,6 +23,7 @@ interface Props {
 }
 
 export default function FirstPartyProviderAvailableDialog({ show, customProviderName, knownProvider, onDismiss, onProceed }: Props) {
+	const { t } = useTranslation("models");
 	const label = ProviderLabels[knownProvider];
 	// The exact name now belongs to the first-party provider, which the backend enforces: a custom
 	// provider holding it can no longer be updated, and config.json skips it.
@@ -32,7 +35,7 @@ export default function FirstPartyProviderAvailableDialog({ show, customProvider
 				<AlertDialogHeader>
 					<AlertDialogTitle className="flex items-center gap-2">
 						<RenderProviderIcon provider={knownProvider as ProviderIconType} size="sm" className="h-5 w-5 shrink-0" />
-						Official {label} integration available
+						{t("providers.firstParty.title", { label })}
 					</AlertDialogTitle>
 					{nameReserved ? (
 						<AlertDialogDescription data-testid="first-party-provider-name-reserved">
@@ -45,13 +48,14 @@ export default function FirstPartyProviderAvailableDialog({ show, customProvider
 						<AlertDialogDescription>
 							We noticed you have a custom provider named <span className="text-foreground font-medium">{customProviderName}</span>. Bifrost
 							now supports {label} natively. You can delete the custom provider and add the official {label} integration from{" "}
-							<span className="text-foreground font-medium">Add Provider</span>, or keep using your custom provider as is.
+							<span className="text-foreground font-medium">{localeMessages.t("providers.addNewProviderAria", { ns: "models" })}</span>, or
+							keep using your custom provider as is.
 						</AlertDialogDescription>
 					)}
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel onClick={onDismiss}>Keep custom provider</AlertDialogCancel>
-					<AlertDialogAction onClick={onProceed}>Take me there</AlertDialogAction>
+					<AlertDialogCancel onClick={onDismiss}>{t("providers.firstParty.keepCustom")}</AlertDialogCancel>
+					<AlertDialogAction onClick={onProceed}>{t("providers.firstParty.takeMeThere")}</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>

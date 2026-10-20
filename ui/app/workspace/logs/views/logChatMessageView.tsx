@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { CodeEditor } from "@/components/ui/codeEditor";
 import { ChatMessage, ContentBlock } from "@/lib/types/logs";
@@ -6,6 +7,7 @@ import { cleanJson, isJson } from "@/lib/utils/validation";
 import { Download } from "lucide-react";
 import AudioPlayer from "./audioPlayer";
 import CollapsibleBox from "./collapsibleBox";
+import i18n from "@/lib/i18n";
 
 interface LogChatMessageViewProps {
 	message: ChatMessage;
@@ -74,7 +76,7 @@ export function LogChatFileBlockView({ block, className }: { block: ContentBlock
 						data-testid="file-block-download-btn"
 					>
 						<Download className="h-3.5 w-3.5" />
-						Download
+						{localeMessages.t("skillsRepo.download", { ns: "config" })}
 					</Button>
 				)}
 			</div>
@@ -177,7 +179,11 @@ export default function LogChatMessageView({ message, audioFormat }: LogChatMess
 			{message.reasoning && (
 				<>
 					{isJson(message.reasoning) ? (
-						<CollapsibleBox title="Reasoning" onCopy={() => JSON.stringify(cleanJson(message.reasoning), null, 2)} collapsedHeight={100}>
+						<CollapsibleBox
+							title={localeMessages.t("logs.detail.roles.reasoning", { ns: "observability" })}
+							onCopy={() => JSON.stringify(cleanJson(message.reasoning), null, 2)}
+							collapsedHeight={100}
+						>
 							<CodeEditor
 								className="z-0 w-full"
 								shouldAdjustInitialHeight={true}
@@ -190,7 +196,11 @@ export default function LogChatMessageView({ message, audioFormat }: LogChatMess
 							/>
 						</CollapsibleBox>
 					) : (
-						<CollapsibleBox title="Reasoning" onCopy={() => message.reasoning || ""} collapsedHeight={100}>
+						<CollapsibleBox
+							title={localeMessages.t("logs.detail.roles.reasoning", { ns: "observability" })}
+							onCopy={() => message.reasoning || ""}
+							collapsedHeight={100}
+						>
 							<div className="custom-scrollbar text-muted-foreground max-h-[400px] overflow-y-auto px-6 py-2 font-mono text-xs break-words whitespace-pre-wrap italic">
 								{message.reasoning}
 							</div>
@@ -203,7 +213,11 @@ export default function LogChatMessageView({ message, audioFormat }: LogChatMess
 			{message.refusal && (
 				<>
 					{isJson(message.refusal) ? (
-						<CollapsibleBox title="Refusal" onCopy={() => JSON.stringify(cleanJson(message.refusal), null, 2)} collapsedHeight={100}>
+						<CollapsibleBox
+							title={localeMessages.t("logs.detail.refusal", { ns: "observability" })}
+							onCopy={() => JSON.stringify(cleanJson(message.refusal), null, 2)}
+							collapsedHeight={100}
+						>
 							<CodeEditor
 								className="z-0 w-full"
 								shouldAdjustInitialHeight={true}
@@ -216,7 +230,11 @@ export default function LogChatMessageView({ message, audioFormat }: LogChatMess
 							/>
 						</CollapsibleBox>
 					) : (
-						<CollapsibleBox title="Refusal" onCopy={() => message.refusal || ""} collapsedHeight={100}>
+						<CollapsibleBox
+							title={localeMessages.t("logs.detail.refusal", { ns: "observability" })}
+							onCopy={() => message.refusal || ""}
+							collapsedHeight={100}
+						>
 							<div className="custom-scrollbar max-h-[400px] overflow-y-auto px-6 py-2 font-mono text-xs break-words whitespace-pre-wrap text-red-800">
 								{message.refusal}
 							</div>
@@ -232,7 +250,7 @@ export default function LogChatMessageView({ message, audioFormat }: LogChatMess
 						<>
 							{isJson(message.content) ? (
 								<CollapsibleBox
-									title="Content"
+									title={localeMessages.t("logs.searchModes.content", { ns: "observability" })}
 									onCopy={() => JSON.stringify(cleanJson(message.content as string), null, 2)}
 									collapsedHeight={100}
 								>
@@ -248,7 +266,11 @@ export default function LogChatMessageView({ message, audioFormat }: LogChatMess
 									/>
 								</CollapsibleBox>
 							) : (
-								<CollapsibleBox title="Content" onCopy={() => (message.content as string) || ""} collapsedHeight={100}>
+								<CollapsibleBox
+									title={localeMessages.t("logs.searchModes.content", { ns: "observability" })}
+									onCopy={() => (message.content as string) || ""}
+									collapsedHeight={100}
+								>
 									<div className="custom-scrollbar max-h-[400px] overflow-y-auto px-6 py-2 font-mono text-xs break-words whitespace-pre-wrap">
 										{message.content}
 									</div>
@@ -327,7 +349,7 @@ export default function LogChatMessageView({ message, audioFormat }: LogChatMess
 								ID: {message.audio.id} | Expires:{" "}
 								{message.audio.expires_at && Number.isFinite(message.audio.expires_at)
 									? new Date(message.audio.expires_at * 1000).toLocaleString()
-									: "N/A"}
+									: localeMessages.t("labels.nA", { ns: "observability" })}
 							</div>
 						)}
 					</div>

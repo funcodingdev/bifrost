@@ -1,3 +1,6 @@
+import localeMessages from "@/lib/i18n";
+import { dateFnsLocale } from "@/lib/i18n/dateLocale";
+import { useTranslation } from "react-i18next";
 import {
 	countActiveSidekiqJobs,
 	countFreshUnreadRSSItems,
@@ -78,6 +81,8 @@ const severityIcons = {
 };
 
 export default function NotificationCenter() {
+	const { t, i18n } = useTranslation("governance");
+	const { t: tCommon } = useTranslation("common");
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 	const [open, setOpen] = useState(false);
@@ -174,7 +179,7 @@ export default function NotificationCenter() {
 									]
 										.filter(Boolean)
 										.join(", ")}`
-								: "Notifications"
+								: localeMessages.t("notifications.title", { ns: "governance" })
 						}
 						data-testid="topbar-notifications-btn"
 						// size-8 matches the theme toggle and the menu/user-pill trigger. Every topbar trigger has to
@@ -214,7 +219,7 @@ export default function NotificationCenter() {
 											data-testid="notification-tab-notifications"
 										>
 											<Bell className="size-3.5" />
-											Notifications
+											{localeMessages.t("notifications.title", { ns: "governance" })}
 											{unreadCount + liveAttention > 0 && <TabCount count={unreadCount + liveAttention} />}
 										</TabsTrigger>
 										{jobsAvailable && (
@@ -238,7 +243,7 @@ export default function NotificationCenter() {
 										)}
 									</TabsList>
 								) : (
-									<h2 className="px-1 text-sm font-semibold">Notifications</h2>
+									<h2 className="px-1 text-sm font-semibold">{localeMessages.t("notifications.title", { ns: "governance" })}</h2>
 								)}
 								{isFetching && !isLoading && <RefreshCw className="text-muted-foreground size-3 shrink-0 animate-spin" />}
 							</div>
@@ -249,7 +254,7 @@ export default function NotificationCenter() {
 									className="text-muted-foreground hover:text-foreground shrink-0 cursor-pointer text-xs whitespace-nowrap transition-colors"
 									data-testid="notifications-mark-all-read"
 								>
-									Mark all read
+									{localeMessages.t("notifications.markAllRead", { ns: "governance" })}
 								</button>
 							)}
 							{newsSwitchedOff && canManageNews && <NewsSourcesButton onClick={openSources} />}
@@ -317,17 +322,17 @@ export default function NotificationCenter() {
 							)}
 							{isLoading ? (
 								<div className="text-muted-foreground flex h-44 items-center justify-center gap-2 text-sm">
-									<RefreshCw className="size-4 animate-spin" /> Loading notifications
+									<RefreshCw className="size-4 animate-spin" /> {localeMessages.t("notifications.loading", { ns: "governance" })}
 								</div>
 							) : isError && !isNotificationsUnavailable(error) ? (
 								<div className="flex h-44 flex-col items-center justify-center gap-3 px-6 text-center">
-									<p className="text-muted-foreground text-sm">Notifications could not be loaded.</p>
+									<p className="text-muted-foreground text-sm">{localeMessages.t("notifications.loadFailed", { ns: "governance" })}</p>
 									<button
 										type="button"
 										onClick={() => refetch()}
 										className="text-primary cursor-pointer text-sm font-medium hover:underline"
 									>
-										Try again
+										{localeMessages.t("retry", { ns: "common" })}
 									</button>
 								</div>
 							) : notifications.length === 0 && liveNotices.length > 0 ? null : notifications.length === 0 ? (
@@ -339,7 +344,9 @@ export default function NotificationCenter() {
 										<Check className="size-4" />
 									</span>
 									<p className="text-sm font-medium">You&apos;re all caught up</p>
-									<p className="text-muted-foreground text-xs">New notifications will appear here.</p>
+									<p className="text-muted-foreground text-xs">
+										{localeMessages.t("notifications.emptyDescription", { ns: "governance" })}
+									</p>
 								</div>
 							) : (
 								<ScrollArea className="h-[min(26rem,calc(100vh-8rem))]">
@@ -379,13 +386,23 @@ export default function NotificationCenter() {
 														<span className="min-w-0 flex-1 pr-5">
 															<span className="flex items-start gap-2">
 																<span className={cn("min-w-0 flex-1 text-sm", !isRead && "font-semibold")}>{notification.title}</span>
-																{!isRead && <span className="bg-primary mt-1.5 size-1.5 shrink-0 rounded-full" aria-label="Unread" />}
+																{!isRead && (
+																	<span
+																		className="bg-primary mt-1.5 size-1.5 shrink-0 rounded-full"
+																		aria-label={localeMessages.t("notifications.unread", { ns: "governance" })}
+																	/>
+																)}
 															</span>
 															<span className="text-muted-foreground mt-0.5 line-clamp-3 block text-xs leading-relaxed">
 																{notification.message}
 															</span>
 															<span className="text-muted-foreground mt-1.5 flex items-center gap-2 text-[11px]">
-																<span>{formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}</span>
+																<span>
+																	{formatDistanceToNow(new Date(notification.created_at), {
+																		addSuffix: true,
+																		locale: dateFnsLocale(i18n.language),
+																	})}
+																</span>
 																{notification.action_label && <span className="text-primary font-medium">{notification.action_label}</span>}
 															</span>
 														</span>
@@ -414,7 +431,7 @@ export default function NotificationCenter() {
 										className="text-muted-foreground hover:text-destructive cursor-pointer text-xs transition-colors"
 										data-testid="notifications-clear-all"
 									>
-										Clear all
+										{localeMessages.t("notifications.clearAll", { ns: "governance" })}
 									</button>
 								</div>
 							)}
@@ -461,6 +478,7 @@ function NewsList({
 	allCleared,
 	onManageSources,
 }: NewsListProps) {
+	const { t, i18n } = useTranslation("governance");
 	if (isLoading) {
 		return (
 			<div className="text-muted-foreground flex h-44 items-center justify-center gap-2 text-sm">
@@ -473,7 +491,7 @@ function NewsList({
 			<div className="flex h-44 flex-col items-center justify-center gap-3 px-6 text-center">
 				<p className="text-muted-foreground text-sm">News could not be loaded.</p>
 				<button type="button" onClick={onRetry} className="text-primary cursor-pointer text-sm font-medium hover:underline">
-					Try again
+					{localeMessages.t("retry", { ns: "common" })}
 				</button>
 			</div>
 		);
@@ -486,7 +504,7 @@ function NewsList({
 					<span className="bg-muted text-muted-foreground flex size-9 items-center justify-center rounded-full">
 						<Check className="size-4" />
 					</span>
-					<p className="text-sm font-medium">You&apos;re all caught up</p>
+					<p className="text-sm font-medium">{t("notifications.emptyTitle")}</p>
 					<p className="text-muted-foreground text-xs">New stories from your sources will appear here.</p>
 				</div>
 			) : items.length === 0 ? (
@@ -530,7 +548,9 @@ function NewsList({
 										<span className="min-w-0 flex-1">
 											<span className="flex items-start gap-2">
 												<span className={cn("min-w-0 flex-1 text-sm", !isRead && "font-semibold")}>{item.title}</span>
-												{!isRead && <span className="bg-primary mt-1.5 size-1.5 shrink-0 rounded-full" aria-label="Unread" />}
+												{!isRead && (
+													<span className="bg-primary mt-1.5 size-1.5 shrink-0 rounded-full" aria-label={t("notifications.unread")} />
+												)}
 											</span>
 											{item.summary && (
 												<span className="text-muted-foreground mt-0.5 line-clamp-2 block text-xs leading-relaxed">{item.summary}</span>
@@ -538,7 +558,9 @@ function NewsList({
 											<span className="text-muted-foreground mt-1.5 flex items-center gap-2 text-[11px]">
 												<span className="truncate font-medium">{item.feed_name}</span>
 												{hasRSSPublishedDate(item.published_at) && (
-													<span className="shrink-0">{formatDistanceToNow(new Date(item.published_at), { addSuffix: true })}</span>
+													<span className="shrink-0">
+														{formatDistanceToNow(new Date(item.published_at), { addSuffix: true, locale: dateFnsLocale(i18n.language) })}
+													</span>
 												)}
 											</span>
 										</span>
@@ -572,7 +594,7 @@ function NewsList({
 							className="text-muted-foreground hover:text-foreground cursor-pointer text-xs transition-colors"
 							data-testid="rss-mark-all-read"
 						>
-							Mark all read
+							{t("notifications.markAllRead")}
 						</button>
 					)}
 					<button
@@ -581,7 +603,7 @@ function NewsList({
 						className="text-muted-foreground hover:text-destructive cursor-pointer text-xs transition-colors"
 						data-testid="rss-clear-all"
 					>
-						Clear all
+						{localeMessages.t("notifications.clearAll", { ns: "governance" })}
 					</button>
 				</div>
 			)}

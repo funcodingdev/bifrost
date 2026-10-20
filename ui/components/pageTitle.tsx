@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { Badge } from "@/components/ui/badge";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hoverCard";
 import { useDescriptionSlot, useSetTopbarTitle } from "@/lib/contexts/topbarContext";
@@ -5,6 +6,7 @@ import type { Breadcrumb } from "@/lib/contexts/topbarContext.utils";
 import { cn } from "@/lib/utils";
 import { Info } from "lucide-react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 
 /** Colour family of a topbar tag. Tones are semantic so pages never pass raw classes. */
 export type PageTagTone = "neutral" | "info" | "success" | "warning" | "danger";
@@ -112,6 +114,7 @@ export default function PageTitle({
 	tags?: PageTag[];
 	children?: React.ReactNode;
 }) {
+	const { t } = useTranslation("shell");
 	useSetTopbarTitle(breadcrumbs?.length ? breadcrumbs : title);
 	const slot = useDescriptionSlot();
 	// The badge's label needs a name; with a trail that is the current page.
@@ -137,9 +140,9 @@ export default function PageTitle({
 					{beta && (
 						<Badge
 							className="shrink-0 dark:border-green-950 dark:bg-green-900"
-							aria-label={label ? `${label} is in beta` : "This page is in beta"}
+							aria-label={label ? t("pageTitle.betaAria", { title: label }) : t("pageTitle.betaAriaFallback")}
 						>
-							Beta
+							{localeMessages.t("pageTitle.beta", { ns: "shell" })}
 						</Badge>
 					)}
 					{tags?.map((tag) => (
@@ -151,7 +154,7 @@ export default function PageTitle({
 								<button
 									type="button"
 									data-testid="page-description-trigger"
-									aria-label="About this page"
+									aria-label={localeMessages.t("pageTitle.aboutPage", { ns: "shell" })}
 									className="text-muted-foreground hover:text-foreground flex size-5 shrink-0 cursor-help items-center justify-center rounded-sm transition-colors"
 								>
 									<Info className="size-4" strokeWidth={2} />

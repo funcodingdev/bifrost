@@ -1,4 +1,5 @@
 import type { WarpTurn, WarpTurnToolCall } from "@/lib/contexts/warpContext";
+import i18n from "@/lib/i18n";
 import type { WarpLogIndexStatus, WarpStoredMessage } from "@/lib/types/warp";
 /** SSE frame parsing for Warp, kept out of the hook so it is testable without a DOM or network. */
 
@@ -122,13 +123,16 @@ export function warpToolLabel(name: string, isRunning = false): string {
 	const label = WARP_TOOL_LABELS[name];
 	// Unknown tools show their raw name, so a new server-side tool stays legible instead of mislabelled.
 	if (!label) return name;
-	return isRunning ? label.running : label.done;
+	return i18n.t(`warp.tools.${name}.${isRunning ? "running" : "done"}`, {
+		ns: "shell",
+		defaultValue: isRunning ? label.running : label.done,
+	});
 }
 
 /** Screen-reader text for a tool row's status, which the icons convey only by shape and color. */
 export function warpToolStatusLabel(call: { durationMs?: number; failed?: boolean }): string {
-	if (call.durationMs === undefined) return "In progress";
-	return call.failed ? "Failed" : "Completed";
+	if (call.durationMs === undefined) return i18n.t("warp.toolStatus.inProgress", { ns: "shell" });
+	return call.failed ? i18n.t("warp.toolStatus.failed", { ns: "shell" }) : i18n.t("warp.toolStatus.completed", { ns: "shell" });
 }
 
 const WARP_TOOL_LABELS: Record<string, { running: string; done: string }> = {
@@ -178,7 +182,10 @@ export function turnsFromStoredMessages(messages: WarpStoredMessage[]): WarpTurn
 			if (message.question) {
 				turn.question = {
 					question: message.question.question || message.content,
-					options: (message.question.options ?? []).map((option) => ({ label: option.label, hint: option.hint })),
+					options: (message.question.options ?? []).map((option) => ({
+						label: option.label,
+						hint: option.hint,
+					})),
 					allow_other: message.question.allow_other,
 					kind: message.question.kind as WarpQuestion["kind"],
 				};
@@ -242,29 +249,44 @@ export function indexStatusLabel(status: WarpLogIndexStatus): IndexStatusLabel {
 	const backfill = status.backfill?.status === "idle" ? undefined : status.backfill;
 	switch (status.state) {
 		case "unavailable":
-			return { label: "No vector store", tone: "error" };
+			return { label: i18n.t("warp.index.noVectorStore", { ns: "shell" }), tone: "error" };
 		case "not_configured":
-			return { label: "Search not set up", tone: "muted" };
+			return { label: i18n.t("warp.index.searchNotSetUp", { ns: "shell" }), tone: "muted" };
 		case "failed": {
 			const detail = backfill?.last_error;
-			return detail ? { label: "Indexing failed", tone: "error", detail } : { label: "Indexing failed", tone: "error" };
+			const label = i18n.t("warp.index.failed", { ns: "shell" });
+			return detail ? { label, tone: "error", detail } : { label, tone: "error" };
 		}
 		case "indexing": {
 			const total = backfill?.total ?? 0;
 			const scanned = backfill?.scanned ?? 0;
 			if (total > 0) {
-				return { label: `Indexing ${Math.min(100, Math.floor((scanned / total) * 100))}%`, tone: "busy" };
+				return {
+					label: i18n.t("warp.index.indexingPercent", {
+						ns: "shell",
+						percent: Math.min(100, Math.floor((scanned / total) * 100)),
+					}),
+					tone: "busy",
+				};
 			}
-			return { label: "Indexing", tone: "busy" };
+			return { label: i18n.t("warp.index.indexing", { ns: "shell" }), tone: "busy" };
 		}
 		default:
-			return { label: "Index ready", shortLabel: "Ready", tone: "ok" };
+			return { label: i18n.t("warp.index.ready", { ns: "shell" }), shortLabel: "Ready", tone: "ok" };
 	}
 }
 
 /** Whether a key event is typing; an empty Warp composer is not, so question shortcuts still apply there. */
 export function isTypingInto(
-	target: { tagName: string; value?: string; isContentEditable?: boolean; dataset?: { testid?: string } } | null | undefined,
+	target:
+		| {
+				tagName: string;
+				value?: string;
+				isContentEditable?: boolean;
+				dataset?: { testid?: string };
+		  }
+		| null
+		| undefined,
 ): boolean {
 	if (!target) return false;
 	if (target.isContentEditable) return true;
@@ -328,37 +350,9 @@ export function warpErrorDetail(code: string | undefined, message: string | unde
 
 	switch (code) {
 		case "not_configured":
-			return {
-				summary: "Warp is not configured yet.",
-				cause: "No provider and model are set, or Warp is switched off in settings.",
-				suggestions: ["Open Warp settings and choose a provider and model.", "Make sure Enable Warp is switched on."],
-				raw,
-			};
 		case "max_iterations":
-			return {
-				summary: "Warp could not settle on an answer.",
-				cause:
-					"Warp ran its full budget of research steps without reaching a conclusion. That usually means the question was broad enough that each query raised another, so it kept looking instead of answering.",
-				suggestions: [
-					"Ask for one thing at a time: a single metric, one time range, one scope.",
-					"Name the window explicitly, for example 'in the last 24 hours'.",
-					"Name whose traffic you mean - a team, a customer, or all of them.",
-					"Raise Max Iterations in Warp settings if the question genuinely needs more steps.",
-				],
-				raw,
-			};
 		case "timeout":
-			return {
-				summary: "That took too long.",
-				cause:
-					"The whole request passed its time budget before Warp finished. Long time ranges and wide scopes make every query slower, and Warp runs several.",
-				suggestions: [
-					"Try a shorter time range.",
-					"Narrow to one team, customer or virtual key.",
-					"Raise Request Timeout in Warp settings if your model is simply slow.",
-				],
-				raw,
-			};
+			return warpErrorCopy(code, raw);
 		case "upstream_error":
 			return {
 				summary: "Warp's model could not be reached.",
@@ -416,24 +410,42 @@ export function warpErrorDetail(code: string | undefined, message: string | unde
 				raw,
 			};
 		case "tool_error":
-			return {
-				summary: "A query failed.",
-				cause: "One of Warp's data queries returned an error, and it could not recover within its remaining steps.",
-				suggestions: ["Try a narrower time range.", "Check that the model, key or team you named actually exists."],
-				raw,
-			};
 		case "cancelled":
-			return { summary: "Stopped.", cause: "The request was cancelled before it finished.", suggestions: [], raw };
+			return warpErrorCopy(code, raw);
 		default:
 			return {
-				summary: raw ?? "Something went wrong.",
-				cause: "Warp returned an error without a recognised code.",
-				suggestions: ["Try the question again.", "If it keeps happening, report it with the details below."],
+				summary: raw ?? i18n.t("warp.errors.unknown.summary", { ns: "shell" }),
+				cause: i18n.t("warp.errors.unknown.cause", { ns: "shell" }),
+				suggestions: i18n.t("warp.errors.unknown.suggestions", {
+					ns: "shell",
+					returnObjects: true,
+				}) as string[],
 				raw,
 			};
 	}
 }
 /** Encodes as `code:message`; the leading colon on a code-less error stops the decoder reading it as a code. */
+
+function warpErrorCopy(code: string, raw: string | undefined): WarpErrorDetail {
+	return {
+		summary: i18n.t(`warp.errors.${code}.summary`, { ns: "shell" }),
+		cause: i18n.t(`warp.errors.${code}.cause`, { ns: "shell" }),
+		suggestions: i18n.t(`warp.errors.${code}.suggestions`, {
+			ns: "shell",
+			returnObjects: true,
+		}) as string[],
+		raw,
+	};
+}
+/**
+ * Encodes a turn's terminal error as the `code:message` pair the transcript
+ * decodes.
+ *
+ * The leading colon on a code-less error is load-bearing. Without it the
+ * decoder reads the entire message as a code, finds no match, and falls through
+ * to the generic "Something went wrong." - throwing away the status line or
+ * network error that was the only useful part.
+ */
 export function encodeTurnError(code: string | undefined, message: string): string {
 	return `${code ?? ""}:${message}`;
 }

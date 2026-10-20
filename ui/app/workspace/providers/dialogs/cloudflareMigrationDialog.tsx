@@ -1,4 +1,6 @@
-"use client";
+import { formatMigrationMessage } from "@/lib/utils/databricksMigration";
+import i18n from "@/lib/i18n";
+("use client");
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -189,7 +191,9 @@ export default function CloudflareMigrationDialog({ show, provider, onDeferred, 
 								<p>Review what will change. Keys keep their stored tokens; anything that could not be read must be entered below.</p>
 							)}
 							{stage === "running" && <p>Migrating. Keep this window open until it finishes.</p>}
-							{stage === "finished" && result && <p>{result.message}</p>}
+							{stage === "finished" && result && (
+								<p>{formatMigrationMessage(result.message, (key, values) => i18n.t(key, { ns: "models", ...values }))}</p>
+							)}
 						</div>
 					</AlertDialogDescription>
 				</AlertDialogHeader>
@@ -377,7 +381,9 @@ function MigrationPreview({ plan, onAccountIdChange, onHeaderTokenChange }: Prev
 					<AlertDescription>
 						<ul className="list-disc space-y-1 pl-4">
 							{plan.warnings.map((warning) => (
-								<li key={warning}>{warning}</li>
+								<li key={formatMigrationMessage(warning, (key, values) => i18n.t(key, { ns: "models", ...values }))}>
+									{formatMigrationMessage(warning, (key, values) => i18n.t(key, { ns: "models", ...values }))}
+								</li>
 							))}
 						</ul>
 					</AlertDescription>
@@ -394,12 +400,14 @@ function MigrationProgress({ steps }: { steps: MigrationStep[] }) {
 				<li key={step.id} className="flex items-start gap-2" data-testid={`cloudflare-migration-step-${step.id}`} data-status={step.status}>
 					<StepIcon status={step.status} />
 					<div className="min-w-0 flex-1">
-						<div className={step.status === "pending" ? "text-muted-foreground" : ""}>{step.label}</div>
+						<div className={step.status === "pending" ? "text-muted-foreground" : ""}>
+							{formatMigrationMessage(step.label, (key, values) => i18n.t(key, { ns: "models", ...values }))}
+						</div>
 						{step.detail && (
 							<div
 								className={`mt-0.5 text-xs whitespace-pre-line ${step.status === "failed" ? "text-destructive" : "text-muted-foreground"}`}
 							>
-								{step.detail}
+								{formatMigrationMessage(step.detail, (key, values) => i18n.t(key, { ns: "models", ...values }))}
 							</div>
 						)}
 					</div>
