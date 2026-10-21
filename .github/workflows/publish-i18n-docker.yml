@@ -129,19 +129,24 @@ jobs:
               raise SystemExit(f"Version mismatch: {actual!r} != {expected!r}")
           PY
           curl --fail --silent --show-error http://127.0.0.1:8080/login -o /tmp/bifrost-login.html
-          asset=$(python3 - <<'PY'
+          # Vite may keep translations in the entrypoint or a preloaded chunk.
+          python3 - <<'PY'
           import re
+          import urllib.request
           from pathlib import Path
           html = Path("/tmp/bifrost-login.html").read_text()
-          match = re.search(r'<script\b[^>]*\bsrc="(/assets/[^"?]+\.js)"', html)
-          if not match:
-              raise SystemExit("Dashboard JavaScript entrypoint not found")
-          print(match[1])
+          assets = re.findall(r'(?:src|href)="(/assets/[^"?]+\.js)"', html)
+          if not assets:
+              raise SystemExit("Dashboard JavaScript assets not found")
+          for asset in dict.fromkeys(assets):
+              with urllib.request.urlopen("http://127.0.0.1:8080" + asset, timeout=10) as response:
+                  script = response.read()
+              if b"bifrost.locale" in script and b"zh-CN" in script:
+                  print("Verified Chinese UI resource:", asset)
+                  break
+          else:
+              raise SystemExit("Chinese UI resource not found in served JavaScript assets")
           PY
-          )
-          curl --fail --silent --show-error "http://127.0.0.1:8080$asset" -o /tmp/bifrost-ui.js
-          grep -Fq 'bifrost.locale' /tmp/bifrost-ui.js
-          grep -Fq 'zh-CN' /tmp/bifrost-ui.js
 
       - name: Push tested architecture image
         run: docker push "$IMAGE_TAG"
