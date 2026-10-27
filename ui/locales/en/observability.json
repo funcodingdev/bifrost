@@ -523,7 +523,29 @@
 		"pluginLogsView": {
 			"countOf": "({{visible}} of {{total}})",
 			"noEntries": "No entries at or above {{level}}."
-		}
+		},
+		"audioPlayerFailed": "Failed to load audio player: {{error}}",
+		"unknownError": "Unknown error",
+		"sessionTurnCount": "{{count}} turns",
+		"sessionRequestCount": "{{count}} requests",
+		"sessionTotalsHelp": "Total across {{count}} requests in this session. Expand the row to see them.",
+		"collapseSession": "Collapse this session",
+		"expandSession": "Expand {{count}} more requests in this session",
+		"sessionGroupHelp": "Session of {{total}} requests sharing a session_id. Expand to see the other {{count}} requests.",
+		"details": {
+			"cacheHit": "Hit",
+			"cacheMiss": "Miss",
+			"questions": "Questions ({{count}})",
+			"rerankOutput": "Rerank Output ({{count}})",
+			"listModelsOutput": "List Models Output ({{count}})",
+			"emptyProviderError": "The provider returned an error (HTTP {{status}}) without a message.",
+			"attemptTrail": "Attempt Trail ({{count}} attempts)",
+			"toolCallCount": "{{count}} tool calls",
+			"cacheTitle": "Caching Details ({{status}})",
+			"openTimedLog": "{{time}} {{relative}}, open log details"
+		},
+		"backendResponseNumber": "Backend response {{number}} of {{total}}",
+		"toolCallNamed": "Tool Call: {{name}}"
 	},
 	"mcpLogs": {
 		"searchPlaceholder": "Search MCP logs",
@@ -891,5 +913,184 @@
 		"model_catalog": "Model Catalog",
 		"session_affinity": "Session",
 		"core": "Core"
+	},
+	"ui": {
+		"chartTypeToggle": {
+			"chartType": "Chart type",
+			"barChart": "Bar chart",
+			"lineChart": "Line chart"
+		},
+		"externalCacheTokenMeterChart": {
+			"cached": "Cached:"
+		},
+		"localCacheTokenMeterChart": {
+			"direct": "Direct:",
+			"semantic": "Semantic:"
+		},
+		"dimensionRankingsTab": {
+			"requests": "requests",
+			"rankings": "Rankings"
+		},
+		"overviewTab": {
+			"more": "more"
+		},
+		"logDetailView": {
+			"couldnTLookUpTheNextRequestInThisSession": "Couldn't look up the next request in this session.",
+			"theToolSResultIsnTInThisRequest": "The tool's result isn't in this request.",
+			"openNextRequest": "Open next request",
+			"noLaterRequestInThisSession": "No later request in this session.",
+			"lookingForTheNextRequest": "Looking for the next request…",
+			"rule": "rule:",
+			"hit": "(hit)",
+			"miss": "(miss)",
+			"parsedAs": "Parsed As",
+			"wireFormat": "Wire Format",
+			"guardrailMatches": "Guardrail Matches",
+			"assessments": "Assessments",
+			"blocked": "Blocked",
+			"allowed": "Allowed",
+			"completionTokens": "Completion Tokens",
+			"decisionModelClassification": "Decision Model Classification",
+			"originalPayload": "Original Payload",
+			"batchRequests": "Batch Requests (",
+			"message": "message",
+			"batchResults": "Batch Results (",
+			"attachment": "Attachment",
+			"toolsExposedToTheModel": "tools exposed to the model",
+			"viaInputItems": "via input items",
+			"namespacesExpanded": "(namespaces expanded)",
+			"success": "success",
+			"rawRequestSentTo": "Raw Request sent to",
+			"rawRequestTruncated": "Raw Request (Truncated)",
+			"rawRequest": "Raw Request",
+			"rawResponseFrom": "Raw Response from",
+			"rawResponseTruncated": "Raw Response (Truncated)",
+			"rawResponse": "Raw Response"
+		},
+		"sessionDetailsSheet": {
+			"filterThisSession": "Filter this session",
+			"loadingSession": "Loading session...",
+			"current": "Current",
+			"noLogsFoundForThisSession": "No logs found for this session.",
+			"loadMore": "Load More"
+		},
+		"collapsibleBox": {
+			"showLess": "show less",
+			"showMore": "show more"
+		},
+		"emptyState": {
+			"codeLanguage": "Code language",
+			"copyCode": "Copy code"
+		},
+		"imageView": {
+			"iNPUTIMAGES": "INPUT IMAGES",
+			"iNPUTIMAGE": "INPUT IMAGE",
+			"rEVISEDPROMPT": "REVISED PROMPT"
+		},
+		"liveSessionView": {
+			"hiddenByTheMessageFilter": "Hidden by the message filter",
+			"noAnswer": "No answer",
+			"liveSession": "Live Session",
+			"voiceTime": "Voice time",
+			"voiceCost": "Voice cost",
+			"backendCost": "Backend cost",
+			"delegations": "Delegations",
+			"transcript": "Transcript"
+		},
+		"logChatMessageView": {
+			"openFile": "Open file",
+			"toolCallID": "Tool Call ID:",
+			"annotations": "Annotations",
+			"audioOutput": "Audio Output",
+			"transcript": "Transcript:",
+			"audio": "Audio:",
+			"iD": "ID:",
+			"expires": "| Expires:"
+		},
+		"logLevelTabs": {
+			"minimumLogLevel": "Minimum log level"
+		},
+		"logsHeaderView": {
+			"moreActions": "More actions"
+		},
+		"metricStrip": {
+			"req": "/req"
+		},
+		"ocrView": {
+			"tYPE": "TYPE",
+			"oCROutput": "OCR Output",
+			"pAGESPROCESSED": "PAGES PROCESSED",
+			"dOCUMENTSIZE": "DOCUMENT SIZE",
+			"dOCUMENTANNOTATION": "DOCUMENT ANNOTATION",
+			"dIMENSIONS": "DIMENSIONS",
+			"noTextExtractedFromThisPage": "No text extracted from this page.",
+			"eXTRACTEDIMAGES": "EXTRACTED IMAGES ("
+		},
+		"responsesItemRow": {
+			"noArguments": "· no arguments",
+			"noArguments2": "no arguments",
+			"noArguments3": "No arguments"
+		},
+		"speechView": {
+			"speechInput": "Speech Input",
+			"speechOutput": "Speech Output"
+		},
+		"maximFormFragment": {
+			"logRepositoryIDOptional": "Log Repository ID (Optional)",
+			"commaSeparatedListOfRequestHeadersToCaptureAndAttach": "Comma-separated list of request headers to capture and attach as trace tags. Supports exact names and wildcard patterns (e.g.",
+			"capturesAllHeadersWithThatPrefix": "captures all headers with that prefix,",
+			"capturesAllHeadersNoteThat": "captures all headers; note that",
+			"willCaptureSensitiveHeadersLikeAuthorization": "will capture sensitive headers like Authorization)."
+		},
+		"otelFormFragment": {
+			"otelCollectorExampleCom4317OrEnvOTELCOLLECTORURL": "otel-collector.example.com:4317 or env.OTEL_COLLECTOR_URL",
+			"exportRawPayloads": "Export Raw Payloads",
+			"attachTheRawProviderRequestAndResponseBodiesTo": "Attach the raw provider request and response bodies to exported spans. Requires raw request/response storage to be enabled on the provider.",
+			"bETA": "BETA",
+			"otelCollector4317OrEnvOTELMETRICSENDPOINT": "otel-collector:4317 or env.OTEL_METRICS_ENDPOINT"
+		},
+		"pluginTracingSheet": {
+			"youDoNotHavePermissionToChangeObservabilitySettings": "You do not have permission to change observability settings"
+		},
+		"prometheusView": {
+			"exposeBifrostMetricsForPrometheusToScrapeFromThe": "Expose Bifrost metrics for Prometheus to scrape from the",
+			"endpointOrPushThemToAPrometheusPushGateway": "endpoint, or push them to a Prometheus Push Gateway."
+		},
+		"overheadBreakdown": {
+			"measuredSpans": "Measured spans (",
+			"exceedTheComputedOverhead": ") exceed the computed overhead (",
+			"theUpstreamAccumulatorMayBeOverCounting": "); the upstream accumulator may be over-counting.",
+			"serialization": "Serialization",
+			"conversion": "Conversion",
+			"middleware": "Middleware",
+			"keySelection": "Key selection",
+			"protocolLibrary": "Protocol library",
+			"networking": "Networking",
+			"clientDelivery": "Client delivery",
+			"miscellaneous": "Miscellaneous",
+			"requestParse": "Request parse",
+			"requestEncode": "Request encode",
+			"responseParse": "Response parse",
+			"responseEncode": "Response encode",
+			"schemaConversion": "Schema conversion",
+			"streamConvertInbound": "Stream convert (inbound)",
+			"streamConvertOutbound": "Stream convert (outbound)",
+			"auth": "Auth",
+			"keyPool": "Key pool",
+			"requestSetup": "Request setup",
+			"preHooks": "Pre-hooks",
+			"postHooks": "Post-hooks",
+			"workerSetup": "Worker setup",
+			"workerHandoff": "Worker handoff",
+			"queueWait": "Queue wait",
+			"attributePopulation": "Attribute population",
+			"uncapturedGlue": "Uncaptured glue",
+			"providerProcessing": "Provider processing",
+			"requestContextBuilding": "Request context building",
+			"responseHeaders": "Response headers",
+			"responseRead": "Response read",
+			"requestSigning": "Request signing",
+			"credentialFetch": "Credential fetch"
+		}
 	}
 }

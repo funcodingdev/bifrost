@@ -27,6 +27,8 @@ import { ModelLimitsPage } from "../../features/model-limits/pages/model-limits.
  */
 type BifrostFixtures = {
 	serveMonacoLocally: void;
+	initializeUILocale: void;
+	localePreference: "en" | "zh-CN" | null;
 	closeDevProfiler: void;
 	handleLoginRedirect: void;
 	skipAutoLogin: boolean;
@@ -66,6 +68,18 @@ const MONACO_CONTENT_TYPES: Record<string, string> = {
 };
 
 export const test = base.extend<BifrostFixtures>({
+	// Feature specs assert English copy explicitly; language specs opt out to
+	// exercise the product default and persisted user preferences.
+	localePreference: ["en", { option: true }],
+	initializeUILocale: [
+		async ({ context, localePreference }, use) => {
+			if (localePreference) {
+				await context.addInitScript((locale) => window.localStorage.setItem("bifrost.locale", locale), localePreference);
+			}
+			await use();
+		},
+		{ auto: true },
+	],
 	serveMonacoLocally: [
 		async ({ context }, use) => {
 			if (existsSync(MONACO_VS_DIR)) {

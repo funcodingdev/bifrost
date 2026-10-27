@@ -171,7 +171,8 @@
 			"title": "需要生产环境部署帮助？",
 			"body": "我们可协助生产环境部署，包括定制集成与专属支持。",
 			"bookPrefix": "预约产品演示请点击",
-			"here": "这里"
+			"here": "这里",
+			"bookDemo": "<link>预约产品演示</link>。"
 		}
 	},
 	"topbar": {
@@ -186,7 +187,7 @@
 		"docs": "完整文档"
 	},
 	"pageTitle": {
-		"beta": "Beta",
+		"beta": "测试版",
 		"betaAria": "{{title}} 处于测试阶段",
 		"betaAriaFallback": "此页面处于测试阶段",
 		"aboutPage": "关于此页面"
@@ -212,7 +213,13 @@
 		"promptRepository": "提示词仓库",
 		"modelProviders": "模型提供商",
 		"routingTree": "路由树",
-		"userProvisioning": "用户配置"
+		"userProvisioning": "用户配置",
+		"agentLogs": "智能体日志",
+		"agentGateway": "智能体网关",
+		"agentPushConfigs": "推送配置",
+		"skillsSettings": "技能设置",
+		"orgChart": "组织架构",
+		"webhookDeliveries": "Webhook 投递记录"
 	},
 	"error": {
 		"title": "出错了",
@@ -258,14 +265,14 @@
 			"cors": "限制 CORS 来源",
 			"dashboard-auth": "设置仪表盘认证",
 			"enforce-inference-auth": "对推理请求强制认证",
-			"provider-key": "添加供应商密钥",
+			"provider-key": "添加提供商密钥",
 			"scim": "配置 SCIM 预配",
 			"models": "配置治理模型目录",
 			"virtual-keys": "设置虚拟密钥 / 访问配置"
 		},
 		"sections": {
 			"Security": "安全",
-			"Provider Setup": "供应商设置",
+			"Provider Setup": "提供商设置",
 			"Everything Else": "其他设置"
 		}
 	},
@@ -308,7 +315,7 @@
 			"jumpToLatest": "跳到最新"
 		},
 		"starters": {
-			"spend": "过去 7 天各供应商的花费是多少？",
+			"spend": "过去 7 天各提供商的花费是多少？",
 			"latency": "昨天哪个模型的 p99 延迟最差？",
 			"users": "本周按费用排名前 5 的用户是谁？",
 			"failed": "显示过去 24 小时内失败的请求"
@@ -382,8 +389,8 @@
 				"done": "已按用量对虚拟密钥排名"
 			},
 			"query_model_performance": {
-				"running": "正在比较模型与供应商",
-				"done": "已比较模型与供应商"
+				"running": "正在比较模型与提供商",
+				"done": "已比较模型与提供商"
 			},
 			"describe_filter_space": {
 				"running": "正在检查可用值",
@@ -405,7 +412,7 @@
 		"errors": {
 			"not_configured": {
 				"summary": "Warp 尚未配置。",
-				"cause": "未设置供应商和模型，或在设置中关闭了 Warp。",
+				"cause": "未设置提供商和模型，或在设置中关闭了 Warp。",
 				"suggestions": ["打开 Warp 设置并选择供应商和模型。", "确认已打开「启用 Warp」。"]
 			},
 			"max_iterations": {
@@ -425,7 +432,7 @@
 			},
 			"upstream_error": {
 				"summary": "无法到达 Warp 的模型。",
-				"cause": "供应商拒绝了请求或不可达。这与 Warp 自身的模型有关，与你询问的流量无关。",
+				"cause": "提供商拒绝了请求或不可达。这与 Warp 自身的模型有关，与你询问的流量无关。",
 				"suggestions": [
 					"检查 Warp 设置中的供应商、模型和密钥。",
 					"确认 Base URL 正确——默认指向此 Bifrost。",

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { LoaderCircle, Save } from "lucide-react";
@@ -19,14 +20,14 @@ interface Props {
 // primary classifier, mirroring the embedding sheet so the page itself is left
 // for the tier guidance operators actually iterate on.
 export default function DecisionSettingsSheet({ open, onOpenChange, decisionSettings, canSave, isSaving, onSave, submitError }: Props) {
+	const { t: tCopy } = useTranslation();
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
 			<SheetContent className="flex flex-col p-0" data-testid="complexity-router-decision-sheet">
 				<SheetHeader className="flex flex-col items-start gap-1 py-4" headerClassName="bg-card z-10 mb-0 border-b px-4 md:px-6">
-					<SheetTitle>Model configuration</SheetTitle>
+					<SheetTitle>{tCopy("ui.decisionSettingsSheet.modelConfiguration", { ns: "models" })}</SheetTitle>
 					<SheetDescription>
-						Which decision model classifies requests, how much conversation it sees, and how long it may take. Credentials come from its
-						provider.
+						{tCopy("ui.decisionSettingsSheet.whichDecisionModelClassifiesRequestsHowMuchConversationIt", { ns: "models" })}
 					</SheetDescription>
 				</SheetHeader>
 
@@ -50,7 +51,7 @@ export default function DecisionSettingsSheet({ open, onOpenChange, decisionSett
 						onClick={() => onOpenChange(false)}
 						data-testid="complexity-router-decision-sheet-close-button"
 					>
-						Close
+						{tCopy("close", { ns: "common" })}
 					</Button>
 					<Button
 						type="button"
@@ -60,7 +61,7 @@ export default function DecisionSettingsSheet({ open, onOpenChange, decisionSett
 						data-testid="complexity-router-decision-sheet-save-button"
 					>
 						{isSaving ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-						{isSaving ? "Saving…" : "Save changes"}
+						{isSaving ? tCopy("saving", { ns: "config" }) : tCopy("common.saveChangesLower", { ns: "mcp" })}
 					</Button>
 				</SheetFooter>
 			</SheetContent>

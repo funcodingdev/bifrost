@@ -1,3 +1,4 @@
+import i18nReview from "@/lib/i18n";
 import { FilterSidebarTrigger } from "@/components/filters/filterSidebarTrigger";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -57,7 +58,12 @@ const CONNECTION_TYPE_OPTIONS: FilterOption[] = [
 ];
 
 const AUTH_TYPE_OPTIONS: FilterOption[] = [
-	{ value: "none", label: "None" },
+	{
+		value: "none",
+		get label() {
+			return i18nReview.t("registry.filter.none", { ns: "mcp" });
+		},
+	},
 	{ value: "headers", label: "Headers" },
 	{ value: "oauth", label: "OAuth" },
 	{ value: "per_user_oauth", label: "Per-User OAuth" },

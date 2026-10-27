@@ -207,7 +207,7 @@ function ProviderUsageTabImpl({
 													data-testid="provider-cost-legend-more-trigger"
 													className="text-muted-foreground cursor-default"
 												>
-													+{providerCostProviders.length - 1} more
+													+{providerCostProviders.length - 1} {t("ui.overviewTab.more", { ns: "observability" })}
 												</button>
 											</TooltipTrigger>
 											<TooltipContent>
@@ -295,7 +295,7 @@ function ProviderUsageTabImpl({
 													data-testid="provider-token-legend-more-trigger"
 													className="text-muted-foreground cursor-default"
 												>
-													+{providerTokenProviders.length - 1} more
+													+{providerTokenProviders.length - 1} {t("ui.overviewTab.more", { ns: "observability" })}
 												</button>
 											</TooltipTrigger>
 											<TooltipContent>
@@ -390,7 +390,7 @@ function ProviderUsageTabImpl({
 													data-testid="provider-latency-legend-more-trigger"
 													className="text-muted-foreground cursor-default"
 												>
-													+{providerLatencyProviders.length - 1} more
+													+{providerLatencyProviders.length - 1} {t("ui.overviewTab.more", { ns: "observability" })}
 												</button>
 											</TooltipTrigger>
 											<TooltipContent>
@@ -492,7 +492,7 @@ function ProviderUsageTabImpl({
 													data-testid="provider-throughput-legend-more-trigger"
 													className="text-muted-foreground cursor-default"
 												>
-													+{providerThroughputProviders.length - 1} more
+													+{providerThroughputProviders.length - 1} {t("ui.overviewTab.more", { ns: "observability" })}
 												</button>
 											</TooltipTrigger>
 											<TooltipContent>

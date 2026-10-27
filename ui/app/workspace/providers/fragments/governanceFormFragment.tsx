@@ -237,8 +237,7 @@ export function GovernanceFormFragment({ provider }: GovernanceFormFragmentProps
 								{t("providers.alignCalendarCycle")}
 							</Label>
 							<p className="text-muted-foreground text-xs">
-								Reset budgets at the start of each period (e.g. 1st of month) instead of rolling from creation date. Single-unit day, week,
-								month, quarter and year windows align to calendar boundaries. Other durations remain rolling.
+								{t("ui.governanceFormFragment.resetBudgetsAtTheStartOfEachPeriodEG", { ns: "models" })}
 							</p>
 						</div>
 						<Switch

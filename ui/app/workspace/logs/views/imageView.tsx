@@ -95,7 +95,9 @@ export default function ImageView({ imageInput, imageEditInput, imageVariationIn
 					<div className="space-y-4 p-6">
 						{imageEditInput.images && imageEditInput.images.length > 0 && (
 							<div>
-								<div className="text-muted-foreground mb-2 text-xs font-medium">INPUT IMAGES</div>
+								<div className="text-muted-foreground mb-2 text-xs font-medium">
+									{t("ui.imageView.iNPUTIMAGES", { ns: "observability" })}
+								</div>
 								<div className="flex flex-wrap gap-2">
 									{imageEditInput.images.map((img, i) =>
 										img.image ? (
@@ -128,7 +130,7 @@ export default function ImageView({ imageInput, imageEditInput, imageVariationIn
 						{methodTypeLabel} {localeMessages.t("labels.input", { ns: "observability" })}
 					</div>
 					<div className="space-y-4 p-6">
-						<div className="text-muted-foreground mb-2 text-xs font-medium">INPUT IMAGE</div>
+						<div className="text-muted-foreground mb-2 text-xs font-medium">{t("ui.imageView.iNPUTIMAGE", { ns: "observability" })}</div>
 						<img
 							src={getImageSrc(imageVariationInput.image.image)}
 							alt={localeMessages.t("labels.input", { ns: "observability" })}
@@ -150,7 +152,9 @@ export default function ImageView({ imageInput, imageEditInput, imageVariationIn
 							<>
 								{currentImage.revised_prompt && (
 									<div className="mb-4">
-										<div className="text-muted-foreground mb-2 text-xs font-medium">REVISED PROMPT</div>
+										<div className="text-muted-foreground mb-2 text-xs font-medium">
+											{t("ui.imageView.rEVISEDPROMPT", { ns: "observability" })}
+										</div>
 										<div className="font-mono text-xs">{currentImage.revised_prompt}</div>
 									</div>
 								)}

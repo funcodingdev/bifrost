@@ -47,5 +47,30 @@
 		"inMinutes": "in {{count}} minutes",
 		"invalidTitle": "This link is no longer valid",
 		"invalidBody": "The authorization link has expired, been used already, or had its token stripped. Restart the connection from your MCP client to get a fresh link."
+	},
+	"ui": {
+		"setupTokenView": {
+			"couldNotReachBifrostCheckThatTheServerIs": "Could not reach Bifrost. Check that the server is running.",
+			"invalidSetupToken": "Invalid setup token",
+			"finishSettingUpBifrost": "Finish setting up Bifrost",
+			"dashboardAuthenticationIsNotConfiguredSoTheAPIIs": "Dashboard authentication is not configured, so the API is locked. Enter the setup token to continue and create an admin account.",
+			"enterTheSetupToken": "Enter the setup token",
+			"whereDoIFindTheSetupToken": "Where do I find the setup token?",
+			"noSetupTokenIsConfiguredOnThisServerSo": "No setup token is configured on this server, so setup cannot continue yet."
+		},
+		"page": {
+			"continueOnlyIfYouRecognizeThisApplicationAndIts": "Continue only if you recognize this application and its callback destination:",
+			"thisAuthorizationNeedsASignedInBifrostAccountTakingYou": "This authorization needs a signed-in Bifrost account. Taking you to sign in — you'll come straight back here."
+		}
+	},
+	"setup": {
+		"instructionsIntro": "The setup token is a secret the operator sets on the server. Set it one of two ways, then restart Bifrost:",
+		"setEnvironment": "Set the <code>BIFROST_SETUP_TOKEN</code> environment variable.",
+		"setConfig": "Add <code>setup_token</code> at the top level of <code>config.json</code>. It accepts a literal value, an <code>env.VAR</code> reference, or a <code>vault.path</code> reference:",
+		"sendHeader": "API clients send the same value in the <code>{{header}}</code> header. The token stops working once dashboard authentication is enabled.",
+		"checkFailed": "Bifrost returned {{status}} while checking the token"
+	},
+	"handover": {
+		"status": "Sign-in status: {{status}}"
 	}
 }

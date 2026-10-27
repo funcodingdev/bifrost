@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import type { AgentLogFilters } from "@/lib/types/agentLogs";
@@ -21,8 +22,9 @@ export function InteractiveValue({
 	testId?: string;
 	className?: string;
 }) {
+	const { t: tCopy } = useTranslation();
 	const canFilter = Boolean(filter && onFilter);
-	const { copy } = useCopyToClipboard({ successMessage: "Copied" });
+	const { copy } = useCopyToClipboard({ successMessage: tCopy("common.copied", { ns: "mcp" }) });
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>
@@ -42,13 +44,17 @@ export function InteractiveValue({
 						canFilter ? "cursor-pointer" : "cursor-context-menu",
 						className,
 					)}
-					aria-label={canFilter ? `Filter by ${label}` : label}
+					aria-label={canFilter ? tCopy("accessibility.filterBy", { ns: "common", label: label }) : label}
 					data-testid={testId}
 				>
 					{value}
 				</button>
 			</TooltipTrigger>
-			<TooltipContent>{canFilter ? "Click to filter · Right-click to copy" : "Right-click to copy"}</TooltipContent>
+			<TooltipContent>
+				{canFilter
+					? tCopy("ui.page.clickToFilterRightClickToCopy", { ns: "agents" })
+					: tCopy("ui.interactiveValue.rightClickToCopy", { ns: "agents" })}
+			</TooltipContent>
 		</Tooltip>
 	);
 }

@@ -36,7 +36,7 @@ export function PluginFormFragment({ form, isEditMode = false }: PluginFormFragm
 						className="text-primary hover:underline"
 						data-testid="plugins-form-docs-link"
 					>
-						{t("plugins.learnMore")} about custom plugins
+						{t("plugins.learnMore")} {t("ui.pluginFormFragments.aboutCustomPlugins", { ns: "common" })}
 					</a>
 				</p>
 			</div>

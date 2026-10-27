@@ -89,7 +89,7 @@ export default function DocsPage() {
 							<BookOpen className="h-4 w-4" />
 							<span className="font-semibold">{t("docs.title")}</span>
 						</div>
-						<GradientHeader title="Power Up Your Bifrost Stack" />
+						<GradientHeader title={t("ui.page.powerUpYourBifrostStack", { ns: "common" })} />
 						<p className="text-muted-foreground mx-auto max-w-2xl text-lg">{t("docs.subtitle")}</p>
 						<div className="flex justify-center gap-4">
 							<Button asChild>
@@ -100,7 +100,7 @@ export default function DocsPage() {
 									data-testid="docs-view-full-documentation-link"
 								>
 									<ExternalLink className="mr-2 h-4 w-4" />
-									View Full Documentation
+									{t("ui.page.viewFullDocumentation", { ns: "common" })}
 								</a>
 							</Button>
 							<Button variant="outline" asChild>
@@ -111,7 +111,7 @@ export default function DocsPage() {
 									data-testid="docs-quick-start-guide-link"
 								>
 									<Play className="mr-2 h-4 w-4" />
-									Quick Start Guide
+									{t("ui.page.quickStartGuide", { ns: "common" })}
 								</a>
 							</Button>
 						</div>
@@ -156,7 +156,7 @@ export default function DocsPage() {
 												className="flex items-center justify-center gap-2"
 												data-testid={`docs-read-more-${section.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}`}
 											>
-												Read More
+												{t("ui.page.readMore", { ns: "common" })}
 												<ExternalLink className="h-4 w-4" />
 											</a>
 										</Button>

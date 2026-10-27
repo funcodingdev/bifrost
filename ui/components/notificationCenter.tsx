@@ -171,14 +171,16 @@ export default function NotificationCenter() {
 						type="button"
 						aria-label={
 							unreadCount || activeJobCount || liveAttention || freshNewsUnreadCount
-								? `Notifications, ${[
-										liveAttention && `${liveAttention} ongoing`,
-										unreadCount && `${unreadCount} unread`,
-										activeJobCount && `${activeJobCount} running`,
-										freshNewsUnreadCount && `${freshNewsUnreadCount} new in news`,
-									]
-										.filter(Boolean)
-										.join(", ")}`
+								? t("notifications.summary", {
+										details: [
+											liveAttention ? t("notifications.ongoingCount", { count: liveAttention }) : null,
+											unreadCount ? t("notifications.unreadCount", { count: unreadCount }) : null,
+											activeJobCount ? t("notifications.runningCount", { count: activeJobCount }) : null,
+											freshNewsUnreadCount ? t("notifications.newsCount", { count: freshNewsUnreadCount }) : null,
+										]
+											.filter(Boolean)
+											.join(t("notifications.summarySeparator")),
+									})
 								: localeMessages.t("notifications.title", { ns: "governance" })
 						}
 						data-testid="topbar-notifications-btn"
@@ -225,19 +227,19 @@ export default function NotificationCenter() {
 										{jobsAvailable && (
 											<TabsTrigger
 												value="jobs"
-												title="Background jobs"
+												title={t("ui.notificationCenter.backgroundJobs", { ns: "common" })}
 												className="gap-1.5 rounded-sm px-2 text-xs"
 												data-testid="notification-tab-jobs"
 											>
 												<Timer className="size-3.5" />
-												Jobs
+												{t("ui.notificationCenter.jobs", { ns: "common" })}
 												{activeJobCount > 0 && <TabCount count={activeJobCount} />}
 											</TabsTrigger>
 										)}
 										{newsAvailable && (
 											<TabsTrigger value="news" className="gap-1.5 rounded-sm px-2 text-xs" data-testid="notification-tab-news">
 												<Newspaper className="size-3.5" />
-												News
+												{t("ui.notificationCenter.news", { ns: "common" })}
 												{newsUnreadCount > 0 && <TabCount count={newsUnreadCount} />}
 											</TabsTrigger>
 										)}
@@ -266,7 +268,7 @@ export default function NotificationCenter() {
 									className="text-muted-foreground hover:text-foreground shrink-0 cursor-pointer text-xs whitespace-nowrap transition-colors"
 									data-testid="sidekiq-jobs-clear-finished"
 								>
-									Clear finished
+									{t("ui.notificationCenter.clearFinished", { ns: "common" })}
 								</button>
 							)}
 						</div>
@@ -279,9 +281,11 @@ export default function NotificationCenter() {
 									onCancel={async (id) => {
 										try {
 											const result = await cancelJob(id).unwrap();
-											if (!result.cancelled) toast.info("That job had already finished");
+											if (!result.cancelled) toast.info(t("ui.notificationCenter.thatJobHadAlreadyFinished", { ns: "common" }));
 										} catch (error) {
-											toast.error("Couldn't cancel the job", { description: getErrorMessage(error) });
+											toast.error(t("ui.notificationCenter.couldnTCancelTheJob", { ns: "common" }), {
+												description: getErrorMessage(error),
+											});
 										}
 									}}
 									onDismiss={(ids) => ids.forEach((id) => dispatch(removeNotification(id)))}
@@ -343,7 +347,7 @@ export default function NotificationCenter() {
 									<span className="bg-muted text-muted-foreground flex size-9 items-center justify-center rounded-full">
 										<Check className="size-4" />
 									</span>
-									<p className="text-sm font-medium">You&apos;re all caught up</p>
+									<p className="text-sm font-medium">{t("ui.notificationCenter.youReAllCaughtUp", { ns: "common" })}</p>
 									<p className="text-muted-foreground text-xs">
 										{localeMessages.t("notifications.emptyDescription", { ns: "governance" })}
 									</p>
@@ -409,7 +413,7 @@ export default function NotificationCenter() {
 													</button>
 													<button
 														type="button"
-														aria-label={`Dismiss ${notification.title}`}
+														aria-label={t("accessibility.dismissNamed", { ns: "common", name: notification.title })}
 														onClick={() => dispatch(removeNotification(notification.id))}
 														data-testid={`notification-dismiss-${notification.id}`}
 														className="text-muted-foreground hover:bg-muted hover:text-foreground absolute top-2.5 right-2.5 cursor-pointer rounded p-1 opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
@@ -482,14 +486,14 @@ function NewsList({
 	if (isLoading) {
 		return (
 			<div className="text-muted-foreground flex h-44 items-center justify-center gap-2 text-sm">
-				<RefreshCw className="size-4 animate-spin" /> Loading news
+				<RefreshCw className="size-4 animate-spin" /> {t("ui.notificationCenter.loadingNews", { ns: "common" })}
 			</div>
 		);
 	}
 	if (isError) {
 		return (
 			<div className="flex h-44 flex-col items-center justify-center gap-3 px-6 text-center">
-				<p className="text-muted-foreground text-sm">News could not be loaded.</p>
+				<p className="text-muted-foreground text-sm">{t("ui.notificationCenter.newsCouldNotBeLoaded", { ns: "common" })}</p>
 				<button type="button" onClick={onRetry} className="text-primary cursor-pointer text-sm font-medium hover:underline">
 					{localeMessages.t("retry", { ns: "common" })}
 				</button>
@@ -505,16 +509,18 @@ function NewsList({
 						<Check className="size-4" />
 					</span>
 					<p className="text-sm font-medium">{t("notifications.emptyTitle")}</p>
-					<p className="text-muted-foreground text-xs">New stories from your sources will appear here.</p>
+					<p className="text-muted-foreground text-xs">
+						{t("ui.notificationCenter.newStoriesFromYourSourcesWillAppearHere", { ns: "common" })}
+					</p>
 				</div>
 			) : items.length === 0 ? (
 				<div className="flex h-44 flex-col items-center justify-center gap-2 px-6 text-center" data-testid="rss-empty-state">
 					<span className="bg-muted text-muted-foreground flex size-9 items-center justify-center rounded-full">
 						<Newspaper className="size-4" />
 					</span>
-					<p className="text-sm font-medium">No news yet</p>
+					<p className="text-sm font-medium">{t("ui.notificationCenter.noNewsYet", { ns: "common" })}</p>
 					<button type="button" onClick={onManageSources} className="text-primary cursor-pointer text-xs font-medium hover:underline">
-						Choose news sources
+						{t("ui.notificationCenter.chooseNewsSources", { ns: "common" })}
 					</button>
 				</div>
 			) : (
@@ -567,7 +573,7 @@ function NewsList({
 									</a>
 									<button
 										type="button"
-										aria-label={`Clear ${item.title}`}
+										aria-label={t("accessibility.clearNamed", { ns: "common", name: item.title })}
 										onClick={() => onDismiss(item.id)}
 										data-testid={`rss-dismiss-${item.id}`}
 										className="text-muted-foreground hover:bg-muted hover:text-foreground absolute top-2.5 right-2.5 cursor-pointer rounded p-1 opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
@@ -582,7 +588,8 @@ function NewsList({
 			)}
 			{failedFeeds.length > 0 && (
 				<div className="text-muted-foreground border-t px-4 py-2 text-[11px]" data-testid="rss-failed-feeds">
-					Couldn&apos;t load {failedFeeds.map((feed) => feed.feed_name).join(", ")}.
+					{t("ui.notificationCenter.couldnTLoad", { ns: "common" }) + " "}
+					{failedFeeds.map((feed) => feed.feed_name).join(", ")}.
 				</div>
 			)}
 			{items.length > 0 && (
@@ -612,11 +619,12 @@ function NewsList({
 }
 
 function NewsSourcesButton({ onClick }: { onClick: () => void }) {
+	const { t: tCopy } = useTranslation();
 	return (
 		<button
 			type="button"
-			aria-label="News sources"
-			title="News sources"
+			aria-label={tCopy("ui.notificationCenter.newsSources", { ns: "common" })}
+			title={tCopy("ui.notificationCenter.newsSources", { ns: "common" })}
 			onClick={onClick}
 			className="text-muted-foreground hover:bg-accent hover:text-foreground flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md transition-colors"
 			data-testid="rss-sources-btn"
@@ -632,9 +640,12 @@ function NewsSourcesButton({ onClick }: { onClick: () => void }) {
  * themselves when the condition does.
  */
 function LiveNoticesSection({ notices, onOpen }: { notices: LiveNotice[]; onOpen: (path: string) => void }) {
+	const { t: tCopy } = useTranslation();
 	return (
 		<div className="border-b" data-testid="live-notices">
-			<div className="text-muted-foreground px-4 pt-2.5 pb-1 text-[11px] font-medium tracking-wide uppercase">Ongoing</div>
+			<div className="text-muted-foreground px-4 pt-2.5 pb-1 text-[11px] font-medium tracking-wide uppercase">
+				{tCopy("ui.notificationCenter.ongoing", { ns: "common" })}
+			</div>
 			<div className="divide-y">
 				{notices.map((notice) => {
 					const Icon = severityIcons[notice.severity];

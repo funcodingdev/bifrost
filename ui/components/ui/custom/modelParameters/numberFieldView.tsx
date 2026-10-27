@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export default function NumberFieldView(props: Props) {
+	const { t: tCopy } = useTranslation();
 	const { field, config } = props;
 
 	const invalid = field.range ? isInvalid(config[field.id] as number, field.range) : false;
@@ -71,7 +73,10 @@ export default function NumberFieldView(props: Props) {
 			)}
 			{invalid && (
 				<div className="text-content-error -mt-2">
-					Please keep {field.label} between {field.range?.min} to {field.range?.max}.
+					{tCopy("ui.numberFieldView.pleaseKeep", { ns: "common" }) + " "}
+					{field.label} {tCopy("ui.numberFieldView.between", { ns: "common" }) + " "}
+					{field.range?.min} {tCopy("ui.numberFieldView.to", { ns: "common" }) + " "}
+					{field.range?.max}.
 				</div>
 			)}
 		</div>

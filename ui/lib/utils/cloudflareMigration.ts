@@ -1,3 +1,4 @@
+import i18nReview from "@/lib/i18n";
 import { ModelProvider, ModelProviderKey, ModelProviderName, NetworkConfig, UpdateProviderRequest } from "@/lib/types/config";
 import { DefaultNetworkConfig, DefaultPerformanceConfig } from "@/lib/constants/config";
 import { SecretVar } from "@/lib/types/schemas";
@@ -202,12 +203,24 @@ export const buildMigrationSteps = (plan: MigrationPlan): MigrationStep[] => {
 		const count = plan.keys.length;
 		steps.push({ id: STEP_IDS.updateKeys, label: `Add the account ID to ${count} key${count === 1 ? "" : "s"}`, status: "pending" });
 	}
-	steps.push({ id: STEP_IDS.convert, label: "Convert to the official Cloudflare provider", status: "pending" });
+	steps.push({
+		id: STEP_IDS.convert,
+		label: i18nReview.t("ui.cloudflareMigration.convertToTheOfficialCloudflareProvider", { ns: "common" }),
+		status: "pending",
+	});
 	if (plan.headerToken) {
 		steps.push({ id: STEP_IDS.createKey, label: `Create key "${plan.headerToken.name}" from the Authorization header`, status: "pending" });
 	}
-	steps.push({ id: STEP_IDS.verify, label: "Verify the Cloudflare provider", status: "pending" });
-	steps.push({ id: STEP_IDS.refreshModels, label: "Refresh models", status: "pending" });
+	steps.push({
+		id: STEP_IDS.verify,
+		label: i18nReview.t("ui.cloudflareMigration.verifyTheCloudflareProvider", { ns: "common" }),
+		status: "pending",
+	});
+	steps.push({
+		id: STEP_IDS.refreshModels,
+		label: i18nReview.t("ui.cloudflareMigration.refreshModels", { ns: "common" }),
+		status: "pending",
+	});
 	return steps;
 };
 

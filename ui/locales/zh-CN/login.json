@@ -22,7 +22,7 @@
 		"invalidRedirect": "无效的重定向 URL",
 		"linkUnavailable": "链接不可用",
 		"linkUnavailableBody": "此授权链接可能已过期或已被使用。请从 MCP 客户端重新启动连接以获取新链接。",
-		"mcpClient": "MCP Client",
+		"mcpClient": "MCP 客户端",
 		"wantsToConnect": "{{name}} 想要连接",
 		"chooseIdentity": "选择你希望向 Bifrost 表明身份的方式",
 		"noAuthOptions": "没有可用的认证选项",
@@ -47,5 +47,30 @@
 		"inMinutes": "{{count}} 分钟后",
 		"invalidTitle": "此链接已失效",
 		"invalidBody": "授权链接已过期、已被使用，或其令牌已被剥离。请从 MCP 客户端重新启动连接以获取新链接。"
+	},
+	"ui": {
+		"setupTokenView": {
+			"couldNotReachBifrostCheckThatTheServerIs": "无法连接 Bifrost，请检查服务器是否正在运行。",
+			"invalidSetupToken": "初始化令牌无效",
+			"finishSettingUpBifrost": "完成 Bifrost 初始化",
+			"dashboardAuthenticationIsNotConfiguredSoTheAPIIs": "尚未配置仪表盘认证，API 已锁定。输入初始化令牌以继续创建管理员账户。",
+			"enterTheSetupToken": "输入初始化令牌",
+			"whereDoIFindTheSetupToken": "在哪里获取初始化令牌？",
+			"noSetupTokenIsConfiguredOnThisServerSo": "服务器尚未配置初始化令牌，暂时无法继续设置。"
+		},
+		"page": {
+			"continueOnlyIfYouRecognizeThisApplicationAndIts": "请确认你信任此应用及其回调地址后再继续：",
+			"thisAuthorizationNeedsASignedInBifrostAccountTakingYou": "此授权需要已登录的 Bifrost 账户。正在跳转到登录页面，登录后会自动返回。"
+		}
+	},
+	"setup": {
+		"instructionsIntro": "初始化令牌由运维人员在服务器上设置。请通过以下任一方式设置，然后重启 Bifrost：",
+		"setEnvironment": "设置 <code>BIFROST_SETUP_TOKEN</code> 环境变量。",
+		"setConfig": "在 <code>config.json</code> 顶层添加 <code>setup_token</code>。支持直接填写值，或使用 <code>env.VAR</code> 环境变量引用、<code>vault.path</code> 密钥库引用：",
+		"sendHeader": "API 客户端需在 <code>{{header}}</code> 请求头中发送相同的值。启用仪表盘认证后，此令牌即失效。",
+		"checkFailed": "检查令牌时，Bifrost 返回了状态码 {{status}}"
+	},
+	"handover": {
+		"status": "登录状态：{{status}}"
 	}
 }

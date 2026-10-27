@@ -408,7 +408,7 @@ export function validateMCPClientForm({
 				hasErrors = true;
 			}
 			if (openAPIBaseUrlRequired(openapi.baseUrlChoice, openapi.preview) && !oc?.base_url?.trim()) {
-				setError("openapi_config.base_url", { message: "Base URL is required" });
+				setError("openapi_config.base_url", { message: localeMessages.t("ui.mcpClientFormFields.baseURLIsRequired", { ns: "mcp" }) });
 				hasErrors = true;
 			}
 		}
@@ -865,29 +865,29 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 			{/* Connection & Authentication */}
 			<div className="space-y-4">
 				<SectionHeader
-					title={isOpenAPI ? "OpenAPI Document & Authentication" : t("registry.form.connectionAuth")}
+					title={isOpenAPI ? t("ui.mcpClientFormFields.openAPIDocumentAuthentication", { ns: "mcp" }) : t("registry.form.connectionAuth")}
 					description={
 						lockConnection
 							? t("registry.form.connectionAuthLocked")
 							: isOpenAPI
-								? "Bifrost builds an MCP server from the document: every supported operation becomes a tool whose call is sent to the API. The server source and authentication settings cannot be changed later."
-								: "Choose how Bifrost connects to this server and, for network transports, how requests are authenticated. These settings cannot be changed later."
+								? t("ui.mcpClientFormFields.bifrostBuildsAnMCPServerFromTheDocumentEvery", { ns: "mcp" })
+								: t("ui.mcpClientFormFields.chooseHowBifrostConnectsToThisServerAndFor", { ns: "mcp" })
 					}
 				/>
 				<div className="space-y-4 rounded-md border p-4">
 					{!lockConnection && (
 						<FormItem className="w-full">
-							<FormLabel>Server source</FormLabel>
+							<FormLabel>{t("ui.mcpClientFormFields.serverSource", { ns: "mcp" })}</FormLabel>
 							<Tabs
 								value={isOpenAPI ? "openapi" : "mcp"}
 								onValueChange={(value) => applyConnectionType(value === "openapi" ? "openapi" : lastTransport.current)}
 							>
 								<TabsList data-testid="mcp-server-source-tabs">
 									<TabsTrigger value="mcp" data-testid="mcp-server-source-mcp">
-										Connect to an MCP server
+										{t("ui.mcpClientFormFields.connectToAnMCPServer", { ns: "mcp" })}
 									</TabsTrigger>
 									<TabsTrigger value="openapi" data-testid="mcp-server-source-openapi" className="gap-2">
-										Generate from an OpenAPI spec
+										{t("ui.mcpClientFormFields.generateFromAnOpenAPISpec", { ns: "mcp" })}
 										<BetaBadge />
 									</TabsTrigger>
 								</TabsList>
@@ -958,7 +958,7 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 
 					{isOpenAPI && (
 						<div className="space-y-2">
-							<FormLabel>OpenAPI document</FormLabel>
+							<FormLabel>{t("ui.mcpClientFormFields.openAPIDocument", { ns: "mcp" })}</FormLabel>
 							<OpenAPISpecSource
 								mode={openapi.sourceMode}
 								onModeChange={(mode) => {
@@ -1093,7 +1093,7 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 									title={t("registry.filter.headers")}
 									description={
 										isOpenAPI
-											? "Static headers sent with every request to the API, alongside the credentials above."
+											? t("ui.mcpClientFormFields.staticHeadersSentWithEveryRequestToTheAPI", { ns: "mcp" })
 											: t("registry.form.headersDesc")
 									}
 								/>
@@ -1132,7 +1132,7 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 									title={t("registry.form.requiredHeaders")}
 									description={
 										isOpenAPI
-											? "Comma-separated header names each caller must supply on first use, in addition to the headers named under API authentication. Values are submitted per user, not stored on this server config."
+											? t("ui.mcpClientFormFields.commaSeparatedHeaderNamesEachCallerMustSupplyOnFirst", { ns: "mcp" })
 											: t("registry.form.requiredHeadersDesc")
 									}
 								/>

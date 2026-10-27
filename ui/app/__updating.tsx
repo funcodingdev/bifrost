@@ -53,7 +53,7 @@ function UpdatingScreenBody() {
 	const { t } = useTranslation("shell");
 	const UPDATING_COPY = IS_ENTERPRISE
 		? {
-				title: "A new version of Bifrost is rolling out",
+				title: t("ui.updating.aNewVersionOfBifrostIsRollingOut", { ns: "common" }),
 				waiting:
 					"Your organization has chosen to roll out a new version of Bifrost. The rollout is progressing one instance at a time. This page will reload automatically once the rollout completes across all instances.",
 				paused:

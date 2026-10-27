@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import FullPageLoader from "@/components/fullPageLoader";
 import { useToast } from "@/hooks/use-toast";
 import { useDebouncedValue } from "@/hooks/useDebounce";
@@ -18,6 +19,7 @@ function resolveBooleanFacet(selected: string[]): boolean | undefined {
 }
 
 export default function MCPServersPage() {
+	const { t: tCopy } = useTranslation();
 	const [urlState, setUrlState] = useQueryStates(
 		{
 			search: parseAsString.withDefault(""),
@@ -121,12 +123,12 @@ export default function MCPServersPage() {
 			const message = getErrorMessage(error);
 			if (message.toLowerCase().includes("mcp is not configured in this bifrost instance")) return;
 			toast({
-				title: "Error",
+				title: tCopy("error", { ns: "common" }),
 				description: message,
 				variant: "destructive",
 			});
 		}
-	}, [error, toast]);
+	}, [error, toast, tCopy]);
 
 	if (isLoading) {
 		return <FullPageLoader />;

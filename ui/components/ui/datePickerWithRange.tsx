@@ -1,3 +1,5 @@
+import { getLocale } from "@/lib/i18n";
+import { dateFnsLocale } from "@/lib/i18n/dateLocale";
 import { useTranslation } from "react-i18next";
 import { getSupportedTimezones } from "@/lib/timezones";
 import { cn } from "@/lib/utils";
@@ -114,6 +116,8 @@ export function DateTimePickerWithRange(props: DateTimePickerWithRangeProps) {
 			return "";
 		}
 
+		if (getLocale() === "zh-CN") return `${timeObj.hour.toString().padStart(2, "0")}:${timeObj.minute.toString().padStart(2, "0")}`;
+
 		let hour = ((timeObj.hour + 11) % 12) + 1; // Convert hour to 12-hour format
 		let period = timeObj.hour >= 12 ? "PM" : "AM"; // Determine AM/PM
 		let minute = timeObj.minute.toString().padStart(2, "0"); // Ensure the minute has two digits
@@ -143,8 +147,9 @@ export function DateTimePickerWithRange(props: DateTimePickerWithRangeProps) {
 
 	/** Format a date for the trigger button, respecting the active timezone. */
 	const formatDate = (d: Date, fmt: string): string => {
-		if (activeTimezone) return format(d, fmt, { in: tz(activeTimezone) });
-		return format(d, fmt);
+		if (activeTimezone)
+			return format(d, getLocale() === "zh-CN" ? "yyyy年M月d日" : fmt, { in: tz(activeTimezone), locale: dateFnsLocale(getLocale()) });
+		return format(d, getLocale() === "zh-CN" ? "yyyy年M月d日" : fmt, { locale: dateFnsLocale(getLocale()) });
 	};
 
 	/** Short timezone abbreviation for the trigger button label. */
@@ -423,6 +428,8 @@ export function DateTimePicker(props: DateTimePickerProps) {
 			return "";
 		}
 
+		if (getLocale() === "zh-CN") return `${timeObj.hour.toString().padStart(2, "0")}:${timeObj.minute.toString().padStart(2, "0")}`;
+
 		let hour = ((timeObj.hour + 11) % 12) + 1; // Convert hour to 12-hour format
 		let period = timeObj.hour >= 12 ? "PM" : "AM"; // Determine AM/PM
 		let minute = timeObj.minute.toString().padStart(2, "0"); // Ensure the minute has two digits
@@ -467,7 +474,8 @@ export function DateTimePicker(props: DateTimePickerProps) {
 						<CalendarIcon className="h-4 w-4" strokeWidth={1.5} />
 						{date ? (
 							<>
-								{format(date, "LLL dd, y")} {printTimeValue(timeValue)}
+								{format(date, getLocale() === "zh-CN" ? "yyyy年M月d日" : "LLL dd, y", { locale: dateFnsLocale(getLocale()) })}{" "}
+								{printTimeValue(timeValue)}
 							</>
 						) : (
 							<span>{t("datePicker.pickADateTime")}</span>

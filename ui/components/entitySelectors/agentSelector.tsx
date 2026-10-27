@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 // Searchable A2A agent selector. The agents endpoint returns the full
 // registration list in one call, so search filters client-side rather than
 // re-querying per keystroke.
@@ -14,6 +15,7 @@ import { useMemo } from "react";
 export type AgentSelectorProps = EntitySelectorCommonProps & EntitySelectorModeProps;
 
 export function AgentSelector(props: AgentSelectorProps) {
+	const { t } = useTranslation("agents");
 	const { open, setOpen, setSearch, debouncedSearch } = useEntitySelectorSearch();
 
 	const { data, isFetching, isError } = useGetAgentsQuery();
@@ -27,15 +29,15 @@ export function AgentSelector(props: AgentSelectorProps) {
 				label: agent.name,
 				// Surfaces the two states that change what a grant means: an open
 				// agent needs none, a disabled one will not answer.
-				description: agent.allow_by_default ? "Open to all keys" : agent.enabled ? undefined : "Disabled",
+				description: agent.allow_by_default ? t("access.openToAll") : agent.enabled ? undefined : t("filters.disabled"),
 			}));
-	}, [data, debouncedSearch]);
+	}, [data, debouncedSearch, t]);
 
 	return (
 		<EntitySelector
 			{...props}
-			entityLabel="Agent"
-			entityLabelPlural="Agents"
+			entityLabel={t("access.agent")}
+			entityLabelPlural={t("access.agents")}
 			options={options}
 			isFetching={isFetching}
 			isError={isError}

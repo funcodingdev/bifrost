@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { ChevronDown, ChevronUp, Copy } from "lucide-react";
@@ -12,6 +13,7 @@ interface CollapsibleBoxProps {
 }
 
 export default function CollapsibleBox({ title, children, collapsedHeight = 60, expandedMaxHeight = 450, onCopy }: CollapsibleBoxProps) {
+	const { t: tCopy } = useTranslation();
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [needsExpansion, setNeedsExpansion] = useState(false);
 	const innerContentRef = useRef<HTMLDivElement>(null);
@@ -72,12 +74,12 @@ export default function CollapsibleBox({ title, children, collapsedHeight = 60, 
 					{isExpanded ? (
 						<>
 							<ChevronUp className="h-3 w-3" />
-							show less
+							{tCopy("ui.collapsibleBox.showLess", { ns: "observability" })}
 						</>
 					) : (
 						<>
 							<ChevronDown className="h-3 w-3" />
-							show more
+							{tCopy("ui.collapsibleBox.showMore", { ns: "observability" })}
 						</>
 					)}
 				</button>

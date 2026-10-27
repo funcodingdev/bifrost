@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { SecretVarInput } from "@/components/ui/secretVarInput";
 import { Input } from "@/components/ui/input";
@@ -78,6 +79,7 @@ export function HeadersTable<T extends HeaderValue>({
 	renderKeyInput,
 	renderValueInput,
 }: HeadersTableProps<T>) {
+	const { t: tCopy } = useTranslation();
 	// Use explicit prop if provided, otherwise detect from existing values
 	const isSecretVarMode = useSecretVarInput ?? Object.values(value || {}).some((v) => isSecretVar(v));
 
@@ -222,11 +224,11 @@ export function HeadersTable<T extends HeaderValue>({
 				<Table className="table-fixed">
 					<TableHeader>
 						<TableRow>
-							<TableHead className="w-[40%] px-4 py-2">Name</TableHead>
-							<TableHead className="px-4 py-2">Value</TableHead>
+							<TableHead className="w-[40%] px-4 py-2">{tCopy("skillsRepo.name", { ns: "config" })}</TableHead>
+							<TableHead className="px-4 py-2">{tCopy("skillsRepo.value", { ns: "config" })}</TableHead>
 							{!isFixedKeys && (
 								<TableHead className="w-10 p-0">
-									<span className="sr-only">Actions</span>
+									<span className="sr-only">{tCopy("actions", { ns: "common" })}</span>
 								</TableHead>
 							)}
 						</TableRow>
@@ -282,7 +284,9 @@ export function HeadersTable<T extends HeaderValue>({
 											)}
 											{hasConflict && (
 												<span className="text-destructive px-3 text-xs">
-													{conflictKey === UNSUPPORTED_KEY ? "This key name is not supported" : "Duplicate key"}
+													{conflictKey === UNSUPPORTED_KEY
+														? tCopy("ui.headersTable.thisKeyNameIsNotSupported", { ns: "common" })
+														: tCopy("ui.headersTable.duplicateKey", { ns: "common" })}
 												</span>
 											)}
 										</div>

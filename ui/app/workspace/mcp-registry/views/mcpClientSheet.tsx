@@ -714,7 +714,7 @@ export default function MCPClientSheet({
 			if (replacingSpec) {
 				if (!replacePreviewCurrent) {
 					toast({
-						title: "The replacement document is not parsed yet",
+						title: t("ui.mcpClientSheet.theReplacementDocumentIsNotParsedYet", { ns: "mcp" }),
 						description:
 							replaceSourceMode === "url"
 								? "Fetch the spec URL so its operations can be reviewed before it replaces the current one."
@@ -730,8 +730,8 @@ export default function MCPClientSheet({
 				});
 				if (hold === "pending") {
 					toast({
-						title: "Still reading the current document",
-						description: "Try again in a moment, so auto-execute settings and tool prices carry over to the replacement.",
+						title: t("ui.mcpClientSheet.stillReadingTheCurrentDocument", { ns: "mcp" }),
+						description: t("ui.mcpClientSheet.tryAgainInAMomentSoAutoExecuteSettingsAnd", { ns: "mcp" }),
 						variant: "destructive",
 					});
 					return;
@@ -739,9 +739,8 @@ export default function MCPClientSheet({
 				if (hold === "baseline-failed") {
 					replaceBaselineFailureAcknowledged.current = true;
 					toast({
-						title: "Auto-execute settings and tool prices will not carry over",
-						description:
-							"The current document could not be read to match them to the new operations. Save again to replace it anyway; set them again on the Tools tab afterwards.",
+						title: t("ui.mcpClientSheet.autoExecuteSettingsAndToolPricesWillNotCarryOver", { ns: "mcp" }),
+						description: t("ui.mcpClientSheet.theCurrentDocumentCouldNotBeReadToMatch", { ns: "mcp" }),
 						variant: "destructive",
 					});
 					return;
@@ -749,8 +748,8 @@ export default function MCPClientSheet({
 				const supported = supportedToolNames(replacePreview);
 				if (!replaceSelection.some((name) => supported.includes(name))) {
 					toast({
-						title: "Select at least one operation",
-						description: "Tick the operations this server should expose as tools.",
+						title: t("ui.mcpClientSheet.selectAtLeastOneOperation", { ns: "mcp" }),
+						description: t("ui.mcpClientSheet.tickTheOperationsThisServerShouldExposeAsTools", { ns: "mcp" }),
 						variant: "destructive",
 					});
 					return;
@@ -1095,14 +1094,18 @@ export default function MCPClientSheet({
 												{/* An OpenAPI server is generated, not connected to: its summary
 												    names the source and the API it calls, not a transport. */}
 												<div className="text-sm font-medium">
-													{isOpenAPIClient ? "Server source" : localeMessages.t("registry.sheet.connection", { ns: "mcp" })}
+													{isOpenAPIClient
+														? t("ui.mcpClientFormFields.serverSource", { ns: "mcp" })
+														: localeMessages.t("registry.sheet.connection", { ns: "mcp" })}
 												</div>
 												<div
 													className="bg-muted/40 text-muted-foreground rounded-md border px-3 py-2 text-sm"
 													data-testid="mcp-client-sheet-connection-summary"
 												>
 													{isOpenAPIClient ? (
-														<span className="text-foreground text-xs">Generated from an OpenAPI spec</span>
+														<span className="text-foreground text-xs">
+															{t("ui.mcpClientSheet.generatedFromAnOpenAPISpec", { ns: "mcp" })}
+														</span>
 													) : (
 														<span className="text-foreground font-mono text-xs uppercase">
 															{mcpClient.config.connection_type === "stdio"
@@ -1113,13 +1116,14 @@ export default function MCPClientSheet({
 														</span>
 													)}
 													<span className="mx-2">·</span>
-													{isOpenAPIClient && <span className="mr-1">calls</span>}
+													{isOpenAPIClient && <span className="mr-1">{t("ui.mcpClientSheet.calls", { ns: "mcp" })}</span>}
 													<span className="font-mono break-all">
 														{mcpClient.config.connection_type === "stdio"
 															? `${mcpClient.config.stdio_config?.command ?? ""} ${(mcpClient.config.stdio_config?.args ?? []).join(" ")}`.trim() ||
 																"-"
 															: mcpClient.config.connection_type === "openapi"
-																? mcpClient.config.openapi_config?.base_url || "base URL from the document's servers"
+																? mcpClient.config.openapi_config?.base_url ||
+																	t("ui.mcpClientSheet.baseURLFromTheDocumentSServers", { ns: "mcp" })
 																: mcpClient.config.connection_string?.type === "env" || mcpClient.config.connection_string?.type === "vault"
 																	? mcpClient.config.connection_string.ref
 																	: mcpClient.config.connection_string?.value || "-"}
@@ -1129,7 +1133,7 @@ export default function MCPClientSheet({
 											{isOpenAPIClient && (
 												<div className="space-y-3" data-testid="mcp-client-sheet-openapi-section">
 													<div className="flex items-start justify-between gap-3">
-														<div className="text-sm font-medium">OpenAPI document</div>
+														<div className="text-sm font-medium">{t("ui.mcpClientFormFields.openAPIDocument", { ns: "mcp" })}</div>
 														{!replaceSpecOpen && (
 															<Button
 																type="button"
@@ -1139,7 +1143,7 @@ export default function MCPClientSheet({
 																onClick={() => void openReplaceSpec()}
 																data-testid="openapi-replace-spec-btn"
 															>
-																Replace spec
+																{t("ui.mcpClientSheet.replaceSpec", { ns: "mcp" })}
 															</Button>
 														)}
 													</div>
@@ -1152,8 +1156,7 @@ export default function MCPClientSheet({
 													{replaceSpecOpen && (
 														<div className="space-y-4 rounded-md border p-3" data-testid="openapi-replace-spec-panel">
 															<p className="text-muted-foreground text-xs">
-																Paste or upload the new document, or fetch it from a URL. Operations that keep their name stay selected; the
-																server is rebuilt from the new document when you save.
+																{t("ui.mcpClientSheet.pasteOrUploadTheNewDocumentOrFetchIt", { ns: "mcp" })}
 															</p>
 															<OpenAPISpecSource
 																compact
@@ -1189,7 +1192,7 @@ export default function MCPClientSheet({
 															/>
 															{isLoadingStoredSpec && (
 																<p className="text-muted-foreground text-xs" data-testid="openapi-replace-spec-loading">
-																	Loading the stored document…
+																	{t("ui.mcpClientSheet.loadingTheStoredDocument", { ns: "mcp" })}
 																</p>
 															)}
 															{replacePreview && (
@@ -1218,7 +1221,7 @@ export default function MCPClientSheet({
 																	onClick={resetReplaceSpec}
 																	data-testid="openapi-replace-cancel-btn"
 																>
-																	Cancel replace
+																	{t("ui.mcpClientSheet.cancelReplace", { ns: "mcp" })}
 																</Button>
 															</div>
 														</div>
@@ -1381,7 +1384,7 @@ export default function MCPClientSheet({
 										<div className="space-y-4">
 											<SectionHeader
 												title={t("registry.sheet.syncTimeouts")}
-												description="Override the global tool sync interval, execution timeout and instruction limit for this server."
+												description={t("ui.mcpClientSheet.overrideTheGlobalToolSyncIntervalExecutionTimeoutAnd", { ns: "mcp" })}
 											/>
 											<div className="divide-y rounded-md border">
 												<FormField
@@ -1489,7 +1492,7 @@ export default function MCPClientSheet({
 																<div className="flex flex-col items-start gap-0.5">
 																	<div className="flex items-start gap-2">
 																		<div>
-																			<FormLabel>Max Instruction Length (bytes)</FormLabel>
+																			<FormLabel>{t("ui.mcpClientSheet.maxInstructionLengthBytes", { ns: "mcp" })}</FormLabel>
 																		</div>
 																		<TooltipProvider>
 																			<Tooltip>
@@ -1497,10 +1500,7 @@ export default function MCPClientSheet({
 																					<Info className="text-muted-foreground h-4 w-4 cursor-help" />
 																				</TooltipTrigger>
 																				<TooltipContent className="max-w-xs">
-																					<p>
-																						Cap on the instructions forwarded from this server. Leave empty or set to 0 to use the global
-																						setting. The combined total across all servers is still bounded by the global total.
-																					</p>
+																					<p>{t("ui.mcpClientSheet.capOnTheInstructionsForwardedFromThisServerLeave", { ns: "mcp" })}</p>
 																				</TooltipContent>
 																			</Tooltip>
 																		</TooltipProvider>
@@ -1855,10 +1855,7 @@ export default function MCPClientSheet({
 												data-testid="mcp-client-tools-replacement-note"
 											>
 												<Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600" />
-												<p>
-													A replacement document is open on the General tab, and its operation list decides which tools are saved. Save or
-													cancel the replacement to edit tools here.
-												</p>
+												<p>{t("ui.mcpClientSheet.aReplacementDocumentIsOpenOnTheGeneralTab", { ns: "mcp" })}</p>
 											</div>
 										)}
 										<div className="space-y-4">

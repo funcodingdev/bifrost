@@ -355,7 +355,7 @@ export function warpErrorDetail(code: string | undefined, message: string | unde
 			return warpErrorCopy(code, raw);
 		case "upstream_error":
 			return {
-				summary: "Warp's model could not be reached.",
+				summary: i18n.t("ui.warpStreamUtils.warpSModelCouldNotBeReached", { ns: "common" }),
 				cause: "The provider rejected the request or was unreachable. This is about Warp's own model, not the traffic you asked about.",
 				suggestions: [
 					"Check the provider, model and key in Warp settings.",
@@ -365,7 +365,7 @@ export function warpErrorDetail(code: string | undefined, message: string | unde
 			};
 		case "access_denied":
 			return {
-				summary: "Your account doesn't have access to Warp's model.",
+				summary: i18n.t("ui.warpStreamUtils.yourAccountDoesnTHaveAccessToWarpS", { ns: "common" }),
 				cause:
 					"This deployment's governance rules refused the request before it reached the provider. Warp's model calls count as yours, so they need the same access any of your requests would.",
 				suggestions: [
@@ -376,7 +376,7 @@ export function warpErrorDetail(code: string | undefined, message: string | unde
 			};
 		case "budget_exceeded":
 			return {
-				summary: "You've used up your budget.",
+				summary: i18n.t("ui.warpStreamUtils.youVeUsedUpYourBudget", { ns: "common" }),
 				cause:
 					"A budget that covers your account is spent for this cycle, so governance refused Warp's model call. Warp's model calls count as yours, so they spend the same budget as any of your requests.",
 				suggestions: [
@@ -388,7 +388,7 @@ export function warpErrorDetail(code: string | undefined, message: string | unde
 			};
 		case "rate_limited":
 			return {
-				summary: "You've hit a rate limit.",
+				summary: i18n.t("ui.warpStreamUtils.youVeHitARateLimit", { ns: "common" }),
 				cause:
 					"Your account sent more requests or tokens than a rate limit allows in its window, so governance refused Warp's model call. Warp's model calls count as yours, so they share the same limits.",
 				suggestions: [
@@ -400,7 +400,7 @@ export function warpErrorDetail(code: string | undefined, message: string | unde
 			};
 		case "model_blocked":
 			return {
-				summary: "Warp's model isn't allowed for your account.",
+				summary: i18n.t("ui.warpStreamUtils.warpSModelIsnTAllowedForYourAccount", { ns: "common" }),
 				cause:
 					"This deployment's governance rules block the model or provider Warp is set to use for your account, so the request was refused before it reached the provider.",
 				suggestions: [

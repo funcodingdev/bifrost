@@ -102,7 +102,10 @@ export default function ModelCatalogTable({
 									<div className="flex items-center gap-1">
 										{t("modelCatalog.models")}
 										<Tooltip>
-											<TooltipTrigger aria-label="About the models column" data-testid="model-catalog-models-info-trigger">
+											<TooltipTrigger
+												aria-label={t("ui.modelCatalogTable.aboutTheModelsColumn", { ns: "models" })}
+												data-testid="model-catalog-models-info-trigger"
+											>
 												<Info className="text-muted-foreground h-3.5 w-3.5" aria-hidden="true" />
 											</TooltipTrigger>
 											<TooltipContent side="bottom">{t("modelCatalog.modelsUsed30d")}</TooltipContent>
@@ -138,7 +141,7 @@ export default function ModelCatalogTable({
 											</span>
 											{row.isCustom && (
 												<Badge variant="secondary" className="text-muted-foreground shrink-0 px-1.5 py-0.5 text-[10px] font-bold">
-													CUSTOM
+													{t("providers.customBadge", { ns: "models" })}
 												</Badge>
 											)}
 										</div>

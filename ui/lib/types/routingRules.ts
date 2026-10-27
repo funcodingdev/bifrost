@@ -1,3 +1,4 @@
+import i18nReview from "@/lib/i18n";
 /**
  * Routing Rules Type Definitions
  * Defines all TypeScript interfaces for routing rules feature
@@ -121,10 +122,30 @@ export enum RoutingRuleScope {
 }
 
 export const ROUTING_RULE_SCOPES = [
-	{ value: RoutingRuleScope.Global, label: "Global" },
-	{ value: RoutingRuleScope.Team, label: "Team" },
-	{ value: RoutingRuleScope.Customer, label: "Customer" },
-	{ value: RoutingRuleScope.VirtualKey, label: "Virtual Key" },
+	{
+		value: RoutingRuleScope.Global,
+		get label() {
+			return i18nReview.t("virtualKeys.global", { ns: "models" });
+		},
+	},
+	{
+		value: RoutingRuleScope.Team,
+		get label() {
+			return i18nReview.t("routing.team", { ns: "models" });
+		},
+	},
+	{
+		value: RoutingRuleScope.Customer,
+		get label() {
+			return i18nReview.t("routing.customer", { ns: "models" });
+		},
+	},
+	{
+		value: RoutingRuleScope.VirtualKey,
+		get label() {
+			return i18nReview.t("virtualKeys.virtualKey", { ns: "models" });
+		},
+	},
 ];
 
 export const DEFAULT_ROUTING_FALLBACK: RoutingFallbackFormData = {

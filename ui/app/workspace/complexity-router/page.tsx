@@ -551,8 +551,8 @@ export default function ComplexityRouterPage() {
 	};
 
 	const steps = [
-		{ key: "classifier", title: "Classifier", enabled: canUpdate },
-		{ key: "setup", title: "Configuration", enabled: hasClassifier },
+		{ key: "classifier", title: t("ui.page.classifier", { ns: "models" }), enabled: canUpdate },
+		{ key: "setup", title: t("promptRepo.configuration", { ns: "config" }), enabled: hasClassifier },
 	];
 	const stepIndex = step === "classifier" ? 0 : 1;
 
@@ -566,14 +566,15 @@ export default function ComplexityRouterPage() {
 				    portalled into the topbar. */}
 				<PageTitle title={t("routing.complexityTitle")} beta>
 					{liveClassifier === "decision"
-						? "The decision model classifies each new human request, filling the"
-						: "Each request takes the tier of its nearest semantic reference phrase, filling the"}{" "}
-					<code className="bg-muted rounded-sm px-1 py-0.5 font-mono text-xs">complexity_tier</code> field that routing rules target.
-					{isLLMFallbackEnabled ? " Requests matching no phrase confidently fall back to the LLM classifier." : ""}
+						? t("ui.page.theDecisionModelClassifiesEachNewHumanRequestFilling", { ns: "models" })
+						: t("ui.page.eachRequestTakesTheTierOfItsNearestSemantic", { ns: "models" })}{" "}
+					<code className="bg-muted rounded-sm px-1 py-0.5 font-mono text-xs">complexity_tier</code>{" "}
+					{t("ui.page.fieldThatRoutingRulesTarget", { ns: "models" })}
+					{isLLMFallbackEnabled ? t("routing.complexityUi.descriptionLlm", { ns: "models" }) : ""}
 					{isSemantic && liveSemantic?.fallback === "decision"
-						? " Requests matching no phrase confidently fall back to the decision model."
+						? t("ui.page.requestsMatchingNoPhraseConfidentlyFallBackToThe", { ns: "models" })
 						: ""}
-					{liveSession.enabled ? " Session-aware routing keeps the highest tier reached during the active session." : ""}
+					{liveSession.enabled ? t("routing.complexityUi.descriptionSession", { ns: "models" }) : ""}
 				</PageTitle>
 
 				{/* Same shape as the Edge inventory page: a slim step nav on the
@@ -600,10 +601,10 @@ export default function ComplexityRouterPage() {
 										<h2 className="text-lg font-semibold">{steps[stepIndex].title}</h2>
 										<p className="text-muted-foreground text-sm">
 											{step === "classifier"
-												? "Choose how each request is assigned a complexity tier. Switching later keeps the other classifier's settings, including your reference phrases."
+												? t("ui.page.chooseHowEachRequestIsAssignedAComplexityTier", { ns: "models" })
 												: isSemantic
-													? "Each request takes the tier of its nearest reference phrase."
-													: "A decision model scores each new request into a tier."}
+													? t("ui.page.eachRequestTakesTheTierOfItsNearestReference", { ns: "models" })
+													: t("ui.page.aDecisionModelScoresEachNewRequestIntoA", { ns: "models" })}
 										</p>
 									</div>
 									<div className="flex shrink-0 flex-wrap items-center gap-2 md:flex-nowrap">
@@ -649,12 +650,12 @@ export default function ComplexityRouterPage() {
 												data-testid="complexity-router-decision-settings-button"
 											>
 												<Settings2 className="size-3.5" />
-												Edit model configuration
+												{t("ui.page.editModelConfiguration", { ns: "models" })}
 												{hasUnsavedDecisionSettingsChanges && (
 													<span
 														className="size-1.5 rounded-full bg-amber-500"
 														role="status"
-														aria-label="Unsaved model configuration changes"
+														aria-label={t("ui.page.unsavedModelConfigurationChanges", { ns: "models" })}
 													/>
 												)}
 											</Button>
@@ -683,7 +684,9 @@ export default function ComplexityRouterPage() {
 													className="text-muted-foreground font-mono text-[11px] tabular-nums"
 													data-testid="complexity-router-phrase-total"
 												>
-													{isClassifierConfigured ? `${totalPhrases} / ${MAX_SEMANTIC_PHRASES} phrases` : `${totalPhrases} phrases`}
+													{isClassifierConfigured
+														? t("routing.complexityUi.phrasesWithLimit", { ns: "models", count: totalPhrases, limit: MAX_SEMANTIC_PHRASES })
+														: t("routing.complexityUi.phraseCount", { ns: "models", count: totalPhrases })}
 												</span>
 											}
 										/>
@@ -747,7 +750,7 @@ export default function ComplexityRouterPage() {
 									disabled={!canContinue}
 									data-testid="complexity-router-next-button"
 								>
-									{localeMessages.t("next", { ns: "common" })}
+									{t("nextStep", { ns: "common" })}
 									<ArrowRight className="h-3.5 w-3.5" />
 								</Button>
 							) : (
@@ -774,10 +777,15 @@ export default function ComplexityRouterPage() {
 									>
 										{blockedOnDecisionProvider
 											? isSemantic
-												? "The decision model is the fallback, and it needs a working provider before this can be saved."
-												: "The decision model needs a working provider before this can be saved. See Edit model configuration."
+												? t("ui.page.theDecisionModelIsTheFallbackAndItNeeds", { ns: "models" })
+												: t("ui.page.theDecisionModelNeedsAWorkingProviderBeforeThis", { ns: "models" })
 											: liveClassifier !== toFormValues(data).classifier
-												? `Classifier changed to ${isSemantic ? localeMessages.t("labels.semantic", { ns: "observability" }) : "Decision model"}. Not saved yet.`
+												? t("routing.complexityUi.classifierUnsaved", {
+														ns: "models",
+														classifier: isSemantic
+															? localeMessages.t("labels.semantic", { ns: "observability" })
+															: t("ui.page.decisionModel", { ns: "models" }),
+													})
 												: ""}
 									</p>
 									{/* Each classifier restores only its own defaults: the semantic

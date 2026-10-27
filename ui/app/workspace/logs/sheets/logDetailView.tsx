@@ -581,6 +581,7 @@ function RoutingDecisionLogs({ logs }: { logs: string }) {
 // it carries on, sends the output with a later request. Point at the next row in the
 // same session, without claiming it is the one that carries the result.
 function NextSessionRequestLink({ log, onOpenLog }: { log: LogEntry; onOpenLog: (logId: string) => void }) {
+	const { t: tCopy } = useTranslation();
 	// currentData, not data: data keeps the previous log's page while this one's
 	// lookup runs, which would briefly link to the wrong request.
 	const { currentData, isError, refetch } = useGetLogsQuery(
@@ -598,7 +599,7 @@ function NextSessionRequestLink({ log, onOpenLog }: { log: LogEntry; onOpenLog: 
 	if (isError && !currentData) {
 		return (
 			<div className="text-muted-foreground mt-2 text-[12px]" data-testid="log-tool-call-next-request-error">
-				Couldn't look up the next request in this session.{" "}
+				{tCopy("ui.logDetailView.couldnTLookUpTheNextRequestInThisSession", { ns: "observability" })}{" "}
 				<button
 					type="button"
 					className="text-blue-600 underline-offset-2 hover:underline dark:text-blue-400"
@@ -612,7 +613,7 @@ function NextSessionRequestLink({ log, onOpenLog }: { log: LogEntry; onOpenLog: 
 	}
 	return (
 		<div className="text-muted-foreground mt-2 text-[12px]" data-testid="log-tool-call-next-request">
-			The tool's result isn't in this request.{" "}
+			{tCopy("ui.logDetailView.theToolSResultIsnTInThisRequest", { ns: "observability" })}{" "}
 			{next ? (
 				<button
 					type="button"
@@ -620,14 +621,18 @@ function NextSessionRequestLink({ log, onOpenLog }: { log: LogEntry; onOpenLog: 
 					onClick={() => onOpenLog(next.id)}
 					data-testid="log-tool-call-next-request-link"
 				>
-					Open next request
+					{tCopy("ui.logDetailView.openNextRequest", { ns: "observability" })}
 				</button>
 			) : !log.session_id ? null : currentData ? (
 				// The lookup finished and found nothing: the caller has not sent a
 				// follow-up in this session, or has not yet.
-				<span data-testid="log-tool-call-next-request-none">No later request in this session.</span>
+				<span data-testid="log-tool-call-next-request-none">
+					{tCopy("ui.logDetailView.noLaterRequestInThisSession", { ns: "observability" })}
+				</span>
 			) : (
-				<span data-testid="log-tool-call-next-request-loading">Looking for the next request…</span>
+				<span data-testid="log-tool-call-next-request-loading">
+					{tCopy("ui.logDetailView.lookingForTheNextRequest", { ns: "observability" })}
+				</span>
 			)}
 		</div>
 	);
@@ -659,10 +664,15 @@ function MessageHistoryCollapse({ count, children }: { count: number; children: 
 // instructions and criteria, choices or levels. The state and answers sit in the
 // message timeline; without the questions they cannot be read.
 function DecisionQuestionsBox({ value, count }: { value: unknown; count: number }) {
+	const { t: tReview } = useTranslation();
 	const json = JSON.stringify(value, null, 2);
 	return (
 		<div data-testid="log-decision-questions">
-			<CollapsibleBox title={`Questions (${count})`} onCopy={() => json} collapsedHeight={150}>
+			<CollapsibleBox
+				title={tReview("logs.details.questions", { ns: "observability", count: count })}
+				onCopy={() => json}
+				collapsedHeight={150}
+			>
 				<CodeEditor
 					className="z-0 w-full"
 					shouldAdjustInitialHeight
@@ -1166,7 +1176,8 @@ export function LogDetailView({
 										data-testid="logdetails-header-routing-rule-link"
 									>
 										<Badge variant="outline" className="bg-card text-muted-foreground rounded-sm px-2 py-0.5 font-normal hover:underline">
-											rule: {log.routing_rule.name}
+											{t("ui.logDetailView.rule", { ns: "observability" }) + " "}
+											{log.routing_rule.name}
 										</Badge>
 									</Link>
 								)}
@@ -1245,7 +1256,10 @@ export function LogDetailView({
 							{log.cache_debug?.cache_id && (
 								<div className="mt-1 flex items-center gap-2">
 									<div className="text-muted-foreground w-24 shrink-0 text-[10.5px] font-semibold tracking-wider uppercase">
-										{localeMessages.t("logs.detail.cache", { ns: "observability" })} {log.cache_debug.cache_hit ? "(hit)" : "(miss)"}
+										{localeMessages.t("logs.detail.cache", { ns: "observability" })}{" "}
+										{log.cache_debug.cache_hit
+											? t("ui.logDetailView.hit", { ns: "observability" })
+											: t("ui.logDetailView.miss", { ns: "observability" })}
 									</div>
 									<code className="text-foreground truncate font-mono text-[13px]">{log.cache_debug.cache_id}</code>
 									<CopyInlineButton text={log.cache_debug.cache_id} testId="logdetails-copy-cache-id-button" />
@@ -1991,12 +2005,16 @@ export function LogDetailView({
 										{passthroughParams.parsed_type && (
 											<LogEntryDetailsView
 												className="w-full"
-												label="Parsed As"
+												label={t("ui.logDetailView.parsedAs", { ns: "observability" })}
 												value={getRequestTypeLabel(passthroughParams.parsed_type, t)}
 											/>
 										)}
 										{passthroughParams.base_provider && (
-											<LogEntryDetailsView className="w-full" label="Wire Format" value={passthroughParams.base_provider} />
+											<LogEntryDetailsView
+												className="w-full"
+												label={t("ui.logDetailView.wireFormat", { ns: "observability" })}
+												value={passthroughParams.base_provider}
+											/>
 										)}
 									</>
 								)}
@@ -2334,7 +2352,14 @@ export function LogDetailView({
 									<>
 										<DottedSeparator />
 										<div className="space-y-4">
-											<BlockHeader title={`Caching Details (${log.cache_debug.cache_hit ? "Hit" : "Miss"})`} />
+											<BlockHeader
+												title={t("logs.details.cacheTitle", {
+													ns: "observability",
+													status: log.cache_debug.cache_hit
+														? t("logs.details.cacheHit", { ns: "observability" })
+														: t("logs.details.cacheMiss", { ns: "observability" }),
+												})}
+											/>
 											<div className="grid w-full grid-cols-1 items-center justify-between gap-4 md:grid-cols-3">
 												{log.cache_debug.cache_hit ? (
 													<>
@@ -2432,7 +2457,7 @@ export function LogDetailView({
 								<>
 									<DottedSeparator />
 									<div className="space-y-4">
-										<BlockHeader title="Guardrail Matches" />
+										<BlockHeader title={t("ui.logDetailView.guardrailMatches", { ns: "observability" })} />
 										<div className="space-y-4">
 											{[
 												...(log.guardrail_debug?.interventions ?? []).map((match) => ({
@@ -2489,7 +2514,7 @@ export function LogDetailView({
 													{match.assessments && match.assessments.length > 0 && (
 														<LogEntryDetailsView
 															className="w-full md:col-span-3"
-															label="Assessments"
+															label={t("ui.logDetailView.assessments", { ns: "observability" })}
 															value={match.assessments.join("; ")}
 														/>
 													)}
@@ -2541,7 +2566,9 @@ export function LogDetailView({
 														label={localeMessages.t("logs.detail.action", { ns: "observability" })}
 														value={
 															<Badge variant={call.action === "GUARDRAIL_INTERVENED" ? "destructive" : "success"}>
-																{call.action === "GUARDRAIL_INTERVENED" ? "Blocked" : "Allowed"}
+																{call.action === "GUARDRAIL_INTERVENED"
+																	? t("ui.logDetailView.blocked", { ns: "observability" })
+																	: t("ui.logDetailView.allowed", { ns: "observability" })}
 															</Badge>
 														}
 													/>
@@ -2583,7 +2610,11 @@ export function LogDetailView({
 													label={localeMessages.t("logs.detail.promptTokens", { ns: "observability" })}
 													value={call.prompt_tokens ?? 0}
 												/>
-												<LogEntryDetailsView className="w-full" label="Completion Tokens" value={call.completion_tokens ?? 0} />
+												<LogEntryDetailsView
+													className="w-full"
+													label={t("ui.logDetailView.completionTokens", { ns: "observability" })}
+													value={call.completion_tokens ?? 0}
+												/>
 												<LogEntryDetailsView
 													className="w-full"
 													label={localeMessages.t("logs.stats.totalTokens", { ns: "observability" })}
@@ -2619,7 +2650,7 @@ export function LogDetailView({
 													value={
 														<Badge variant="secondary" className="uppercase">
 															{call.request_type === "decisions"
-																? "Decision Model Classification"
+																? t("ui.logDetailView.decisionModelClassification", { ns: "observability" })
 																: call.output_tokens != null
 																	? "LLM Classification"
 																	: localeMessages.t("logs.detail.embedding", { ns: "observability" })}
@@ -2722,7 +2753,9 @@ export function LogDetailView({
 						{showRawTab && (
 							<TabsTrigger value="raw" className="px-3">
 								{/* A passthrough row's tab holds the bodies exactly as they crossed the wire, not Bifrost's JSON. */}
-								{isPassthrough ? "Original Payload" : localeMessages.t("logs.detail.rawJSON", { ns: "observability" })}
+								{isPassthrough
+									? t("ui.logDetailView.originalPayload", { ns: "observability" })
+									: localeMessages.t("logs.detail.rawJSON", { ns: "observability" })}
 							</TabsTrigger>
 						)}
 					</TabsList>
@@ -2775,7 +2808,8 @@ export function LogDetailView({
 								{batchInlineRequests.length > 0 ? (
 									<div className="px-5 pt-5 pb-2">
 										<div className="text-muted-foreground mb-1 text-[10.5px] font-semibold tracking-wider uppercase">
-											Batch Requests ({batchInlineRequests.length})
+											{t("ui.logDetailView.batchRequests", { ns: "observability" })}
+											{batchInlineRequests.length})
 										</div>
 										<Accordion type="multiple" className="w-full">
 											{batchInlineRequests.map((request, index) => (
@@ -2789,7 +2823,8 @@ export function LogDetailView({
 																</Badge>
 															)}
 															<span className="text-muted-foreground text-[11px]">
-																{request.messages.length} message{request.messages.length === 1 ? "" : "s"}
+																{request.messages.length} {t("ui.logDetailView.message", { ns: "observability" })}
+																{request.messages.length === 1 ? "" : "s"}
 															</span>
 														</span>
 													</AccordionTrigger>
@@ -2815,7 +2850,8 @@ export function LogDetailView({
 								) : batchResultItems.length > 0 ? (
 									<div className="px-5 pt-5 pb-2">
 										<div className="text-muted-foreground mb-1 text-[10.5px] font-semibold tracking-wider uppercase">
-											Batch Results ({batchResultItems.length})
+											{t("ui.logDetailView.batchResults", { ns: "observability" })}
+											{batchResultItems.length})
 										</div>
 										<Accordion type="multiple" className="w-full">
 											{batchResultItems.map((result, index) => (
@@ -3096,7 +3132,14 @@ export function LogDetailView({
 																.map((b, i) => {
 																	const src = b.image_url?.url;
 																	if (!src) return null;
-																	return <img key={`${i}-${src}`} src={src} alt="Attachment" className="mt-2 max-w-full rounded border" />;
+																	return (
+																		<img
+																			key={`${i}-${src}`}
+																			src={src}
+																			alt={t("ui.logDetailView.attachment", { ns: "observability" })}
+																			className="mt-2 max-w-full rounded border"
+																		/>
+																	);
 																})}
 														{text &&
 															Array.isArray(message.content) &&
@@ -3114,7 +3157,8 @@ export function LogDetailView({
 																{message
 																	.tool_calls!.map((tc) => tc.function?.name)
 																	.filter(Boolean)
-																	.join(", ") || `${message.tool_calls!.length} tool call${message.tool_calls!.length === 1 ? "" : "s"}`}
+																	.join(", ") ||
+																	t("logs.details.toolCallCount", { ns: "observability", count: message.tool_calls!.length })}
 															</div>
 														) : null}
 													</MessageRow>,
@@ -3296,7 +3340,7 @@ export function LogDetailView({
 							)}
 						{log.status !== "processing" && log.rerank_output && !log.error_details?.error.message && (
 							<CollapsibleBox
-								title={`Rerank Output (${log.rerank_output.length})`}
+								title={t("logs.details.rerankOutput", { ns: "observability", count: log.rerank_output.length })}
 								onCopy={() => JSON.stringify(log.rerank_output, null, 2)}
 							>
 								<CodeEditor
@@ -3320,7 +3364,7 @@ export function LogDetailView({
 
 						{log.list_models_output && (
 							<CollapsibleBox
-								title={`List Models Output (${log.list_models_output.length})`}
+								title={t("logs.details.listModelsOutput", { ns: "observability", count: log.list_models_output.length })}
 								onCopy={() => JSON.stringify(log.list_models_output, null, 2)}
 							>
 								<CodeEditor
@@ -3352,7 +3396,7 @@ export function LogDetailView({
 								<div className="mt-2 text-[13px] leading-relaxed break-words whitespace-pre-wrap text-red-700 dark:text-red-400">
 									{displayErrorMessage ??
 										(statusCode
-											? `The provider returned an error (HTTP ${statusCode}) without a message.`
+											? t("logs.details.emptyProviderError", { ns: "observability", status: statusCode })
 											: "The provider returned an error without a message.")}
 								</div>
 								{log.error_details?.error.error != null ? (
@@ -3376,12 +3420,14 @@ export function LogDetailView({
 						{toolsParameter ? (
 							<div className="bg-card rounded-sm border p-5">
 								<div className="text-muted-foreground mb-3 text-[12px]">
-									{declaredTools.length} tools exposed to the model
+									{declaredTools.length} {t("ui.logDetailView.toolsExposedToTheModel", { ns: "observability" })}
 									{inputDeclaredTools.length ? (
 										<>
 											{" "}
-											· {inputDeclaredTools.length} via input items
-											{inputDeclaredTools.length !== inputDeclaredToolEntries.length ? " (namespaces expanded)" : ""}
+											· {inputDeclaredTools.length} {t("ui.logDetailView.viaInputItems", { ns: "observability" })}
+											{inputDeclaredTools.length !== inputDeclaredToolEntries.length
+												? t("ui.logDetailView.namespacesExpanded", { ns: "observability" })
+												: ""}
 										</>
 									) : null}
 									{(log.params as any)?.tool_choice != null ? (
@@ -3460,7 +3506,7 @@ export function LogDetailView({
 						{RoutingPanel && <RoutingPanel log={log} />}
 						{log.attempt_trail && log.attempt_trail.length > 1 && (
 							<CollapsibleBox
-								title={`Attempt Trail (${log.attempt_trail.length} attempts)`}
+								title={t("logs.details.attemptTrail", { ns: "observability", count: log.attempt_trail.length })}
 								onCopy={() => JSON.stringify(log.attempt_trail, null, 2)}
 							>
 								<div className="overflow-x-auto px-4 py-3 md:px-6">
@@ -3486,7 +3532,7 @@ export function LogDetailView({
 															// An attempt that ended without failing the key, such as a caller's cancellation.
 															<span className="text-muted-foreground">{record.failure_class}</span>
 														) : (
-															<span className="text-chart-success-ink">success</span>
+															<span className="text-chart-success-ink">{t("ui.logDetailView.success", { ns: "observability" })}</span>
 														)}
 														{record.status_code ? (
 															<span className="text-muted-foreground tabular-nums"> · {record.status_code}</span>
@@ -3536,7 +3582,8 @@ export function LogDetailView({
 						{rawRequest && (
 							<>
 								<div className="text-muted-foreground text-[12px]">
-									Raw Request sent to <span className="text-foreground font-medium capitalize">{log.provider}</span>
+									{t("ui.logDetailView.rawRequestSentTo", { ns: "observability" }) + " "}
+									<span className="text-foreground font-medium capitalize">{log.provider}</span>
 									{log.is_large_payload_request && (
 										<span className="ml-2 text-xs font-normal text-amber-600 dark:text-amber-400">
 											{localeMessages.t("logs.detail.truncatedPreview", { ns: "observability" })}
@@ -3544,7 +3591,11 @@ export function LogDetailView({
 									)}
 								</div>
 								<CollapsibleBox
-									title={log.is_large_payload_request ? "Raw Request (Truncated)" : "Raw Request"}
+									title={
+										log.is_large_payload_request
+											? t("ui.logDetailView.rawRequestTruncated", { ns: "observability" })
+											: t("ui.logDetailView.rawRequest", { ns: "observability" })
+									}
 									onCopy={() => formatJsonSafe(rawRequest)}
 								>
 									<CodeEditor
@@ -3569,7 +3620,8 @@ export function LogDetailView({
 						{rawResponse && log.status !== "processing" && (
 							<>
 								<div className="text-muted-foreground pt-4 text-[12px]">
-									Raw Response from <span className="text-foreground font-medium capitalize">{log.provider}</span>
+									{t("ui.logDetailView.rawResponseFrom", { ns: "observability" }) + " "}
+									<span className="text-foreground font-medium capitalize">{log.provider}</span>
 									{log.is_large_payload_response && (
 										<span className="ml-2 text-xs font-normal text-amber-600 dark:text-amber-400">
 											{localeMessages.t("logs.detail.truncatedPreview", { ns: "observability" })}
@@ -3577,7 +3629,11 @@ export function LogDetailView({
 									)}
 								</div>
 								<CollapsibleBox
-									title={log.is_large_payload_response ? "Raw Response (Truncated)" : "Raw Response"}
+									title={
+										log.is_large_payload_response
+											? t("ui.logDetailView.rawResponseTruncated", { ns: "observability" })
+											: t("ui.logDetailView.rawResponse", { ns: "observability" })
+									}
 									onCopy={() => formatJsonSafe(rawResponse)}
 								>
 									<CodeEditor

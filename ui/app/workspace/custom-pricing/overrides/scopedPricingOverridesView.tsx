@@ -43,6 +43,7 @@ function PricingOverrideActionsMenu({
 	onEdit?: (row: PricingOverride) => void;
 	onDelete?: (row: PricingOverride) => void;
 }) {
+	const { t: tCopy } = useTranslation();
 	const [isOpen, setIsOpen] = useState(false);
 
 	if (!onEdit && !onDelete) {
@@ -56,7 +57,7 @@ function PricingOverrideActionsMenu({
 					variant="ghost"
 					size="icon"
 					className="h-8 w-8"
-					aria-label={`Actions for pricing override ${row.name || row.id}`}
+					aria-label={tCopy("accessibility.pricingoverrideActions", { ns: "common", name: row.name || row.id })}
 					data-testid={`pricing-override-actions-btn-${row.id}`}
 				>
 					<MoreHorizontal className="h-4 w-4" />
@@ -74,7 +75,7 @@ function PricingOverrideActionsMenu({
 						}}
 					>
 						<Edit className="h-4 w-4" />
-						Edit
+						{tCopy("edit", { ns: "common" })}
 					</DropdownMenuItem>
 				)}
 				{onDelete && (
@@ -89,7 +90,7 @@ function PricingOverrideActionsMenu({
 						}}
 					>
 						<Trash2 className="h-4 w-4" />
-						Delete
+						{tCopy("delete", { ns: "common" })}
 					</DropdownMenuItem>
 				)}
 			</DropdownMenuContent>
@@ -253,7 +254,7 @@ export default function ScopedPricingOverridesView() {
 		if (error) {
 			toast.error(t("customPricing.failedLoad"), { description: getErrorMessage(error) });
 		}
-	}, [error]);
+	}, [error, t]);
 
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 	const [editingOverride, setEditingOverride] = useState<PricingOverride | null>(null);
@@ -474,8 +475,12 @@ export default function ScopedPricingOverridesView() {
 			{totalCount > 0 && (
 				<div className="flex shrink-0 items-center justify-between text-xs" data-testid="pagination">
 					<div className="text-muted-foreground flex items-center gap-2">
-						{(offset + 1).toLocaleString()}-{Math.min(offset + PAGE_SIZE, totalCount).toLocaleString()} of {totalCount.toLocaleString()}{" "}
-						entries
+						{t("pagination.entries", {
+							ns: "common",
+							from: (offset + 1).toLocaleString(),
+							to: Math.min(offset + PAGE_SIZE, totalCount).toLocaleString(),
+							total: totalCount.toLocaleString(),
+						})}
 					</div>
 
 					<div className="flex items-center gap-2">
@@ -485,15 +490,13 @@ export default function ScopedPricingOverridesView() {
 							onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
 							disabled={offset === 0}
 							data-testid="pricing-overrides-pagination-prev-btn"
-							aria-label="Previous page"
+							aria-label={t("providers.previousPage", { ns: "models" })}
 						>
 							<ChevronLeft className="size-3" />
 						</Button>
 
 						<div className="flex items-center gap-1">
-							<span>{t("customPricing.page")}</span>
-							<span>{Math.floor(offset / PAGE_SIZE) + 1}</span>
-							<span>of {Math.ceil(totalCount / PAGE_SIZE)}</span>
+							{t("pagination.page", { ns: "common", page: Math.floor(offset / PAGE_SIZE) + 1, total: Math.ceil(totalCount / PAGE_SIZE) })}
 						</div>
 
 						<Button
@@ -502,7 +505,7 @@ export default function ScopedPricingOverridesView() {
 							onClick={() => setOffset(offset + PAGE_SIZE)}
 							disabled={offset + PAGE_SIZE >= totalCount}
 							data-testid="pricing-overrides-pagination-next-btn"
-							aria-label="Next page"
+							aria-label={t("providers.nextPage", { ns: "models" })}
 						>
 							<ChevronRight className="size-3" />
 						</Button>
@@ -522,12 +525,14 @@ export default function ScopedPricingOverridesView() {
 					<AlertDialogHeader>
 						<AlertDialogTitle>{t("customPricing.deleteTitle")}</AlertDialogTitle>
 						<AlertDialogDescription>
-							Are you sure you want to delete &quot;{deleteTarget?.name}&quot;? This action cannot be undone.
+							{t("ui.scopedPricingOverridesView.areYouSureYouWantToDelete", { ns: "models" })}
+							{deleteTarget?.name}
+							{t("ui.scopedPricingOverridesView.thisActionCannotBeUndone", { ns: "models" })}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel data-testid="pricing-override-delete-cancel-btn" disabled={isDeleting}>
-							Cancel
+							{t("cancel", { ns: "common" })}
 						</AlertDialogCancel>
 						<AlertDialogAction
 							data-testid="pricing-override-delete-confirm-btn"
@@ -538,7 +543,7 @@ export default function ScopedPricingOverridesView() {
 							disabled={isDeleting}
 							className="bg-destructive hover:bg-destructive/90"
 						>
-							{isDeleting ? "Deleting..." : "Delete"}
+							{isDeleting ? t("providers.deleting", { ns: "models" }) : t("delete", { ns: "common" })}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

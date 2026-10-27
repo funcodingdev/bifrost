@@ -495,7 +495,8 @@ export function MetricStrip({ stats, requestHistogram, latencyHistogram, costHis
 							) : (
 								costPerRequest > 0 && (
 									<MetricTrailing testId="logs-metric-trailing" className={muted}>
-										{formatCurrencyNumber(costPerRequest)}/req
+										{formatCurrencyNumber(costPerRequest)}
+										{t("ui.metricStrip.req", { ns: "observability" })}
 									</MetricTrailing>
 								)
 							)}

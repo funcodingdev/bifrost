@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, VariantProps } from "class-variance-authority";
 import { PanelLeftIcon } from "lucide-react";
@@ -237,6 +238,7 @@ function Sidebar({
 }
 
 function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<typeof Button>) {
+	const { t: tCopy } = useTranslation();
 	const { toggleSidebar } = useSidebar();
 
 	return (
@@ -253,22 +255,23 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<t
 			{...props}
 		>
 			<PanelLeftIcon />
-			<span className="sr-only">Toggle Sidebar</span>
+			<span className="sr-only">{tCopy("ui.sidebar.toggleSidebar", { ns: "common" })}</span>
 		</Button>
 	);
 }
 
 function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
+	const { t: tCopy } = useTranslation();
 	const { toggleSidebar } = useSidebar();
 
 	return (
 		<button
 			data-sidebar="rail"
 			data-slot="sidebar-rail"
-			aria-label="Toggle Sidebar"
+			aria-label={tCopy("ui.sidebar.toggleSidebar", { ns: "common" })}
 			tabIndex={-1}
 			onClick={toggleSidebar}
-			title="Toggle Sidebar"
+			title={tCopy("ui.sidebar.toggleSidebar", { ns: "common" })}
 			className={cn(
 				"hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex",
 				"in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize",

@@ -158,7 +158,7 @@ export function SessionDetailsSheet({
 				setLoadingSession(false);
 			}
 		},
-		[onOpenChange, sessionId, sortOrder, sortSessionLogs, triggerGetSession],
+		[onOpenChange, sessionId, sortOrder, sortSessionLogs, triggerGetSession, t],
 	);
 
 	useEffect(() => {
@@ -186,7 +186,7 @@ export function SessionDetailsSheet({
 			<SheetContent className="flex w-full flex-col gap-4 overflow-x-hidden p-4 sm:max-w-[60%] md:p-8">
 				<div className="flex items-center justify-between gap-4">
 					<div>
-						<div className="text-lg font-medium">Session</div>
+						<div className="text-lg font-medium">{t("labels.session", { ns: "observability" })}</div>
 						{sessionId && onFilterByParentRequestId ? (
 							<Tooltip>
 								<TooltipTrigger asChild>
@@ -198,7 +198,7 @@ export function SessionDetailsSheet({
 										{sessionId}
 									</button>
 								</TooltipTrigger>
-								<TooltipContent sideOffset={6}>Filter this session</TooltipContent>
+								<TooltipContent sideOffset={6}>{t("ui.sessionDetailsSheet.filterThisSession", { ns: "observability" })}</TooltipContent>
 							</Tooltip>
 						) : (
 							<code className="text-sm break-all">{sessionId}</code>
@@ -248,11 +248,11 @@ export function SessionDetailsSheet({
 						<TableHeader className="sticky top-0 z-10 bg-[#f9f9f9] dark:bg-[#27272a]">
 							<TableRow>
 								<TableHead className="w-2"></TableHead>
-								<TableHead>Time</TableHead>
-								<TableHead>Type</TableHead>
-								<TableHead>Message</TableHead>
-								<TableHead>Provider</TableHead>
-								<TableHead>Model</TableHead>
+								<TableHead>{t("labels.time", { ns: "observability" })}</TableHead>
+								<TableHead>{t("labels.type", { ns: "observability" })}</TableHead>
+								<TableHead>{t("labels.message", { ns: "observability" })}</TableHead>
+								<TableHead>{t("labels.provider", { ns: "observability" })}</TableHead>
+								<TableHead>{t("labels.model", { ns: "observability" })}</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -261,7 +261,7 @@ export function SessionDetailsSheet({
 									<TableCell colSpan={6} className="h-24 text-center">
 										<div className="flex items-center justify-center gap-2">
 											<Loader2 className="h-4 w-4 animate-spin" />
-											Loading session...
+											{t("ui.sessionDetailsSheet.loadingSession", { ns: "observability" })}
 										</div>
 									</TableCell>
 								</TableRow>
@@ -278,7 +278,7 @@ export function SessionDetailsSheet({
 										<TableCell className="relative text-xs">
 											{log.id === highlightedLogId ? (
 												<div className="bg-background pointer-events-none absolute -top-1.5 left-1 z-10 rounded-full border border-sky-400/45 px-1.5 py-0 text-[9px] leading-tight font-semibold tracking-wide text-sky-600 uppercase dark:text-sky-300">
-													Current
+													{t("ui.sessionDetailsSheet.current", { ns: "observability" })}
 												</div>
 											) : null}
 											{format(new Date(log.timestamp), "yyyy-MM-dd hh:mm:ss aa (XXX)")}
@@ -303,7 +303,7 @@ export function SessionDetailsSheet({
 							) : (
 								<TableRow>
 									<TableCell colSpan={6} className="text-muted-foreground h-24 text-center">
-										No logs found for this session.
+										{t("ui.sessionDetailsSheet.noLogsFoundForThisSession", { ns: "observability" })}
 									</TableCell>
 								</TableRow>
 							)}
@@ -320,7 +320,7 @@ export function SessionDetailsSheet({
 							disabled={loadingSession}
 						>
 							{loadingSession ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-							Load More
+							{t("ui.sessionDetailsSheet.loadMore", { ns: "observability" })}
 						</Button>
 					</div>
 				) : null}

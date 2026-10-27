@@ -583,7 +583,7 @@ function OtelProfileSection({ form, control, index, hasOtelAccess, canRemove, op
 														placeholder={
 															protocol === "http"
 																? "https://otel-collector.example.com:4318/v1/traces or env.OTEL_COLLECTOR_URL"
-																: "otel-collector.example.com:4317 or env.OTEL_COLLECTOR_URL"
+																: t("ui.otelFormFragment.otelCollectorExampleCom4317OrEnvOTELCOLLECTORURL", { ns: "observability" })
 														}
 														disabled={!hasOtelAccess}
 														{...field}
@@ -678,7 +678,7 @@ function OtelProfileSection({ form, control, index, hasOtelAccess, canRemove, op
 												<FormControl>
 													<RequestHeadersTextarea
 														className="h-24"
-														placeholder="X-Tenant-ID, X-Request-Source, x-custom-*"
+														placeholder={t("logging.loggingHeadersPlaceholder", { ns: "config" })}
 														disabled={!hasOtelAccess}
 														value={field.value ?? []}
 														onChange={field.onChange}
@@ -715,10 +715,9 @@ function OtelProfileSection({ form, control, index, hasOtelAccess, canRemove, op
 										render={({ field }) => (
 											<FormItem className="flex flex-row items-center justify-between">
 												<div className="space-y-0.5">
-													<FormLabel className="text-base">Export Raw Payloads</FormLabel>
+													<FormLabel className="text-base">{t("ui.otelFormFragment.exportRawPayloads", { ns: "observability" })}</FormLabel>
 													<FormDescription>
-														Attach the raw provider request and response bodies to exported spans. Requires raw request/response storage to
-														be enabled on the provider.
+														{t("ui.otelFormFragment.attachTheRawProviderRequestAndResponseBodiesTo", { ns: "observability" })}
 													</FormDescription>
 												</div>
 												<FormControl>
@@ -786,7 +785,8 @@ function OtelProfileSection({ form, control, index, hasOtelAccess, canRemove, op
 										<div className="flex w-full flex-row items-center gap-2">
 											<div className="flex flex-col gap-1">
 												<h3 className="flex flex-row items-center gap-2 text-sm font-medium">
-													{t("connectors.otel.enableMetricsExport")} <Badge variant="secondary">BETA</Badge>
+													{t("connectors.otel.enableMetricsExport")}{" "}
+													<Badge variant="secondary">{t("ui.otelFormFragment.bETA", { ns: "observability" })}</Badge>
 												</h3>
 												<p className="text-muted-foreground text-xs">{t("connectors.otel.enableMetricsExportHelp")}</p>
 											</div>
@@ -844,7 +844,7 @@ function OtelProfileSection({ form, control, index, hasOtelAccess, canRemove, op
 														placeholder={
 															protocol === "http"
 																? "https://otel-collector:4318/v1/metrics or env.OTEL_METRICS_ENDPOINT"
-																: "otel-collector:4317 or env.OTEL_METRICS_ENDPOINT"
+																: t("ui.otelFormFragment.otelCollector4317OrEnvOTELMETRICSENDPOINT", { ns: "observability" })
 														}
 														disabled={!hasOtelAccess}
 														{...field}

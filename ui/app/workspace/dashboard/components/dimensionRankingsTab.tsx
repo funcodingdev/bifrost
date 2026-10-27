@@ -26,13 +26,16 @@ interface DimensionRankingsTabProps {
 }
 
 function TopDimensionTooltip({ active, payload }: any) {
+	const { t: tCopy } = useTranslation();
 	if (!active || !payload || !payload.length) return null;
 	const data = payload[0]?.payload;
 	if (!data) return null;
 	return (
 		<div className="rounded-sm border border-zinc-200 bg-white px-3 py-2 shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
 			<div className="mb-1 text-xs text-zinc-500">{data.displayName}</div>
-			<div className="text-sm font-medium">{data.total_requests.toLocaleString()} requests</div>
+			<div className="text-sm font-medium">
+				{data.total_requests.toLocaleString()} {tCopy("ui.dimensionRankingsTab.requests", { ns: "observability" })}
+			</div>
 		</div>
 	);
 }
@@ -243,7 +246,9 @@ function DimensionRankingsTabImpl({ data, loading, dimensionLabel, testIdPrefix,
 				</Card>
 			) : (
 				<Card className="rounded-sm p-2 shadow-none" data-testid={`${testIdPrefix}-table`}>
-					<span className="text-primary pl-2 text-sm font-medium">{dimensionLabel} Rankings</span>
+					<span className="text-primary pl-2 text-sm font-medium">
+						{dimensionLabel} {t("ui.dimensionRankingsTab.rankings", { ns: "observability" })}
+					</span>
 					<Table>
 						<TableHeader>
 							<TableRow>

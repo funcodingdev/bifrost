@@ -198,7 +198,7 @@ export function LogsHeaderView({
 				description: getErrorMessage(err),
 			});
 		}
-	}, [cancelRecalcJob]);
+	}, [cancelRecalcJob, t]);
 
 	// If the status endpoint keeps failing, stop polling and surface the error so the
 	// user isn't left with a loading toast that never resolves.
@@ -210,7 +210,7 @@ export function LogsHeaderView({
 		});
 		setActiveRecalcJobId(null);
 		setRecalcCancelRequested(false);
-	}, [activeRecalcJobId, recalcJobStatusError]);
+	}, [activeRecalcJobId, recalcJobStatusError, t]);
 
 	// If we unmount while a job is still being tracked, polling stops but the global
 	// loading toast would otherwise linger — dismiss it on the way out.
@@ -277,7 +277,7 @@ export function LogsHeaderView({
 				},
 			},
 		});
-	}, [activeRecalcJobId, recalcJobStatus, recalcCancelRequested, handleCancelRecalculate, fetchLogs, fetchStats]);
+	}, [activeRecalcJobId, recalcJobStatus, recalcCancelRequested, handleCancelRecalculate, fetchLogs, fetchStats, t]);
 
 	const handleSearchChange = useCallback(
 		(value: string, mode: LogSearchMode) => {
@@ -390,7 +390,7 @@ export function LogsHeaderView({
 							</Badge>
 						</TooltipTrigger>
 						<TooltipContent sideOffset={6} className="max-w-64">
-							Looking up this request ID exactly. The selected time range is ignored so the request is found wherever it falls.
+							{t("logs.exactIdSearchHint", { ns: "observability" })}
 						</TooltipContent>
 					</Tooltip>
 				)}
@@ -400,7 +400,7 @@ export function LogsHeaderView({
 							variant="ghost"
 							size="sm"
 							className="text-muted-foreground h-7 shrink-0 rounded-none text-xs"
-							title="Choose whether the box searches log content or looks up a request ID"
+							title={t("logs.searchModeHint", { ns: "observability" })}
 							data-testid="logs-search-mode-trigger"
 						>
 							{LOG_SEARCH_MODE_LABELS[searchMode]}
@@ -410,13 +410,13 @@ export function LogsHeaderView({
 					<DropdownMenuContent align="end" className="w-44">
 						<DropdownMenuRadioGroup value={searchMode} onValueChange={(value) => handleSearchModeChange(value as LogSearchMode)}>
 							<DropdownMenuRadioItem value="auto" className="text-xs" data-testid="logs-search-mode-auto">
-								Auto detect
+								{t("logs.searchModeOptions.auto", { ns: "observability" })}
 							</DropdownMenuRadioItem>
 							<DropdownMenuRadioItem value="content" className="text-xs" data-testid="logs-search-mode-content">
-								Content search
+								{t("logs.searchModeOptions.content", { ns: "observability" })}
 							</DropdownMenuRadioItem>
 							<DropdownMenuRadioItem value="request_id" className="text-xs" data-testid="logs-search-mode-request-id">
-								Request ID search
+								{t("logs.searchModeOptions.request_id", { ns: "observability" })}
 							</DropdownMenuRadioItem>
 						</DropdownMenuRadioGroup>
 					</DropdownMenuContent>
@@ -448,7 +448,12 @@ export function LogsHeaderView({
 			/>
 			<Popover open={openMoreActionsPopover} onOpenChange={setOpenMoreActionsPopover}>
 				<PopoverTrigger asChild>
-					<Button variant="outline" size="sm" className="h-7.5 w-7.5" aria-label="More actions">
+					<Button
+						variant="outline"
+						size="sm"
+						className="h-7.5 w-7.5"
+						aria-label={t("ui.logsHeaderView.moreActions", { ns: "observability" })}
+					>
 						<MoreVertical className="h-4 w-4" aria-hidden="true" />
 					</Button>
 				</PopoverTrigger>

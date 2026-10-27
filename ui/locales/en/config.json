@@ -209,7 +209,10 @@
 		"documentation": "documentation",
 		"forDetails": "for details.",
 		"viewDocs": "View docs",
-		"close": "Close"
+		"close": "Close",
+		"setupTokenAlternativeHelp": "If you do not have the current password, you can also confirm this change with <code>setup_token</code> from <code>config.json</code> or the <code>BIFROST_SETUP_TOKEN</code> environment variable.",
+		"firstAdminHelp": "No admin account exists yet, so management APIs only accept the setup token. Enter the token configured with <code>setup_token</code> in <code>config.json</code> or the <code>BIFROST_SETUP_TOKEN</code> environment variable to create the admin account. Once the account is enabled, the setup token stops working.",
+		"expiredKeysHelp": "When enabled, a daily cleanup job deletes expired virtual keys and posts a notification listing the removed keys. Each key can override this with its <setting>Delete after expire</setting> switch: off keeps that key, and on deletes it even when this workspace setting is off."
 	},
 	"logging": {
 		"title": "Logs Settings",
@@ -241,7 +244,8 @@
 		"hiddenRequestTypesLoadError": "Unable to load hidden request types.",
 		"loadingConfiguration": "Loading configuration…",
 		"allRequestTypesVisible": "All request types are visible",
-		"noRequestTypes": "No request types found."
+		"noRequestTypes": "No request types found.",
+		"disableContentHelp": "Applies to LLM, MCP, and agent logs. When enabled, only usage metadata such as latency, cost, token counts, status, and routing IDs is logged. Messages, parameters, tool calls, and raw provider payloads are omitted even if <code>store_raw_request_response</code> is on. Returning raw bytes to callers via <code>send_back_raw_*</code> is unaffected. Agent protocol bodies follow this setting; upstream raw captures also require Capture Raw Request and Response in Agent Gateway settings."
 	},
 	"observability": {
 		"prometheusLabels": "Prometheus Labels",
@@ -349,7 +353,44 @@
 		"issuerUrlPlaceholder": "https://bifrost.example.com or env.BIFROST_ISSUER_URL",
 		"virtualKeyOauthDisabled": "Virtual-key MCP access via OAuth will stop",
 		"virtualKeyOauthDisabledHelp": "MCP clients that authenticated with a virtual key will lose access immediately and must sign in through your identity provider to reconnect.",
-		"entityName": "MCP gateway settings"
+		"entityName": "MCP gateway settings",
+		"codeLimits": {
+			"max_source_bytes": {
+				"label": "Max Source Size (bytes)",
+				"description": "Largest code a single execution may submit."
+			},
+			"max_steps": {
+				"label": "Max Computation Steps",
+				"description": "Interpreter steps per execution, including work inside builtins."
+			},
+			"max_memory_bytes": {
+				"label": "Max Memory (bytes)",
+				"description": "Estimated allocation budget per execution. Every concurrent execution gets its own budget."
+			},
+			"max_log_bytes": {
+				"label": "Max Log Output (bytes)",
+				"description": "Print and tool log output per execution, including newlines."
+			},
+			"max_tool_calls": {
+				"label": "Max Tool Calls",
+				"description": "Nested MCP tool calls per execution."
+			},
+			"max_value_bytes": {
+				"label": "Max Value Size (bytes)",
+				"description": "Size budget for each tool payload and converted result. Must be at least {{minimum}}."
+			},
+			"max_nesting_depth": {
+				"label": "Max Nesting Depth",
+				"description": "Nesting depth of values crossing the tool boundary. At most {{maximum}}."
+			},
+			"nonNegative": "{{field}} must not be negative.",
+			"minimumValue": "Max value size must be at least {{minimum}} bytes.",
+			"maximumDepth": "Max nesting depth must be at most {{maximum}}."
+		},
+		"privateAllowlistHelp": "Hosts, IP addresses, or CIDR ranges (without a scheme or port) that MCP OAuth discovery, client registration, and token requests may reach when they resolve to private or loopback addresses. Examples: <code>localhost</code>, <code>127.0.0.1</code>, or <code>10.20.0.0/16</code>. Applies to servers added while dashboard authentication is enabled; changing this list also requires dashboard authentication. Link-local and cloud metadata addresses are always blocked.",
+		"issuerHelp": "A stable public URL advertised in discovery documents and used as the <code>iss</code> claim in every JWT. Required in OAuth and Both modes. Bifrost never derives it from the caller-controlled <code>Host</code> header. Supports environment variable references, such as <code>env.BIFROST_ISSUER_URL</code>.",
+		"redirectHelp": "Exact callback URIs remote MCP clients may use, for example <code>https://www.cursor.com/agents/mcp/oauth/callback</code>. Use <code>*</code> to allow any HTTPS callback; partial wildcards are not supported. Loopback callbacks and <code>cursor://anysphere.cursor-mcp</code> are always allowed. Changing this list requires dashboard authentication.",
+		"totalInstructionsHelp": "Ceiling across all servers visible to a caller at once. In Gateway and LLM requests mode, these instructions accompany every MCP-bearing request, so raising the cap increases per-request token usage. Set to 0 to use the default of 16384."
 	},
 	"modelSettings": {
 		"title": "Model Settings",
@@ -998,6 +1039,141 @@
 			"retentionRequired": "A value is required",
 			"retentionWhole": "Must be a whole number of days",
 			"retentionMin": "Must be 0 or more days (0 keeps the default)"
+		},
+		"modelNumber": "Model {{number}}",
+		"removeModel": "Remove model {{number}}"
+	},
+	"ui": {
+		"agentGatewayView": {
+			"agentGatewaySettingsUpdatedSuccessfully": "Agent Gateway settings updated successfully.",
+			"agentGatewaySettings": "Agent Gateway Settings",
+			"configureAgentGatewayA2ASettings": "Configure Agent Gateway (A2A) settings.",
+			"failedToLoadAgentGatewaySettings": "Failed to load Agent Gateway settings.",
+			"bifrostSPublicBaseURLUsedForServedAgentCards": "Bifrost's public base URL, used for served agent cards and push-notification callback URLs. If left blank, all agent protocol endpoints are disabled. Agent management remains available. Supports env var syntax (e.g.",
+			"privateNetworkAllowlist": "Private Network Allowlist",
+			"hostsIPAddressesOrCIDRRangesWithoutAScheme": "Hosts, IP addresses, or CIDR ranges without a scheme or port that Agent Gateway discovery, OAuth, and runtime requests may reach when they resolve to a private or loopback address. Link-local and cloud metadata addresses are always blocked.",
+			"addHostIPOrCIDREnterOrComma": "Add host, IP, or CIDR (Enter or comma)",
+			"captureRawRequestAndResponse": "Capture Raw Request and Response",
+			"persistRawRequestAndResponsePayloadsInLogRecords": "Persist raw request and response payloads in log records. Raw capture is disabled for gRPC because it uses binary protobuf messages; a size-limited capture can cut through a message and cannot be reliably decoded or inspected."
+		},
+		"cachingView": {
+			"excludeSystemPrompt": "Exclude system prompt",
+			"cacheByModel": "Cache by model",
+			"cacheByProvider": "Cache by provider",
+			"scopeCacheByIdentity": "Scope Cache by Identity",
+			"serveACachedResponseOnlyToTheVirtualKey": "Serve a cached response only to the virtual key and user that wrote it. Turn off to share entries across identities that send the same cache key.",
+			"scopeCacheByIdentity2": "Scope cache by identity"
+		},
+		"clientSettingsView": {
+			"extraFieldsPlacement": "Extra Fields Placement",
+			"whereInferenceResponsesCarryBifrostS": "Where inference responses carry Bifrost's",
+			"metadata": "metadata.",
+			"body": "Body",
+			"keepsTheExtraFieldsObjectInTheJSONResponse": "keeps the extra_fields object in the JSON response.",
+			"removesItFromTheBodyAndFromEveryStreaming": "removes it from the body and from every streaming chunk, and sends its scalar fields as",
+			"responseHeaders": "response headers.",
+			"inHeadersModeTheseFieldsAreDroppedAndNot": "In Headers mode these fields are dropped and not sent anywhere: raw request, raw response, routing metadata, guardrail debug, parse errors, and on errors key statuses, billed usage and MCP auth details. Streaming responses only carry what is known before the first chunk (routing, fallback, cache lookup), so per-chunk latency, chunk index and final totals are dropped too.",
+			"removeSecurityHeader": "Remove security header"
+		},
+		"codeModeLimitsSection": {
+			"codeModeLimits": "Code Mode Limits",
+			"limitsOnEachCodeExecutionLeaveAFieldEmpty": "Limits on each code execution. Leave a field empty to use its default. Executions are not limited in how many run at once."
+		},
+		"compatibilityView": {
+			"aboutTheCompatibilityPlugin": "about the compatibility plugin",
+			"useResponsesAPIForReasoningOnlyOpenAIModels": "Use Responses API for reasoning only OpenAI models",
+			"routeChatCompletionRequestsToTheResponsesAPIFor": "Route chat completion requests to the Responses API for models that cannot reason with tool calls on chat completions, instead of turning reasoning off.",
+			"emulateDecisionsAPIOnNonDecisionModels": "Emulate Decisions API on non-decision models",
+			"answerDecisionRequestsForModelsWithoutANativeDecisions": "Answer decision requests for models without a native decisions endpoint by prompting the model through the Responses API with a forced function tool. When off, those requests fail as unsupported."
+		},
+		"loggingView": {
+			"appliesToLLMMCPAndAgentLogsWhenEnabled": "Applies to LLM, MCP, and agent logs. When enabled, only usage metadata (latency, cost, token count, status, routing IDs, etc.) is logged. Request/response content (messages, params, tool calls, and any raw provider bytes) is dropped from log records, even when",
+			"isOnRawByteSendBackToCallersVia": "is on. Raw-byte send-back to callers via",
+			"isUnaffectedAgentProtocolBodiesFollowThisSettingUpstream": "is unaffected. Agent protocol bodies follow this setting; upstream raw captures also require Capture Raw Request and Response in Agent Gateway settings."
+		},
+		"mcpView": {
+			"toolSyncIntervalMustBeZeroOrAPositive": "Tool sync interval must be zero or a positive number.",
+			"maxInstructionLengthPerServerMustBeZeroOr": "Max instruction length per server must be zero or a positive number.",
+			"maxInstructionLengthTotalMustBeZeroOrA": "Max instruction length total must be zero or a positive number.",
+			"issuerURLIsRequiredWhenMCPAuthModeIs": "Issuer URL is required when MCP auth mode is OAuth or Both.",
+			"oAuthPrivateNetworkAllowlist": "OAuth Private Network Allowlist",
+			"hostsIPAddressesOrCIDRRangesNoSchemeOr": "Hosts, IP addresses, or CIDR ranges (no scheme or port) that OAuth discovery, client registration, and token requests for MCP servers may reach when they resolve to a loopback or private address, e.g.",
+			"or": ", or",
+			"appliesToMCPServersAddedWithDashboardAuthentication": ". Applies to MCP servers added with dashboard authentication enabled; changing it requires dashboard authentication. Link-local and cloud metadata addresses are always blocked.",
+			"maxInstructionLengthPerServerBytes": "Max Instruction Length Per Server (bytes)",
+			"longerTextIsTruncatedWithANoticeSetTo": "Longer text is truncated with a notice. Set to 0 to use the default of 4096.",
+			"maxInstructionLengthTotalBytes": "Max Instruction Length Total (bytes)",
+			"ceilingAcrossEveryServerACallerCanSeeAt": "Ceiling across every server a caller can see. At",
+			"thisRidesOnEveryMCPBearingRequestSoRaisingIt": "this rides on every MCP-bearing request, so raising it raises per-request tokens. Set to 0 to use the default of 16384.",
+			"stablePublicURLAdvertisedInDiscoveryDocumentsAndEmbedded": "Stable public URL advertised in discovery documents and embedded as the",
+			"claimInEveryJWTRequiredInOAuthAndBoth": "claim in every JWT. Required in OAuth and Both modes: Bifrost never derives the issuer from the request",
+			"headerBecauseThatHeaderIsCallerControlledSupportsEnvVar": "header, because that header is caller-controlled. Supports env var syntax (e.g.",
+			"allowedRedirectURIs": "Allowed redirect URIs",
+			"exactCallbackURIsRemoteMCPClientsMayUseEG": "Exact callback URIs remote MCP clients may use, e.g.",
+			"add": ". Add",
+			"toAllowAnyHttpsCallbackPartialWildcardsAreNot": "to allow any https callback; partial wildcards are not supported. Loopback callbacks and",
+			"areAlwaysAllowedChangingThisListRequiresDashboardAuthentication": "are always allowed. Changing this list requires dashboard authentication.",
+			"addCallbackURIEnter": "Add callback URI (Enter)",
+			"anyCallbackIsAllowed": "Any callback is allowed",
+			"anyMCPClientCanRegisterWithACallbackOn": "Any MCP client can register with a callback on any host, so the consent page is the only check against a client that sends authorization codes to an attacker. Prefer listing exact callback URIs."
+		},
+		"securityView": {
+			"bETA": "BETA",
+			"confirmWithCurrentAdminPassword": "Confirm with current admin password",
+			"enterTheAdminPasswordCurrentlyInUse": "Enter the admin password currently in use",
+			"dashboardProtectionIsSwitchedOffSoThisSessionIs": "Dashboard protection is switched off, so this session is not signed in. Turning it back on or changing the admin credentials requires the admin password that is currently stored.",
+			"hideSetupToken": "Hide setup token",
+			"orConfirmWithASetupTokenInstead": "...or confirm with a setup token instead",
+			"ifTheCurrentPasswordIsNotAtHandThe": "If the current password is not at hand, the",
+			"from": "from",
+			"orThe": "(or the",
+			"environmentVariableConfirmsThisChangeToo": "environment variable) confirms this change too.",
+			"authorizedWithTheSetupTokenEnteredOnTheSetup": "Authorized with the setup token entered on the setup screen. Saving creates the admin account, after which the setup token stops working.",
+			"noAdminAccountExistsYetSoManagementAPIsOnly": "No admin account exists yet, so management APIs only accept the setup token. Enter the token configured via",
+			"in": "in",
+			"environmentVariableToCreateTheAdminAccountOnceIt": "environment variable) to create the admin account. Once it is enabled, the setup token stops working.",
+			"toSetUpAVirtualKeyBeforeEnablingThis": "to set up a virtual key before enabling this. Calls without a valid credential will return 401.",
+			"theDashboardIsAuthenticationProtectedButThisIsA": "The dashboard is authentication protected, but this is a separate control: anyone who can reach this gateway can still call inference endpoints (e.g. chat completions) with no credential at all, spending your provider budget and reading provider-side state your key has access to. Turn this on unless you've deliberately chosen to leave inference open.",
+			"deleteExpiredVirtualKeys": "Delete Expired Virtual Keys",
+			"whenEnabledADailyCleanupJobDeletesEveryVirtual": "When enabled, a daily cleanup job deletes every virtual key whose expiry has passed and posts a notification listing the removed keys. Each key can override this from its",
+			"deleteAfterExpire": "Delete after expire",
+			"switchAKeySetToOffIsKeptAnd": "switch: a key set to off is kept, and a key set to on is deleted even while this is disabled.",
+			"restrictProviderObjectsToTheCreatingVirtualKey": "Restrict Provider Objects to the Creating Virtual Key",
+			"whenEnabledFilesBatchesVideosContainersCachedContentsAnd": "When enabled, files, batches, videos, containers, cached contents and live sessions created with a virtual key can only be read, listed or deleted with that same key. Other virtual keys get a not-found error and do not see them in lists. Requests without a virtual key are not affected. The creating key is recorded even while this is disabled, so enabling it again also covers objects created in the meantime, except any whose creating key could not be recorded."
+		},
+		"skillsSettingsView": {
+			"skillsSettingsUpdatedSuccessfully": "Skills settings updated successfully.",
+			"skillsSettings": "Skills Settings",
+			"configureSkillsRepositoryMarketplaceServing": "Configure Skills Repository marketplace serving.",
+			"failedToLoadSkillsSettings": "Failed to load skills settings.",
+			"bifrostSPublicBaseURLForClaudeCodeAndCodex": "Bifrost's public base URL for Claude Code and Codex marketplaces. Leave blank to disable marketplace serving and registration. Skill management and downloads remain available. Supports environment variable and vault references."
+		},
+		"warpView": {
+			"aLPHA": "ALPHA",
+			"theModelsWarpReasonsWithAndWritesAnswersFrom": "The models Warp reasons with and writes answers from. The default answers unless someone picks another in the Warp panel. A capable model pays for itself here.",
+			"addModel": "Add model",
+			"warpOffersItsDefaultAndUpTo": "Warp offers its default and up to",
+			"moreModels": "more models.",
+			"defaultModel": "Default model",
+			"makeDefault": "Make default",
+			"couldNotLoadThisProviderSKeys": "Could not load this provider's keys."
+		},
+		"shared": {
+			"showMore": "Show more"
+		},
+		"skillDetailsView": {
+			"skillNotFound": "Skill not found",
+			"backToList": "Back to list"
+		},
+		"skillListView": {
+			"setTheExternalClientURLIn": "Set the External Client URL in",
+			"toEnableMarketplaceRegistration": "to enable marketplace registration."
 		}
+	},
+	"client": {
+		"extraFieldsHelp": "Choose where Bifrost returns <field>extra_fields</field> metadata. <body>Body</body> keeps the extra_fields object in the JSON response. <headers>Headers</headers> removes it from the body and every streaming chunk, and sends its scalar fields as <prefix>x-bifrost-*</prefix> response headers."
+	},
+	"agentGateway": {
+		"externalUrlHelp": "Bifrost's public base URL, used for served agent cards and push notification callbacks. Leave blank to disable all agent protocol endpoints while keeping agent management available. Supports environment variable syntax (e.g. <code>env.BIFROST_EXTERNAL_URL</code>)."
 	}
 }

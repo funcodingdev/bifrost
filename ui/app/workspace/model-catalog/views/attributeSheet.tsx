@@ -423,14 +423,14 @@ export default function AttributeSheet({ model, overrides, onClose }: AttributeS
 											<Input
 												value={row.key}
 												onChange={(e) => handleRowChange(row.id, "key", e.target.value)}
-												placeholder="key"
+												placeholder={t("providers.entityKey", { ns: "models" })}
 												className="flex-1"
 												data-testid={`model-catalog-attribute-key-${i}`}
 											/>
 											<Input
 												value={row.value}
 												onChange={(e) => handleRowChange(row.id, "value", e.target.value)}
-												placeholder="value"
+												placeholder={t("routing.value", { ns: "models" })}
 												className="flex-1"
 												data-testid={`model-catalog-attribute-value-${i}`}
 											/>

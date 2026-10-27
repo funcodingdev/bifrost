@@ -642,12 +642,14 @@ export function RoutingRuleSheet({ open, onOpenChange, editingRule, onSuccess }:
 
 						{/* TTFT cutoff */}
 						<div className="space-y-3">
-							<Label htmlFor="ttft_timeout_ms">Time to first token cutoff (ms)</Label>
+							<Label htmlFor="ttft_timeout_ms">{t("ui.routingRuleSheet.timeToFirstTokenCutoffMs", { ns: "models" })}</Label>
 							<Input
 								id="ttft_timeout_ms"
 								type="text"
 								inputMode="numeric"
-								placeholder={ttftDisplay.mixed ? "Mixed" : "Off"}
+								placeholder={
+									ttftDisplay.mixed ? t("ui.routingRuleSheet.mixed", { ns: "models" }) : t("providers.deployments.off", { ns: "models" })
+								}
 								aria-invalid={errors.ttft_timeout_ms ? true : undefined}
 								aria-describedby={errors.ttft_timeout_ms ? "ttft_timeout_ms-error" : undefined}
 								data-testid="routing-rule-ttft-timeout-input"
@@ -660,7 +662,7 @@ export function RoutingRuleSheet({ open, onOpenChange, editingRule, onSuccess }:
 								})}
 							/>
 							<p className="text-muted-foreground text-xs">
-								Streaming only. If no token arrives in time, Bifrost moves to the next fallback. The last fallback is never cut off.
+								{t("ui.routingRuleSheet.streamingOnlyIfNoTokenArrivesInTimeBifrost", { ns: "models" })}
 							</p>
 							{errors.ttft_timeout_ms && (
 								<p id="ttft_timeout_ms-error" className="text-destructive text-sm" data-testid="routing-rule-ttft-timeout-error">
@@ -669,7 +671,7 @@ export function RoutingRuleSheet({ open, onOpenChange, editingRule, onSuccess }:
 							)}
 							{!errors.ttft_timeout_ms && ttftDisplay.active && !hasCompleteFallback && (
 								<p className="text-sm text-amber-600 dark:text-amber-500" data-testid="routing-rule-ttft-timeout-no-fallback-warning">
-									This rule has no fallbacks, so the cutoff only applies when the request brings its own.
+									{t("ui.routingRuleSheet.thisRuleHasNoFallbacksSoTheCutoffOnly", { ns: "models" })}
 								</p>
 							)}
 						</div>

@@ -67,7 +67,7 @@ function TeamActionsMenu({
 						variant="ghost"
 						size="icon"
 						className="h-8 w-8"
-						aria-label={`Team actions for ${team.name}`}
+						aria-label={t("accessibility.teamActions", { ns: "common", name: team.name })}
 						data-testid={`team-actions-btn-${team.name}`}
 					>
 						<MoreHorizontal className="h-4 w-4" />
@@ -340,7 +340,7 @@ export default function TeamsTable({
 																						<span className="text-muted-foreground text-xs">{formatResetDuration(b.reset_duration)}</span>
 																					</div>
 																					<Progress
-																						aria-label="Budget usage"
+																						aria-label={t("ui.customerTable.budgetUsage", { ns: "governance" })}
 																						value={budgetPercentage}
 																						className={cn(
 																							"bg-muted/70 dark:bg-muted/30 h-1.5",
@@ -357,7 +357,10 @@ export default function TeamsTable({
 																				<p className="font-medium">
 																					{formatCurrency(b.current_usage)} / {formatCurrency(b.max_limit)}
 																				</p>
-																				<p className="text-primary-foreground/80 text-xs">Resets {formatResetDuration(b.reset_duration)}</p>
+																				<p className="text-primary-foreground/80 text-xs">
+																					{t("ui.customerTable.resets", { ns: "governance" }) + " "}
+																					{formatResetDuration(b.reset_duration)}
+																				</p>
 																			</TooltipContent>
 																		</Tooltip>
 																	);
@@ -384,7 +387,7 @@ export default function TeamsTable({
 																					</span>
 																				</div>
 																				<Progress
-																					aria-label="Token usage"
+																					aria-label={t("ui.customerTable.tokenUsage", { ns: "governance" })}
 																					value={tokenPercentage}
 																					className={cn(
 																						"bg-muted/70 dark:bg-muted/30 h-1",
@@ -404,7 +407,8 @@ export default function TeamsTable({
 																				{localeMessages.t("promptRepo.tokens", { ns: "config" })}
 																			</p>
 																			<p className="text-primary-foreground/80 text-xs">
-																				Resets {formatResetDuration(team.rate_limit.token_reset_duration || "1h")}
+																				{t("ui.customerTable.resets", { ns: "governance" }) + " "}
+																				{formatResetDuration(team.rate_limit.token_reset_duration || "1h")}
 																			</p>
 																		</TooltipContent>
 																	</Tooltip>
@@ -414,13 +418,16 @@ export default function TeamsTable({
 																		<TooltipTrigger asChild>
 																			<div className="space-y-1.5">
 																				<div className="flex items-center justify-between gap-4 text-xs">
-																					<span className="font-medium">{team.rate_limit.request_max_limit.toLocaleString()} req</span>
+																					<span className="font-medium">
+																						{team.rate_limit.request_max_limit.toLocaleString()}{" "}
+																						{t("ui.customerTable.req", { ns: "governance" })}
+																					</span>
 																					<span className="text-muted-foreground">
 																						{formatResetDuration(team.rate_limit.request_reset_duration || "1h")}
 																					</span>
 																				</div>
 																				<Progress
-																					aria-label="Request usage"
+																					aria-label={t("ui.customerTable.requestUsage", { ns: "governance" })}
 																					value={requestPercentage}
 																					className={cn(
 																						"bg-muted/70 dark:bg-muted/30 h-1",
@@ -436,10 +443,12 @@ export default function TeamsTable({
 																		<TooltipContent>
 																			<p className="font-medium">
 																				{team.rate_limit.request_current_usage.toLocaleString()} /{" "}
-																				{team.rate_limit.request_max_limit.toLocaleString()} requests
+																				{team.rate_limit.request_max_limit.toLocaleString()}{" "}
+																				{t("ui.customerTable.requests", { ns: "governance" })}
 																			</p>
 																			<p className="text-primary-foreground/80 text-xs">
-																				Resets {formatResetDuration(team.rate_limit.request_reset_duration || "1h")}
+																				{t("ui.customerTable.resets", { ns: "governance" }) + " "}
+																				{formatResetDuration(team.rate_limit.request_reset_duration || "1h")}
 																			</p>
 																		</TooltipContent>
 																	</Tooltip>
@@ -453,7 +462,8 @@ export default function TeamsTable({
 														{vkCount > 0 ? (
 															<div className="flex items-center gap-2">
 																<Badge variant="outline" className="text-xs">
-																	{vkCount} {vkCount === 1 ? "key" : "keys"}
+																	{vkCount}{" "}
+																	{vkCount === 1 ? t("providers.entityKey", { ns: "models" }) : t("providers.entityKeys", { ns: "models" })}
 																</Badge>
 															</div>
 														) : (
@@ -484,8 +494,12 @@ export default function TeamsTable({
 						{totalCount > 0 && (
 							<div className="flex shrink-0 items-center justify-between text-xs" data-testid="pagination">
 								<div className="text-muted-foreground flex items-center gap-2">
-									{(offset + 1).toLocaleString()}-{Math.min(offset + limit, totalCount).toLocaleString()} of {totalCount.toLocaleString()}{" "}
-									{localeMessages.t("routing.entries", { ns: "models" })}
+									{t("pagination.entries", {
+										ns: "common",
+										from: (offset + 1).toLocaleString(),
+										to: Math.min(offset + limit, totalCount).toLocaleString(),
+										total: totalCount.toLocaleString(),
+									})}
 								</div>
 
 								<div className="flex items-center gap-2">
@@ -501,9 +515,7 @@ export default function TeamsTable({
 									</Button>
 
 									<div className="flex items-center gap-1">
-										<span>{localeMessages.t("webhooks.pagination.page", { ns: "governance" })}</span>
-										<span>{Math.floor(offset / limit) + 1}</span>
-										<span>of {Math.ceil(totalCount / limit)}</span>
+										{t("pagination.page", { ns: "common", page: Math.floor(offset / limit) + 1, total: Math.ceil(totalCount / limit) })}
 									</div>
 
 									<Button

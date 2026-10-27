@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -14,18 +15,19 @@ interface FormFooterProps {
 }
 
 export default function FormFooter({ validator, label, onCancel, isLoading, isEditing, hasPermission = true }: FormFooterProps) {
+	const { t: tCopy } = useTranslation();
 	const isDisabled = isLoading || !validator.isValid() || !hasPermission;
 
 	const getTooltipMessage = () => {
-		if (!hasPermission) return "You don't have permission to perform this action";
-		if (isLoading) return "Saving...";
-		return validator.getFirstError() || "Please fix validation errors";
+		if (!hasPermission) return tCopy("form.noPermission");
+		if (isLoading) return tCopy("form.saving");
+		return validator.getFirstError() || tCopy("form.fixErrors");
 	};
 
 	return (
 		<DialogFooter className="mt-4">
 			<Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
-				Cancel
+				{tCopy("cancel", { ns: "common" })}
 			</Button>
 			<TooltipProvider>
 				<Tooltip>
@@ -33,7 +35,11 @@ export default function FormFooter({ validator, label, onCancel, isLoading, isEd
 						<span>
 							<Button type="submit" disabled={isDisabled}>
 								<Save className="h-4 w-4" />
-								{isLoading ? "Saving..." : isEditing ? `Update ${label}` : `Create ${label}`}
+								{isLoading
+									? tCopy("skillsRepo.savingDots", { ns: "config" })
+									: isEditing
+										? tCopy("form.updateEntity", { entity: label })
+										: tCopy("form.createEntity", { entity: label })}
 							</Button>
 						</span>
 					</TooltipTrigger>

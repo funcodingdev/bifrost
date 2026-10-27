@@ -1,3 +1,4 @@
+import i18nReview from "@/lib/i18n";
 import { KnownProvidersNames } from "@/lib/constants/logs";
 import {
 	aliasConfigSchema,
@@ -23,7 +24,7 @@ const ProxyConfigSchema = z
 	.superRefine((v, ctx) => {
 		const needsUrl = v.type === "http" || v.type === "socks5";
 		if (needsUrl && !(v.url && v.url.trim())) {
-			ctx.addIssue({ code: "custom", path: ["url"], message: "Proxy URL is required for http/socks5" });
+			ctx.addIssue({ code: "custom", path: ["url"], message: i18nReview.t("validation.providerForm.proxyRequired", { ns: "common" }) });
 		}
 		const user = v.username?.trim();
 		const pass = v.password?.trim();
@@ -31,7 +32,7 @@ const ProxyConfigSchema = z
 			ctx.addIssue({
 				code: "custom",
 				path: ["password"],
-				message: "Username and password must both be provided",
+				message: i18nReview.t("validation.providerForm.proxyCredentials", { ns: "common" }),
 			});
 		}
 	});
@@ -53,7 +54,7 @@ const NetworkConfigSchema = z
 		http2_ping_interval_in_seconds: z.number().int().min(0).max(3600).optional(),
 	})
 	.refine((v) => v.retry_backoff_initial <= v.retry_backoff_max, {
-		message: "Initial backoff must be <= max backoff",
+		error: () => i18nReview.t("validation.providerForm.backoffOrder", { ns: "common" }),
 		path: ["retry_backoff_initial"],
 	});
 
@@ -63,7 +64,7 @@ const ConcurrencyAndBufferSizeSchema = z
 		buffer_size: z.number().min(1, "Buffer size must be greater than 0"),
 	})
 	.refine((data) => data.concurrency <= data.buffer_size, {
-		message: "Concurrency must be less than or equal to buffer size",
+		error: () => i18nReview.t("validation.providerForm.concurrencyBuffer", { ns: "common" }),
 		path: ["concurrency"],
 	});
 
@@ -105,7 +106,7 @@ const VertexKeyConfigSchema = z.object({
 		.string()
 		.optional()
 		.refine((value) => !value || isValidVertexAuthCredentials(value), {
-			message: "Auth Credentials must be a valid JSON object or env.VAR format when provided",
+			error: () => i18nReview.t("validation.providerForm.authJson", { ns: "common" }),
 		}),
 	force_single_region: z.boolean().optional(),
 	use_session_routing: z.boolean().optional(),
@@ -175,7 +176,7 @@ const BedrockKeyConfigSchema = z
 			return true;
 		},
 		{
-			message: "For Bedrock: either provide both Access Key and Secret Key, or leave both empty for IAM role authentication",
+			error: () => i18nReview.t("validation.providerForm.bedrockCredentials", { ns: "common" }),
 			path: ["access_key"],
 		},
 	);
@@ -207,7 +208,7 @@ const BedrockMantleKeyConfigSchema = z
 			return bothEmpty || bothProvided;
 		},
 		{
-			message: "For Bedrock Mantle: either provide both Access Key and Secret Key, or leave both empty for IAM role authentication",
+			error: () => i18nReview.t("validation.providerForm.mantleCredentials", { ns: "common" }),
 			path: ["access_key"],
 		},
 	);
@@ -227,7 +228,9 @@ const KeySchema = z.object({
 	aliases: z
 		.record(z.string(), aliasConfigSchema)
 		.optional()
-		.refine((value) => !value || isValidAliases(value), { message: "Deployments must have a Model ID set on every row" }),
+		.refine((value) => !value || isValidAliases(value), {
+			error: () => i18nReview.t("validation.providerForm.deploymentModels", { ns: "common" }),
+		}),
 	azure_key_config: AzureKeyConfigSchema.optional(),
 	vertex_key_config: VertexKeyConfigSchema.optional(),
 	bedrock_key_config: BedrockKeyConfigSchema.optional(),
@@ -264,7 +267,7 @@ export const ProviderFormSchema = z
 			if (!data.customProviderName?.trim()) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: "Custom provider name is required",
+					message: i18nReview.t("validation.providerForm.customNameRequired", { ns: "common" }),
 					path: ["customProviderName"],
 				});
 			}
@@ -272,7 +275,7 @@ export const ProviderFormSchema = z
 			if (!/^[a-z0-9_-]+$/.test(data.customProviderName?.trim() || "")) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: "Custom provider name must be lowercase alphanumeric and may include '-' or '_' (no spaces)",
+					message: i18nReview.t("validation.providerForm.customNameFormat", { ns: "common" }),
 					path: ["customProviderName"],
 				});
 			}
@@ -280,7 +283,7 @@ export const ProviderFormSchema = z
 			if (!data.baseProviderType) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: "Base provider type is required for custom providers",
+					message: i18nReview.t("validation.providerForm.baseProviderRequired", { ns: "common" }),
 					path: ["baseProviderType"],
 				});
 			}
@@ -288,7 +291,7 @@ export const ProviderFormSchema = z
 			if (KnownProvidersNames.includes(data.customProviderName?.trim() as (typeof KnownProvidersNames)[number])) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: "Custom provider name cannot be the same as a standard provider name",
+					message: i18nReview.t("validation.providerForm.reservedProviderName", { ns: "common" }),
 					path: ["customProviderName"],
 				});
 			}
@@ -300,7 +303,7 @@ export const ProviderFormSchema = z
 			if (!data.networkConfig?.base_url) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: "Base URL is required for this provider",
+					message: i18nReview.t("validation.providerForm.baseUrlRequired", { ns: "common" }),
 					path: ["networkConfig", "base_url"],
 				});
 			}
@@ -308,7 +311,7 @@ export const ProviderFormSchema = z
 			if (data.networkConfig?.base_url && !/^https?:\/\/.+/.test(data.networkConfig.base_url)) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: "Base URL must start with http:// or https://",
+					message: i18nReview.t("validation.providerForm.baseUrlFormat", { ns: "common" }),
 					path: ["networkConfig", "base_url"],
 				});
 			}
@@ -320,7 +323,7 @@ export const ProviderFormSchema = z
 			if (data.keys.length < 1) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: "At least one API key is required",
+					message: i18nReview.t("validation.providerForm.keyRequired", { ns: "common" }),
 					path: ["keys"],
 				});
 			}
@@ -335,7 +338,7 @@ export const ProviderFormSchema = z
 					if (!key.value.trim() && !githubCopilotKeyConfigComplete(key.github_copilot_key_config)) {
 						ctx.addIssue({
 							code: z.ZodIssueCode.custom,
-							message: "Set a Copilot API token, or fill in all four GitHub App credentials",
+							message: i18nReview.t("validation.providerForm.copilotCredentials", { ns: "common" }),
 							path: ["keys", index, "value"],
 						});
 					}
@@ -347,7 +350,7 @@ export const ProviderFormSchema = z
 				) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
-						message: "API key value cannot be empty",
+						message: i18nReview.t("validation.providerForm.keyEmpty", { ns: "common" }),
 						path: ["keys", index, "value"],
 					});
 				}

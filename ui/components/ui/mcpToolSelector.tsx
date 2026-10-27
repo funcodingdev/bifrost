@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { CodeEditor } from "@/components/ui/codeEditor";
 import { ChevronDown, ChevronRight, X } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
@@ -59,6 +60,7 @@ export function MCPToolSelector({
 	disabled = false,
 	className,
 }: MCPToolSelectorProps) {
+	const { t: tCopy } = useTranslation();
 	const [expandedTools, setExpandedTools] = useState<Set<string>>(new Set());
 
 	// Flatten all tools from all MCP clients into searchable options
@@ -176,7 +178,7 @@ export function MCPToolSelector({
 				closeMenuOnSelect={true}
 				hideSelectedOptions={true}
 				controlShouldRenderValue={false}
-				noOptionsMessage={() => "No results found"}
+				noOptionsMessage={() => tCopy("ui.mcpToolSelector.noResultsFound", { ns: "common" })}
 				views={{
 					option: (optionProps: OptionProps<ToolOptionMeta>) => {
 						const { Option } = components;
@@ -212,8 +214,8 @@ export function MCPToolSelector({
 						<TableHeader>
 							<TableRow>
 								<TableHead className="w-10"></TableHead>
-								<TableHead className="w-auto">Tool</TableHead>
-								<TableHead className="hidden w-32 md:table-cell">Server</TableHead>
+								<TableHead className="w-auto">{tCopy("promptRepo.roleTool", { ns: "config" })}</TableHead>
+								<TableHead className="hidden w-32 md:table-cell">{tCopy("library.table.server", { ns: "mcp" })}</TableHead>
 								<TableHead className="w-10"></TableHead>
 							</TableRow>
 						</TableHeader>
@@ -271,7 +273,9 @@ export function MCPToolSelector({
 												<tr>
 													<td colSpan={4} className="p-0">
 														<div className="bg-muted/30 border-t px-4 py-3">
-															<div className="text-muted-foreground mb-2 text-xs font-medium">Parameters Schema</div>
+															<div className="text-muted-foreground mb-2 text-xs font-medium">
+																{tCopy("registry.sheet.parametersSchema", { ns: "mcp" })}
+															</div>
 															{tool.parameters ? (
 																<CodeEditor
 																	className="z-0 w-full rounded-md border"
@@ -289,7 +293,7 @@ export function MCPToolSelector({
 																	}}
 																/>
 															) : (
-																<div className="text-muted-foreground text-sm">No parameters defined</div>
+																<div className="text-muted-foreground text-sm">{tCopy("registry.sheet.noParameters", { ns: "mcp" })}</div>
 															)}
 														</div>
 													</td>
@@ -307,7 +311,7 @@ export function MCPToolSelector({
 			{/* Empty state */}
 			{selectedToolsWithInfo.length === 0 && (
 				<div className="text-muted-foreground rounded-md border border-dashed p-4 text-center text-sm">
-					No tools selected. Use the search above to add tools.
+					{tCopy("ui.mcpToolSelector.noToolsSelectedUseTheSearchAboveToAdd", { ns: "common" })}
 				</div>
 			)}
 		</div>

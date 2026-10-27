@@ -262,17 +262,17 @@ export default function MCPView() {
 			const totalCap = Number.parseInt(localValues.mcp_max_instructions_total);
 
 			if (isNaN(syncInterval) || syncInterval < 0) {
-				toast.error("Tool sync interval must be zero or a positive number.");
+				toast.error(t("ui.mcpView.toolSyncIntervalMustBeZeroOrAPositive", { ns: "config" }));
 				return;
 			}
 
 			if (isNaN(perClientCap) || perClientCap < 0) {
-				toast.error("Max instruction length per server must be zero or a positive number.");
+				toast.error(t("ui.mcpView.maxInstructionLengthPerServerMustBeZeroOr", { ns: "config" }));
 				return;
 			}
 
 			if (isNaN(totalCap) || totalCap < 0) {
-				toast.error("Max instruction length total must be zero or a positive number.");
+				toast.error(t("ui.mcpView.maxInstructionLengthTotalMustBeZeroOrA", { ns: "config" }));
 				return;
 			}
 
@@ -302,7 +302,7 @@ export default function MCPView() {
 			}
 
 			if (oauthModeActive && !isSecretVarSet(localConfig.oauth2_server_config?.issuer_url)) {
-				toast.error("Issuer URL is required when MCP auth mode is OAuth or Both.");
+				toast.error(t("ui.mcpView.issuerURLIsRequiredWhenMCPAuthModeIs", { ns: "config" }));
 				return;
 			}
 
@@ -439,20 +439,16 @@ export default function MCPView() {
 				<div className="space-y-2 rounded-sm border p-4">
 					<div className="space-y-0.5">
 						<label htmlFor="mcp-oauth-private-allowlist" className="text-sm font-medium">
-							OAuth Private Network Allowlist
+							{t("ui.mcpView.oAuthPrivateNetworkAllowlist", { ns: "config" })}
 						</label>
 						<p className="text-muted-foreground text-sm">
-							Hosts, IP addresses, or CIDR ranges (no scheme or port) that OAuth discovery, client registration, and token requests for MCP
-							servers may reach when they resolve to a loopback or private address, e.g. <code className="text-xs">localhost</code>
-							{localeMessages.t("security.requirementSeparator", { ns: "config" })} <code className="text-xs">127.0.0.1</code>, or{" "}
-							<code className="text-xs">10.20.0.0/16</code>. Applies to MCP servers added with dashboard authentication enabled; changing it
-							requires dashboard authentication. Link-local and cloud metadata addresses are always blocked.
+							<Trans ns="config" i18nKey="mcpSettings.privateAllowlistHelp" components={{ code: <code className="text-xs" /> }} />
 						</p>
 					</div>
 					<TagInput
 						id="mcp-oauth-private-allowlist"
 						data-testid="mcp-oauth-private-allowlist-input"
-						placeholder="Add host, IP, or CIDR (Enter or comma)"
+						placeholder={t("ui.agentGatewayView.addHostIPOrCIDREnterOrComma", { ns: "config" })}
 						value={localConfig.mcp_oauth_private_allowlist ?? []}
 						onValueChange={handleOAuthPrivateAllowlistChange}
 						readOnly={!hasSettingsUpdateAccess}
@@ -463,9 +459,9 @@ export default function MCPView() {
 				<div className="flex items-center justify-between space-x-2 rounded-sm border p-4">
 					<div className="space-y-0.5">
 						<label htmlFor="mcp-max-instructions-per-client" className="text-sm font-medium">
-							Max Instruction Length Per Server (bytes)
+							{t("ui.mcpView.maxInstructionLengthPerServerBytes", { ns: "config" })}
 						</label>
-						<p className="text-muted-foreground text-sm">Longer text is truncated with a notice. Set to 0 to use the default of 4096.</p>
+						<p className="text-muted-foreground text-sm">{t("ui.mcpView.longerTextIsTruncatedWithANoticeSetTo", { ns: "config" })}</p>
 					</div>
 					<Input
 						id="mcp-max-instructions-per-client"
@@ -482,11 +478,10 @@ export default function MCPView() {
 				<div className="flex items-center justify-between space-x-2 rounded-sm border p-4">
 					<div className="space-y-0.5">
 						<label htmlFor="mcp-max-instructions-total" className="text-sm font-medium">
-							Max Instruction Length Total (bytes)
+							{t("ui.mcpView.maxInstructionLengthTotalBytes", { ns: "config" })}
 						</label>
 						<p className="text-muted-foreground text-sm">
-							Ceiling across every server a caller can see. At <code className="text-xs">Gateway and LLM requests</code> this rides on every
-							MCP-bearing request, so raising it raises per-request tokens. Set to 0 to use the default of 16384.
+							<Trans ns="config" i18nKey="mcpSettings.totalInstructionsHelp" />
 						</p>
 					</div>
 					<Input
@@ -667,10 +662,7 @@ export default function MCPView() {
 											{t("mcpSettings.issuerUrl")} <span className="text-destructive">*</span>
 										</label>
 										<p className="text-muted-foreground text-sm">
-											Stable public URL advertised in discovery documents and embedded as the <code className="text-xs">iss</code> claim in
-											every JWT. Required in OAuth and Both modes: Bifrost never derives the issuer from the request{" "}
-											<code className="text-xs">Host</code> header, because that header is caller-controlled. Supports env var syntax (e.g.{" "}
-											<code className="text-xs">env.BIFROST_ISSUER_URL</code>).
+											<Trans ns="config" i18nKey="mcpSettings.issuerHelp" components={{ code: <code className="text-xs" /> }} />
 										</p>
 										<SecretVarInput
 											id="oauth2-issuer-url"
@@ -722,19 +714,15 @@ export default function MCPView() {
 									{/* Allowed redirect URIs */}
 									<div className="space-y-1.5">
 										<label htmlFor="oauth2-allowed-redirect-uris" className="text-sm font-medium">
-											Allowed redirect URIs
+											{t("ui.mcpView.allowedRedirectURIs", { ns: "config" })}
 										</label>
 										<p className="text-muted-foreground text-sm">
-											Exact callback URIs remote MCP clients may use, e.g.{" "}
-											<code className="text-xs">https://www.cursor.com/agents/mcp/oauth/callback</code>. Add{" "}
-											<code className="text-xs">*</code> to allow any https callback; partial wildcards are not supported. Loopback
-											callbacks and <code className="text-xs">cursor://anysphere.cursor-mcp</code> are always allowed. Changing this list
-											requires dashboard authentication.
+											<Trans ns="config" i18nKey="mcpSettings.redirectHelp" components={{ code: <code className="text-xs" /> }} />
 										</p>
 										<TagInput
 											id="oauth2-allowed-redirect-uris"
 											data-testid="oauth2-allowed-redirect-uris-input"
-											placeholder="Add callback URI (Enter)"
+											placeholder={t("ui.mcpView.addCallbackURIEnter", { ns: "config" })}
 											submitOnComma={false}
 											value={localConfig.oauth2_server_config?.allowed_redirect_uris ?? []}
 											onValueChange={handleAllowedRedirectURIsChange}
@@ -743,11 +731,8 @@ export default function MCPView() {
 										{localConfig.oauth2_server_config?.allowed_redirect_uris?.includes("*") && (
 											<Alert variant="warning" data-testid="oauth2-allowed-redirect-uris-wildcard-warning">
 												<AlertTriangle className="size-4" />
-												<AlertTitle>Any callback is allowed</AlertTitle>
-												<AlertDescription>
-													Any MCP client can register with a callback on any host, so the consent page is the only check against a client
-													that sends authorization codes to an attacker. Prefer listing exact callback URIs.
-												</AlertDescription>
+												<AlertTitle>{t("ui.mcpView.anyCallbackIsAllowed", { ns: "config" })}</AlertTitle>
+												<AlertDescription>{t("ui.mcpView.anyMCPClientCanRegisterWithACallbackOn", { ns: "config" })}</AlertDescription>
 											</Alert>
 										)}
 									</div>

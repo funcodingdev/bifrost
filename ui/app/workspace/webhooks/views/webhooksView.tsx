@@ -473,9 +473,11 @@ export default function WebhooksView() {
 									<ChevronLeft className="size-3" />
 								</Button>
 								<div className="flex items-center gap-1">
-									<span>{t("webhooks.pagination.page")}</span>
-									<span>{Math.floor(offset / PAGE_SIZE) + 1}</span>
-									<span>{t("webhooks.pagination.ofPages", { total: Math.ceil(totalCount / PAGE_SIZE) })}</span>
+									{t("pagination.page", {
+										ns: "common",
+										page: Math.floor(offset / PAGE_SIZE) + 1,
+										total: Math.ceil(totalCount / PAGE_SIZE),
+									})}
 								</div>
 								<Button
 									variant="ghost"

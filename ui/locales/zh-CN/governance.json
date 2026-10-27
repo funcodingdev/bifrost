@@ -101,7 +101,15 @@
 		}
 	},
 	"virtualKeys": {
-		"loadFailed": "加载虚拟密钥失败：{{message}}"
+		"loadFailed": "加载虚拟密钥失败：{{message}}",
+		"expiry": {
+			"on": "开启",
+			"off": "关闭",
+			"workspaceDefault": "遵循工作区默认设置（{{state}}），可在“设置 → 安全”中修改。"
+		},
+		"metadataFilterNamed": "元数据筛选：{{key}}={{value}}",
+		"selectNamed": "选择虚拟密钥 {{name}}",
+		"ownerProfileNotice": "此密钥受{{owner}}的访问配置 <profile>{{profile}}</profile> 管理，并使用该配置中的预算、速率限制和提供商设置。"
 	},
 	"plugins": {
 		"title": "插件",
@@ -329,10 +337,10 @@
 			"redelivery": "重新投递 {{n}}"
 		},
 		"outcomes": {
-			"delivered": "delivered",
-			"retrying": "retrying",
-			"failed": "failed",
-			"exhausted": "retries exhausted",
+			"delivered": "已送达",
+			"retrying": "正在重试",
+			"failed": "失败",
+			"exhausted": "重试次数已用尽",
 			"deliveredLabel": "已送达",
 			"retryingLabel": "重试中",
 			"failedLabel": "失败",
@@ -353,7 +361,17 @@
 			"filterResponseStatus": "响应状态",
 			"filterWebhooks": "Webhook",
 			"searchWebhooks": "搜索 webhook…"
-		}
+		},
+		"deliveryColumns": {
+			"time": "时间",
+			"deliveryId": "投递 ID",
+			"requestId": "请求 ID",
+			"event": "事件",
+			"status": "状态",
+			"responses": "响应"
+		},
+		"openInLogs": "— 在日志中打开",
+		"sendCount": "{{count}} 次发送"
 	},
 	"alerting": {
 		"channelsUnlockTitle": "解锁告警渠道以主动监控",
@@ -479,12 +497,12 @@
 			"edge devices": "边缘设备",
 			"edge inventory": "边缘库存",
 			"edge settings": "边缘设置",
-			"webhooks": "Webhooks",
+			"webhooks": "Webhook",
 			"virtual keys": "虚拟密钥",
 			"plugins": "插件",
 			"projects": "项目",
 			"skills repository": "Skills 仓库",
-			"model providers": "模型供应商",
+			"model providers": "模型提供商",
 			"observability settings": "可观测性设置",
 			"MCP gateway library": "MCP 网关库",
 			"MCP gateway configuration": "MCP 网关配置",
@@ -518,7 +536,13 @@
 		"emptyDescription": "新通知会显示在这里。",
 		"unread": "未读",
 		"dismissAria": "关闭 {{title}}",
-		"clearAll": "全部清除"
+		"clearAll": "全部清除",
+		"summary": "通知：{{details}}",
+		"ongoingCount": "{{count}} 项正在进行",
+		"unreadCount": "{{count}} 条未读",
+		"runningCount": "{{count}} 个任务运行中",
+		"newsCount": "{{count}} 条新资讯",
+		"summarySeparator": "；"
 	},
 	"mcpConfigs": {
 		"title": "MCP 服务器配置",
@@ -543,26 +567,26 @@
 		"removeAria": "移除 {{name}}"
 	},
 	"providerConfigs": {
-		"title": "供应商配置",
-		"tooltip": "配置可使用的供应商及其具体设置。留空将阻止所有供应商。添加供应商以允许它们。",
-		"allowAll": "允许全部供应商",
-		"allowAllTooltip": "授予对每个供应商的访问权限，包括之后新增的供应商。可在下方为特定供应商设置预算或限制，或移除某个供应商以实现「允许全部但排除该项」。",
-		"selectToAdd": "选择要添加的供应商",
-		"loadingProviders": "正在加载供应商…",
-		"loadFailed": "加载供应商失败。请重试。",
-		"noneLeftLink": "没有可配置的供应商。<primary0>点击添加</primary0>",
-		"noneLeft": "没有可配置的供应商",
+		"title": "提供商配置",
+		"tooltip": "配置可使用的提供商及其具体设置。留空将阻止所有提供商。添加提供商以允许它们。",
+		"allowAll": "允许全部提供商",
+		"allowAllTooltip": "授予对每个提供商的访问权限，包括之后新增的提供商。可在下方为特定提供商设置预算或限制，或移除某个提供商以实现「允许全部但排除该项」。",
+		"selectToAdd": "选择要添加的提供商",
+		"loadingProviders": "正在加载提供商…",
+		"loadFailed": "加载提供商失败。请重试。",
+		"noneLeftLink": "没有可配置的提供商。<primary0>点击添加</primary0>",
+		"noneLeft": "没有可配置的提供商",
 		"excludeFromRouting": "从路由中排除",
 		"noBudget": "无预算",
 		"noCap": "无上限",
 		"modelBudgetCount_one": "{{count}} 项模型预算",
 		"modelBudgetCount_other": "{{count}} 项模型预算",
-		"removeProviderAria": "移除供应商 {{name}}",
-		"providerBudget": "供应商预算",
-		"providerBudgetLabel": "供应商预算",
-		"globalProviderCap": "全局供应商上限 {{amount}}",
+		"removeProviderAria": "移除提供商 {{name}}",
+		"providerBudget": "提供商预算",
+		"providerBudgetLabel": "提供商预算",
+		"globalProviderCap": "全局提供商上限 {{amount}}",
 		"modelBudgets": "模型预算",
-		"modelBudgetsHint": "若跳过此项，模型将自由共享供应商预算",
+		"modelBudgetsHint": "若跳过此项，模型将自由共享提供商预算",
 		"selectAModel": "选择模型…",
 		"removeModelBudgetAria": "移除模型预算 {{name}}",
 		"modelBudget": "模型预算",
@@ -575,10 +599,10 @@
 		"rateLimitsSet": "已设置速率限制",
 		"noRateLimits": "无速率限制",
 		"allowAllKeys": "允许全部密钥",
-		"allowAllKeysDescription": "允许此供应商当前及将来的全部密钥",
+		"allowAllKeysDescription": "允许此提供商当前及将来的全部密钥",
 		"allModels": "全部模型",
 		"noModelsDenyAll": "无模型（全部拒绝）",
-		"providerKeys": "供应商密钥",
+		"providerKeys": "提供商密钥",
 		"allKeysAllowed": "已允许全部密钥",
 		"noKeysSelected": "未选择密钥",
 		"selectKeys": "选择密钥…",
@@ -594,6 +618,93 @@
 		"patternCount_one": "{{count}} 个模式",
 		"patternCount_other": "{{count}} 个模式",
 		"removeAria": "移除 {{name}}",
-		"noneLeftClick": "没有可配置的供应商。点击添加"
+		"noneLeftClick": "没有可配置的提供商。点击添加"
+	},
+	"ui": {
+		"customerSheet": {
+			"resetBudgetsAndRateLimitsAtTheStartOf": "在每个周期开始时（例如每月 1 日）重置预算和速率限制，而不是从创建日期起滚动计算。长度为一天、一周、一个月、一个季度或一年的周期按日历边界对齐，其他时长仍使用滚动窗口。"
+		},
+		"customerTable": {
+			"budgetUsage": "预算用量",
+			"resets": "重置时间",
+			"tokenUsage": "Token 用量",
+			"req": "次请求",
+			"requestUsage": "请求用量",
+			"requests": "次请求",
+			"of": "/"
+		},
+		"page": {
+			"theMetadataFilterKeyInThisLinkIsNot": "此链接中的元数据筛选键无效，因此未应用该筛选。键应为 1–256 个字符，仅允许字母、数字、“.”、“_”或“-”。",
+			"clearFilter": "清除筛选"
+		},
+		"virtualKeyDetailsSheet": {
+			"deletedAutomaticallyAfterExpiry": "· 到期后自动删除",
+			"viewSpend": "查看支出",
+			"agentAccess": "智能体访问权限",
+			"noAgentsGranted": "未授权任何智能体",
+			"virtualKey": "虚拟密钥"
+		},
+		"virtualKeySheet": {
+			"deleteAfterExpire": "到期后删除",
+			"theKeyIsRemovedAutomaticallyWithinAboutADay": "密钥将在到期后约一天内自动删除。",
+			"overridesTheWorkspaceDefaultForThisKey": "覆盖此密钥的工作区默认设置。",
+			"businessUnit": "业务单元",
+			"governedBy": "受以下配置管理：",
+			"theAccessProfileOfThis": "，即此实体的访问配置：",
+			"itsBudgetsRateLimitsAndProvidersApplyTo": "。其预算、速率限制和提供商设置将应用于此密钥。",
+			"couldnTCheckWhetherAnAccessProfileGovernsTheKeys": "无法检查新建密钥是否受访问配置管理。你仍可创建密钥；如果存在适用的访问配置，其提供商、预算、速率限制和 MCP 访问设置将替换你在此填写的内容。",
+			"keyValueLabelsForCostAttributionTheyAreCopiedOnto": "用于费用归属的键值标签。标签会复制到此密钥产生的每条日志中，以便按标签筛选日志和支出，并覆盖同名请求头。键仅允许字母、数字、“.”、“_”和“-”。",
+			"budgetsAndRateLimitsAtTheStartOfEach": "预算和速率限制在每个周期开始时（例如每月 1 日）重置，而不是从创建日期起滚动计算。长度为一天、一周、一个月、一个季度或一年的周期按日历边界对齐，其他时长仍使用滚动窗口。",
+			"selectBusinessUnit": "选择业务单元",
+			"30Min": "30 分钟",
+			"1Hour": "1 小时",
+			"24Hours": "24 小时",
+			"7Days": "7 天",
+			"assignToBusinessUnit": "分配至业务单元"
+		},
+		"virtualKeysTable": {
+			"filterByMetadata": "按元数据筛选",
+			"eGCostCenter": "例如 cost_center",
+			"exactValue": "精确值",
+			"apply": "应用",
+			"filtersApplied": "已应用筛选：",
+			"clearMetadataFilter": "清除元数据筛选",
+			"deletedAutomaticallyWithinAboutADay": "约一天内自动删除",
+			"expiredAutoDelete": "已到期 · 自动删除"
+		},
+		"deliveriesHeaderView": {
+			"searchByDeliveryID": "按投递 ID 搜索",
+			"switchBetweenRequestIDAndDeliveryIDLookup": "切换请求 ID 和投递 ID 查询",
+			"deliveryID": "投递 ID"
+		},
+		"deliveriesTable": {
+			"waitingForNewDeliveries": "正在等待新的投递记录…",
+			"noDeliveriesFoundTryAdjustingYourFiltersAndOrTime": "未找到投递记录。请尝试调整筛选条件或时间范围。",
+			"deliveries": "次投递"
+		},
+		"budgetOverrideDialog": {
+			"budgetOverrideRemoved": "已移除预算调整",
+			"editOverride": "编辑覆盖",
+			"addOverride": "添加覆盖",
+			"editBudgetOverride": "编辑预算调整",
+			"addBudgetOverride": "添加预算调整",
+			"temporarilyAddSpendingCapacityWithoutChangingTheBase": "临时增加支出额度，不改变基础",
+			"budget": "预算。",
+			"additionalBudget": "附加预算",
+			"forANumberOfResetCycles": "指定重置周期数",
+			"untilRemoved": "直到手动移除",
+			"resetCycles": "重置周期数",
+			"theCurrentResetCycleCountsAsTheFirstCycle": "当前重置周期计为第一个周期。",
+			"validUntil": "有效期至",
+			"currentEffectiveLimit": "当前实际限额：",
+			"removeOverride": "移除覆盖",
+			"updateOverride": "更新覆盖"
+		},
+		"budgetOverrideManagerDialog": {
+			"temporarilyAddSpendingCapacityToABudgetWithoutChanging": "临时增加预算的支出额度，不改变基础限额。"
+		},
+		"teamSheet": {
+			"team": "团队"
+		}
 	}
 }

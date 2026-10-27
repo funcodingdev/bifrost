@@ -133,7 +133,7 @@ export default function MultiBudgetLines({
 							</div>
 							<Button
 								data-testid={`${testId}-remove-${index}`}
-								aria-label={`Remove budget ${index + 1}`}
+								aria-label={t("budget.removeNumber", { ns: "common", number: index + 1 })}
 								variant="ghost"
 								size="icon"
 								type="button"
@@ -155,7 +155,9 @@ export default function MultiBudgetLines({
 							</div>
 						)}
 						{isDuplicate && (
-							<p className="text-destructive pl-0.5 text-xs">Duplicate reset period; each budget line must use a different interval.</p>
+							<p className="text-destructive pl-0.5 text-xs">
+								{t("ui.multibudgets.duplicateResetPeriodEachBudgetLineMustUseA", { ns: "common" })}
+							</p>
 						)}
 					</div>
 				);

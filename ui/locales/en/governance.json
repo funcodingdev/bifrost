@@ -101,7 +101,15 @@
 		}
 	},
 	"virtualKeys": {
-		"loadFailed": "Failed to load virtual keys: {{message}}"
+		"loadFailed": "Failed to load virtual keys: {{message}}",
+		"expiry": {
+			"on": "on",
+			"off": "off",
+			"workspaceDefault": "Follows the workspace default ({{state}}), set under Settings → Security."
+		},
+		"metadataFilterNamed": "Metadata filter {{key}}={{value}}",
+		"selectNamed": "Select virtual key {{name}}",
+		"ownerProfileNotice": "This key is governed by <profile>{{profile}}</profile>, the access profile of {{owner}}. Its budgets, rate limits, and providers apply to this key."
 	},
 	"plugins": {
 		"title": "Plugins",
@@ -353,7 +361,17 @@
 			"filterResponseStatus": "Response status",
 			"filterWebhooks": "Webhooks",
 			"searchWebhooks": "Search webhooks..."
-		}
+		},
+		"deliveryColumns": {
+			"time": "Time",
+			"deliveryId": "Delivery ID",
+			"requestId": "Request ID",
+			"event": "Event",
+			"status": "Status",
+			"responses": "Responses"
+		},
+		"openInLogs": "— open in logs",
+		"sendCount": "{{count}} sends"
 	},
 	"alerting": {
 		"channelsUnlockTitle": "Unlock alerting channels for proactive monitoring",
@@ -518,7 +536,13 @@
 		"emptyDescription": "New notifications will appear here.",
 		"unread": "Unread",
 		"dismissAria": "Dismiss {{title}}",
-		"clearAll": "Clear all"
+		"clearAll": "Clear all",
+		"summary": "Notifications: {{details}}",
+		"ongoingCount": "{{count}} ongoing",
+		"unreadCount": "{{count}} unread",
+		"runningCount": "{{count}} running",
+		"newsCount": "{{count}} new in news",
+		"summarySeparator": ", "
 	},
 	"mcpConfigs": {
 		"title": "MCP Server Configurations",
@@ -595,5 +619,92 @@
 		"patternCount_other": "{{count}} patterns",
 		"removeAria": "Remove {{name}}",
 		"noneLeftClick": "No providers left to configure. Click to add"
+	},
+	"ui": {
+		"customerSheet": {
+			"resetBudgetsAndRateLimitsAtTheStartOf": "Reset budgets and rate limits at the start of each period (e.g. 1st of month) instead of rolling from creation date. Single-unit day, week, month, quarter and year windows align to calendar boundaries. Other durations remain rolling."
+		},
+		"customerTable": {
+			"budgetUsage": "Budget usage",
+			"resets": "Resets",
+			"tokenUsage": "Token usage",
+			"req": "req",
+			"requestUsage": "Request usage",
+			"requests": "requests",
+			"of": "of"
+		},
+		"page": {
+			"theMetadataFilterKeyInThisLinkIsNot": "The metadata filter key in this link is not valid, so it is not applied. Keys use 1-256 letters, digits, \".\", \"_\" or \"-\".",
+			"clearFilter": "Clear filter"
+		},
+		"virtualKeyDetailsSheet": {
+			"deletedAutomaticallyAfterExpiry": "· deleted automatically after expiry",
+			"viewSpend": "View spend",
+			"agentAccess": "Agent access",
+			"noAgentsGranted": "No agents granted",
+			"virtualKey": "Virtual key"
+		},
+		"virtualKeySheet": {
+			"deleteAfterExpire": "Delete after expire",
+			"theKeyIsRemovedAutomaticallyWithinAboutADay": "The key is removed automatically within about a day of expiring.",
+			"overridesTheWorkspaceDefaultForThisKey": "Overrides the workspace default for this key.",
+			"businessUnit": "business unit",
+			"governedBy": "Governed by",
+			"theAccessProfileOfThis": ", the access profile of this",
+			"itsBudgetsRateLimitsAndProvidersApplyTo": ". Its budgets, rate limits and providers apply to this key.",
+			"couldnTCheckWhetherAnAccessProfileGovernsTheKeys": "Couldn't check whether an access profile governs the keys you create. You can still create one — if a profile does govern it, the profile's providers, budgets, rate limits and MCP access replace what you set here.",
+			"keyValueLabelsForCostAttributionTheyAreCopiedOnto": "Key/value labels for cost attribution. They are copied onto every log entry this key produces, so logs and spend can be filtered by them, and they override request headers with the same name. Keys use letters, digits, \".\", \"_\" and \"-\".",
+			"budgetsAndRateLimitsAtTheStartOfEach": "budgets and rate limits at the start of each period (e.g. 1st of month) instead of rolling from creation date. Single-unit day, week, month, quarter and year windows align to calendar boundaries. Other durations remain rolling.",
+			"selectBusinessUnit": "Select Business Unit",
+			"30Min": "30 min",
+			"1Hour": "1 hour",
+			"24Hours": "24 hours",
+			"7Days": "7 days",
+			"assignToBusinessUnit": "Assign to Business Unit"
+		},
+		"virtualKeysTable": {
+			"filterByMetadata": "Filter by metadata",
+			"eGCostCenter": "e.g., cost_center",
+			"exactValue": "Exact value",
+			"apply": "Apply",
+			"filtersApplied": "Filters applied:",
+			"clearMetadataFilter": "Clear metadata filter",
+			"deletedAutomaticallyWithinAboutADay": "Deleted automatically within about a day",
+			"expiredAutoDelete": "Expired · auto-delete"
+		},
+		"deliveriesHeaderView": {
+			"searchByDeliveryID": "Search by delivery ID",
+			"switchBetweenRequestIDAndDeliveryIDLookup": "Switch between request ID and delivery ID lookup",
+			"deliveryID": "Delivery ID"
+		},
+		"deliveriesTable": {
+			"waitingForNewDeliveries": "Waiting for new deliveries...",
+			"noDeliveriesFoundTryAdjustingYourFiltersAndOrTime": "No deliveries found. Try adjusting your filters and/or time range.",
+			"deliveries": "deliveries"
+		},
+		"budgetOverrideDialog": {
+			"budgetOverrideRemoved": "Budget override removed",
+			"editOverride": "Edit override",
+			"addOverride": "Add override",
+			"editBudgetOverride": "Edit budget override",
+			"addBudgetOverride": "Add budget override",
+			"temporarilyAddSpendingCapacityWithoutChangingTheBase": "Temporarily add spending capacity without changing the base",
+			"budget": "budget.",
+			"additionalBudget": "Additional budget",
+			"forANumberOfResetCycles": "For a number of reset cycles",
+			"untilRemoved": "Until removed",
+			"resetCycles": "Reset cycles",
+			"theCurrentResetCycleCountsAsTheFirstCycle": "The current reset cycle counts as the first cycle.",
+			"validUntil": "Valid until",
+			"currentEffectiveLimit": "Current effective limit:",
+			"removeOverride": "Remove override",
+			"updateOverride": "Update override"
+		},
+		"budgetOverrideManagerDialog": {
+			"temporarilyAddSpendingCapacityToABudgetWithoutChanging": "Temporarily add spending capacity to a budget without changing its base limit."
+		},
+		"teamSheet": {
+			"team": "Team"
+		}
 	}
 }

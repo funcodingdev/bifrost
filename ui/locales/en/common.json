@@ -121,5 +121,627 @@
 		"moreProviders_one": "{{count}} more provider",
 		"moreProviders_other": "{{count}} more providers",
 		"moreCount": "+{{count}} more"
-	}
+	},
+	"ui": {
+		"updating": {
+			"aNewVersionOfBifrostIsRollingOut": "A new version of Bifrost is rolling out"
+		},
+		"agentHandoverView": {
+			"bifrostAgentSignInComplete": "Bifrost Agent sign-in complete",
+			"bifrostAgentSignIn": "Bifrost Agent sign-in",
+			"youCanCloseThisWindowAndReturnToThe": "You can close this window and return to the Bifrost Agent."
+		},
+		"apiKeysIndexView": {
+			"authenticationIsCurrently": "Authentication is currently",
+			"disabledForInferenceAPICalls": "disabled for inference API calls",
+			"youCanMakeInferenceRequestsWithoutAuthenticationDashboard": ". You can make inference requests without authentication. Dashboard and admin API calls still require Basic auth with your admin credentials encoded in the standard",
+			"formatWithBase64Encoding": "format with base64 encoding.",
+			"useBasicAuthWithYourAdminCredentialsWhenMaking": "Use Basic auth with your admin credentials when making API calls to Bifrost. Encode your credentials in the standard"
+		},
+		"orgChartView": {
+			"unlockTheOrgChart": "Unlock the org chart",
+			"seeBudgetsSpendModelsAndToolsAcrossBusinessUnits": "See budgets, spend, models and tools across business units, teams and users in one tree. This feature is part of the Bifrost enterprise license."
+		},
+		"promptDeploymentsAccordionItem": {
+			"deployments": "Deployments"
+		},
+		"customerDetailSheet": {
+			"usageDetailsForThisCustomer": "Usage details for this customer.",
+			"info": "Info",
+			"noBudgetsConfigured": "No budgets configured",
+			"customerDetails": "Customer Details",
+			"customer": "Customer",
+			"tokens": "Tokens"
+		},
+		"edgeApps": {
+			"unknownOS": "Unknown OS"
+		},
+		"page": {
+			"powerUpYourBifrostStack": "Power Up Your Bifrost Stack",
+			"viewFullDocumentation": "View Full Documentation",
+			"quickStartGuide": "Quick Start Guide",
+			"readMore": "Read More"
+		},
+		"pluginFormFragments": {
+			"aboutCustomPlugins": "about custom plugins"
+		},
+		"betaBadge": {
+			"bETA": "BETA"
+		},
+		"budgetDisplay": {
+			"override": "override",
+			"budgetUsage": "Budget usage",
+			"base": "Base",
+			"resets": "Resets",
+			"more": "more"
+		},
+		"calendarAlignmentNotice": {
+			"willUseRollingWindowsForTheirFullDurationCalendar": "will use rolling windows for their full duration. Calendar alignment only applies to 1d, 1w, 1M, 1Q and 1Y."
+		},
+		"expandableText": {
+			"viewLess": "View less",
+			"viewMore": "View more"
+		},
+		"logsFilterSidebar": {
+			"agent": "Agent",
+			"searchAgents": "Search agents",
+			"agentCorrelationID": "Agent correlation ID",
+			"exactAgentCorrelationID": "Exact Agent correlation ID",
+			"nothingRecordedInThisTimeRange": "Nothing recorded in this time range",
+			"directCache": "Direct cache",
+			"semanticCache": "Semantic cache"
+		},
+		"headersForm": {
+			"staticAdminHeaders": "Static admin headers",
+			"theseHeadersAreSetByTheAdminOnThe": "These headers are set by the admin on the MCP client and accompany every request alongside your submitted values. You can't edit them here.",
+			"noHeaderKeysHaveBeenDeclaredOnThisMCP": "No header keys have been declared on this MCP client.",
+			"previouslySubmitted": "Previously submitted",
+			"enterNewValueToOverwrite": "•••••• (enter new value to overwrite)",
+			"hideValue": "Hide value",
+			"showValue": "Show value"
+		},
+		"notAvailableBanner": {
+			"configStoreSetupIsMissing": "Config store setup is missing.",
+			"theUIRequiresADatabaseConnectionToStoreConfiguration": "The UI requires a database connection to store configuration data, but no database is currently configured.",
+			"toEnableTheUIPleaseAddTheDatabaseSettings": "To enable the UI, please add the database settings to your config.json (see"
+		},
+		"notificationCenter": {
+			"backgroundJobs": "Background jobs",
+			"jobs": "Jobs",
+			"news": "News",
+			"clearFinished": "Clear finished",
+			"youReAllCaughtUp": "You're all caught up",
+			"loadingNews": "Loading news",
+			"newsCouldNotBeLoaded": "News could not be loaded.",
+			"newStoriesFromYourSourcesWillAppearHere": "New stories from your sources will appear here.",
+			"noNewsYet": "No news yet",
+			"chooseNewsSources": "Choose news sources",
+			"couldnTLoad": "Couldn't load",
+			"newsSources": "News sources",
+			"ongoing": "Ongoing",
+			"thatJobHadAlreadyFinished": "That job had already finished",
+			"couldnTCancelTheJob": "Couldn't cancel the job"
+		},
+		"onboardingWidget": {
+			"completed": "Completed:"
+		},
+		"attachmentViews": {
+			"attachment": "Attachment"
+		},
+		"rateLimitDisplay": {
+			"req": "req"
+		},
+		"rssSourcesSheet": {
+			"couldnTUpdateNewsSettings": "Couldn't update news settings",
+			"chooseWhichRSSFeedsAppearInTheNewsTab": "Choose which RSS feeds appear in the News tab of the notification tray for everyone on this gateway.",
+			"showNewsInTheNotificationTray": "Show news in the notification tray",
+			"turningThisOffHidesTheNewsTabForEveryone": "Turning this off hides the News tab for everyone on this gateway and stops fetching news items. Your sources below are kept.",
+			"couldnTLoadThisSetting": "Couldn't load this setting.",
+			"loadingSources": "Loading sources",
+			"sourcesCouldNotBeLoaded": "Sources could not be loaded.",
+			"builtInFeeds": "Built-in feeds",
+			"customFeeds": "Custom feeds",
+			"noCustomFeedsYetAddAnyRSSOrAtom": "No custom feeds yet. Add any RSS or Atom URL below.",
+			"addAFeed": "Add a feed",
+			"bifrostReleases": "Bifrost releases",
+			"feedURL": "Feed URL",
+			"uploadedImage": "Uploaded image",
+			"anImageURLOrAPNGJPEGGIFWebP": "An image URL or a PNG, JPEG, GIF, WebP, SVG or ICO up to 96 KB. Defaults to the site's favicon.",
+			"addFeed": "Add feed"
+		},
+		"sidebar": {
+			"new": "New",
+			"agentLogs": "Agent Logs",
+			"agentRequestLogs": "Agent request logs",
+			"agents": "Agents",
+			"registerAndManageA2AAgents": "Register and manage A2A agents",
+			"agentCatalog": "Agent Catalog",
+			"registeredA2AAgents": "Registered A2A agents",
+			"pushConfigurations": "Push Configurations",
+			"storedA2APushCallbacks": "Stored A2A push callbacks",
+			"agentSettings": "Agent Settings",
+			"agentGatewayConfiguration": "Agent Gateway configuration",
+			"orgChart": "Org Chart",
+			"budgetsAndUsageAcrossBusinessUnitsTeamsAndUsers": "Budgets and usage across business units, teams and users",
+			"incidents": "Incidents",
+			"requestsBlockedOrFlaggedByGuardrails": "Requests blocked or flagged by guardrails",
+			"cluster": "Cluster",
+			"monitorTheBifrostCluster": "Monitor the Bifrost cluster",
+			"nodes": "Nodes",
+			"nodeHealthCPUMemoryAndRequestRate": "Node health, CPU, memory and request rate",
+			"storage": "Storage",
+			"configAndLogsStoreDatabasesPoolsAndSlowQueries": "Config and logs store databases, pools and slow queries",
+			"memoryMessageDeliveryAndDatabaseIncidents": "Memory, message delivery and database incidents",
+			"monitoringSampleRetentionAndMemoryThreshold": "Monitoring, sample retention and memory threshold",
+			"adaptiveRoutingIncidents": "Adaptive routing incidents",
+			"manageSkillsAndMarketplaceSettings": "Manage skills and marketplace settings",
+			"skillsSettings": "Skills Settings",
+			"skillsMarketplaceConfiguration": "Skills marketplace configuration",
+			"dashboardAuthNotConfigured": "Dashboard auth not configured",
+			"allManagementAPIsAcceptTheSetupTokenInThe": "All management APIs accept the setup token in the",
+			"headerUntilYouCreateAnAdminAccount": "header until you create an admin account.",
+			"createAdmin": "Create admin",
+			"toggleSidebar": "Toggle Sidebar",
+			"needHelpWithProductionSetup": "Need help with production setup?"
+		},
+		"sidekiqJobsSection": {
+			"noBackgroundJobs": "No background jobs",
+			"longRunningTasksWillShowTheirProgressHere": "Long-running tasks will show their progress here.",
+			"done": "Done",
+			"finished": "Finished",
+			"stopJob": "Stop job",
+			"keep": "Keep",
+			"queued": "Queued",
+			"running": "Running",
+			"completed": "Completed",
+			"failed": "Failed",
+			"cancelled": "Cancelled"
+		},
+		"columnConfigDropdown": {
+			"columnConfiguration": "Column configuration",
+			"toggleColumns": "Toggle Columns"
+		},
+		"draggableColumnHeader": {
+			"columnActions": "Column actions",
+			"hideColumn": "Hide column",
+			"unpin": "Unpin",
+			"pinToLeft": "Pin to left",
+			"pinToRight": "Pin to right"
+		},
+		"themeToggle": {
+			"toggleTheme": "Toggle theme"
+		},
+		"trialExpiryBanner": {
+			"yourBifrostEnterpriseTrialHasExpired": "Your Bifrost Enterprise Trial has expired.",
+			"contactUs": "Contact us",
+			"ifYouNeedAnyAssistance": "if you need any assistance.",
+			"yourBifrostEnterpriseTrialExpiresIn": "Your Bifrost Enterprise Trial expires in",
+			"day": "day",
+			"days": "days"
+		},
+		"breadcrumb": {
+			"breadcrumb": "breadcrumb",
+			"more": "More"
+		},
+		"budgetUsageResetDialog": {
+			"youChangedABudgetAmountOrResetFrequencyOn": "You changed a budget amount or reset frequency on this",
+			"resetCurrentUsageTo0OrPreserveThe": ". Reset current usage to 0, or preserve the existing counters. The reset window keeps its current start and end either way."
+		},
+		"combobox": {
+			"clearSelection": "Clear selection",
+			"clearSearch": "Clear search",
+			"selected": "selected",
+			"select": "Select...",
+			"search": "Search..."
+		},
+		"configSyncAlert": {
+			"thisConfigIsSyncedFrom": "This config is synced from",
+			"anyFutureUpdatesToConfigJsonWillOverwriteUI": ". Any future updates to config.json will overwrite UI changes. If you are using config.json to bootstrap the initial config, you can ignore this alert."
+		},
+		"celRuleBuilder": {
+			"eGModelClaudeSonnet46": "e.g. model == \"claude-sonnet-4-6\""
+		},
+		"numberFieldView": {
+			"pleaseKeep": "Please keep",
+			"between": "between",
+			"to": "to"
+		},
+		"selectFieldView": {
+			"select": "Select"
+		},
+		"textArrayFieldView": {
+			"addString": "Add string"
+		},
+		"decisionModelSelector": {
+			"searchDecisionModels": "Search decision models…",
+			"thisProviderListsNoDecisionModels": "This provider lists no decision models",
+			"searchOrTypeAJevModel": "Search or type a Jev model…",
+			"searchOrTypeAModel": "Search or type a model…",
+			"selectAModel": "Select a model"
+		},
+		"entityAssociationSelect": {
+			"selected": "Selected"
+		},
+		"headersTable": {
+			"thisKeyNameIsNotSupported": "This key name is not supported",
+			"duplicateKey": "Duplicate key"
+		},
+		"mcpServerSelector": {
+			"tools": "tools",
+			"openServerDetailsInNewTab": "Open server details in new tab",
+			"noServersSelectedUseTheSearchAboveToAdd": "No servers selected. Use the search above to add MCP servers.",
+			"noMCPServersFound": "No MCP servers found"
+		},
+		"mcpToolSelector": {
+			"noToolsSelectedUseTheSearchAboveToAdd": "No tools selected. Use the search above to add tools.",
+			"noResultsFound": "No results found"
+		},
+		"multiSelect": {
+			"multiSelectDropdownUseArrowKeysToNavigateEnterTo": "Multi-select dropdown. Use arrow keys to navigate, Enter to select, and Escape to close.",
+			"noOptionsSelected": "No options selected",
+			"availableOptions": "Available options",
+			"searchOptions": "Search options...",
+			"searchThroughAvailableOptions": "Search through available options",
+			"typeToFilterOptionsUseArrowKeysToNavigate": "Type to filter options. Use arrow keys to navigate results.",
+			"selectAll": "(Select All",
+			"noResultsFound": "No results found."
+		},
+		"multibudgets": {
+			"duplicateResetPeriodEachBudgetLineMustUseA": "Duplicate reset period; each budget line must use a different interval."
+		},
+		"numberAndSelect": {
+			"resetPeriod": "Reset Period"
+		},
+		"promoCardStack": {
+			"dismiss": "Dismiss"
+		},
+		"providerSelector": {
+			"customProviders": "Custom Providers"
+		},
+		"quarterStartSelect": {
+			"fiscalYearStarts": "Fiscal year starts",
+			"nextResetOn": "Next reset on",
+			"theCurrentQuarterEnds": ". The current quarter ends"
+		},
+		"secretVarInput": {
+			"theResolvedValueWillAppearAfterSaving": "The resolved value will appear after saving"
+		},
+		"virtualKeyListItem": {
+			"virtualKeyCopied": "Virtual key copied",
+			"copyVirtualKey": "Copy virtual key"
+		},
+		"warpChart": {
+			"noDataInThisWindow": "No data in this window."
+		},
+		"warpComposer": {
+			"warpSettings": "Warp settings",
+			"switchModel": "Switch model"
+		},
+		"warpDock": {
+			"resizeWarpPanel": "Resize Warp panel",
+			"askWarpQuestionsAboutThisDeploymentSLogsUsageAnd": "Ask Warp questions about this deployment's logs, usage and spend."
+		},
+		"warpHistory": {
+			"messages": "messages"
+		},
+		"warpMessage": {
+			"chartUnavailable": "Chart unavailable."
+		},
+		"warpPanel": {
+			"indexStatusUnavailable": "Index status unavailable",
+			"askAnAdministratorTo": "Ask an administrator to",
+			"turnWarpOn": "turn Warp on",
+			"setWarpUp": "set Warp up",
+			"sendsWhenThisAnswerFinishes": "Sends when this answer finishes"
+		},
+		"oauthGrantsFilterSidebar": {
+			"virtualKey": "Virtual key"
+		},
+		"baseProviderSelector": {
+			"searchFormats": "Search formats..."
+		},
+		"warpCommands": {
+			"startANewConversation": "Start a new conversation"
+		},
+		"warpStreamUtils": {
+			"warpSModelCouldNotBeReached": "Warp's model could not be reached.",
+			"yourAccountDoesnTHaveAccessToWarpS": "Your account doesn't have access to Warp's model.",
+			"youVeUsedUpYourBudget": "You've used up your budget.",
+			"youVeHitARateLimit": "You've hit a rate limit.",
+			"warpSModelIsnTAllowedForYourAccount": "Warp's model isn't allowed for your account."
+		},
+		"modelLimitScopes": {
+			"global": "Global",
+			"virtualKey": "Virtual Key"
+		},
+		"configApi": {
+			"requestTimeout": "Request timeout",
+			"networkError": "Network error"
+		},
+		"providersApi": {
+			"temperature": "Temperature",
+			"maxTokens": "Max Tokens",
+			"stream": "Stream"
+		},
+		"cloudflareMigration": {
+			"convertToTheOfficialCloudflareProvider": "Convert to the official Cloudflare provider",
+			"verifyTheCloudflareProvider": "Verify the Cloudflare provider",
+			"refreshModels": "Refresh models"
+		}
+	},
+	"theme": {
+		"light": "Light",
+		"dark": "Dark",
+		"system": "System"
+	},
+	"form": {
+		"noPermission": "You don't have permission to perform this action",
+		"saving": "Saving...",
+		"fixErrors": "Please fix validation errors",
+		"updateEntity": "Update {{entity}}",
+		"createEntity": "Create {{entity}}",
+		"addNamed": "Add {{name}}",
+		"useValue": "Use \"{{name}}\""
+	},
+	"validation": {
+		"thisFieldIsRequired": "This field is required",
+		"mustBeAValidNumber": "Must be a valid number",
+		"mustBeAValidTextValue": "Must be a valid text value",
+		"mustBeTrueOrFalse": "Must be true or false",
+		"atLeastOneItemIsRequired": "At least one item is required",
+		"mustBeAValidURL": "Must be a valid URL",
+		"mustBeAValidEmail": "Must be a valid email",
+		"customProviderNameIsRequired": "Custom provider name is required",
+		"endpointIsRequired": "Endpoint is required",
+		"clientIDClientSecretAndTenantIDAreAllRequiredForEntra": "Client ID, Client Secret, and Tenant ID are all required for Entra ID authentication",
+		"tokenLifetimeMustBeAtLeast600Seconds": "Token lifetime must be at least 600 seconds",
+		"tokenLifetimeMustBeAtMost43200Seconds": "Token lifetime must be at most 43200 seconds",
+		"projectIDIsRequired": "Project ID is required",
+		"regionIsRequired": "Region is required",
+		"authCredentialsIsRequiredForServiceAccountJSONAuthentication": "Auth Credentials is required for service account JSON authentication",
+		"workloadIdentityPoolProviderAudienceIsRequired": "Workload Identity Pool provider audience is required",
+		"removeTheAuthCredentialsJSONWhenUsingAWSWorkloadIdentity": "Remove the auth credentials JSON when using AWS workload identity",
+		"bucketNameIsRequired": "Bucket name is required",
+		"bothAccessKeyAndSecretKeyAreRequiredForExplicitCredentials": "Both Access Key and Secret Key are required for explicit credentials",
+		"modelNameIsRequired": "Model name is required",
+		"serverURLIsRequired": "Server URL is required",
+		"requiredWhenUsingGitHubAppCredentials": "Required when using GitHub App credentials",
+		"installationIDMustBeNumeric": "Installation ID must be numeric",
+		"repositoryIDMustBeNumeric": "Repository ID must be numeric",
+		"privateKeyMustBeAPKCS1OrPKCS8PEMBlock": "Private key must be a PKCS#1 or PKCS#8 PEM block",
+		"chooseAGrantType": "Choose a grant type",
+		"tokenURLIsRequired": "Token URL is required",
+		"tokenURLMustBeAnHttpsURL": "Token URL must be an https URL",
+		"tokenURLMustNotCarryUserinfoAQueryOrAFragmentSend": "Token URL must not carry userinfo, a query or a fragment; send extra parameters through extra_params",
+		"clientIDIsRequiredForClientCredentials": "Client ID is required for client credentials",
+		"clientSecretIsRequiredForClientCredentials": "Client Secret is required for client credentials",
+		"privateKeyIsRequiredForJWTBearer": "Private key is required for JWT bearer",
+		"privateKeyMustBeAnRSAOrECPEMBlock": "Private key must be an RSA or EC PEM block",
+		"issuerIsRequiredForJWTBearer": "Issuer is required for JWT bearer",
+		"audienceIsRequiredForJWTBearer": "Audience is required for JWT bearer",
+		"assertionLifetimeMustBeBetween1And3600Seconds0ForThe": "Assertion lifetime must be between 1 and 3600 seconds (0 for the default)",
+		"accountIDIsRequired": "Account ID is required",
+		"workspaceURLIsRequired": "Workspace URL is required",
+		"clientIDAndClientSecretAreBothRequiredForOAuthM2MAuthentication": "Client ID and Client Secret are both required for OAuth M2M authentication",
+		"clientIDAndClientSecretMustBeSetTogether": "Client ID and Client Secret must be set together",
+		"modelIDIsRequired": "Model ID is required",
+		"idIsRequired": "Id is required",
+		"nameIsRequired": "Name is required",
+		"weightMustBeAValidNumberBetween0And1": "Weight must be a valid number between 0 and 1",
+		"weightMustBeEqualToOrGreaterThan0": "Weight must be equal to or greater than 0",
+		"weightMustBeEqualToOrLessThan1": "Weight must be equal to or less than 1",
+		"apiKeyIsRequired": "API key is required",
+		"timeoutMustBeGreaterThan0Seconds": "Timeout must be greater than 0 seconds",
+		"timeoutMustBeLessThan3600Seconds": "Timeout must be less than 3600 seconds",
+		"maxRetriesMustBeGreaterThan0": "Max retries must be greater than 0",
+		"maxRetriesMustBeLessThan10": "Max retries must be less than 10",
+		"streamIdleTimeoutMustBeAtLeast5Seconds": "Stream idle timeout must be at least 5 seconds",
+		"streamIdleTimeoutMustBeAtMost3600SecondsIE60": "Stream idle timeout must be at most 3600 seconds i.e. 60 minutes",
+		"maxConnectionsMustBeAtLeast1": "Max connections must be at least 1",
+		"maxConnectionsMustBeAtMost10000": "Max connections must be at most 10000",
+		"mustBeAValidHTTPOrHTTPSURL": "Must be a valid HTTP or HTTPS URL",
+		"timeoutMustBeLessThan172800SecondsIE48Hours": "Timeout must be less than 172800 seconds i.e. 48 hours",
+		"retryBackoffInitialMustBeAtLeast100ms": "Retry backoff initial must be at least 100ms",
+		"retryBackoffInitialMustBeAtMost1000000ms": "Retry backoff initial must be at most 1000000ms",
+		"retryBackoffMaxMustBeAtLeast100ms": "Retry backoff max must be at least 100ms",
+		"retryBackoffMaxMustBeAtMost1000000ms": "Retry backoff max must be at most 1000000ms",
+		"initialBackoffMustBeLessThanOrEqualToMaxBackoff": "Initial backoff must be less than or equal to max backoff",
+		"concurrencyMustBeGreaterThan0": "Concurrency must be greater than 0",
+		"concurrencyMustBeLessThanOrEqualTo100": "Concurrency must be less than or equal to 100",
+		"bufferSizeMustBeGreaterThan0": "Buffer size must be greater than 0",
+		"bufferSizeMustBeLessThanOrEqualTo1000": "Buffer size must be less than or equal to 1000",
+		"proxyURLIsRequiredWhenUsingHTTPOrSOCKS5Proxy": "Proxy URL is required when using HTTP or SOCKS5 proxy",
+		"mustBeAValidURLEGHttpProxyExampleCom8080": "Must be a valid URL (e.g., http://proxy.example.com:8080)",
+		"setARoleAnIndexOrBothAPointWithNeitherMatches": "Set a role, an index, or both - a point with neither matches nothing",
+		"use164LettersDigitsOr": "Use 1-64 letters, digits, _ or -",
+		"pickAnMCPServer": "Pick an MCP server",
+		"pickATool": "Pick a tool",
+		"waitingForTheMCPServerToLoad": "Waiting for the MCP server to load",
+		"anotherToolAlreadyUsesThisName": "Another tool already uses this name",
+		"thisMCPToolIsAlreadyInjected": "This MCP tool is already injected",
+		"isKeylessIsNotAllowedForBedrock": "Is keyless is not allowed for Bedrock",
+		"baseProviderTypeIsRequired": "Base provider type is required",
+		"atLeastOneKeyIsRequired": "At least one key is required",
+		"providerNameIsRequired": "Provider name is required",
+		"embeddingModelIsRequired": "Embedding model is required",
+		"dimensionMustBeGreaterThan1ForProviderBackedSemanticCache": "Dimension must be greater than 1 for provider-backed semantic cache",
+		"concurrencyMustBeLessThan100000": "Concurrency must be less than 100000",
+		"bufferSizeMustBeLessThan100000": "Buffer size must be less than 100000",
+		"concurrencyMustBeLessThanOrEqualToBufferSize": "Concurrency must be less than or equal to buffer size",
+		"pleaseSelectATraceType": "Please select a trace type",
+		"pleaseSelectAProtocol": "Please select a protocol",
+		"portMustBeBetween1And65535": "Port must be between 1 and 65535",
+		"collectorAddressIsRequired": "Collector address is required",
+		"metricsEndpointIsRequiredWhenMetricsPushIsEnabled": "Metrics endpoint is required when metrics push is enabled",
+		"atLeastOneProfileIsRequired": "At least one profile is required",
+		"mustBeAValidURLEGHttpPushgateway9091": "Must be a valid URL (e.g., http://pushgateway:9091)",
+		"passwordIsRequiredWhenUsernameIsProvided": "Password is required when username is provided",
+		"usernameIsRequiredWhenPasswordIsProvided": "Username is required when password is provided",
+		"pushGatewayURLIsRequiredWhenThePushGatewayIsEnabled": "Push Gateway URL is required when the push gateway is enabled",
+		"pasteOrUploadASpecOrProvideASpecURL": "Paste or upload a spec, or provide a spec URL",
+		"clientNameCannotContainHyphens": "Client name cannot contain hyphens",
+		"clientNameCannotContainSpaces": "Client name cannot contain spaces",
+		"clientNameCannotStartWithANumber": "Client name cannot start with a number",
+		"headerNameCannotBeEmpty": "Header name cannot be empty",
+		"duplicateHeaderNamesAreNotAllowed": "Duplicate header names are not allowed",
+		"wildcardCannotBeCombinedWithOtherToolNames": "Wildcard '*' cannot be combined with other tool names",
+		"duplicateToolNamesAreNotAllowed": "Duplicate tool names are not allowed",
+		"costMustBeNonNegative": "Cost must be non-negative",
+		"toolSyncIntervalMustBe0OrAPositiveNumberOfMinutes": "Tool sync interval must be 0 or a positive number of minutes",
+		"wildcardCannotBeCombinedWithSpecificHeaderNames": "Wildcard '*' cannot be combined with specific header names",
+		"authorizeURLMustStartWithHttpOrHttps": "Authorize URL must start with http:// or https://",
+		"tokenURLMustStartWithHttpOrHttps": "Token URL must start with http:// or https://",
+		"registrationURLMustStartWithHttpOrHttps": "Registration URL must start with http:// or https://",
+		"audienceIsRequired": "Audience is required",
+		"authorizationServerURLMustStartWithHttpOrHttps": "Authorization Server URL must start with http:// or https://",
+		"declareAtLeastOneHeaderNameUsersMustSupply": "Declare at least one header name users must supply.",
+		"proxyURLIsRequiredWhenProxyIsEnabled": "Proxy URL is required when proxy is enabled",
+		"ruleNameIsRequired": "Rule name is required",
+		"ruleNameMustBeLessThan255Characters": "Rule name must be less than 255 characters",
+		"descriptionMustBeLessThan1000Characters": "Description must be less than 1000 characters",
+		"providerIsRequired": "Provider is required",
+		"priorityMustBe0OrGreater": "Priority must be 0 or greater",
+		"priorityMustBe1000OrLess": "Priority must be 1000 or less",
+		"scopeIDIsRequiredWhenScopeIsNotGlobal": "Scope ID is required when scope is not global",
+		"resetCyclesMustBeAPositiveWholeNumber": "Reset cycles must be a positive whole number.",
+		"enterTheCurrentAdminPasswordToConfirmThisChangeDashboardProtectionIs": "Enter the current admin password to confirm this change. Dashboard protection is off, so this session is not signed in. If you do not know the password, use the setup token instead.",
+		"enterTheSetupTokenConfiguredForThisBifrostInstance": "Enter the setup token configured for this Bifrost instance",
+		"giveTheFeedAName": "Give the feed a name",
+		"nameMustBe120CharactersOrFewer": "Name must be 120 characters or fewer",
+		"enterTheFeedURL": "Enter the feed URL",
+		"logoMustBeAnHttpSImageURLOrAnUploadedImage": "Logo must be an http(s) image URL or an uploaded image",
+		"expectedType": "Expected {{expected}}, received {{received}}",
+		"minimum": "Must be at least {{value}}",
+		"maximum": "Must be at most {{value}}",
+		"maxCharacters": "Must be at most {{value}} characters",
+		"grpcAddress": "Must be in the format <host>:<port> for gRPC (e.g. {{example}})",
+		"providerForm": {
+			"proxyRequired": "Proxy URL is required for http/socks5",
+			"proxyCredentials": "Username and password must both be provided",
+			"backoffOrder": "Initial backoff must be <= max backoff",
+			"concurrencyBuffer": "Concurrency must be less than or equal to buffer size",
+			"authJson": "Auth Credentials must be a valid JSON object or env.VAR format when provided",
+			"bedrockCredentials": "For Bedrock: either provide both Access Key and Secret Key, or leave both empty for IAM role authentication",
+			"mantleCredentials": "For Bedrock Mantle: either provide both Access Key and Secret Key, or leave both empty for IAM role authentication",
+			"deploymentModels": "Deployments must have a Model ID set on every row",
+			"customNameRequired": "Custom provider name is required",
+			"customNameFormat": "Custom provider name must be lowercase alphanumeric and may include '-' or '_' (no spaces)",
+			"baseProviderRequired": "Base provider type is required for custom providers",
+			"reservedProviderName": "Custom provider name cannot be the same as a standard provider name",
+			"baseUrlRequired": "Base URL is required for this provider",
+			"baseUrlFormat": "Base URL must start with http:// or https://",
+			"keyRequired": "At least one API key is required",
+			"copilotCredentials": "Set a Copilot API token, or fill in all four GitHub App credentials",
+			"keyEmpty": "API key value cannot be empty",
+			"maxValueBytes": "max_value_bytes must be 0 or at least 1024",
+			"maximKeyPrefix": "API key must start with 'sk_mx_'",
+			"retryBackoffOrder": "retry_backoff_initial must be <= retry_backoff_max"
+		}
+	},
+	"accessibility": {
+		"filterBy": "Filter by {{label}}",
+		"copyUrl": "Copy {{label}} URL",
+		"columnHelp": "{{label}} column guidance",
+		"copyId": "Copy {{label}} ID",
+		"searchOrAdd": "Search or add {{label}}",
+		"enableNamed": "Enable {{name}}",
+		"pricingoverrideActions": "Actions for pricing override {{name}}",
+		"modellimitActions": "Actions for model limit {{name}}",
+		"routingruleActions": "Actions for routing rule {{name}}",
+		"customerActions": "Customer actions {{name}}",
+		"teamActions": "Team actions for {{name}}",
+		"copyNamed": "Copy {{name}}",
+		"copyRequestId": "Copy request ID {{id}}",
+		"removeNamed": "Remove {{name}}",
+		"clearNamed": "Clear {{name}}",
+		"dismissNamed": "Dismiss {{name}}"
+	},
+	"budget": {
+		"adjustmentSummary": "+{{amount}} override · effective {{effective}}",
+		"baseAmount": "Base {{amount}}",
+		"removeNumber": "Remove budget {{number}}",
+		"resetUsageHelp": "You changed a budget amount or reset frequency on this {{owner}}. Reset current usage to 0, or preserve the existing counters. The reset window keeps its current start and end either way.",
+		"quarterDates": "Next reset on <date>{{next}}</date>. The current quarter ends {{end}}."
+	},
+	"headers": {
+		"namedValue": "Value for {{name}}"
+	},
+	"scopes": {
+		"showAll": "Show all {{count}} scopes"
+	},
+	"news": {
+		"changeLogo": "Change the logo for {{name}}"
+	},
+	"tabs": {
+		"more": "Show {{count}} more tabs"
+	},
+	"jobs": {
+		"namedProgress": "{{name}} progress",
+		"kind": {
+			"logs_recalculate_cost": "Recalculating log costs",
+			"warp_log_embedding_backfill": "Indexing logs for Warp",
+			"vk_expiry_cleanup": "Virtual key expiry cleanup"
+		},
+		"background": "Background job"
+	},
+	"multiSelect": {
+		"summary": "Multi-select: {{count}} of {{total}} options selected. {{placeholder}}",
+		"selectedNames": "{{count}} options selected: {{names}}",
+		"more": "+ {{count}} more",
+		"clearCount": "Clear all {{count}} selected options",
+		"selectAllCount": "Select all {{count}} options",
+		"optionCount": " - {{count}} options",
+		"placeholder": "Select options",
+		"addedNamed": "{{name}} selected. {{count}} of {{total}} options selected.",
+		"addedMany": "{{added}} options selected. {{count}} of {{total}} total selected.",
+		"removed": "Option removed. {{count}} of {{total}} options selected.",
+		"opened": "Dropdown opened. {{count}} options available. Use arrow keys to navigate.",
+		"closed": "Dropdown closed.",
+		"matches_one": "{{count}} option found for \"{{query}}\"",
+		"matches_other": "{{count}} options found for \"{{query}}\"",
+		"optionLabel": "{{name}}, {{state}}{{disabled}}",
+		"selected": "selected",
+		"notSelected": "not selected",
+		"disabledSuffix": ", disabled"
+	},
+	"durations": {
+		"reset": {
+			"everyMinute": "Every Minute",
+			"every5Minutes": "Every 5 Minutes",
+			"every15Minutes": "Every 15 Minutes",
+			"every30Minutes": "Every 30 Minutes",
+			"hourly": "Hourly",
+			"every6Hours": "Every 6 Hours",
+			"daily": "Daily",
+			"weekly": "Weekly",
+			"monthly": "Monthly",
+			"quarterly": "Quarterly"
+		},
+		"calendarAligned": "{{label}} (calendar)",
+		"fiscalYearNote": " · FY starts {{month}}",
+		"unknown": "Unknown",
+		"units": {
+			"s_one": "{{count}} second",
+			"s_other": "{{count}} seconds",
+			"m_one": "{{count}} minute",
+			"m_other": "{{count}} minutes",
+			"h_one": "{{count}} hour",
+			"h_other": "{{count}} hours",
+			"d_one": "{{count}} day",
+			"d_other": "{{count}} days",
+			"w_one": "{{count}} week",
+			"w_other": "{{count}} weeks",
+			"M_one": "{{count}} month",
+			"M_other": "{{count}} months",
+			"Q_one": "{{count}} quarter",
+			"Q_other": "{{count}} quarters",
+			"y_one": "{{count}} year",
+			"y_other": "{{count}} years"
+		}
+	},
+	"pagination": {
+		"page": "Page {{page}} of {{total}}",
+		"entries": "{{from}}-{{to}} of {{total}} entries"
+	},
+	"nextStep": "Next"
 }

@@ -926,5 +926,108 @@
 		"scopeUser": "User",
 		"scopeGlobal": "Global",
 		"scopeWorkspace": "Workspace"
+	},
+	"ui": {
+		"emptyState": {
+			"codeLanguage": "Code language"
+		},
+		"page": {
+			"noSyncedServersYet": "No synced servers yet",
+			"noServersFound": "No servers found",
+			"configureTheLibrarySyncSourceInSettingsToPopulate": "Configure the library sync source in Settings to populate this catalog.",
+			"tryAdjustingYourSearchOrFilters": "Try adjusting your search or filters.",
+			"of": "of",
+			"authorizationComplete": "Authorization complete",
+			"youCanCloseThisTab": "You can close this tab.",
+			"thisWindowCanBeClosed": "This window can be closed.",
+			"backToMCPRegistry": "Back to MCP registry",
+			"completingThisAuthenticationNeedsASignedInBifrostAccountTaking": "Completing this authentication needs a signed-in Bifrost account. Taking you to sign in — you'll come straight back here to finish."
+		},
+		"mcpLibrarySettingsSheet": {
+			"uRLToACustomMCPServerCatalogLeaveEmpty": "URL to a custom MCP server catalog. Leave empty to use the default Bifrost catalog. For air-gapped deployments, set a",
+			"uRLIn": "URL in"
+		},
+		"mcpClientFormFields": {
+			"openAPIDocumentAuthentication": "OpenAPI Document & Authentication",
+			"serverSource": "Server source",
+			"connectToAnMCPServer": "Connect to an MCP server",
+			"generateFromAnOpenAPISpec": "Generate from an OpenAPI spec",
+			"openAPIDocument": "OpenAPI document",
+			"staticHeadersSentWithEveryRequestToTheAPI": "Static headers sent with every request to the API, alongside the credentials above.",
+			"commaSeparatedHeaderNamesEachCallerMustSupplyOnFirst": "Comma-separated header names each caller must supply on first use, in addition to the headers named under API authentication. Values are submitted per user, not stored on this server config.",
+			"baseURLIsRequired": "Base URL is required",
+			"bifrostBuildsAnMCPServerFromTheDocumentEvery": "Bifrost builds an MCP server from the document: every supported operation becomes a tool whose call is sent to the API. The server source and authentication settings cannot be changed later.",
+			"chooseHowBifrostConnectsToThisServerAndFor": "Choose how Bifrost connects to this server and, for network transports, how requests are authenticated. These settings cannot be changed later."
+		},
+		"mcpClientSheet": {
+			"theReplacementDocumentIsNotParsedYet": "The replacement document is not parsed yet",
+			"stillReadingTheCurrentDocument": "Still reading the current document",
+			"tryAgainInAMomentSoAutoExecuteSettingsAnd": "Try again in a moment, so auto-execute settings and tool prices carry over to the replacement.",
+			"autoExecuteSettingsAndToolPricesWillNotCarryOver": "Auto-execute settings and tool prices will not carry over",
+			"theCurrentDocumentCouldNotBeReadToMatch": "The current document could not be read to match them to the new operations. Save again to replace it anyway; set them again on the Tools tab afterwards.",
+			"selectAtLeastOneOperation": "Select at least one operation",
+			"tickTheOperationsThisServerShouldExposeAsTools": "Tick the operations this server should expose as tools.",
+			"generatedFromAnOpenAPISpec": "Generated from an OpenAPI spec",
+			"calls": "calls",
+			"replaceSpec": "Replace spec",
+			"pasteOrUploadTheNewDocumentOrFetchIt": "Paste or upload the new document, or fetch it from a URL. Operations that keep their name stay selected; the server is rebuilt from the new document when you save.",
+			"loadingTheStoredDocument": "Loading the stored document…",
+			"cancelReplace": "Cancel replace",
+			"overrideTheGlobalToolSyncIntervalExecutionTimeoutAnd": "Override the global tool sync interval, execution timeout and instruction limit for this server.",
+			"maxInstructionLengthBytes": "Max Instruction Length (bytes)",
+			"capOnTheInstructionsForwardedFromThisServerLeave": "Cap on the instructions forwarded from this server. Leave empty or set to 0 to use the global setting. The combined total across all servers is still bounded by the global total.",
+			"aReplacementDocumentIsOpenOnTheGeneralTab": "A replacement document is open on the General tab, and its operation list decides which tools are saved. Save or cancel the replacement to edit tools here.",
+			"baseURLFromTheDocumentSServers": "base URL from the document's servers"
+		},
+		"mcpClientsTable": {
+			"theClientSConnectionStateHealthyUnstableNeedsReAuthorizationAnd": "The client's connection state (healthy, unstable, needs re-authorization, and so on). \"Unstable\" reflects Bifrost's own connection checks to the server, not the results of tool calls made through it: it self-heals and never blocks tool calls. For per-user clients (OAuth, headers, token exchange), this reflects Bifrost's own retained admin credential (used only to periodically refresh the tool list), not any individual user's own session, which is unaffected either way.",
+			"headersVerifiedSuccessfullyEachUserWillSubmitTheirOwn": "Headers verified successfully. Each user will submit their own values when using this MCP server."
+		},
+		"openApiPreviewPanel": {
+			"tool": "tool",
+			"selectTheUpstreamServer": "Select the upstream server",
+			"custom": "Custom…",
+			"everyOperationDeclaresItsOwnServerSoCallsGo": "Every operation declares its own server, so calls go there. Set a base URL only to override them all.",
+			"theDocumentDeclaresNoAbsoluteServerURLSoThe": "The document declares no absolute server URL, so the upstream must be given here.",
+			"aPIAuthentication": "API authentication",
+			"eachCallerSuppliesTheseThroughThePerUserHeaderNamed": "Each caller supplies these through the per-user header named for each scheme, forwarded to the API as is. Schemes sent in the query or a cookie keep a stored value.",
+			"credentialsForTheSecuritySchemesTheDocumentDeclaresThey": "Credentials for the security schemes the document declares. They are stored encrypted and applied to every call; env.VAR references are supported.",
+			"thisDocumentDeclaresNoSecuritySchemesAddStaticHeaders": "This document declares no security schemes. Add static headers below if the API still needs a credential.",
+			"unsupported": "unsupported",
+			"headerEachCallerSuppliesForwardedAsIsItIs": "Header each caller supplies, forwarded as is. It is added to Required Headers.",
+			"tickedOperationsBecomeToolsOfThisServerUnsupportedOnes": "Ticked operations become tools of this server. Unsupported ones are listed with the reason.",
+			"selected": "selected",
+			"searchOperations": "Search operations…",
+			"noOperationMatchesTheSearch": "No operation matches the search.",
+			"deprecated": "deprecated",
+			"untitledAPI": "Untitled API"
+		},
+		"openApiSpecSource": {
+			"paste": "Paste",
+			"pasteTheOpenAPIOrSwaggerDocumentAsJSONOr": "Paste the OpenAPI or Swagger document as JSON or YAML (2.0, 3.0, 3.1 and 3.2 are supported).",
+			"specURL": "Spec URL",
+			"bifrostFetchesTheDocumentOnceAndStoresItWith": "Bifrost fetches the document once and stores it with the server; the URL is kept as its source.",
+			"chooseFile": "Choose file",
+			"jSONOrYAMLUpTo": "JSON or YAML, up to",
+			"theFileIsReadInYourBrowserAnd": ". The file is read in your browser and stored with the server.",
+			"parsingTheDocument": "Parsing the document…",
+			"theURLOrServerNameChangedSinceTheDocument": "The URL or server name changed since the document was fetched. Fetch it again to refresh the operations below."
+		},
+		"grantActions": {
+			"grantActions": "Grant actions",
+			"viewAuthSessions": "View auth sessions"
+		},
+		"mcpClientOpenApiUtils": {
+			"apiKey": "API key",
+			"username": "Username",
+			"password": "Password",
+			"bearerToken": "Bearer token"
+		}
+	},
+	"openapi": {
+		"userHeader": "{{name}} per-user header",
+		"userCredentialHelp": "Header each caller supplies, forwarded as is; its value is the full credential, e.g. \"{{example}}\". It is added to Required Headers.",
+		"operationsCount": "Operations ({{supported}} of {{total}} supported)",
+		"fileTooLarge": "The file exceeds the {{limit}} limit for OpenAPI documents."
 	}
 }

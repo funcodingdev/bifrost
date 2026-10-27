@@ -693,12 +693,19 @@
 			"copilotPrivateKeyPlaceholder": "-----BEGIN RSA PRIVATE KEY----- or env.COPILOT_PRIVATE_KEY",
 			"copilotDomainPlaceholder": "acme.ghe.com",
 			"createGithubApp": "Create a GitHub App",
-			"findInstallationId": "Find your installation ID"
+			"findInstallationId": "Find your installation ID",
+			"enableNamed": "Enable key {{name}}"
 		},
 		"proxyHttp": "HTTP",
 		"proxySocks5": "SOCKS5",
 		"searchProviders": "Search providers...",
-		"noProvidersLeft": "No providers left to add"
+		"noProvidersLeft": "No providers left to add",
+		"migration": {
+			"keyCount": "Keys ({{count}})"
+		},
+		"tools": {
+			"removeNamed": "Remove tool {{name}}"
+		}
 	},
 	"modelCatalog": {
 		"title": "Model Catalog",
@@ -804,7 +811,8 @@
 			"4": "Thu",
 			"5": "Fri",
 			"6": "Sat"
-		}
+		},
+		"editNamedAttributes": "Edit attributes for {{name}}"
 	},
 	"virtualKeys": {
 		"emptyTitle": "Virtual keys control access, budgets, and rate limits",
@@ -1221,7 +1229,143 @@
 		"groupImage": "Image",
 		"groupVideo": "Video",
 		"groupOcr": "OCR",
-		"patternError": "Pattern is required"
+		"patternError": "Pattern is required",
+		"fields": {
+			"input_cost_per_token": "Input / token",
+			"output_cost_per_token": "Output / token",
+			"input_cost_per_token_batches": "Input / token (batch)",
+			"output_cost_per_token_batches": "Output / token (batch)",
+			"input_cost_per_token_priority": "Input / token (priority)",
+			"output_cost_per_token_priority": "Output / token (priority)",
+			"input_cost_per_token_ultrafast": "Input / token (ultrafast)",
+			"output_cost_per_token_ultrafast": "Output / token (ultrafast)",
+			"input_cost_per_token_flex": "Input / token (flex)",
+			"output_cost_per_token_flex": "Output / token (flex)",
+			"input_cost_per_token_decisions": "Input / token (decisions)",
+			"output_cost_per_token_decisions": "Output / token (decisions)",
+			"input_cost_per_token_fast": "Input / token (fast)",
+			"output_cost_per_token_fast": "Output / token (fast)",
+			"input_cost_per_token_above_128k_tokens": "Input / token (>128k)",
+			"output_cost_per_token_above_128k_tokens": "Output / token (>128k)",
+			"input_cost_per_token_above_100k_tokens": "Input / token (>100k)",
+			"output_cost_per_token_above_100k_tokens": "Output / token (>100k)",
+			"input_cost_per_token_above_200k_tokens": "Input / token (>200k)",
+			"input_cost_per_token_above_200k_tokens_priority": "Input / token (>200k, priority)",
+			"output_cost_per_token_above_200k_tokens": "Output / token (>200k)",
+			"output_cost_per_token_above_200k_tokens_priority": "Output / token (>200k, priority)",
+			"input_cost_per_token_above_272k_tokens": "Input / token (>272k)",
+			"input_cost_per_token_above_272k_tokens_priority": "Input / token (>272k, priority)",
+			"output_cost_per_token_above_272k_tokens": "Output / token (>272k)",
+			"output_cost_per_token_above_272k_tokens_priority": "Output / token (>272k, priority)",
+			"input_cost_per_token_flex_above_272k_tokens": "Input / token (>272k, flex)",
+			"output_cost_per_token_flex_above_272k_tokens": "Output / token (>272k, flex)",
+			"input_cost_per_token_above_272k_tokens_ultrafast": "Input / token (>272k, ultrafast)",
+			"output_cost_per_token_above_272k_tokens_ultrafast": "Output / token (>272k, ultrafast)",
+			"cache_creation_input_token_cost": "Cache creation / token",
+			"cache_read_input_token_cost": "Cache read / token",
+			"cache_creation_input_token_cost_above_200k_tokens": "Cache creation / token (>200k)",
+			"cache_read_input_token_cost_above_200k_tokens": "Cache read / token (>200k)",
+			"cache_creation_input_token_cost_above_1hr": "Cache creation / token (>1hr)",
+			"cache_creation_input_token_cost_above_1hr_above_200k_tokens": "Cache creation / token (>1hr, >200k)",
+			"cache_creation_input_token_cost_above_100k_tokens": "Cache creation / token (>100k)",
+			"cache_read_input_token_cost_above_100k_tokens": "Cache read / token (>100k)",
+			"cache_creation_input_token_cost_above_1hr_above_100k_tokens": "Cache creation / token (>1hr, >100k)",
+			"cache_read_input_token_cost_priority": "Cache read / token (priority)",
+			"cache_read_input_token_cost_ultrafast": "Cache read / token (ultrafast)",
+			"cache_read_input_token_cost_flex": "Cache read / token (flex)",
+			"cache_creation_input_token_cost_fast": "Cache creation / token (fast)",
+			"cache_creation_input_token_cost_above_1hr_fast": "Cache creation / token (>1hr, fast)",
+			"cache_read_input_token_cost_fast": "Cache read / token (fast)",
+			"cache_read_input_token_cost_above_200k_tokens_priority": "Cache read / token (>200k, priority)",
+			"cache_read_input_token_cost_above_272k_tokens": "Cache read / token (>272k)",
+			"cache_read_input_token_cost_above_272k_tokens_priority": "Cache read / token (>272k, priority)",
+			"cache_read_input_token_cost_flex_above_272k_tokens": "Cache read / token (>272k, flex)",
+			"cache_read_input_token_cost_above_272k_tokens_ultrafast": "Cache read / token (>272k, ultrafast)",
+			"cache_creation_input_token_cost_priority": "Cache creation / token (priority)",
+			"cache_creation_input_token_cost_ultrafast": "Cache creation / token (ultrafast)",
+			"cache_creation_input_token_cost_flex": "Cache creation / token (flex)",
+			"cache_creation_input_token_cost_above_272k_tokens": "Cache creation / token (>272k)",
+			"cache_creation_input_token_cost_flex_above_272k_tokens": "Cache creation / token (>272k, flex)",
+			"cache_creation_input_token_cost_above_272k_tokens_ultrafast": "Cache creation / token (>272k, ultrafast)",
+			"cache_creation_input_token_cost_above_272k_tokens_priority": "Cache creation / token (>272k, priority)",
+			"web_search_cost_per_request": "Web search / request",
+			"input_cost_per_query": "Rerank / query",
+			"code_interpreter_cost_per_session": "Code interpreter / session",
+			"inference_geo_us_multiplier": "Inference geo US multiplier",
+			"cost_per_request": "Flat fee / request",
+			"off_peak_cost_multiplier": "Off-peak multiplier",
+			"input_cost_per_character": "Input / character",
+			"input_cost_per_audio_token": "Input / audio token",
+			"input_cost_per_audio_per_second": "Input / audio second",
+			"input_cost_per_audio_per_second_above_128k_tokens": "Input / audio second (>128k)",
+			"input_cost_per_second": "Input / second",
+			"output_cost_per_audio_token": "Output / audio token",
+			"output_cost_per_second": "Output / second",
+			"cache_creation_input_audio_token_cost": "Cache creation / audio token",
+			"input_cost_per_image_token": "Input / image token",
+			"input_cost_per_image": "Input / image",
+			"input_cost_per_image_above_128k_tokens": "Input / image (>128k)",
+			"input_cost_per_pixel": "Input / pixel",
+			"output_cost_per_image_token": "Output / image token",
+			"output_cost_per_image": "Output / image",
+			"output_cost_per_pixel": "Output / pixel",
+			"output_cost_per_image_premium_image": "Output / image (premium)",
+			"output_cost_per_image_above_512_and_512_pixels": "Output / image (>512px)",
+			"output_cost_per_image_above_512_and_512_pixels_and_premium_image": "Output / image (>512px, premium)",
+			"output_cost_per_image_above_1024_and_1024_pixels": "Output / image (>1024px)",
+			"output_cost_per_image_above_1024_and_1024_pixels_and_premium_image": "Output / image (>1024px, premium)",
+			"output_cost_per_image_above_1024_and_1536_pixels": "Output / image (>1024x1536px)",
+			"output_cost_per_image_above_1536_and_1024_pixels": "Output / image (>1536x1024px)",
+			"output_cost_per_image_above_2048_and_2048_pixels": "Output / image (>2048px)",
+			"output_cost_per_image_above_4096_and_4096_pixels": "Output / image (>4096px)",
+			"output_cost_per_image_above_4_megapixels": "Output / image (>4MP)",
+			"output_cost_per_image_above_8_megapixels": "Output / image (>8MP)",
+			"output_cost_per_image_above_16_megapixels": "Output / image (>16MP)",
+			"output_cost_per_image_above_32_megapixels": "Output / image (>32MP)",
+			"output_cost_per_image_above_64_megapixels": "Output / image (>64MP)",
+			"output_cost_per_image_low_quality": "Output / image (low quality)",
+			"output_cost_per_image_medium_quality": "Output / image (medium quality)",
+			"output_cost_per_image_high_quality": "Output / image (high quality)",
+			"output_cost_per_image_auto_quality": "Output / image (auto quality)",
+			"output_cost_per_image_above_1024_and_1024_pixels_low_quality": "Output / image (>1024x1024px, low quality)",
+			"output_cost_per_image_above_1024_and_1536_pixels_low_quality": "Output / image (>1024x1536px, low quality)",
+			"output_cost_per_image_above_1536_and_1024_pixels_low_quality": "Output / image (>1536x1024px, low quality)",
+			"output_cost_per_image_above_1024_and_1024_pixels_medium_quality": "Output / image (>1024x1024px, medium quality)",
+			"output_cost_per_image_above_1024_and_1536_pixels_medium_quality": "Output / image (>1024x1536px, medium quality)",
+			"output_cost_per_image_above_1536_and_1024_pixels_medium_quality": "Output / image (>1536x1024px, medium quality)",
+			"output_cost_per_image_above_1024_and_1024_pixels_high_quality": "Output / image (>1024x1024px, high quality)",
+			"output_cost_per_image_above_1024_and_1536_pixels_high_quality": "Output / image (>1024x1536px, high quality)",
+			"output_cost_per_image_above_1536_and_1024_pixels_high_quality": "Output / image (>1536x1024px, high quality)",
+			"output_cost_per_image_above_1024_and_1024_pixels_standard_quality": "Output / image (>1024x1024px, standard quality)",
+			"output_cost_per_image_above_1024_and_1536_pixels_standard_quality": "Output / image (>1024x1536px, standard quality)",
+			"output_cost_per_image_above_1536_and_1024_pixels_standard_quality": "Output / image (>1536x1024px, standard quality)",
+			"cache_read_input_image_token_cost": "Cache read / image token",
+			"input_cost_per_video_per_second": "Input / video second",
+			"input_cost_per_video_per_second_above_128k_tokens": "Input / video second (>128k)",
+			"output_cost_per_video_per_second": "Output / video second",
+			"output_cost_per_video_per_second_480p": "Output / video second (480p)",
+			"output_cost_per_video_per_second_720p": "Output / video second (720p)",
+			"output_cost_per_video_per_second_1024p": "Output / video second (1024p)",
+			"output_cost_per_video_per_second_1080p": "Output / video second (1080p)",
+			"output_cost_per_video_per_second_4k": "Output / video second (4K)",
+			"ocr_cost_per_page": "OCR / page",
+			"annotation_cost_per_page": "Annotation / page"
+		},
+		"requestGroups": {
+			"chat": "Chat / Text / Responses",
+			"embedding": "Embedding",
+			"rerank": "Rerank",
+			"decisions": "Decisions",
+			"audio": "Audio",
+			"image": "Image",
+			"video": "Video",
+			"ocr": "OCR"
+		},
+		"validation": {
+			"multiplierRange": "Must be greater than 0 and at most 1",
+			"number": "Must be a number",
+			"nonNegative": "Must be >= 0"
+		}
 	},
 	"routing": {
 		"rulesTitle": "Routing Rules",
@@ -1433,7 +1577,15 @@
 			"selectFallbackModel": "Select a fallback model",
 			"phraseTooLong": "A {{tier}} phrase exceeds the {{max}}-character limit.",
 			"phraseDuplicate": "\"{{phrase}}\" is also in the {{tier}} list. Each phrase must belong to exactly one tier.",
-			"phraseCapExceeded": "Semantic routing has {{total}} phrases (Simple={{simple}}, Medium={{medium}}, Complex={{complex}}); the maximum is {{max}} across all tiers."
+			"phraseCapExceeded": "Semantic routing has {{total}} phrases (Simple={{simple}}, Medium={{medium}}, Complex={{complex}}); the maximum is {{max}} across all tiers.",
+			"previousMessagesHelp": "User messages sent to the decision model in addition to the current request, oldest to newest. Widening this lets a short follow-up like “and make it faster” inherit earlier intent, but sends more input tokens per request. Assistant replies are never sent. Defaults to 1.",
+			"phrasesWithLimit": "{{count}} / {{limit}} phrases",
+			"phraseCount": "{{count}} phrases",
+			"classifierUnsaved": "Classifier changed to {{classifier}}. Not saved yet.",
+			"editDefinition": "Edit {{tier}} definition",
+			"resetDefinition": "Reset {{tier}} definition to default",
+			"resetList": "Reset {{tier}} {{list}} to default",
+			"listLimit": "Limit of {{limit}} reached"
 		},
 		"editDescription": "Update the routing rule configuration",
 		"createDescription": "Create a new CEL-based routing rule for intelligent request routing",
@@ -1532,5 +1684,235 @@
 		"scopeGlobal": "Global",
 		"clearFallbackApiKey": "Clear API key for fallback {{n}}",
 		"pinnedKeyTitle": "Pinned key: {{id}}"
+	},
+	"ui": {
+		"page": {
+			"classifier": "Classifier",
+			"theDecisionModelClassifiesEachNewHumanRequestFilling": "The decision model classifies each new human request, filling the",
+			"eachRequestTakesTheTierOfItsNearestSemantic": "Each request takes the tier of its nearest semantic reference phrase, filling the",
+			"fieldThatRoutingRulesTarget": "field that routing rules target.",
+			"requestsMatchingNoPhraseConfidentlyFallBackToThe": "Requests matching no phrase confidently fall back to the decision model.",
+			"chooseHowEachRequestIsAssignedAComplexityTier": "Choose how each request is assigned a complexity tier. Switching later keeps the other classifier's settings, including your reference phrases.",
+			"editModelConfiguration": "Edit model configuration",
+			"unsavedModelConfigurationChanges": "Unsaved model configuration changes",
+			"eachRequestTakesTheTierOfItsNearestReference": "Each request takes the tier of its nearest reference phrase.",
+			"aDecisionModelScoresEachNewRequestIntoA": "A decision model scores each new request into a tier.",
+			"theDecisionModelIsTheFallbackAndItNeeds": "The decision model is the fallback, and it needs a working provider before this can be saved.",
+			"theDecisionModelNeedsAWorkingProviderBeforeThis": "The decision model needs a working provider before this can be saved. See Edit model configuration.",
+			"decisionModel": "Decision model"
+		},
+		"decisionSettingsSheet": {
+			"modelConfiguration": "Model configuration",
+			"whichDecisionModelClassifiesRequestsHowMuchConversationIt": "Which decision model classifies requests, how much conversation it sees, and how long it may take. Credentials come from its provider."
+		},
+		"sections": {
+			"phrase": "phrase",
+			"phrases": "phrases",
+			"noProviderServesDecisionModelsYet": "No provider serves decision models yet.",
+			"addOne": "Add one",
+			"setByThisProviderSCloudflareURL": "Set by this provider&rsquo;s Cloudflare URL.",
+			"layaReads512TokensPerRequest": "Laya reads 512 tokens per request (",
+			"useMultilingualFor1024": "use multilingual for 1,024",
+			"keepTierGuidanceShort": "keep tier guidance short",
+			"describeWhatMakesARequest": "Describe what makes a request",
+			"theDecisionModelUsesThisToDecideWhich": ". The decision model uses this to decide which requests belong in this tier.",
+			"resetToTheDefaultDefinition": "Reset to the default definition",
+			"loadingTheDefaultGuidance": "Loading the default guidance…",
+			"thisGatewayDidNotReturnItsDefaultGuidanceSo": "This gateway did not return its default guidance, so it cannot be edited here. The decision model keeps using the saved or shipped guidance.",
+			"fallbackTierGuidance": "Fallback Tier Guidance",
+			"usedByTheDecisionModelWhenNoReferencePhrase": "Used by the decision model when no reference phrase matches.",
+			"resetAll": "Reset all",
+			"complexityRouterSteps": "Complexity Router steps",
+			"signals": "Signals",
+			"typeASignalAndPressEnter": "Type a signal and press Enter",
+			"examples": "Examples",
+			"typeAnExampleAndPressEnter": "Type an example and press Enter",
+			"aDecisionModelJudgesTheComplexityOfEachRequest": "A decision model judges the complexity of each request and picks the tier whose definition, signals, and examples fit it best. Use Typesafe Jev, OpenAI's decision models, Cloudflare Clef, or another provider that serves decision models. No phrases to write or maintain.",
+			"semantic": "Semantic",
+			"matchesEachRequestAgainstReferencePhrasesYouWriteFor": "Matches each request against reference phrases you write for each tier, through an embedding model you choose. You decide exactly what each tier means."
+		},
+		"pricingOverrideSheet": {
+			"youDoNotHavePermissionToChangePricingOverrides": "You do not have permission to change pricing overrides"
+		},
+		"scopedPricingOverridesView": {
+			"of": "of",
+			"areYouSureYouWantToDelete": "Are you sure you want to delete \"",
+			"thisActionCannotBeUndone": "\"? This action cannot be undone."
+		},
+		"attributesTab": {
+			"attribute": "attribute",
+			"attributes": "attributes",
+			"override": "override",
+			"overrides": "overrides"
+		},
+		"modelCatalogTable": {
+			"aboutTheModelsColumn": "About the models column"
+		},
+		"modelLimitSheet": {
+			"budget": "Budget ("
+		},
+		"modelLimitsTable": {
+			"view": "View",
+			"filterByScope": "Filter by scope",
+			"resets": "Resets",
+			"tokenUsage": "Token usage",
+			"req": "req",
+			"requestUsage": "Request usage",
+			"requests": "requests"
+		},
+		"cloudflareMigrationDialog": {
+			"cloudflareIsNowAFirstPartyProvider": "Cloudflare is now a first-party provider",
+			"isACustomProviderPointingAtCloudflareWorkersAI": "is a custom provider pointing at Cloudflare Workers AI. Bifrost now supports Cloudflare natively, and the name \"cloudflare\" belongs to the official provider, so this custom provider can no longer be edited. Your existing configuration needs to be migrated to the official provider.",
+			"theProviderIsConvertedInPlaceSoItsKeys": "The provider is converted in place, so its keys, virtual key access, budgets and limits are kept, and nothing is deleted. Nothing changes until you confirm, and you will see what will change before the migration runs.",
+			"reviewWhatWillChangeKeysKeepTheirStoredTokens": "Review what will change. Keys keep their stored tokens; anything that could not be read must be entered below.",
+			"letSMigrate": "Let's migrate",
+			"goToCloudflare": "Go to Cloudflare",
+			"account": "Account",
+			"accountID": "Account ID",
+			"readFromTheCustomProviderSBaseURL": "Read from the custom provider's base URL.",
+			"models": "Models:",
+			"aliases": "Aliases:",
+			"tokenKept": "Token: kept",
+			"aPIToken": "API token:",
+			"aPIToken2": "API token",
+			"aPITokenOrEnvCLOUDFLAREAPITOKEN": "API token or env.CLOUDFLARE_API_TOKEN"
+		},
+		"firstPartyProviderAvailableDialog": {
+			"bifrostNowSupports": "Bifrost now supports",
+			"nativelyAndTheName": "natively, and the name",
+			"belongsToTheOfficialProviderYourCustomProviderKeeps": "belongs to the official provider. Your custom provider keeps serving requests, but its settings can no longer be saved and config.json entries for it are skipped. Recreate it as a custom provider under another name (for example",
+			"thenDeleteThisOne": "), then delete this one.",
+			"weNoticedYouHaveACustomProviderNamed": "We noticed you have a custom provider named",
+			"bifrostNowSupports2": ". Bifrost now supports",
+			"nativelyYouCanDeleteTheCustomProviderAndAdd": "natively. You can delete the custom provider and add the official",
+			"integrationFrom": "integration from",
+			"orKeepUsingYourCustomProviderAsIs": ", or keep using your custom provider as is."
+		},
+		"apiKeysFormFragment": {
+			"workloadIdentityAWS": "Workload Identity (AWS)",
+			"exchangesTheAWSIdentityAttachedToThisWorkloadEKS": "Exchanges the AWS identity attached to this workload (EKS IRSA or Pod Identity, ECS task role, EC2 instance profile) for a GCP token through a Workload Identity Pool AWS provider. No GCP service account key and no AWS access key required.",
+			"workloadIdentityProviderAudienceRequired": "Workload Identity Provider Audience (Required)",
+			"theFullResourceNameOfTheAWSProviderIn": "The full resource name of the AWS provider in your Workload Identity Pool, shown as the audience in the GCP console.",
+			"serviceAccountToImpersonateOptional": "Service Account to Impersonate (Optional)",
+			"leaveEmptyToCallVertexAIAsTheFederated": "Leave empty to call Vertex AI as the federated principal directly (grant it roles/aiplatform.user). Set it to impersonate a service account that has the Vertex AI role; the federated principal then needs roles/iam.workloadIdentityUser on that service account.",
+			"vertexCallerMyProjectIamGserviceaccountComOrEnvVERTEXWIFSA": "vertex-caller@my-project.iam.gserviceaccount.com or env.VERTEX_WIF_SA",
+			"impersonatedTokenLifetimeInSecondsOptional": "Impersonated Token Lifetime in Seconds (Optional)",
+			"onlyUsedWithAServiceAccount600To43200": "Only used with a service account. 600 to 43200; the default is 3600.",
+			"aWSRegionOptional": "AWS Region (Optional)",
+			"regionUsedToSignTheSTSRequestDefaultsTo": "Region used to sign the STS request. Defaults to AWS_REGION, then instance metadata. Set it when neither is available in the pod.",
+			"aWSRoleARNToAssumeOptional": "AWS Role ARN to Assume (Optional)",
+			"assumeThisIAMRoleWithTheWorkloadSCredentialsBefore": "Assume this IAM role with the workload's credentials before the GCP exchange. Usually unnecessary: map the workload's own role in the pool provider instead.",
+			"arnAwsIam123456789012RoleVertexCallerOrEnvVERTEXAWSROLEARN": "arn:aws:iam::123456789012:role/VertexCaller or env.VERTEX_AWS_ROLE_ARN",
+			"storedSecurelyEditToUpdate": "Stored securely. Edit to update.",
+			"sessionRouting": "Session routing",
+			"sendEachRequestSPromptCacheKeyToGeminiModelsAsSessionId": "Send each request's prompt_cache_key to Gemini models as session_id. Vertex routes requests with the same session ID to one replica, so they reuse its implicit cache. Enable only if Google has turned on session routing for this key's project.",
+			"accountIDRequired": "Account ID (Required)",
+			"theCloudflareAccountThatRunsWorkersAI": "The Cloudflare account that runs Workers AI.",
+			"oAuthMintedToken": "OAuth (minted token)",
+			"bifrostRequestsAnAccessTokenFromTheTokenEndpoint": "Bifrost requests an access token from the token endpoint, sends it as the bearer, caches it per credential and refreshes it before it expires. Use this for upstreams that issue short-lived tokens instead of a static key.",
+			"grantType": "Grant Type",
+			"clientCredentials": "Client credentials",
+			"clientCredentialsClientIDSecret": "Client credentials (client ID + secret)",
+			"jWTBearerSignedAssertionRFC7523": "JWT bearer (signed assertion, RFC 7523)",
+			"theIdentityProviderSTokenEndpointMustBeHttps": "The identity provider's token endpoint. Must be https.",
+			"clientIDOrEnvIDPCLIENTID": "Client ID or env.IDP_CLIENT_ID",
+			"clientSecretOrEnvIDPCLIENTSECRET": "Client secret or env.IDP_CLIENT_SECRET",
+			"credentialPlacement": "Credential Placement",
+			"whereTheTokenRequestCarriesTheClientIDAnd": "Where the token request carries the client ID and secret. Header (HTTP Basic) is the standard; some providers only accept them as form fields.",
+			"header": "Header",
+			"authorizationHeaderHTTPBasic": "Authorization header (HTTP Basic)",
+			"formBodyClientIdClientSecret": "Form body (client_id / client_secret)",
+			"rSAOrECPrivateKeyInPEMFormBifrost": "RSA or EC private key in PEM form. Bifrost signs each assertion with it.",
+			"issuer": "Issuer",
+			"theIssClaimUsuallyTheClientOrServiceAccount": "The iss claim, usually the client or service account ID.",
+			"subjectOptional": "Subject (Optional)",
+			"theSubClaimDefaultsToTheIssuer": "The sub claim. Defaults to the issuer.",
+			"theAudClaimUsuallyTheTokenEndpointItself": "The aud claim, usually the token endpoint itself.",
+			"keyIDOptional": "Key ID (Optional)",
+			"theKidHeaderWhenTheIdentityProviderSelectsKeys": "The kid header, when the identity provider selects keys by ID.",
+			"signingAlgorithm": "Signing Algorithm",
+			"assertionLifetimeSeconds": "Assertion Lifetime (seconds)",
+			"howLongEachSignedAssertionIsValidForDefault": "How long each signed assertion is valid for. Default 300.",
+			"audienceOptional": "Audience (Optional)",
+			"sentAsTheAudienceFormParameterForProvidersThat": "Sent as the audience form parameter, for providers that scope tokens by API."
+		},
+		"betaHeadersFormFragment": {
+			"configureWhichTypeSafeHeadersBifrostMaySendForThis": "Configure which TypeSafe headers Bifrost may send for this provider. Override a default to stop Bifrost from sending it."
+		},
+		"governanceFormFragment": {
+			"resetBudgetsAtTheStartOfEachPeriodEG": "Reset budgets at the start of each period (e.g. 1st of month) instead of rolling from creation date. Single-unit day, week, month, quarter and year windows align to calendar boundaries. Other durations remain rolling."
+		},
+		"injectedToolsFormFragment": {
+			"toolNameTheModelSees": "Tool name the model sees",
+			"replacesNativeWebSearch": "Replaces native web search",
+			"loadingSavedMCPServer": "Loading saved MCP server \"",
+			"undefined": "\"...",
+			"theSavedMCPServer": "The saved MCP server \"",
+			"noLongerExistsPickAnotherOne": "\" no longer exists. Pick another one.",
+			"couldNotLoadTheSavedMCPServer": "Could not load the saved MCP server \"",
+			"undefined2": "\".",
+			"couldNotLoadThisServerSTools": "Could not load this server's tools.",
+			"removeTool": "Remove tool",
+			"failedToUpdateTools": "Failed to update tools",
+			"mCPToolsAddedToEveryChatAndResponsesRequest": "MCP tools added to every chat and responses request to this provider. Bifrost runs them itself when the model calls them and returns only the final answer. The model sees each tool under its name. A name that matches a tool the client sends replaces that tool, and the name",
+			"alsoReplacesNativeWebSearch": "also replaces native web search.",
+			"noToolsAreInjectedForThisProvider": "No tools are injected for this provider.",
+			"addTool": "Add tool",
+			"saveTools": "Save Tools"
+		},
+		"networkFormFragment": {
+			"valuesAreMaskedOnceSavedLeaveAMaskedValue": "Values are masked once saved; leave a masked value unchanged to keep it, and re-enter it when renaming a header. Use",
+			"toReferenceASecretInsteadOfStoringIt": "to reference a secret instead of storing it."
+		},
+		"pricingFormFragment": {
+			"pricingConfigurationUpdatedSuccessfully": "Pricing configuration updated successfully",
+			"failedToUpdatePricingConfiguration": "Failed to update pricing configuration",
+			"ignoreProviderReportedCost": "Ignore Provider-Reported Cost",
+			"discardTheCostTheProviderReturnsInItsUsage": "Discard the cost the provider returns in its usage object and calculate it in Bifrost from model pricing and pricing overrides. Use this when a provider reports cost in its own units, such as credits or a non-USD currency. Models without pricing or an override are logged at $0.",
+			"savePricingConfiguration": "Save Pricing Configuration"
+		},
+		"modelProviderKeysTableView": {
+			"keyActions": "Key actions"
+		},
+		"rfRuleNode": {
+			"target": "target",
+			"chainRuleResolvedProviderModelFeedsBackAsTheNew": "Chain rule: resolved provider/model feeds back as the new input and the full scope chain re-evaluates.",
+			"resolvedTargetNewInput": "Resolved target (new input)",
+			"originalProviderModel": "original provider & model"
+		},
+		"rfSourceNode": {
+			"incomingRequest": "Incoming Request",
+			"providerModelHeadersParamsLimits": "provider · model · headers · params · limits"
+		},
+		"routingRuleInfoSheet": {
+			"timeToFirstTokenCutoff": "Time to first token cutoff"
+		},
+		"routingRuleSheet": {
+			"timeToFirstTokenCutoffMs": "Time to first token cutoff (ms)",
+			"mixed": "Mixed",
+			"streamingOnlyIfNoTokenArrivesInTimeBifrost": "Streaming only. If no token arrives in time, Bifrost moves to the next fallback. The last fallback is never cut off.",
+			"thisRuleHasNoFallbacksSoTheCutoffOnly": "This rule has no fallbacks, so the cutoff only applies when the request brings its own."
+		},
+		"routingRulesTable": {
+			"moreTarget": "more target"
+		},
+		"providerConfigSheet": {
+			"tools": "Tools"
+		},
+		"complexityRouter": {
+			"failed": "Failed",
+			"aDecisionModelNamesTheTierWhenSemanticMatching": "A decision model names the tier when semantic matching has no result, using the same tier guidance as when it is the primary classifier."
+		},
+		"routingRules": {
+			"equals": "Equals",
+			"notEquals": "Not equals",
+			"greaterThanOrEqual": "Greater than or equal",
+			"lessThanOrEqual": "Less than or equal",
+			"greaterThan": "Greater than",
+			"lessThan": "Less than",
+			"startswith": "StartsWith",
+			"contains": "Contains",
+			"endswith": "EndsWith"
+		}
 	}
 }

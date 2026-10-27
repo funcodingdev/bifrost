@@ -1,3 +1,4 @@
+import i18nReview from "@/lib/i18n";
 import {
 	AddProviderRequest,
 	CreateProviderKeyRequest,
@@ -157,7 +158,9 @@ const DEFAULT_MODEL_PARAMETERS: ModelDatasheetResponse = {
 	model_parameters: [
 		{
 			id: "temperature",
-			label: "Temperature",
+			get label() {
+				return i18nReview.t("ui.providersApi.temperature", { ns: "common" });
+			},
 			helpText:
 				"What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
 			type: "number",
@@ -165,14 +168,18 @@ const DEFAULT_MODEL_PARAMETERS: ModelDatasheetResponse = {
 		},
 		{
 			id: "max_tokens",
-			label: "Max Tokens",
+			get label() {
+				return i18nReview.t("ui.providersApi.maxTokens", { ns: "common" });
+			},
 			helpText: "The maximum number of tokens that can be generated in the Result.",
 			type: "number",
 			range: { min: 1, max: 8192, step: 1 },
 		},
 		{
 			id: "stream",
-			label: "Stream",
+			get label() {
+				return i18nReview.t("ui.providersApi.stream", { ns: "common" });
+			},
 			helpText:
 				"The stream parameter in the API controls whether the response is sent in incremental updates, like tokenized data as it's generated, or as a complete result in one go.",
 			type: "boolean",

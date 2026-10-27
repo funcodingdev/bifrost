@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,7 @@ export function BudgetOverrideManagerDialog({
 	disabled,
 	triggerLabel = "Add override",
 }: BudgetOverrideManagerDialogProps) {
+	const { t: tCopy } = useTranslation();
 	const [open, setOpen] = useState(false);
 	const [expandedKey, setExpandedKey] = useState<string | null>(null);
 	const [amount, setAmount] = useState("");
@@ -104,7 +106,7 @@ export function BudgetOverrideManagerDialog({
 		setError(null);
 		try {
 			await onRemove(row.budget.id);
-			toast.success("Budget override removed");
+			toast.success(tCopy("ui.budgetOverrideDialog.budgetOverrideRemoved", { ns: "governance" }));
 			if (expandedKey === row.key) setExpandedKey(null);
 		} catch (mutationError) {
 			// Remove can fire from a collapsed row where the inline error never renders,
@@ -131,8 +133,12 @@ export function BudgetOverrideManagerDialog({
 						<p className="truncate text-sm font-medium">{row.label}</p>
 						<p className="text-muted-foreground text-xs">
 							{active
-								? `+${formatCurrency(b.override_amount ?? 0)} override · effective ${formatCurrency(getEffectiveBudgetLimit(b))}`
-								: `Base ${formatCurrency(b.max_limit)}`}
+								? tCopy("budget.adjustmentSummary", {
+										ns: "common",
+										amount: formatCurrency(b.override_amount ?? 0),
+										effective: formatCurrency(getEffectiveBudgetLimit(b)),
+									})
+								: tCopy("budget.baseAmount", { ns: "common", amount: formatCurrency(b.max_limit) })}
 						</p>
 					</div>
 					<div className="flex shrink-0 items-center gap-1">
@@ -148,7 +154,7 @@ export function BudgetOverrideManagerDialog({
 									data-testid={`budget-override-edit-${b.id}`}
 								>
 									<Pencil className="h-3 w-3" />
-									Edit
+									{tCopy("customers.actions.edit", { ns: "governance" })}
 								</Button>
 								<Button
 									type="button"
@@ -160,7 +166,7 @@ export function BudgetOverrideManagerDialog({
 									onClick={() => remove(row)}
 									data-testid={`budget-override-remove-${b.id}`}
 								>
-									Remove
+									{tCopy("plugins.remove", { ns: "governance" })}
 								</Button>
 							</>
 						) : (
@@ -174,7 +180,7 @@ export function BudgetOverrideManagerDialog({
 								data-testid={`budget-override-add-${b.id}`}
 							>
 								<Plus className="h-3 w-3" />
-								Add override
+								{tCopy("ui.budgetOverrideDialog.addOverride", { ns: "governance" })}
 							</Button>
 						)}
 					</div>
@@ -185,7 +191,7 @@ export function BudgetOverrideManagerDialog({
 						<div className="grid grid-cols-2 gap-3">
 							<div className="space-y-1.5">
 								<Label className="text-xs" htmlFor={`override-amount-${b.id}`}>
-									Additional budget
+									{tCopy("ui.budgetOverrideDialog.additionalBudget", { ns: "governance" })}
 								</Label>
 								<div className="relative">
 									<span
@@ -209,14 +215,14 @@ export function BudgetOverrideManagerDialog({
 								</div>
 							</div>
 							<div className="space-y-1.5">
-								<Label className="text-xs">Duration</Label>
+								<Label className="text-xs">{tCopy("logs.session.duration", { ns: "observability" })}</Label>
 								<Select value={mode} onValueChange={(value) => setMode(value as "cycles" | "forever")} disabled={busy}>
 									<SelectTrigger className="w-full rounded-sm" data-testid="budget-override-mode">
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent className="rounded-sm">
-										<SelectItem value="cycles">For a number of reset cycles</SelectItem>
-										<SelectItem value="forever">Until removed</SelectItem>
+										<SelectItem value="cycles">{tCopy("ui.budgetOverrideDialog.forANumberOfResetCycles", { ns: "governance" })}</SelectItem>
+										<SelectItem value="forever">{tCopy("ui.budgetOverrideDialog.untilRemoved", { ns: "governance" })}</SelectItem>
 									</SelectContent>
 								</Select>
 							</div>
@@ -225,7 +231,7 @@ export function BudgetOverrideManagerDialog({
 						{mode === "cycles" ? (
 							<div className="space-y-1.5">
 								<Label className="text-xs" htmlFor={`override-cycles-${b.id}`}>
-									Reset cycles
+									{tCopy("ui.budgetOverrideDialog.resetCycles", { ns: "governance" })}
 								</Label>
 								<Input
 									id={`override-cycles-${b.id}`}
@@ -240,7 +246,8 @@ export function BudgetOverrideManagerDialog({
 								/>
 								{validUntil ? (
 									<p className="text-muted-foreground text-xs">
-										Valid until <span className="text-foreground font-medium">{validUntil.toLocaleString()}</span>
+										{tCopy("ui.budgetOverrideDialog.validUntil", { ns: "governance" }) + " "}
+										<span className="text-foreground font-medium">{validUntil.toLocaleString()}</span>
 									</p>
 								) : null}
 							</div>
@@ -262,7 +269,7 @@ export function BudgetOverrideManagerDialog({
 								disabled={busy}
 								data-testid={`budget-override-cancel-${b.id}`}
 							>
-								Cancel
+								{tCopy("cancel", { ns: "common" })}
 							</Button>
 							<Button
 								type="button"
@@ -272,7 +279,7 @@ export function BudgetOverrideManagerDialog({
 								isLoading={busy}
 								data-testid="budget-override-save"
 							>
-								{active ? "Update" : "Add"}
+								{active ? tCopy("promptRepo.update", { ns: "config" }) : tCopy("modelAccess.add", { ns: "common" })}
 							</Button>
 						</div>
 					</div>
@@ -308,7 +315,9 @@ export function BudgetOverrideManagerDialog({
 			<DialogContent className="rounded-sm sm:max-w-lg" data-testid="budget-override-manager-dialog">
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
-					<DialogDescription>Temporarily add spending capacity to a budget without changing its base limit.</DialogDescription>
+					<DialogDescription>
+						{tCopy("ui.budgetOverrideManagerDialog.temporarilyAddSpendingCapacityToABudgetWithoutChanging", { ns: "governance" })}
+					</DialogDescription>
 				</DialogHeader>
 
 				<div className="max-h-[60vh] space-y-4 overflow-y-auto py-2">

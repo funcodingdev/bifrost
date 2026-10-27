@@ -9,20 +9,11 @@ export const LOCALE_STORAGE_KEY = "bifrost.locale";
 export const SUPPORTED_LOCALES = [
 	{ code: "en", label: "English" },
 	{ code: "zh-CN", label: "简体中文" },
-	{ code: "zh-TW", label: "繁體中文" },
-	{ code: "ja", label: "日本語" },
-	{ code: "ko", label: "한국어" },
-	{ code: "es", label: "Español" },
-	{ code: "pt", label: "Português" },
-	{ code: "fr", label: "Français" },
-	{ code: "de", label: "Deutsch" },
-	{ code: "it", label: "Italiano" },
-	{ code: "ru", label: "Русский" },
 ] as const;
 
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]["code"];
 
-export const DEFAULT_LOCALE: SupportedLocale = "en";
+export const DEFAULT_LOCALE: SupportedLocale = "zh-CN";
 
 const supportedLocaleCodes: readonly string[] = SUPPORTED_LOCALES.map((locale) => locale.code);
 
@@ -43,7 +34,14 @@ export async function changeLocale(locale: SupportedLocale): Promise<SupportedLo
 	return getLocale();
 }
 
+function syncDocumentLanguage() {
+	if (typeof document !== "undefined") {
+		document.documentElement.lang = getLocale();
+	}
+}
+
 if (!i18n.isInitialized) {
+	i18n.on("languageChanged", syncDocumentLanguage);
 	void i18n
 		.use(LanguageDetector)
 		.use(initReactI18next)
@@ -59,7 +57,7 @@ if (!i18n.isInitialized) {
 				escapeValue: false,
 			},
 			detection: {
-				order: ["localStorage", "navigator"],
+				order: ["localStorage"],
 				lookupLocalStorage: LOCALE_STORAGE_KEY,
 				caches: ["localStorage"],
 			},
@@ -67,6 +65,7 @@ if (!i18n.isInitialized) {
 				useSuspense: false,
 			},
 		});
+	syncDocumentLanguage();
 }
 
 export { NAMESPACES };

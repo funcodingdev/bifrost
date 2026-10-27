@@ -156,3 +156,22 @@ describe("request type groups", () => {
 		expect(plain?.requestTypeGroups).not.toContain("decisions");
 	});
 });
+import i18n from "@/lib/i18n";
+import { fieldLabelByKey } from "./pricingFields";
+
+it("updates pricing labels and validation after switching languages without changing API fields", async () => {
+	const keys = PRICING_FIELDS.map((field) => field.key);
+	const english = fieldLabelByKey.input_cost_per_token;
+	try {
+		await i18n.changeLanguage("zh-CN");
+		expect(fieldLabelByKey.input_cost_per_token).toBe("输入 / Token");
+		expect(getRequestTypeGroup("embedding")).toBe("嵌入");
+		expect(pricingFieldError("input_cost_per_token", "-1")).toBe("不能小于 0");
+		expect(PRICING_FIELDS.map((field) => field.key)).toEqual(keys);
+		await i18n.changeLanguage("en");
+		expect(fieldLabelByKey.input_cost_per_token).toBe(english);
+		expect(pricingFieldError("input_cost_per_token", "-1")).toBe("Must be >= 0");
+	} finally {
+		await i18n.changeLanguage("en");
+	}
+});

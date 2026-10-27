@@ -116,7 +116,9 @@ export default function WarpHistory({ activeConversationId, onOpen, onDeleted }:
 										})}
 									</span>
 									<span aria-hidden>·</span>
-									<span className="whitespace-nowrap">{conversation.message_count} messages</span>
+									<span className="whitespace-nowrap">
+										{conversation.message_count} {t("ui.warpHistory.messages", { ns: "common" })}
+									</span>
 									{cost && (
 										<>
 											<span aria-hidden>·</span>

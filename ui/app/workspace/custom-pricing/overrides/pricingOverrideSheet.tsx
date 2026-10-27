@@ -979,7 +979,7 @@ export default function PricingOverrideSheet({ open, onOpenChange, editingOverri
 								data-testid="pricing-override-save-btn"
 								type="submit"
 								disabled={isSaving || !canSave}
-								title={canSave ? undefined : "You do not have permission to change pricing overrides"}
+								title={canSave ? undefined : t("ui.pricingOverrideSheet.youDoNotHavePermissionToChangePricingOverrides", { ns: "models" })}
 							>
 								<Save className="h-4 w-4" />
 								{editingOverride ? t("customPricing.updateOverride") : t("customPricing.saveOverride")}

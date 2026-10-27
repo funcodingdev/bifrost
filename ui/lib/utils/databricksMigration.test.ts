@@ -472,7 +472,7 @@ describe("localized migration results", () => {
 		const history: MigrationStep[][] = [];
 		const result = await runDatabricksMigration(plan, api, (steps) => history.push(steps));
 		expect(render(result.message)).toBe('Migrated "my-dbx" to the Databricks provider with 2 keys.');
-		expect(render(result.message, "zh-CN")).toBe("已将“my-dbx”迁移到 Databricks 供应商，共 2 个密钥。");
+		expect(render(result.message, "zh-CN")).toBe("已将“my-dbx”迁移到 Databricks 提供商，共 2 个密钥。");
 		for (const lang of ["en", "zh-CN"]) {
 			for (const value of [
 				...plan.warnings,
@@ -494,7 +494,7 @@ describe("localized migration results", () => {
 		const { api } = fakeApi({ failOn: (call) => (call[0] === "deleteProvider" ? new Error(error) : undefined) });
 		const result = await runDatabricksMigration(keyedPlan(), api, () => {});
 		expect(render(result.message, "zh-CN")).toBe(
-			`已创建 Databricks 供应商，包含 2 个密钥，但清理未全部完成。无法删除自定义供应商“my-dbx”：${error}。请手动删除。`,
+			`已创建 Databricks 提供商，包含 2 个密钥，但清理未全部完成。无法删除自定义提供商“my-dbx”：${error}。请手动删除。`,
 		);
 	});
 
@@ -508,7 +508,7 @@ describe("localized migration results", () => {
 		});
 		expect(render(result.message, "zh-CN")).toBe("创建密钥“backup-migrating”失败：upstream unavailable");
 		const failed = progress.find((step) => step.status === "failed")!;
-		expect(render(failed.detail!, "zh-CN")).toContain("移除密钥“prod-migrating”：成功\n移除 Databricks 供应商：成功");
+		expect(render(failed.detail!, "zh-CN")).toContain("移除密钥“prod-migrating”：成功\n移除 Databricks 提供商：成功");
 		const refresh = fakeApi({ failOn: (call) => (call[0] === "refreshModels" ? withStatus("busy", 409) : undefined) });
 		await runDatabricksMigration(keyedPlan(), refresh.api, (steps) => {
 			progress = steps;

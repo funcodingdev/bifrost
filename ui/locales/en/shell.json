@@ -171,7 +171,8 @@
 			"title": "Need help with production setup?",
 			"body": "We offer help with production setup including custom integrations and dedicated support.",
 			"bookPrefix": "Book a demo with our team",
-			"here": "here"
+			"here": "here",
+			"bookDemo": "<link>Book a product demo</link>."
 		}
 	},
 	"topbar": {
@@ -212,7 +213,13 @@
 		"promptRepository": "Prompt Repository",
 		"modelProviders": "Model Providers",
 		"routingTree": "Routing Tree",
-		"userProvisioning": "User Provisioning"
+		"userProvisioning": "User Provisioning",
+		"agentLogs": "Agent Logs",
+		"agentGateway": "Agent Gateway",
+		"agentPushConfigs": "Push Configurations",
+		"skillsSettings": "Skills Settings",
+		"orgChart": "Org Chart",
+		"webhookDeliveries": "Webhook Deliveries"
 	},
 	"error": {
 		"title": "Something went wrong",

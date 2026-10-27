@@ -110,8 +110,8 @@ export default function MCPLibraryPage() {
 		if (!libraryError) return;
 		const message = getErrorMessage(libraryError);
 		if (message.toLowerCase().includes("mcp is not configured in this bifrost instance")) return;
-		toast({ title: "Error", description: message, variant: "destructive" });
-	}, [libraryError, toast]);
+		toast({ title: t("error", { ns: "common" }), description: message, variant: "destructive" });
+	}, [libraryError, toast, t]);
 
 	// The server marks each entry installed by checking every MCP client, not one page.
 	const installedServerSlugs = useMemo(() => new Set(servers.filter((server) => server.installed).map((server) => server.slug)), [servers]);
@@ -245,12 +245,12 @@ export default function MCPLibraryPage() {
 									</div>
 									<div className="flex flex-col gap-1">
 										<h1 className="text-muted-foreground text-xl font-medium">
-											{isCatalogEmpty ? "No synced servers yet" : "No servers found"}
+											{isCatalogEmpty ? t("ui.page.noSyncedServersYet", { ns: "mcp" }) : t("ui.page.noServersFound", { ns: "mcp" })}
 										</h1>
 										<div className="text-muted-foreground mx-auto mt-2 w-full max-w-[600px] text-sm font-normal">
 											{isCatalogEmpty
-												? "Configure the library sync source in Settings to populate this catalog."
-												: "Try adjusting your search or filters."}
+												? t("ui.page.configureTheLibrarySyncSourceInSettingsToPopulate", { ns: "mcp" })
+												: t("ui.page.tryAdjustingYourSearchOrFilters", { ns: "mcp" })}
 										</div>
 										{isCatalogEmpty && hasSettingsAccess && (
 											<div className="mx-auto mt-6 flex flex-row flex-wrap items-center justify-center gap-2">
@@ -299,8 +299,12 @@ export default function MCPLibraryPage() {
 									{totalCount > 0 && (
 										<div className="mt-auto flex shrink-0 items-center justify-between text-xs" data-testid="pagination">
 											<div className="text-muted-foreground flex items-center gap-2">
-												{(urlState.offset + 1).toLocaleString()}-{Math.min(urlState.offset + PAGE_SIZE, totalCount).toLocaleString()} of{" "}
-												{totalCount.toLocaleString()} {localeMessages.t("routing.entries", { ns: "models" })}
+												{t("pagination.entries", {
+													ns: "common",
+													from: (urlState.offset + 1).toLocaleString(),
+													to: Math.min(urlState.offset + PAGE_SIZE, totalCount).toLocaleString(),
+													total: totalCount.toLocaleString(),
+												})}
 											</div>
 
 											<div className="flex items-center gap-2">
@@ -316,9 +320,7 @@ export default function MCPLibraryPage() {
 												</Button>
 
 												<div className="flex items-center gap-1">
-													<span>{localeMessages.t("common.page", { ns: "mcp" })}</span>
-													<span>{currentPage}</span>
-													<span>of {totalPages}</span>
+													{t("pagination.page", { ns: "common", page: currentPage, total: totalPages })}
 												</div>
 
 												<Button

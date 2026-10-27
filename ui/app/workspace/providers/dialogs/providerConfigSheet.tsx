@@ -1,3 +1,4 @@
+import i18nReview from "@/lib/i18n";
 import Provider from "@/components/provider";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -72,11 +73,11 @@ const availableTabs = (
 	});
 	tabs.push({
 		id: "pricing",
-		label: "Pricing",
+		label: i18nReview.t("modelCatalog.pricing", { ns: "models" }),
 	});
 	tabs.push({
 		id: "tools",
-		label: "Tools",
+		label: i18nReview.t("ui.providerConfigSheet.tools", { ns: "models" }),
 	});
 	tabs.push({
 		id: "debugging",

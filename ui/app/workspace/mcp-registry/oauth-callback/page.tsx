@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 // Landing route for the upstream OAuth callback (admin-test OAuth flow path).
 // Backend's /api/oauth/callback performs the actual token exchange, then
 // 302s here with ?status=success or ?status=failed&error=... The popup
@@ -13,6 +14,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 export default function MCPRegistryOAuthCallbackPage() {
+	const { t: tCopy } = useTranslation();
 	const [closeAttempted, setCloseAttempted] = useState(false);
 
 	useEffect(() => {
@@ -40,12 +42,18 @@ export default function MCPRegistryOAuthCallbackPage() {
 	return (
 		<div className="mx-auto flex min-h-[60vh] w-full max-w-xl items-center justify-center p-6">
 			<div className="bg-card w-full rounded-lg border p-8 text-center shadow-sm">
-				<h1 className="text-xl font-semibold">{status === "success" ? "Authorization complete" : "Authorization failed"}</h1>
+				<h1 className="text-xl font-semibold">
+					{status === "success"
+						? tCopy("ui.page.authorizationComplete", { ns: "mcp" })
+						: tCopy("registry.toast.authorizationFailed", { ns: "mcp" })}
+				</h1>
 				{error && <p className="text-destructive mt-2 text-sm">{error}</p>}
-				<p className="text-muted-foreground mt-4 text-sm">{closeAttempted ? "You can close this tab." : "This window can be closed."}</p>
+				<p className="text-muted-foreground mt-4 text-sm">
+					{closeAttempted ? tCopy("ui.page.youCanCloseThisTab", { ns: "mcp" }) : tCopy("ui.page.thisWindowCanBeClosed", { ns: "mcp" })}
+				</p>
 				<div className="mt-6">
 					<Button asChild variant="outline" data-testid="mcp-callback-back-button">
-						<Link to="/workspace/mcp-registry">Back to MCP registry</Link>
+						<Link to="/workspace/mcp-registry">{tCopy("ui.page.backToMCPRegistry", { ns: "mcp" })}</Link>
 					</Button>
 				</div>
 			</div>

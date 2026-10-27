@@ -805,7 +805,7 @@ export default function MCPClientsTable({
 					onSuccess={async () => {
 						toast({
 							title: t("common.success"),
-							description: "Headers verified successfully. Each user will submit their own values when using this MCP server.",
+							description: t("ui.mcpClientsTable.headersVerifiedSuccessfullyEachUserWillSubmitTheirOwn", { ns: "mcp" }),
 						});
 						setBootstrapHeadersClient(null);
 						if (refetch) {
@@ -1091,13 +1091,7 @@ export default function MCPClientsTable({
 										label={t("registry.columns.state")}
 										tooltip={
 											<>
-												<p>
-													The client's connection state (healthy, unstable, needs re-authorization, and so on). "Unstable" reflects
-													Bifrost's own connection checks to the server, not the results of tool calls made through it: it self-heals and
-													never blocks tool calls. For per-user clients (OAuth, headers, token exchange), this reflects Bifrost's own
-													retained admin credential (used only to periodically refresh the tool list), not any individual user's own
-													session, which is unaffected either way.
-												</p>
+												<p>{t("ui.mcpClientsTable.theClientSConnectionStateHealthyUnstableNeedsReAuthorizationAnd", { ns: "mcp" })}</p>
 												<a
 													data-testid="mcp-client-state-link"
 													href="https://docs.getbifrost.ai/mcp/connections"
@@ -1311,9 +1305,7 @@ export default function MCPClientsTable({
 							</Button>
 
 							<div className="flex items-center gap-1">
-								<span>{t("common.page")}</span>
-								<span>{Math.floor(offset / limit) + 1}</span>
-								<span>{t("common.ofPages", { total: Math.ceil(totalCount / limit) })}</span>
+								{t("pagination.page", { ns: "common", page: Math.floor(offset / limit) + 1, total: Math.ceil(totalCount / limit) })}
 							</div>
 
 							<Button
@@ -1415,12 +1407,13 @@ export default function MCPClientsTable({
 }
 
 function HeaderWithTooltip({ label, tooltip }: { label: string; tooltip: ReactNode }) {
+	const { t: tReview } = useTranslation();
 	return (
 		<Popover>
 			<PopoverTrigger asChild>
 				<button
 					type="button"
-					aria-label={`${label} column guidance`}
+					aria-label={tReview("accessibility.columnHelp", { ns: "common", label: label })}
 					data-testid="mcp-client-state-info-trigger"
 					className="inline-flex cursor-help items-center gap-2"
 				>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { ModelSelector } from "@/components/ui/modelSelector";
 import { ProviderSelector } from "@/components/ui/providerSelector";
@@ -91,6 +92,7 @@ export function DecisionModelSelector({
 	fixedModelTestId = testId,
 	className,
 }: DecisionModelSelectorProps) {
+	const { t: tCopy } = useTranslation();
 	const listsDecisions = listsDecisionModels(provider, providerName);
 	const servesJev = providerName === "typesafe";
 	const fixedModel = servesFixedDecisionModel(provider, providerName);
@@ -119,8 +121,8 @@ export function DecisionModelSelector({
 				decisions
 				value={value}
 				onChange={onChange}
-				placeholder="Search decision models…"
-				emptyMessage="This provider lists no decision models"
+				placeholder={tCopy("ui.decisionModelSelector.searchDecisionModels", { ns: "common" })}
+				emptyMessage={tCopy("ui.decisionModelSelector.thisProviderListsNoDecisionModels", { ns: "common" })}
 				disabled={disabled}
 				className={className}
 			/>
@@ -138,7 +140,11 @@ export function DecisionModelSelector({
 				value={value}
 				onChange={onChange}
 				allowCustomModel
-				placeholder={providerName ? "Search or type a Jev model…" : "Select a provider first"}
+				placeholder={
+					providerName
+						? tCopy("ui.decisionModelSelector.searchOrTypeAJevModel", { ns: "common" })
+						: tCopy("caching.selectProviderFirst", { ns: "config" })
+				}
 				disabled={disabled || !providerName}
 				className={className}
 			/>
@@ -163,7 +169,7 @@ export function DecisionModelSelector({
 				value={value}
 				onChange={onChange}
 				allowCustomModel
-				placeholder="Search or type a model…"
+				placeholder={tCopy("ui.decisionModelSelector.searchOrTypeAModel", { ns: "common" })}
 				disabled={disabled}
 				className={className}
 			/>
@@ -172,7 +178,7 @@ export function DecisionModelSelector({
 	return (
 		<Select value={value || undefined} onValueChange={onChange} disabled={disabled}>
 			<SelectTrigger className="w-full" id={inputId} data-testid={testId}>
-				<SelectValue placeholder="Select a model" />
+				<SelectValue placeholder={tCopy("ui.decisionModelSelector.selectAModel", { ns: "common" })} />
 			</SelectTrigger>
 			<SelectContent>
 				{selfHostedModelGroups(providerName).map((group) => (

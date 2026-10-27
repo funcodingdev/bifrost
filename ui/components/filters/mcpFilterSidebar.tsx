@@ -108,16 +108,16 @@ export function MCPFilterSidebar({ filters, onFiltersChange }: MCPFilterSidebarP
 						filters={filters}
 						onFiltersChange={onFiltersChange}
 						filterKey="session_id"
-						title="Session ID"
-						placeholder="Exact session ID"
+						title={t("filters.sessionID", { ns: "observability" })}
+						placeholder={t("filters.exactSessionID", { ns: "observability" })}
 						testId="mcp-session-id-filter"
 					/>
 					<ExactIDFilter
 						filters={filters}
 						onFiltersChange={onFiltersChange}
 						filterKey="agent_correlation_id"
-						title="Agent correlation ID"
-						placeholder="Exact Agent correlation ID"
+						title={t("ui.logsFilterSidebar.agentCorrelationID", { ns: "common" })}
+						placeholder={t("ui.logsFilterSidebar.exactAgentCorrelationID", { ns: "common" })}
 						testId="mcp-agent-correlation-id-filter"
 					/>
 					<AppFilter filters={filters} onFiltersChange={onFiltersChange} />
@@ -164,6 +164,7 @@ interface FilterComponentProps {
 }
 
 function AgentsFilter({ filters, onFiltersChange }: FilterComponentProps) {
+	const { t: tCopy } = useTranslation();
 	const selected = filters.agent_names ?? [];
 	const hasActive = selected.length > 0;
 	const [opened, setOpened] = useState(hasActive);
@@ -177,10 +178,15 @@ function AgentsFilter({ filters, onFiltersChange }: FilterComponentProps) {
 		[data?.agents, filters.agent_names],
 	);
 	return (
-		<FilterSection title="Agent" defaultOpen={hasActive} loading={isLoading} onOpenChange={setOpened}>
+		<FilterSection
+			title={tCopy("ui.logsFilterSidebar.agent", { ns: "common" })}
+			defaultOpen={hasActive}
+			loading={isLoading}
+			onOpenChange={setOpened}
+		>
 			<SearchableCheckboxList
 				inputRef={searchInputRef}
-				placeholder="Search agents"
+				placeholder={tCopy("ui.logsFilterSidebar.searchAgents", { ns: "common" })}
 				items={items}
 				isSelected={(name) => selected.includes(name)}
 				onToggle={(name) => {

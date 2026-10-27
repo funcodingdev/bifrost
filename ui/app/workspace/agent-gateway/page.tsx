@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import FullPageLoader from "@/components/fullPageLoader";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -37,6 +38,7 @@ function matchesFilters(agent: AgentRegistrationView, filters: AgentFilters): bo
 }
 
 export default function AgentGatewayPage() {
+	const { t: tCopy } = useTranslation();
 	const [urlState, setUrlState] = useQueryStates(
 		{
 			search: parseAsString.withDefault(""),
@@ -99,9 +101,9 @@ export default function AgentGatewayPage() {
 
 	useEffect(() => {
 		if (error) {
-			toast({ title: "Error", description: getErrorMessage(error), variant: "destructive" });
+			toast({ title: tCopy("error", { ns: "common" }), description: getErrorMessage(error), variant: "destructive" });
 		}
-	}, [error, toast]);
+	}, [error, toast, tCopy]);
 
 	if (isLoading) {
 		return <FullPageLoader />;
@@ -110,10 +112,10 @@ export default function AgentGatewayPage() {
 	if (error && !data) {
 		return (
 			<div className="flex h-full flex-col items-center justify-center gap-3 text-center" data-testid="agents-load-error">
-				<p className="text-sm font-medium">Failed to load agents.</p>
+				<p className="text-sm font-medium">{tCopy("ui.page.failedToLoadAgents", { ns: "agents" })}</p>
 				<p className="text-muted-foreground max-w-md text-sm">{getErrorMessage(error)}</p>
 				<Button variant="outline" size="sm" onClick={() => void refetch()}>
-					Retry
+					{tCopy("promptRepo.retry", { ns: "config" })}
 				</Button>
 			</div>
 		);

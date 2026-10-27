@@ -203,7 +203,7 @@ export default function WarpPanel() {
 							data-testid="warp-index-status-unavailable"
 							title={t("warp.panel.indexStatusTitle")}
 						>
-							Index status unavailable
+							{t("ui.warpPanel.indexStatusUnavailable", { ns: "common" })}
 						</span>
 					)}
 				</div>
@@ -301,7 +301,8 @@ export default function WarpPanel() {
 						</>
 					) : (
 						<p className="text-muted-foreground text-xs" data-testid="warp-ask-admin">
-							Ask an administrator to {isDisabledButComplete ? "turn Warp on" : "set Warp up"}.
+							{t("ui.warpPanel.askAnAdministratorTo", { ns: "common" }) + " "}
+							{isDisabledButComplete ? t("ui.warpPanel.turnWarpOn", { ns: "common" }) : t("ui.warpPanel.setWarpUp", { ns: "common" })}.
 						</p>
 					)}
 				</div>
@@ -350,7 +351,7 @@ export default function WarpPanel() {
 														<Clock aria-hidden="true" className="size-3 shrink-0" />
 														<span>
 															{index === 0 && isStreaming
-																? "Sends when this answer finishes"
+																? t("ui.warpPanel.sendsWhenThisAnswerFinishes", { ns: "common" })
 																: localeMessages.t("warp.panel.queued", { ns: "shell" })}
 														</span>
 														<span aria-hidden="true">·</span>

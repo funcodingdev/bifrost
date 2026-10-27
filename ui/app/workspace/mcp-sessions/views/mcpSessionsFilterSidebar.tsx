@@ -1,3 +1,4 @@
+import i18nReview from "@/lib/i18n";
 // Side filter panel for the MCP sessions table, matching the pattern used by
 // the MCP clients and MCP library pages: a collapsible sidebar of checkbox
 // sections, collapsing to a narrow rail with an active-filter-count badge.
@@ -75,7 +76,13 @@ const STATUS_OPTIONS: FilterOption[] = [
 // reads as the same vocabulary as the rendered table column.
 const AUTH_MODE_OPTIONS: FilterOption[] = [
 	{ value: "user", label: "User", icon: <UserRound className="size-3.5" /> },
-	{ value: "vk", label: "Virtual key", icon: <KeyRound className="size-3.5" /> },
+	{
+		value: "vk",
+		get label() {
+			return i18nReview.t("sessions.filter.virtualKeyOption", { ns: "mcp" });
+		},
+		icon: <KeyRound className="size-3.5" />,
+	},
 	{ value: "session", label: "Session", icon: <Fingerprint className="size-3.5" /> },
 ];
 
@@ -373,6 +380,7 @@ function SearchableCheckboxList({
 	onSearch?: (query: string) => void;
 	fetching?: boolean;
 }) {
+	const { t: tCopy } = useTranslation();
 	const [query, setQuery] = useState("");
 	const normalized = query.trim().toLowerCase();
 	const filtered = normalized ? items.filter((item) => item.label.toLowerCase().includes(normalized)) : items;
@@ -409,7 +417,9 @@ function SearchableCheckboxList({
 					testId={testIdPrefix ? `${testIdPrefix}-checkbox-${item.key}` : undefined}
 				/>
 			))}
-			{filtered.length === 0 && <div className="text-muted-foreground flex h-9 items-center px-3 text-xs">No results</div>}
+			{filtered.length === 0 && (
+				<div className="text-muted-foreground flex h-9 items-center px-3 text-xs">{tCopy("common.noResults", { ns: "mcp" })}</div>
+			)}
 		</>
 	);
 }
@@ -459,7 +469,7 @@ function MCPClientFilterSection({ filters, onFiltersChange }: SidebarProps) {
 		>
 			<SearchableCheckboxList
 				inputRef={searchInputRef}
-				placeholder="Search MCP servers"
+				placeholder={t("sessions.filter.searchMcpServers", { ns: "mcp" })}
 				items={mcpClients.map((client) => ({ key: client.config.client_id, label: client.config.name || client.config.client_id }))}
 				isSelected={(key) => filters.mcp_client_id.includes(key)}
 				onToggle={toggle}
@@ -506,7 +516,7 @@ function VirtualKeyFilterSection({ filters, onFiltersChange }: SidebarProps) {
 		>
 			<SearchableCheckboxList
 				inputRef={searchInputRef}
-				placeholder="Search virtual keys"
+				placeholder={t("registry.filter.searchVirtualKeys", { ns: "mcp" })}
 				items={virtualKeys.map((vk) => ({ key: vk.id, label: vk.name || vk.id }))}
 				isSelected={(key) => filters.virtual_key_id.includes(key)}
 				onToggle={toggle}
@@ -560,7 +570,7 @@ function UsersFilterSection({ filters, onFiltersChange }: SidebarProps) {
 		>
 			<SearchableCheckboxList
 				inputRef={searchInputRef}
-				placeholder="Search by name or email"
+				placeholder={t("sessions.filter.searchUsers", { ns: "mcp" })}
 				items={users.map((user) => ({ key: user.id, label: user.label }))}
 				isSelected={(key) => filters.user_id.includes(key)}
 				onToggle={toggle}

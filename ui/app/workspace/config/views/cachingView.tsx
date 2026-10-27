@@ -569,7 +569,7 @@ export default function CachingView() {
 												<p className="text-muted-foreground text-xs">{t("caching.excludeSystemPromptHelp")}</p>
 											</div>
 											<Switch
-												aria-label="Exclude system prompt"
+												aria-label={t("ui.cachingView.excludeSystemPrompt", { ns: "config" })}
 												data-testid="caching-exclude-system-prompt-switch"
 												checked={cacheConfig.exclude_system_prompt || false}
 												onCheckedChange={(checked) => updateLocal({ exclude_system_prompt: checked })}
@@ -589,7 +589,7 @@ export default function CachingView() {
 												<p className="text-muted-foreground text-xs">{t("caching.cacheByModelHelp")}</p>
 											</div>
 											<Switch
-												aria-label="Cache by model"
+												aria-label={t("ui.cachingView.cacheByModel", { ns: "config" })}
 												data-testid="caching-cache-by-model-switch"
 												checked={cacheConfig.cache_by_model}
 												onCheckedChange={(checked) => updateLocal({ cache_by_model: checked })}
@@ -602,7 +602,7 @@ export default function CachingView() {
 												<p className="text-muted-foreground text-xs">{t("caching.cacheByProviderHelp")}</p>
 											</div>
 											<Switch
-												aria-label="Cache by provider"
+												aria-label={t("ui.cachingView.cacheByProvider", { ns: "config" })}
 												data-testid="caching-cache-by-provider-switch"
 												checked={cacheConfig.cache_by_provider}
 												onCheckedChange={(checked) => updateLocal({ cache_by_provider: checked })}
@@ -611,14 +611,13 @@ export default function CachingView() {
 										</div>
 										<div className="flex items-center justify-between space-x-2 rounded-sm border p-3">
 											<div className="space-y-0.5">
-												<Label className="text-sm font-medium">Scope Cache by Identity</Label>
+												<Label className="text-sm font-medium">{t("ui.cachingView.scopeCacheByIdentity", { ns: "config" })}</Label>
 												<p className="text-muted-foreground text-xs">
-													Serve a cached response only to the virtual key and user that wrote it. Turn off to share entries across
-													identities that send the same cache key.
+													{t("ui.cachingView.serveACachedResponseOnlyToTheVirtualKey", { ns: "config" })}
 												</p>
 											</div>
 											<Switch
-												aria-label="Scope cache by identity"
+												aria-label={t("ui.cachingView.scopeCacheByIdentity2", { ns: "config" })}
 												data-testid="caching-identity-scoping-switch"
 												checked={!cacheConfig.disable_identity_scoping}
 												onCheckedChange={(checked) => updateLocal({ disable_identity_scoping: !checked })}

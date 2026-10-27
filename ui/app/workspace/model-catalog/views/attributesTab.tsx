@@ -241,12 +241,18 @@ export default function AttributesTab({ hasAccess }: AttributesTabProps) {
 													<div className="flex flex-wrap gap-1 pr-4">
 														{extraKeys.length > 0 && (
 															<Badge variant="secondary">
-																{extraKeys.length} {extraKeys.length === 1 ? "attribute" : "attributes"}
+																{extraKeys.length}{" "}
+																{extraKeys.length === 1
+																	? t("ui.attributesTab.attribute", { ns: "models" })
+																	: t("ui.attributesTab.attributes", { ns: "models" })}
 															</Badge>
 														)}
 														{overrideCount > 0 && (
 															<Badge variant="outline" data-testid={`model-catalog-override-badge-${testKey}`}>
-																{overrideCount} {overrideCount === 1 ? "override" : "overrides"}
+																{overrideCount}{" "}
+																{overrideCount === 1
+																	? t("ui.attributesTab.override", { ns: "models" })
+																	: t("ui.attributesTab.overrides", { ns: "models" })}
 															</Badge>
 														)}
 													</div>
@@ -259,7 +265,7 @@ export default function AttributesTab({ hasAccess }: AttributesTabProps) {
 													className="ml-6 h-7 w-7"
 													disabled={!hasUpdateAccess}
 													onClick={() => setEditing(m)}
-													aria-label={`Edit attributes for ${m.name}`}
+													aria-label={t("modelCatalog.editNamedAttributes", { ns: "models", name: m.name })}
 													data-testid={`model-catalog-edit-${testKey}`}
 												>
 													<Edit className="h-4 w-4" />
@@ -276,8 +282,12 @@ export default function AttributesTab({ hasAccess }: AttributesTabProps) {
 				{totalCount > 0 && (
 					<div className="flex shrink-0 items-center justify-between text-xs" data-testid="model-catalog-pagination">
 						<div className="text-muted-foreground">
-							{(offset + 1).toLocaleString()}–{Math.min(offset + PAGE_SIZE, totalCount).toLocaleString()} of {totalCount.toLocaleString()}{" "}
-							entries
+							{t("pagination.entries", {
+								ns: "common",
+								from: (offset + 1).toLocaleString(),
+								to: Math.min(offset + PAGE_SIZE, totalCount).toLocaleString(),
+								total: totalCount.toLocaleString(),
+							})}
 						</div>
 						<div className="flex items-center gap-2">
 							<Button
@@ -291,9 +301,7 @@ export default function AttributesTab({ hasAccess }: AttributesTabProps) {
 								<ChevronLeft className="size-3" />
 							</Button>
 							<div className="flex items-center gap-1">
-								<span>Page</span>
-								<span>{Math.floor(offset / PAGE_SIZE) + 1}</span>
-								<span>of {Math.ceil(totalCount / PAGE_SIZE)}</span>
+								{t("pagination.page", { ns: "common", page: Math.floor(offset / PAGE_SIZE) + 1, total: Math.ceil(totalCount / PAGE_SIZE) })}
 							</div>
 							<Button
 								variant="ghost"

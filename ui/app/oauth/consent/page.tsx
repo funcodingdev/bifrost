@@ -138,7 +138,7 @@ function ConsentView({ flowId }: { flowId: string }) {
 				</div>
 				<h1 className="text-xl font-semibold tracking-tight">{t("consent.wantsToConnect", { name: clientName })}</h1>
 				<p className="text-muted-foreground mt-1.5 text-sm">{t("consent.chooseIdentity")}</p>
-				<p className="mt-4 text-sm">Continue only if you recognize this application and its callback destination:</p>
+				<p className="mt-4 text-sm">{t("ui.page.continueOnlyIfYouRecognizeThisApplicationAndIts", { ns: "login" })}</p>
 				<p className="mt-2 font-mono text-sm break-all" data-testid="oauth-consent-redirect-uri">
 					{flow.redirect_uri}
 				</p>
@@ -323,6 +323,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 // Bounces a signed-out visitor through /login and back via ?goto= (SSO stashes
 // it across the IdP hop). The card covers a blocked redirect.
 function RedirectToSignIn({ loginHref }: { loginHref: string }) {
+	const { t: tCopy } = useTranslation();
 	useEffect(() => {
 		// replace(), so Back from /login doesn't re-enter the redirect.
 		window.location.replace(loginHref);
@@ -333,7 +334,7 @@ function RedirectToSignIn({ loginHref }: { loginHref: string }) {
 			<div className="text-center">
 				<h1 className="text-xl font-semibold tracking-tight">{localeMessages.t("consent.signInToContinue", { ns: "login" })}</h1>
 				<p className="text-muted-foreground mt-2 text-sm">
-					This authorization needs a signed-in Bifrost account. Taking you to sign in — you'll come straight back here.
+					{tCopy("ui.page.thisAuthorizationNeedsASignedInBifrostAccountTakingYou", { ns: "login" })}
 				</p>
 				<Button asChild className="mt-6 w-full">
 					<a href={loginHref} data-testid="oauth-consent-signin-required-link">

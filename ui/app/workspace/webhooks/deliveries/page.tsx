@@ -222,17 +222,20 @@ export default function WebhookDeliveriesPage() {
 
 	const columns = useMemo(
 		() =>
-			createColumns({
-				endpointNames,
-				expandedIds,
-				onToggleExpanded: toggleExpanded,
-				onCopy: handleCopy,
-				onRedeliver: handleRedeliver,
-				redeliveringIds,
-				canManage,
-				onOpenRequest: handleOpenRequest,
-			}),
-		[endpointNames, expandedIds, toggleExpanded, handleCopy, handleRedeliver, redeliveringIds, canManage, handleOpenRequest],
+			createColumns(
+				{
+					endpointNames,
+					expandedIds,
+					onToggleExpanded: toggleExpanded,
+					onCopy: handleCopy,
+					onRedeliver: handleRedeliver,
+					redeliveringIds,
+					canManage,
+					onOpenRequest: handleOpenRequest,
+				},
+				t,
+			),
+		[endpointNames, expandedIds, toggleExpanded, handleCopy, handleRedeliver, redeliveringIds, canManage, handleOpenRequest, t],
 	);
 
 	const displayError = error ? getErrorMessage(error) : undefined;

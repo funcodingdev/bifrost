@@ -54,11 +54,11 @@ BIFROST_PORT=8080
 - **Real-time**: WebSocket integration
 - **HTTP Client**: Axios with typed service layer
 - **Theme**: Dark/light mode support
-- **i18n**: i18next + react-i18next (English default; zh-CN, zh-TW, ja, ko, es, pt, fr, de, it, ru)
+- **i18n**: i18next + react-i18next (Simplified Chinese default; English)
 
 ### Internationalization (i18n)
 
-UI copy uses `i18next`. Source and fallback locale stay **en**. Also supported: zh-CN, zh-TW, ja, ko, es, pt, fr, de, it, ru. The selection is persisted in `localStorage` under `bifrost.locale`.
+UI copy uses `i18next`. The default and fallback locale is Simplified Chinese (**zh-CN**); **en** is the English source locale. Browser language does not override the default. The selection is persisted in `localStorage` under `bifrost.locale`.
 
 #### Layout
 
@@ -66,15 +66,15 @@ UI copy uses `i18next`. Source and fallback locale stay **en**. Also supported: 
 | ----------------------- | ------------------------------------------------------------------------- |
 | `lib/i18n/index.ts`     | Init; exports `i18n` / `SUPPORTED_LOCALES` / `changeLocale` / `getLocale` |
 | `lib/i18n/resources.ts` | Aggregates namespace JSON                                                 |
-| `locales/en/*.json`     | English (source and fallback)                                             |
-| `locales/<code>/*.json` | Other supported locales, same keys as English                             |
+| `locales/en/*.json`     | English (source locale)                                                   |
+| `locales/zh-CN/*.json`  | Simplified Chinese (default and fallback), same keys as English           |
 
-Namespaces include `common`, `shell`, `login`, `observability`, `models`, `mcp`, `governance`, and `config`.
+Namespaces include `common`, `shell`, `login`, `observability`, `models`, `mcp`, `governance`, `config`, and `agents`.
 
 #### Adding copy
 
-1. Add the same key to `locales/en/<ns>.json` and each `locales/<code>/<ns>.json`.
-2. For a new namespace: create the JSON files and register them in `lib/i18n/resources.ts`.
+1. Add the same key to `locales/en/<ns>.json` and `locales/zh-CN/<ns>.json`.
+2. For a new namespace: create both locale JSON files and register them in `lib/i18n/resources.ts`.
 3. In components:
 
 ```tsx
@@ -89,9 +89,13 @@ const { t: tShell } = useTranslation("shell");
 
 Default namespace is `common`. `I18nextProvider` is mounted in `app/clientLayout.tsx`, so any Router child can use `useTranslation`.
 
+Validation messages in `lib/types/schemas.ts` resolve translations at validation time. Use Zod's `error: () => i18n.t(...)` callback for schema constraints so switching language also updates future validation errors. Keep API field names, model names, commands, protocol values, and user-provided content unchanged.
+
+Run `npm run test:i18n` to verify default-language behavior and key/parameter/tag parity. Existing UI tests explicitly select English, while language-specific tests exercise both locales.
+
 #### Switching language
 
-- UI: topbar `LanguageSwitcher` (labels come from `SUPPORTED_LOCALES`; default remains English)
+- UI: topbar `LanguageSwitcher` (labels come from `SUPPORTED_LOCALES`; default is Simplified Chinese)
 - Programmatically: `import { changeLocale, getLocale } from "@/lib/i18n"`, then `await changeLocale("zh-CN")`
 
 ### Integration Model

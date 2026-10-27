@@ -259,7 +259,7 @@ export default function CustomerSheet({ open, onOpenChange, customer, onSuccess 
 		try {
 			if (isEditing && customer && !editsLimits) {
 				await updateCustomer({ customerId: customer.id, data: { name: formData.name } }).unwrap();
-				toast.success("Customer updated successfully");
+				toast.success(t("customers.updated", { ns: "governance" }));
 			} else if (isEditing && customer) {
 				const updateData: UpdateCustomerRequest = {
 					name: formData.name,
@@ -337,7 +337,7 @@ export default function CustomerSheet({ open, onOpenChange, customer, onSuccess 
 				<SheetHeader className="flex flex-col items-start px-0 py-4" headerClassName="mb-0 sticky -top-4 bg-card z-10 px-4 md:px-8">
 					<SheetTitle className="flex items-center gap-2">
 						{isEditing ? t("customers.sheet.editTitle") : t("customers.sheet.createTitle")}
-						{customer?.id && <CopyableId id={customer.id} entityLabel="Customer" />}
+						{customer?.id && <CopyableId id={customer.id} entityLabel={t("teams.columns.customer", { ns: "governance" })} />}
 					</SheetTitle>
 					<SheetDescription>{isEditing ? t("customers.sheet.editDescription") : t("customers.sheet.createDescription")}</SheetDescription>
 				</SheetHeader>
@@ -413,9 +413,7 @@ export default function CustomerSheet({ open, onOpenChange, customer, onSuccess 
 													{localeMessages.t("sheet.alignToCalendar", { ns: "governance" })}
 												</Label>
 												<p className="text-muted-foreground text-xs">
-													Reset budgets and rate limits at the start of each period (e.g. 1st of month) instead of rolling from creation
-													date. Single-unit day, week, month, quarter and year windows align to calendar boundaries. Other durations remain
-													rolling.
+													{t("ui.customerSheet.resetBudgetsAndRateLimitsAtTheStartOf", { ns: "governance" })}
 												</p>
 											</div>
 											<Switch

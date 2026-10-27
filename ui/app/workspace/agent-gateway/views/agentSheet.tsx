@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { configuredAgentEndpointOrigin, mapAgentCard, suggestedAgentEndpoints } from "@/lib/utils/agentCard";
 import { Badge } from "@/components/ui/badge";
 import { getExternalBaseUrl } from "@/app/workspace/mcp-registry/views/mcpUsageGuide/utils";
@@ -182,6 +183,7 @@ interface AgentSheetProps {
 }
 
 export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps) {
+	const { t: tCopy } = useTranslation();
 	const isEditing = !!agent;
 	const canSave = useRbac(RbacResource.AgentGateway, isEditing ? RbacOperation.Update : RbacOperation.Create);
 	const [createAgent, { isLoading: isCreating }] = useCreateAgentMutation();
@@ -339,13 +341,13 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 				}).unwrap();
 			else await createAgent({ name, enabled: true, ...payload }).unwrap();
 			toast({
-				title: "Success",
+				title: tCopy("common.success", { ns: "mcp" }),
 				description: agent ? "Agent updated successfully" : "Agent registered successfully",
 			});
 			onSaved();
 		} catch (error) {
 			toast({
-				title: "Unable to save agent",
+				title: tCopy("ui.agentSheet.unableToSaveAgent", { ns: "agents" }),
 				description: getErrorMessage(error),
 				variant: "destructive",
 			});
@@ -375,15 +377,15 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 				onEscapeKeyDown={onClose}
 			>
 				<SheetHeader className="w-full flex-col items-start gap-1 p-0 py-4" headerClassName="mb-0 bg-card sticky -top-4 z-10 px-4 md:px-8">
-					<SheetTitle className="font-medium">{agent ? name.trim() : "New agent"}</SheetTitle>
+					<SheetTitle className="font-medium">{agent ? name.trim() : tCopy("ui.agentSheet.newAgent", { ns: "agents" })}</SheetTitle>
 					<SheetDescription className="line-clamp-2">
-						{inspection?.description || "Register an A2A agent and configure how Bifrost connects to it."}
+						{inspection?.description || tCopy("ui.agentSheet.registerAnA2AAgentAndConfigureHowBifrostConnects", { ns: "agents" })}
 					</SheetDescription>
 				</SheetHeader>
 				<div className="space-y-8 px-4 pb-8 md:px-8">
 					<section ref={connectionRef} className="scroll-mt-4 space-y-4">
 						<div className="flex flex-col gap-2">
-							<Label>Name</Label>
+							<Label>{tCopy("skillsRepo.name", { ns: "config" })}</Label>
 							<Input
 								value={name}
 								placeholder="accounting-agent"
@@ -398,13 +400,13 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 							{grpc && name.length > 63 && (
 								<Alert variant="warning" data-testid="agent-grpc-name-length-warning">
 									<AlertTriangle className="h-4 w-4" />
-									<AlertTitle>gRPC is unavailable for this name</AlertTitle>
-									<AlertDescription>gRPC routes by DNS label, which caps at 63 characters. JSON-RPC and REST still work.</AlertDescription>
+									<AlertTitle>{tCopy("ui.agentSheet.gRPCIsUnavailableForThisName", { ns: "agents" })}</AlertTitle>
+									<AlertDescription>{tCopy("ui.agentSheet.gRPCRoutesByDNSLabelWhichCapsAt63", { ns: "agents" })}</AlertDescription>
 								</Alert>
 							)}
 						</div>
 						<div className="flex flex-col gap-2">
-							<Label>Agent card URL</Label>
+							<Label>{tCopy("ui.agentSheet.agentCardURL", { ns: "agents" })}</Label>
 							<div className="flex gap-2">
 								<Input
 									value={agentCardUrl}
@@ -416,12 +418,12 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 										setInspection(null);
 									}}
 								/>
-								{fetchButton(inspection ? "Refetch" : "Fetch")}
+								{fetchButton(inspection ? tCopy("form.refetch", { ns: "agents" }) : tCopy("form.fetch", { ns: "agents" }))}
 							</div>
 							{agentCardUrlError && <p className="text-destructive text-xs">{agentCardUrlError}</p>}
 						</div>
 						<OptionGroup
-							title="Card fetch options"
+							title={tCopy("ui.agentSheet.cardFetchOptions", { ns: "agents" })}
 							tooltip="Only used to fetch the card. Never sent with agent requests."
 							summary={authSummary(cardAuth)}
 							open={cardOptionsOpen}
@@ -449,7 +451,7 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 						{inspectionError && (
 							<Alert variant="destructive" data-testid="agent-card-fetch-error">
 								<AlertTriangle className="h-4 w-4" />
-								<AlertTitle>Could not fetch the card</AlertTitle>
+								<AlertTitle>{tCopy("ui.agentSheet.couldNotFetchTheCard", { ns: "agents" })}</AlertTitle>
 								<AlertDescription>{inspectionError}</AlertDescription>
 							</Alert>
 						)}
@@ -460,10 +462,10 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 								<div className="text-muted-foreground flex flex-col items-center gap-2 rounded-sm border border-dashed p-6 text-center text-sm">
 									<FileSearch className="size-5" />
 									{isInspecting
-										? "Fetching the agent card…"
+										? tCopy("ui.agentSheet.fetchingTheAgentCard", { ns: "agents" })
 										: isEditing
-											? "Refetch the card to preview it and edit request authentication."
-											: "Fetch the card to preview its skills and authentication."}
+											? tCopy("ui.agentSheet.refetchTheCardToPreviewItAndEditRequest", { ns: "agents" })
+											: tCopy("ui.agentSheet.fetchTheCardToPreviewItsSkillsAndAuthentication", { ns: "agents" })}
 								</div>
 							)
 						)}
@@ -473,36 +475,42 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 
 					<section ref={authRef} className="scroll-mt-4 space-y-4">
 						<SectionHeader
-							title="Request authentication"
-							description="How Bifrost authenticates when it forwards requests to this agent."
+							title={tCopy("ui.agentSheet.requestAuthentication", { ns: "agents" })}
+							description={tCopy("ui.agentSheet.howBifrostAuthenticatesWhenItForwardsRequestsToThis", { ns: "agents" })}
 						/>
 						{unsupportedReason && !manualMode && (
 							<Alert variant="destructive">
 								<AlertTriangle className="h-4 w-4" />
-								<AlertTitle>This requirement cannot be used</AlertTitle>
-								<AlertDescription>{unsupportedReason} Pick another requirement or configure manually.</AlertDescription>
+								<AlertTitle>{tCopy("ui.agentSheet.thisRequirementCannotBeUsed", { ns: "agents" })}</AlertTitle>
+								<AlertDescription>
+									{unsupportedReason} {tCopy("ui.agentSheet.pickAnotherRequirementOrConfigureManually", { ns: "agents" })}
+								</AlertDescription>
 							</Alert>
 						)}
 						{authMismatch && !manualMode && (
 							<Alert variant="warning">
 								<AlertTriangle className="h-4 w-4" />
-								<AlertDescription>Saved authentication no longer matches the selected card requirement.</AlertDescription>
+								<AlertDescription>
+									{tCopy("ui.agentSheet.savedAuthenticationNoLongerMatchesTheSelectedCardRequirement", { ns: "agents" })}
+								</AlertDescription>
 							</Alert>
 						)}
 						{authLocked && (
 							<div className="flex items-center justify-between gap-3 rounded-sm border border-dashed p-3">
-								<p className="text-muted-foreground text-xs">Refetch the card to edit, or configure manually below.</p>
+								<p className="text-muted-foreground text-xs">
+									{tCopy("ui.agentSheet.refetchTheCardToEditOrConfigureManuallyBelow", { ns: "agents" })}
+								</p>
 								{fetchButton("Refetch card")}
 							</div>
 						)}
 						{!inspection && !manualMode && !isEditing && (
 							<div className="text-muted-foreground rounded-sm border border-dashed p-5 text-center text-sm">
-								Fetch the agent card above. Its advertised requirements fill this in.
+								{tCopy("ui.agentSheet.fetchTheAgentCardAboveItsAdvertisedRequirementsFill", { ns: "agents" })}
 							</div>
 						)}
 						{inspection && inspection.security_requirements.length > 1 && !manualMode && (
 							<div className="flex flex-col gap-2">
-								<Label>Card requirement</Label>
+								<Label>{tCopy("ui.agentSheet.cardRequirement", { ns: "agents" })}</Label>
 								<Select value={String(selectedRequirement)} onValueChange={(value) => applyRequirement(inspection, Number(value))}>
 									<SelectTrigger className="w-full">
 										<SelectValue />
@@ -510,12 +518,14 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 									<SelectContent>
 										{inspection.security_requirements.map((requirement, index) => (
 											<SelectItem key={index} value={String(index)}>
-												{requirement.length ? requirement.join(" + ") : "None"}
+												{requirement.length ? requirement.join(" + ") : tCopy("registry.filter.none", { ns: "mcp" })}
 											</SelectItem>
 										))}
 									</SelectContent>
 								</Select>
-								<p className="text-muted-foreground text-xs">The card offers alternatives. Schemes joined with + are sent together.</p>
+								<p className="text-muted-foreground text-xs">
+									{tCopy("ui.agentSheet.theCardOffersAlternativesSchemesJoinedWithAre", { ns: "agents" })}
+								</p>
 							</div>
 						)}
 						{(selectedAuth || manualMode || isEditing) && (
@@ -528,8 +538,14 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 							/>
 						)}
 						<OptionGroup
-							title="TLS and certificates"
-							summary={runtimeAuth.tls?.insecure_skip_verify ? "Verification off" : hasTLS(runtimeAuth.tls) ? "Custom" : "Default"}
+							title={tCopy("ui.agentSheet.tLSAndCertificates", { ns: "agents" })}
+							summary={
+								runtimeAuth.tls?.insecure_skip_verify
+									? tCopy("ui.agentSheet.verificationOff", { ns: "agents" })
+									: hasTLS(runtimeAuth.tls)
+										? tCopy("ui.agentSheet.custom", { ns: "agents" })
+										: tCopy("ui.agentSheet.default", { ns: "agents" })
+							}
 							open={runtimeTLSOpen}
 							onOpenChange={setRuntimeTLSOpen}
 							testId="agent-runtime-tls-toggle"
@@ -537,31 +553,38 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 							<TLSFields value={runtimeAuth.tls ?? {}} onChange={(tls) => setRuntimeAuth({ ...runtimeAuth, tls })} />
 						</OptionGroup>
 						<OptionGroup
-							title="Additional agent endpoints"
+							title={tCopy("ui.agentSheet.additionalAgentEndpoints", { ns: "agents" })}
 							indicator={
 								suggestedEndpoints.length > 0 && (
 									<Badge variant="destructive" data-testid="agent-endpoints-approval-needed">
-										{suggestedEndpoints.length} {suggestedEndpoints.length === 1 ? "needs" : "need"} approval
+										{suggestedEndpoints.length}{" "}
+										{suggestedEndpoints.length === 1
+											? tCopy("ui.agentSheet.needs", { ns: "agents" })
+											: tCopy("ui.agentSheet.need", { ns: "agents" })}{" "}
+										{tCopy("ui.agentSheet.approval", { ns: "agents" })}
 									</Badge>
 								)
 							}
 							tooltip="Use an HTTP(S) address with a scheme and optional port, without a path, credentials, query, or fragment. Bifrost may send agent credentials to these addresses. Private addresses also need permission in Agent Settings."
-							summary={additionalEndpointCount ? `${additionalEndpointCount} added` : "None added"}
+							summary={
+								additionalEndpointCount
+									? tCopy("form.endpointCount", { ns: "agents", count: additionalEndpointCount })
+									: tCopy("ui.agentSheet.noneAdded", { ns: "agents" })
+							}
 							open={credentialOriginsOpen}
 							onOpenChange={setCredentialOriginsOpen}
 							testId="agent-credential-origins-toggle"
 						>
 							<p className="text-muted-foreground text-xs">
-								Allow Bifrost to call this agent at another address. Only needed when its runtime endpoint differs from its agent card
-								address. Private addresses must also be in the Private Network Allowlist in{" "}
+								{tCopy("ui.agentSheet.allowBifrostToCallThisAgentAtAnotherAddress", { ns: "agents" })}{" "}
 								<a href="/workspace/config/agent-gateway" className="text-primary underline underline-offset-2">
-									Agent Settings
+									{tCopy("ui.agentSheet.agentSettings", { ns: "agents" })}
 								</a>
 								.
 							</p>
 							{cardOrigin && (
 								<div className="bg-muted/30 space-y-1 rounded-sm px-3 py-2">
-									<p className="text-muted-foreground text-xs">Allowed from agent card</p>
+									<p className="text-muted-foreground text-xs">{tCopy("ui.agentSheet.allowedFromAgentCard", { ns: "agents" })}</p>
 									<p className="font-mono text-xs break-all" data-testid="agent-card-allowed-origin">
 										{cardOrigin}
 									</p>
@@ -570,7 +593,9 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 							<div className="space-y-2">
 								{advertisedEndpoints.length > 0 && (
 									<div className="space-y-2" data-testid="agent-suggested-endpoints">
-										<p className="text-muted-foreground text-xs">Other addresses advertised by this agent</p>
+										<p className="text-muted-foreground text-xs">
+											{tCopy("ui.agentSheet.otherAddressesAdvertisedByThisAgent", { ns: "agents" })}
+										</p>
 										{advertisedEndpoints.map((endpoint) => {
 											const allowed = allowedEndpointOrigins.has(endpoint);
 											return (
@@ -583,7 +608,12 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 															<span className="truncate">{endpoint}</span>
 														</span>
 													) : (
-														<Input value={endpoint} readOnly aria-label="Suggested agent endpoint" className="bg-muted h-9" />
+														<Input
+															value={endpoint}
+															readOnly
+															aria-label={tCopy("ui.agentSheet.suggestedAgentEndpoint", { ns: "agents" })}
+															className="bg-muted h-9"
+														/>
 													)}
 													<Button
 														type="button"
@@ -603,7 +633,7 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 															}
 														}}
 													>
-														{allowed ? <Trash2 className="h-4 w-4" /> : "Allow"}
+														{allowed ? <Trash2 className="h-4 w-4" /> : tCopy("ui.agentSheet.allow", { ns: "agents" })}
 													</Button>
 												</div>
 											);
@@ -617,7 +647,7 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 												value={origin.value}
 												className="h-9"
 												placeholder="https://research.example.com:9000"
-												aria-label="Additional agent endpoint"
+												aria-label={tCopy("ui.agentSheet.additionalAgentEndpoint", { ns: "agents" })}
 												data-testid={`agent-credential-origin-${index}`}
 												onChange={(event) =>
 													setCredentialOrigins((current) =>
@@ -630,7 +660,7 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 												variant="outline"
 												size="icon"
 												className="text-destructive hover:text-destructive h-9 w-16 shrink-0"
-												aria-label="Remove agent endpoint"
+												aria-label={tCopy("ui.agentSheet.removeAgentEndpoint", { ns: "agents" })}
 												onClick={() => setCredentialOrigins((current) => current.filter((item) => item.id !== origin.id))}
 											>
 												<Trash2 className="h-4 w-4" />
@@ -651,20 +681,20 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 								}}
 							>
 								<Plus className="h-4 w-4" />
-								Add endpoint
+								{tCopy("ui.agentSheet.addEndpoint", { ns: "agents" })}
 							</Button>
 						</OptionGroup>
 
 						<SettingRow
-							label="Forward Bifrost authentication"
-							description="Turn this on for agents that use Bifrost for LLM or MCP calls. You will need to configure the server to send this authentication with those calls so access and usage can stay attributed to the requester."
+							label={tCopy("ui.agentSheet.forwardBifrostAuthentication", { ns: "agents" })}
+							description={tCopy("ui.agentSheet.turnThisOnForAgentsThatUseBifrostFor", { ns: "agents" })}
 							checked={forwardAcceptedCredential}
 							onCheckedChange={setForwardAcceptedCredential}
 							testId="agent-forward-credential-switch"
 						>
 							{forwardAcceptedCredential && (
 								<>
-									<Label>If both use the same header</Label>
+									<Label>{tCopy("ui.agentSheet.ifBothUseTheSameHeader", { ns: "agents" })}</Label>
 									<Select
 										value={forwardAcceptedCredentialOverridesAuth ? "incoming" : "configured"}
 										onValueChange={(value) => setForwardAcceptedCredentialOverridesAuth(value === "incoming")}
@@ -672,26 +702,24 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 										<SelectTrigger className="w-full">
 											<SelectValue>
 												{forwardAcceptedCredentialOverridesAuth
-													? "Use the incoming Bifrost authentication"
-													: "Keep the configured agent authentication"}
+													? tCopy("ui.agentSheet.useTheIncomingBifrostAuthentication", { ns: "agents" })
+													: tCopy("ui.agentSheet.keepTheConfiguredAgentAuthentication", { ns: "agents" })}
 											</SelectValue>
 										</SelectTrigger>
 										<SelectContent>
 											<SelectItem value="configured" className="py-2" textValue="Keep the configured agent authentication">
 												<div className="space-y-1 whitespace-normal">
-													<p>Keep the configured agent authentication</p>
+													<p>{tCopy("ui.agentSheet.keepTheConfiguredAgentAuthentication", { ns: "agents" })}</p>
 													<p className="text-muted-foreground text-xs">
-														If both use the same header, keep the agent’s configured credential. Forward the incoming Bifrost authentication
-														on other headers.
+														{tCopy("ui.agentSheet.ifBothUseTheSameHeaderKeepTheAgentS", { ns: "agents" })}
 													</p>
 												</div>
 											</SelectItem>
 											<SelectItem value="incoming" className="py-2" textValue="Use the incoming Bifrost authentication">
 												<div className="space-y-1 whitespace-normal">
-													<p>Use the incoming Bifrost authentication</p>
+													<p>{tCopy("ui.agentSheet.useTheIncomingBifrostAuthentication", { ns: "agents" })}</p>
 													<p className="text-muted-foreground text-xs">
-														If both use the same header, replace the configured credential with the incoming Bifrost authentication. For
-														agents that call Bifrost for LLM or MCP traffic, this keeps usage attributed to the original caller.
+														{tCopy("ui.agentSheet.ifBothUseTheSameHeaderReplaceTheConfigured", { ns: "agents" })}
 													</p>
 												</div>
 											</SelectItem>
@@ -701,8 +729,8 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 							)}
 						</SettingRow>
 						<SettingRow
-							label="Configure manually"
-							description="Ignore the card's advertised requirements and set authentication yourself."
+							label={tCopy("ui.agentSheet.configureManually", { ns: "agents" })}
+							description={tCopy("ui.agentSheet.ignoreTheCardSAdvertisedRequirementsAndSetAuthenticationYourself", { ns: "agents" })}
 							checked={manualMode}
 							onCheckedChange={(checked) => {
 								setManualMode(checked);
@@ -716,8 +744,8 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 
 					<section className="space-y-4">
 						<SectionHeader
-							title="Access"
-							description="Which virtual keys can reach this agent through the gateway."
+							title={tCopy("registry.columns.vkAccess", { ns: "mcp" })}
+							description={tCopy("ui.agentSheet.whichVirtualKeysCanReachThisAgentThroughThe", { ns: "agents" })}
 							action={
 								<VirtualKeySelector
 									mode="add"
@@ -726,22 +754,24 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 									trigger={
 										<Button type="button" variant="outline" size="sm" disabled={allowByDefault} data-testid="agent-add-virtual-key-button">
 											<Plus className="h-4 w-4" />
-											Add key
+											{tCopy("ui.agentSheet.addKey", { ns: "agents" })}
 										</Button>
 									}
 								/>
 							}
 						/>
 						<SettingRow
-							label="Allow any virtual key"
-							description="Every valid virtual key can reach this agent, granted or not."
+							label={tCopy("ui.agentSheet.allowAnyVirtualKey", { ns: "agents" })}
+							description={tCopy("ui.agentSheet.everyValidVirtualKeyCanReachThisAgentGranted", { ns: "agents" })}
 							checked={allowByDefault}
 							onCheckedChange={setAllowByDefault}
 							testId="agent-allow-by-default-switch"
 						/>
 						{allowByDefault || virtualKeyIds.length === 0 ? (
 							<div className="text-muted-foreground rounded-sm border border-dashed p-5 text-center text-sm">
-								{allowByDefault ? "Any valid key can reach this agent." : "No keys granted yet."}
+								{allowByDefault
+									? tCopy("ui.agentSheet.anyValidKeyCanReachThisAgent", { ns: "agents" })
+									: tCopy("ui.agentSheet.noKeysGrantedYet", { ns: "agents" })}
 							</div>
 						) : (
 							<div className="divide-y rounded-sm border">
@@ -768,10 +798,12 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 					)}
 				</div>
 				<div className="bg-card sticky bottom-0 flex items-center justify-between gap-3 border-t px-4 py-4 md:px-8">
-					<p className="text-muted-foreground text-xs">{isBlocked && !unsupportedRequirement ? "Fetch the agent card to continue." : ""}</p>
+					<p className="text-muted-foreground text-xs">
+						{isBlocked && !unsupportedRequirement ? tCopy("ui.agentSheet.fetchTheAgentCardToContinue", { ns: "agents" }) : ""}
+					</p>
 					<div className="flex gap-2">
 						<Button type="button" variant="outline" onClick={onClose}>
-							Cancel
+							{tCopy("cancel", { ns: "common" })}
 						</Button>
 						<Button
 							type="button"
@@ -780,7 +812,7 @@ export default function AgentSheet({ agent, onClose, onSaved }: AgentSheetProps)
 							isLoading={isCreating || isUpdating}
 							data-testid="agent-save-button"
 						>
-							{agent ? "Save changes" : "Create"}
+							{agent ? tCopy("common.saveChangesLower", { ns: "mcp" }) : tCopy("create", { ns: "common" })}
 						</Button>
 					</div>
 				</div>

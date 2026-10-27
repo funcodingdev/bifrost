@@ -295,7 +295,7 @@ export default function ProxyView() {
 									<div className="space-y-0.5">
 										<div className="flex items-center gap-2">
 											<FormLabel className="text-sm font-medium">{t("proxy.scim")}</FormLabel>
-											<Badge variant="secondary">Enterprise</Badge>
+											<Badge variant="secondary">{t("featureFlags.enterpriseOnly", { ns: "config" })}</Badge>
 										</div>
 										<p className="text-muted-foreground text-sm">{t("proxy.scimHelp")}</p>
 									</div>

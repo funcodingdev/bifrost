@@ -1,3 +1,4 @@
+import i18nReview from "@/lib/i18n";
 // Runtime registry of model_config scopes available to the UI.
 //
 // OSS ships the base set (global + virtual_key) registered at module load.
@@ -147,12 +148,16 @@ export function getModelLimitScopeFilterOptions(): ModelLimitScopeFilterOption[]
 
 registerModelLimitScope({
 	value: "global",
-	label: "Global",
+	get label() {
+		return i18nReview.t("ui.modelLimitScopes.global", { ns: "common" });
+	},
 });
 
 registerModelLimitScope({
 	value: "virtual_key",
-	label: "Virtual Key",
+	get label() {
+		return i18nReview.t("ui.modelLimitScopes.virtualKey", { ns: "common" });
+	},
 	PickerComponent: VirtualKeySelector,
 	buildDeepLink: (scopeId) => ({
 		to: "/workspace/governance/virtual-keys",

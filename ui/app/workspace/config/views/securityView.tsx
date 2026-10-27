@@ -384,7 +384,7 @@ export default function SecurityView() {
 							<div className="flex items-center justify-between">
 								<div className="space-y-0.5">
 									<Label htmlFor="auth-enabled" className="text-sm font-medium">
-										{t("security.passwordProtect")} <Badge variant="secondary">BETA</Badge>
+										{t("security.passwordProtect")} <Badge variant="secondary">{t("ui.securityView.bETA", { ns: "config" })}</Badge>
 									</Label>
 									<p className="text-muted-foreground text-sm">{t("security.passwordProtectHelp")}</p>
 								</div>
@@ -429,7 +429,7 @@ export default function SecurityView() {
 								</div>
 								{requiresProofOfControl ? (
 									<div className="space-y-2 rounded-sm border border-dashed p-3" data-testid="security-proof-of-control">
-										<Label htmlFor="current-password">Confirm with current admin password</Label>
+										<Label htmlFor="current-password">{t("ui.securityView.confirmWithCurrentAdminPassword", { ns: "config" })}</Label>
 										<Input
 											ref={currentPasswordInputRef}
 											id="current-password"
@@ -438,13 +438,12 @@ export default function SecurityView() {
 											autoComplete="current-password"
 											aria-invalid={!!proofError}
 											aria-describedby={proofError ? "current-password-error" : undefined}
-											placeholder="Enter the admin password currently in use"
+											placeholder={t("ui.securityView.enterTheAdminPasswordCurrentlyInUse", { ns: "config" })}
 											value={currentPassword}
 											onChange={(e) => handleCurrentPasswordChange(e.target.value)}
 										/>
 										<p className="text-muted-foreground text-xs">
-											Dashboard protection is switched off, so this session is not signed in. Turning it back on or changing the admin
-											credentials requires the admin password that is currently stored.
+											{t("ui.securityView.dashboardProtectionIsSwitchedOffSoThisSessionIs", { ns: "config" })}
 										</p>
 										<Collapsible open={setupTokenOpen} onOpenChange={setSetupTokenOpen}>
 											<CollapsibleTrigger asChild>
@@ -455,7 +454,9 @@ export default function SecurityView() {
 													className="h-auto p-0 text-xs"
 													data-testid="security-setup-token-toggle"
 												>
-													{setupTokenOpen ? "Hide setup token" : "...or confirm with a setup token instead"}
+													{setupTokenOpen
+														? t("ui.securityView.hideSetupToken", { ns: "config" })
+														: t("ui.securityView.orConfirmWithASetupTokenInstead", { ns: "config" })}
 												</Button>
 											</CollapsibleTrigger>
 											<CollapsibleContent className="space-y-2 pt-2">
@@ -470,8 +471,7 @@ export default function SecurityView() {
 													onChange={(e) => handleSetupTokenChange(e.target.value)}
 												/>
 												<p className="text-muted-foreground text-xs">
-													If the current password is not at hand, the <code>setup_token</code> from <code>config.json</code> (or the{" "}
-													<code>BIFROST_SETUP_TOKEN</code> environment variable) confirms this change too.
+													<Trans ns="config" i18nKey="security.setupTokenAlternativeHelp" components={{ code: <code /> }} />
 												</p>
 											</CollapsibleContent>
 										</Collapsible>
@@ -489,8 +489,7 @@ export default function SecurityView() {
 								) : null}
 								{isFirstTimeSetup && authConfig.is_enabled && authorizedBySetupToken ? (
 									<p className="text-muted-foreground text-xs" data-testid="security-setup-token-authorized">
-										Authorized with the setup token entered on the setup screen. Saving creates the admin account, after which the setup
-										token stops working.
+										{t("ui.securityView.authorizedWithTheSetupTokenEnteredOnTheSetup", { ns: "config" })}
 									</p>
 								) : isFirstTimeSetup && authConfig.is_enabled ? (
 									<div className="space-y-2">
@@ -505,9 +504,7 @@ export default function SecurityView() {
 											onChange={(e) => handleSetupTokenChange(e.target.value)}
 										/>
 										<p className="text-muted-foreground text-xs">
-											No admin account exists yet, so management APIs only accept the setup token. Enter the token configured via{" "}
-											<code>setup_token</code> in <code>config.json</code> (or the <code>BIFROST_SETUP_TOKEN</code> environment variable) to
-											create the admin account. Once it is enabled, the setup token stops working.
+											<Trans ns="config" i18nKey="security.firstAdminHelp" components={{ code: <code /> }} />
 										</p>
 									</div>
 								) : null}
@@ -532,7 +529,7 @@ export default function SecurityView() {
 							>
 								{t("security.documentation")}
 							</a>{" "}
-							to set up a virtual key before enabling this. Calls without a valid credential will return 401.
+							{t("ui.securityView.toSetUpAVirtualKeyBeforeEnablingThis", { ns: "config" })}
 						</p>
 					</div>
 					<Switch
@@ -546,11 +543,7 @@ export default function SecurityView() {
 				{(authConfig.is_enabled || authType?.type === "sso") && !config?.enforce_auth_on_inference && (
 					<Alert variant="destructive" data-testid="inference-auth-off-warning">
 						<AlertTriangle className="h-4 w-4" />
-						<AlertDescription>
-							The dashboard is authentication protected, but this is a separate control: anyone who can reach this gateway can still call
-							inference endpoints (e.g. chat completions) with no credential at all, spending your provider budget and reading provider-side
-							state your key has access to. Turn this on unless you've deliberately chosen to leave inference open.
-						</AlertDescription>
+						<AlertDescription>{t("ui.securityView.theDashboardIsAuthenticationProtectedButThisIsA", { ns: "config" })}</AlertDescription>
 					</Alert>
 				)}
 				{/* Dual Credential Conflict Behavior */}
@@ -625,12 +618,10 @@ export default function SecurityView() {
 				<div className="flex items-center justify-between space-x-2 rounded-sm border p-4">
 					<div className="space-y-0.5">
 						<label htmlFor="delete-expired-virtual-keys" className="text-sm font-medium">
-							Delete Expired Virtual Keys
+							{t("ui.securityView.deleteExpiredVirtualKeys", { ns: "config" })}
 						</label>
 						<p className="text-muted-foreground text-sm">
-							When enabled, a daily cleanup job deletes every virtual key whose expiry has passed and posts a notification listing the
-							removed keys. Each key can override this from its <b>Delete after expire</b> switch: a key set to off is kept, and a key set
-							to on is deleted even while this is disabled.
+							<Trans ns="config" i18nKey="security.expiredKeysHelp" components={{ setting: <b /> }} />
 						</p>
 					</div>
 					<Switch
@@ -644,13 +635,10 @@ export default function SecurityView() {
 				<div className="flex items-center justify-between space-x-2 rounded-sm border p-4">
 					<div className="space-y-0.5">
 						<label htmlFor="enforce-vk-object-ownership" className="text-sm font-medium">
-							Restrict Provider Objects to the Creating Virtual Key
+							{t("ui.securityView.restrictProviderObjectsToTheCreatingVirtualKey", { ns: "config" })}
 						</label>
 						<p className="text-muted-foreground text-sm">
-							When enabled, files, batches, videos, containers, cached contents and live sessions created with a virtual key can only be
-							read, listed or deleted with that same key. Other virtual keys get a not-found error and do not see them in lists. Requests
-							without a virtual key are not affected. The creating key is recorded even while this is disabled, so enabling it again also
-							covers objects created in the meantime, except any whose creating key could not be recorded.
+							{t("ui.securityView.whenEnabledFilesBatchesVideosContainersCachedContentsAnd", { ns: "config" })}
 						</p>
 					</div>
 					<Switch

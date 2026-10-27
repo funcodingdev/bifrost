@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { useIsNarrowerThan } from "@/hooks/use-mobile";
@@ -13,6 +14,7 @@ const WarpPanel = lazy(() => import("@/components/warp/warpPanel"));
 const WARP_DOCK_MIN_WIDTH = 1024;
 
 export default function WarpDock({ children }: { children: React.ReactNode }) {
+	const { t: tCopy } = useTranslation();
 	const warp = useWarp();
 	const isMobile = useIsNarrowerThan(WARP_DOCK_MIN_WIDTH);
 	const isOpen = !!warp?.isOpen;
@@ -29,7 +31,7 @@ export default function WarpDock({ children }: { children: React.ReactNode }) {
 				{isOpen && !isMobile && (
 					<>
 						<ResizableHandle
-							aria-label="Resize Warp panel"
+							aria-label={tCopy("ui.warpDock.resizeWarpPanel", { ns: "common" })}
 							className="bg-transparent md:-translate-x-1.5"
 							data-testid="warp-dock-resize-handle"
 						/>
@@ -57,7 +59,9 @@ export default function WarpDock({ children }: { children: React.ReactNode }) {
 					<SheetContent side="right" className="w-[calc(100%_-_16px)] p-0 sm:w-full sm:max-w-none" data-testid="warp-dock-sheet">
 						{/* Radix names the dialog from SheetTitle, not the panel's own heading. */}
 						<SheetTitle className="sr-only">Warp</SheetTitle>
-						<SheetDescription className="sr-only">Ask Warp questions about this deployment&apos;s logs, usage and spend.</SheetDescription>
+						<SheetDescription className="sr-only">
+							{tCopy("ui.warpDock.askWarpQuestionsAboutThisDeploymentSLogsUsageAnd", { ns: "common" })}
+						</SheetDescription>
 						<Suspense fallback={null}>
 							<WarpPanel />
 						</Suspense>

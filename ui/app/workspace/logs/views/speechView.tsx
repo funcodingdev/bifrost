@@ -1,3 +1,5 @@
+import { Translation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { BifrostSpeech, SpeechInput } from "@/lib/types/logs";
 import { AlertCircle, Play, Volume2 } from "lucide-react";
 import React, { Component } from "react";
@@ -29,7 +31,9 @@ class AudioErrorBoundary extends Component<{ children: React.ReactNode }, { hasE
 			return (
 				<div className="flex items-center gap-2 rounded-sm border border-red-200 bg-red-50 p-4 text-sm text-red-800">
 					<AlertCircle className="h-4 w-4" />
-					<span>Failed to load audio player: {this.state.error?.message || "Unknown error"}</span>
+					<Translation ns="observability">
+						{(t) => <span>{t("logs.audioPlayerFailed", { error: this.state.error?.message || t("logs.unknownError") })}</span>}
+					</Translation>
 				</div>
 			);
 		}
@@ -39,6 +43,7 @@ class AudioErrorBoundary extends Component<{ children: React.ReactNode }, { hasE
 }
 
 export default function SpeechView({ speechInput, speechOutput, isStreaming }: SpeechViewProps) {
+	const { t: tCopy } = useTranslation();
 	return (
 		<div className="space-y-4">
 			{/* Speech Input */}
@@ -46,7 +51,7 @@ export default function SpeechView({ speechInput, speechOutput, isStreaming }: S
 				<div className="w-full rounded-sm border">
 					<div className="flex items-center gap-2 border-b px-6 py-2 text-sm font-medium">
 						<Volume2 className="h-4 w-4" />
-						Speech Input
+						{tCopy("ui.speechView.speechInput", { ns: "observability" })}
 					</div>
 					<div className="space-y-4 p-6">
 						<div className="font-mono text-xs">{speechInput.input}</div>
@@ -59,7 +64,7 @@ export default function SpeechView({ speechInput, speechOutput, isStreaming }: S
 				<div className="w-full rounded-sm border">
 					<div className="flex items-center gap-2 border-b px-6 py-2 text-sm font-medium">
 						<Play className="h-4 w-4" />
-						Speech Output
+						{tCopy("ui.speechView.speechOutput", { ns: "observability" })}
 					</div>
 					<div className="space-y-4 p-6">
 						<AudioErrorBoundary>

@@ -562,9 +562,9 @@ export function NetworkFormFragment({ provider }: NetworkFormFragmentProps) {
 										/>
 									</FormControl>
 									<FormDescription>
-										Values are masked once saved; leave a masked value unchanged to keep it, and re-enter it when renaming a header. Use{" "}
-										<code>env.VAR_NAME</code> {localeMessages.t("virtualKeys.or", { ns: "models" })} <code>vault.path</code> to reference a
-										secret instead of storing it.
+										{t("ui.networkFormFragment.valuesAreMaskedOnceSavedLeaveAMaskedValue", { ns: "models" })} <code>env.VAR_NAME</code>{" "}
+										{localeMessages.t("virtualKeys.or", { ns: "models" })} <code>vault.path</code>{" "}
+										{t("ui.networkFormFragment.toReferenceASecretInsteadOfStoringIt", { ns: "models" })}
 									</FormDescription>
 									<FormMessage />
 								</FormItem>

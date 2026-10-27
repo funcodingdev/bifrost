@@ -1,3 +1,4 @@
+import i18nReview from "@/lib/i18n";
 // One list drives both the menu and matching, so a command cannot show without running or vice versa.
 
 export type WarpCommandID = "clear";
@@ -9,7 +10,15 @@ export interface WarpCommand {
 	description: string;
 }
 
-export const WARP_COMMANDS: WarpCommand[] = [{ id: "clear", name: "clear", description: "Start a new conversation" }];
+export const WARP_COMMANDS: WarpCommand[] = [
+	{
+		id: "clear",
+		name: "clear",
+		get description() {
+			return i18nReview.t("ui.warpCommands.startANewConversation", { ns: "common" });
+		},
+	},
+];
 
 /** Only a lone leading slash counts, so a question mentioning "/v1/chat" does not pop the menu. */
 export function isWarpCommandQuery(value: string): boolean {

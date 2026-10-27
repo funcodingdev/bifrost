@@ -524,18 +524,18 @@ export function SkillsListView({
 									<p className="max-w-xs text-xs">
 										{isGitAvailable ? (
 											<>
-												Set the External Client URL in{" "}
+												{tc("ui.skillListView.setTheExternalClientURLIn", { ns: "config" })}{" "}
 												<Link
 													to="/workspace/config/skills"
 													data-testid="skill-marketplace-settings-link"
 													className="underline underline-offset-2"
 												>
-													Skills Settings
+													{tc("ui.skillsSettingsView.skillsSettings", { ns: "config" })}
 												</Link>{" "}
-												to enable marketplace registration.
+												{tc("ui.skillListView.toEnableMarketplaceRegistration", { ns: "config" })}
 											</>
 										) : (
-											"Git is not available on the server. Install git and restart Bifrost to enable marketplace registration for Claude Code and Codex."
+											tc("skillsRepo.gitUnavailable", { ns: "config" })
 										)}
 									</p>
 								</TooltipContent>

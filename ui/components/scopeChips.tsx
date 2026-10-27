@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 // ScopeChips renders an OAuth scope list as compact monospace chips: the
 // first few inline, the rest behind a "+N" that reveals the full list on
 // hover or focus.
@@ -15,6 +16,7 @@ interface ScopeChipsProps {
 }
 
 export function ScopeChips({ scopes, max = 2, className }: ScopeChipsProps) {
+	const { t: tCopy } = useTranslation();
 	if (scopes.length === 0) {
 		return <span className="text-muted-foreground text-sm">-</span>;
 	}
@@ -34,13 +36,15 @@ export function ScopeChips({ scopes, max = 2, className }: ScopeChipsProps) {
 						<button
 							type="button"
 							className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 cursor-default rounded-sm px-1 text-xs focus-visible:ring-[3px] focus-visible:outline-none"
-							aria-label={`Show all ${scopes.length} scopes`}
+							aria-label={tCopy("scopes.showAll", { ns: "common", count: scopes.length })}
 						>
 							+{hidden}
 						</button>
 					</HoverCardTrigger>
 					<HoverCardContent align="start" className="w-auto max-w-sm p-3">
-						<div className="text-muted-foreground mb-2 font-mono text-[10px] tracking-wider uppercase">Granted scopes</div>
+						<div className="text-muted-foreground mb-2 font-mono text-[10px] tracking-wider uppercase">
+							{tCopy("registry.credential.grantedScopes", { ns: "mcp" })}
+						</div>
 						<div className="flex flex-col items-start gap-1">
 							{scopes.map((scope) => (
 								<Badge key={scope} variant="outline" className="max-w-full font-mono text-xs font-normal break-all whitespace-normal">

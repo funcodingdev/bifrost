@@ -1,22 +1,76 @@
+import i18n, { getLocale } from "@/lib/i18n";
 // Governance-related constants
 
 export const resetDurationOptions = [
-	{ label: "Every Minute", value: "1m" },
-	{ label: "Every 5 Minutes", value: "5m" },
-	{ label: "Every 15 Minutes", value: "15m" },
-	{ label: "Every 30 Minutes", value: "30m" },
-	{ label: "Hourly", value: "1h" },
-	{ label: "Every 6 Hours", value: "6h" },
-	{ label: "Daily", value: "1d" },
-	{ label: "Weekly", value: "1w" },
-	{ label: "Monthly", value: "1M" },
+	{
+		get label() {
+			return i18n.t("durations.reset.everyMinute", { ns: "common" });
+		},
+		value: "1m",
+	},
+	{
+		get label() {
+			return i18n.t("durations.reset.every5Minutes", { ns: "common" });
+		},
+		value: "5m",
+	},
+	{
+		get label() {
+			return i18n.t("durations.reset.every15Minutes", { ns: "common" });
+		},
+		value: "15m",
+	},
+	{
+		get label() {
+			return i18n.t("durations.reset.every30Minutes", { ns: "common" });
+		},
+		value: "30m",
+	},
+	{
+		get label() {
+			return i18n.t("durations.reset.hourly", { ns: "common" });
+		},
+		value: "1h",
+	},
+	{
+		get label() {
+			return i18n.t("durations.reset.every6Hours", { ns: "common" });
+		},
+		value: "6h",
+	},
+	{
+		get label() {
+			return i18n.t("durations.reset.daily", { ns: "common" });
+		},
+		value: "1d",
+	},
+	{
+		get label() {
+			return i18n.t("durations.reset.weekly", { ns: "common" });
+		},
+		value: "1w",
+	},
+	{
+		get label() {
+			return i18n.t("durations.reset.monthly", { ns: "common" });
+		},
+		value: "1M",
+	},
 ];
 
 // Reset periods offered on budgets. Quarterly is budget-only: resetDurationOptions
 // above is shared with the rate-limit selects, and the backend has no notion of a
 // quarterly token or request limit, so adding "1Q" there would offer a window it
 // cannot enforce.
-export const budgetResetDurationOptions = [...resetDurationOptions, { label: "Quarterly", value: "1Q" }];
+export const budgetResetDurationOptions = [
+	...resetDurationOptions,
+	{
+		get label() {
+			return i18n.t("durations.reset.quarterly", { ns: "common" });
+		},
+		value: "1Q",
+	},
+];
 
 // Durations that support calendar-aligned resets (snap to day/week/month/quarter/year boundaries).
 // Must stay in sync with IsCalendarAlignableDuration in framework/configstore/tables/utils.go.
@@ -25,19 +79,43 @@ export const supportsCalendarAlignment = (duration: string): boolean => /^(1d|1w
 
 // Map of duration values to short labels for display
 export const resetDurationLabels: Record<string, string> = {
-	"1m": "Every Minute",
-	"5m": "Every 5 Minutes",
-	"15m": "Every 15 Minutes",
-	"30m": "Every 30 Minutes",
-	"1h": "Hourly",
-	"6h": "Every 6 Hours",
-	"1d": "Daily",
-	"1w": "Weekly",
-	"1M": "Monthly",
-	"1Q": "Quarterly",
+	get "1m"() {
+		return i18n.t("durations.reset.everyMinute", { ns: "common" });
+	},
+	get "5m"() {
+		return i18n.t("durations.reset.every5Minutes", { ns: "common" });
+	},
+	get "15m"() {
+		return i18n.t("durations.reset.every15Minutes", { ns: "common" });
+	},
+	get "30m"() {
+		return i18n.t("durations.reset.every30Minutes", { ns: "common" });
+	},
+	get "1h"() {
+		return i18n.t("durations.reset.hourly", { ns: "common" });
+	},
+	get "6h"() {
+		return i18n.t("durations.reset.every6Hours", { ns: "common" });
+	},
+	get "1d"() {
+		return i18n.t("durations.reset.daily", { ns: "common" });
+	},
+	get "1w"() {
+		return i18n.t("durations.reset.weekly", { ns: "common" });
+	},
+	get "1M"() {
+		return i18n.t("durations.reset.monthly", { ns: "common" });
+	},
+	get "1Q"() {
+		return i18n.t("durations.reset.quarterly", { ns: "common" });
+	},
 };
 
 const MONTH_ABBREVIATIONS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function monthAbbreviation(index: number): string {
+	return getLocale() === "zh-CN" ? `${index + 1}月` : MONTH_ABBREVIATIONS[index];
+}
 
 // Fall back to January for a missing, fractional, or out-of-range month, matching
 // BudgetResetConfig.QuarterStart on the Go side. Number.isInteger also rejects a
@@ -72,7 +150,7 @@ function quarterMonthIndices(startMonth?: number): { first: number; last: number
  */
 export function formatQuarterPreview(startMonth?: number): string {
 	return quarterMonthIndices(startMonth)
-		.map((month, quarter) => `Q${quarter + 1} ${MONTH_ABBREVIATIONS[month.first]}-${MONTH_ABBREVIATIONS[month.last]}`)
+		.map((month, quarter) => `Q${quarter + 1} ${monthAbbreviation(month.first)}-${monthAbbreviation(month.last)}`)
 		.join(" · ");
 }
 
@@ -88,7 +166,7 @@ export function fiscalQuarterNote(resetDuration?: string, resetConfig?: { quarte
 	// Number.isInteger also rejects undefined/NaN; a fractional month like 2.5 would
 	// otherwise pass the range check and index MONTH_ABBREVIATIONS between slots.
 	if (start === undefined || !Number.isInteger(start) || start === 1 || start < 1 || start > 12) return "";
-	return ` · FY starts ${MONTH_ABBREVIATIONS[start - 1]}`;
+	return i18n.t("durations.fiscalYearNote", { ns: "common", month: monthAbbreviation(start - 1) });
 }
 
 /**
@@ -98,7 +176,7 @@ export function fiscalQuarterNote(resetDuration?: string, resetConfig?: { quarte
 export function quarterRanges(startMonth?: number): { label: string; range: string }[] {
 	return quarterMonthIndices(startMonth).map((month, quarter) => ({
 		label: `Q${quarter + 1}`,
-		range: `${MONTH_ABBREVIATIONS[month.first]}–${MONTH_ABBREVIATIONS[month.last]}`,
+		range: `${monthAbbreviation(month.first)}–${monthAbbreviation(month.last)}`,
 	}));
 }
 
@@ -128,7 +206,9 @@ export function nextQuarterReset(startMonth?: number, now: Date = new Date()): D
 
 // Month choices for the fiscal quarter start select.
 export const quarterStartMonthOptions = MONTH_ABBREVIATIONS.map((_, index) => ({
-	label: new Date(Date.UTC(2026, index, 1)).toLocaleString("en-US", { month: "long", timeZone: "UTC" }),
+	get label() {
+		return new Date(Date.UTC(2026, index, 1)).toLocaleString(getLocale(), { month: "long", timeZone: "UTC" });
+	},
 	value: String(index + 1),
 }));
 // Multi-unit windows remain rolling even when their owner enables alignment.

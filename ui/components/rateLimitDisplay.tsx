@@ -1,3 +1,5 @@
+import i18n from "@/lib/i18n";
+import { useTranslation } from "react-i18next";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { resetDurationLabels, supportsCalendarAlignment } from "@/lib/constants/governance";
@@ -29,7 +31,7 @@ interface RateLimitDisplayProps {
 const formatResetDuration = (duration?: string | null, calendarAligned?: boolean) => {
 	if (!duration) return "";
 	const label = resetDurationLabels[duration] || duration;
-	return calendarAligned && supportsCalendarAlignment(duration) ? `${label} (calendar)` : label;
+	return calendarAligned && supportsCalendarAlignment(duration) ? i18n.t("durations.calendarAligned", { ns: "common", label }) : label;
 };
 
 function LimitText({
@@ -73,6 +75,7 @@ function Bar({
 	calendarAligned?: boolean;
 	scopeLabel?: string;
 }) {
+	const { t: tCopy } = useTranslation();
 	const pct = max > 0 ? Math.min((current / max) * 100, 100) : 0;
 	const isExhausted = max > 0 && current >= max;
 	const barClass = isExhausted ? "[&>div]:bg-red-500/70" : pct > 80 ? "[&>div]:bg-amber-500/70" : "[&>div]:bg-emerald-500/70";
@@ -100,7 +103,10 @@ function Bar({
 					{current.toLocaleString()} / {max.toLocaleString()} {label}
 				</p>
 				{resetDuration ? (
-					<p className="text-muted-foreground text-xs">Resets {formatResetDuration(resetDuration, calendarAligned)}</p>
+					<p className="text-muted-foreground text-xs">
+						{tCopy("ui.budgetDisplay.resets", { ns: "common" }) + " "}
+						{formatResetDuration(resetDuration, calendarAligned)}
+					</p>
 				) : null}
 			</TooltipContent>
 		</Tooltip>
@@ -108,6 +114,7 @@ function Bar({
 }
 
 export function RateLimitDisplay({ rateLimits, compact, limitOnly, calendarAligned, scopeLabel }: RateLimitDisplayProps) {
+	const { t: tCopy } = useTranslation();
 	if (!rateLimits) {
 		return <span className="text-muted-foreground text-sm">-</span>;
 	}
@@ -124,7 +131,7 @@ export function RateLimitDisplay({ rateLimits, compact, limitOnly, calendarAlign
 			{hasTokens ? (
 				limitOnly ? (
 					<LimitText
-						label="tokens"
+						label={tCopy("promptRepo.tokens", { ns: "config" })}
 						max={rateLimits.token_max_limit!}
 						resetDuration={rateLimits.token_reset_duration}
 						calendarAligned={calendarAligned}
@@ -132,7 +139,7 @@ export function RateLimitDisplay({ rateLimits, compact, limitOnly, calendarAlign
 					/>
 				) : (
 					<Bar
-						label="tokens"
+						label={tCopy("promptRepo.tokens", { ns: "config" })}
 						current={rateLimits.token_current_usage ?? 0}
 						max={rateLimits.token_max_limit!}
 						resetDuration={rateLimits.token_reset_duration}
@@ -145,7 +152,7 @@ export function RateLimitDisplay({ rateLimits, compact, limitOnly, calendarAlign
 			{hasRequests ? (
 				limitOnly ? (
 					<LimitText
-						label="req"
+						label={tCopy("ui.rateLimitDisplay.req", { ns: "common" })}
 						max={rateLimits.request_max_limit!}
 						resetDuration={rateLimits.request_reset_duration}
 						calendarAligned={calendarAligned}
@@ -153,7 +160,7 @@ export function RateLimitDisplay({ rateLimits, compact, limitOnly, calendarAlign
 					/>
 				) : (
 					<Bar
-						label="req"
+						label={tCopy("ui.rateLimitDisplay.req", { ns: "common" })}
 						current={rateLimits.request_current_usage ?? 0}
 						max={rateLimits.request_max_limit!}
 						resetDuration={rateLimits.request_reset_duration}

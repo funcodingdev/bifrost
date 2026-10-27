@@ -310,7 +310,8 @@ export function PrometheusFormFragment({
 						<div className="flex items-center justify-between gap-4">
 							<div className="flex flex-col gap-1">
 								<h3 className="flex flex-row items-center gap-2 text-sm font-medium">
-									{t("connectors.prometheus.pushBasedGateway")} <Badge variant="secondary">BETA</Badge>
+									{t("connectors.prometheus.pushBasedGateway")}{" "}
+									<Badge variant="secondary">{t("ui.otelFormFragment.bETA", { ns: "observability" })}</Badge>
 								</h3>
 								<p className="text-muted-foreground text-xs">{t("connectors.prometheus.pushHelp")}</p>
 							</div>

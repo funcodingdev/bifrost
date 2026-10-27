@@ -629,7 +629,9 @@ export function MCPLogDetailSheet({
 																</Link>
 															</TooltipTrigger>
 															<TooltipContent sideOffset={6}>
-																{item.name !== item.id ? item.id : `Filter by ${label.toLowerCase()}`}
+																{item.name !== item.id
+																	? item.id
+																	: t("accessibility.filterBy", { ns: "common", label: label.toLowerCase() })}
 															</TooltipContent>
 														</Tooltip>
 													))}

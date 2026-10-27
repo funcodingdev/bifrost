@@ -72,7 +72,7 @@ export function MaximFormFragment({ initialConfig, onSave, onDelete, isDeleting 
 							name="maxim_config.api_key"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>API Key</FormLabel>
+									<FormLabel>{t("providers.apiKey", { ns: "models" })}</FormLabel>
 									<FormControl>
 										<div className="relative">
 											<Input
@@ -104,7 +104,7 @@ export function MaximFormFragment({ initialConfig, onSave, onDelete, isDeleting 
 							name="maxim_config.log_repo_id"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Log Repository ID (Optional)</FormLabel>
+									<FormLabel>{t("ui.maximFormFragment.logRepositoryIDOptional", { ns: "observability" })}</FormLabel>
 									<FormControl>
 										<Input
 											placeholder={t("connectors.enterLogRepositoryId")}
@@ -124,18 +124,21 @@ export function MaximFormFragment({ initialConfig, onSave, onDelete, isDeleting 
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>
-										Request Headers <span className="text-muted-foreground font-normal">(Optional)</span>
+										{t("connectors.otel.requestHeaders", { ns: "observability" }) + " "}
+										<span className="text-muted-foreground font-normal">{t("connectors.otel.optional", { ns: "observability" })}</span>
 									</FormLabel>
 									<FormDescription>
-										Comma-separated list of request headers to capture and attach as trace tags. Supports exact names and wildcard patterns
-										(e.g. <code className="text-xs">x-custom-*</code> captures all headers with that prefix,{" "}
-										<code className="text-xs">*</code> captures all headers; note that <code className="text-xs">*</code> will capture
-										sensitive headers like Authorization).
+										{t("ui.maximFormFragment.commaSeparatedListOfRequestHeadersToCaptureAndAttach", { ns: "observability" }) + " "}
+										<code className="text-xs">x-custom-*</code>{" "}
+										{t("ui.maximFormFragment.capturesAllHeadersWithThatPrefix", { ns: "observability" })} <code className="text-xs">*</code>{" "}
+										{t("ui.maximFormFragment.capturesAllHeadersNoteThat", { ns: "observability" }) + " "}
+										<code className="text-xs">*</code>{" "}
+										{t("ui.maximFormFragment.willCaptureSensitiveHeadersLikeAuthorization", { ns: "observability" })}
 									</FormDescription>
 									<FormControl>
 										<RequestHeadersTextarea
 											className="h-24"
-											placeholder="X-Tenant-ID, X-Request-Source, x-custom-*"
+											placeholder={t("logging.loggingHeadersPlaceholder", { ns: "config" })}
 											disabled={!hasMaximAccess}
 											value={field.value ?? []}
 											onChange={field.onChange}
@@ -156,7 +159,9 @@ export function MaximFormFragment({ initialConfig, onSave, onDelete, isDeleting 
 						name="enabled"
 						render={({ field }) => (
 							<FormItem className="flex items-center gap-2 py-2">
-								<FormLabel className="text-muted-foreground text-sm font-medium">Enabled</FormLabel>
+								<FormLabel className="text-muted-foreground text-sm font-medium">
+									{t("connectors.enabled", { ns: "observability" })}
+								</FormLabel>
 								<FormControl>
 									<Switch
 										checked={field.value}
@@ -196,7 +201,7 @@ export function MaximFormFragment({ initialConfig, onSave, onDelete, isDeleting 
 							}}
 							disabled={!hasMaximAccess || isLoading || !form.formState.isDirty}
 						>
-							Reset
+							{t("connectors.reset", { ns: "observability" })}
 						</Button>
 						<TooltipProvider>
 							<Tooltip>

@@ -11,7 +11,7 @@ import { CoreConfig, DefaultCoreConfig } from "@/lib/types/config";
 import { parseArrayFromText } from "@/lib/utils/array";
 import { RbacOperation, RbacResource, useRbac } from "@enterprise/lib";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 const requestTypeLabel = (requestType: string): string =>
@@ -168,11 +168,7 @@ export default function LoggingView() {
 									{t("logging.disableContentLogging")}
 								</label>
 								<p className="text-muted-foreground text-sm">
-									Applies to LLM, MCP, and agent logs. When enabled, only usage metadata (latency, cost, token count, status, routing IDs,
-									etc.) is logged. Request/response content (messages, params, tool calls, and any raw provider bytes) is dropped from log
-									records, even when <code className="text-xs">store_raw_request_response</code> is on. Raw-byte send-back to callers via{" "}
-									<code className="text-xs">send_back_raw_*</code> is unaffected. Agent protocol bodies follow this setting; upstream raw
-									captures also require Capture Raw Request and Response in Agent Gateway settings.
+									<Trans ns="config" i18nKey="logging.disableContentHelp" components={{ code: <code className="text-xs" /> }} />
 								</p>
 							</div>
 							<Switch

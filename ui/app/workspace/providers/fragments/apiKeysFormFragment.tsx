@@ -689,7 +689,7 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 									{t("providers.keys.serviceAccountJson")}
 								</TabsTrigger>
 								<TabsTrigger data-testid="apikey-vertex-aws-workload-identity-tab" value="aws_workload_identity">
-									Workload Identity (AWS)
+									{t("ui.apiKeysFormFragment.workloadIdentityAWS", { ns: "models" })}
 								</TabsTrigger>
 								<TabsTrigger data-testid="apikey-vertex-api-key-tab" value="api_key">
 									{t("providers.apiKey")}
@@ -701,8 +701,7 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 						)}
 						{vertexAuthType === "aws_workload_identity" && (
 							<p className="text-muted-foreground text-sm">
-								Exchanges the AWS identity attached to this workload (EKS IRSA or Pod Identity, ECS task role, EC2 instance profile) for a
-								GCP token through a Workload Identity Pool AWS provider. No GCP service account key and no AWS access key required.
+								{t("ui.apiKeysFormFragment.exchangesTheAWSIdentityAttachedToThisWorkloadEKS", { ns: "models" })}
 							</p>
 						)}
 					</div>
@@ -787,10 +786,8 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 								name={`key.vertex_key_config.aws_workload_identity.audience`}
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Workload Identity Provider Audience (Required)</FormLabel>
-										<FormDescription>
-											The full resource name of the AWS provider in your Workload Identity Pool, shown as the audience in the GCP console.
-										</FormDescription>
+										<FormLabel>{t("ui.apiKeysFormFragment.workloadIdentityProviderAudienceRequired", { ns: "models" })}</FormLabel>
+										<FormDescription>{t("ui.apiKeysFormFragment.theFullResourceNameOfTheAWSProviderIn", { ns: "models" })}</FormDescription>
 										<FormControl>
 											<SecretVarInput
 												data-testid="apikey-vertex-aws-wif-audience-input"
@@ -809,7 +806,7 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 								render={({ field }) => (
 									<FormItem>
 										<div className="flex items-center gap-2">
-											<FormLabel>Service Account to Impersonate (Optional)</FormLabel>
+											<FormLabel>{t("ui.apiKeysFormFragment.serviceAccountToImpersonateOptional", { ns: "models" })}</FormLabel>
 											<TooltipProvider>
 												<Tooltip>
 													<TooltipTrigger asChild>
@@ -818,11 +815,7 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 														</span>
 													</TooltipTrigger>
 													<TooltipContent>
-														<p>
-															Leave empty to call Vertex AI as the federated principal directly (grant it roles/aiplatform.user). Set it to
-															impersonate a service account that has the Vertex AI role; the federated principal then needs
-															roles/iam.workloadIdentityUser on that service account.
-														</p>
+														<p>{t("ui.apiKeysFormFragment.leaveEmptyToCallVertexAIAsTheFederated", { ns: "models" })}</p>
 													</TooltipContent>
 												</Tooltip>
 											</TooltipProvider>
@@ -830,7 +823,9 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 										<FormControl>
 											<SecretVarInput
 												data-testid="apikey-vertex-aws-wif-service-account-email-input"
-												placeholder="vertex-caller@my-project.iam.gserviceaccount.com or env.VERTEX_WIF_SA"
+												placeholder={t("ui.apiKeysFormFragment.vertexCallerMyProjectIamGserviceaccountComOrEnvVERTEXWIFSA", {
+													ns: "models",
+												})}
 												{...field}
 											/>
 										</FormControl>
@@ -843,8 +838,8 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 								name={`key.vertex_key_config.aws_workload_identity.token_lifetime_seconds`}
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Impersonated Token Lifetime in Seconds (Optional)</FormLabel>
-										<FormDescription>Only used with a service account. 600 to 43200; the default is 3600.</FormDescription>
+										<FormLabel>{t("ui.apiKeysFormFragment.impersonatedTokenLifetimeInSecondsOptional", { ns: "models" })}</FormLabel>
+										<FormDescription>{t("ui.apiKeysFormFragment.onlyUsedWithAServiceAccount600To43200", { ns: "models" })}</FormDescription>
 										<FormControl>
 											<Input
 												data-testid="apikey-vertex-aws-wif-token-lifetime-input"
@@ -869,15 +864,14 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 								name={`key.vertex_key_config.aws_workload_identity.aws_region`}
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>AWS Region (Optional)</FormLabel>
+										<FormLabel>{t("ui.apiKeysFormFragment.aWSRegionOptional", { ns: "models" })}</FormLabel>
 										<FormDescription>
-											Region used to sign the STS request. Defaults to AWS_REGION, then instance metadata. Set it when neither is available
-											in the pod.
+											{t("ui.apiKeysFormFragment.regionUsedToSignTheSTSRequestDefaultsTo", { ns: "models" })}
 										</FormDescription>
 										<FormControl>
 											<SecretVarInput
 												data-testid="apikey-vertex-aws-wif-aws-region-input"
-												placeholder="us-east-1 or env.AWS_REGION"
+												placeholder={t("providers.keys.awsRegionPlaceholder", { ns: "models" })}
 												{...field}
 											/>
 										</FormControl>
@@ -890,22 +884,23 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 								name={`key.vertex_key_config.aws_workload_identity.aws_role_arn`}
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>AWS Role ARN to Assume (Optional)</FormLabel>
+										<FormLabel>{t("ui.apiKeysFormFragment.aWSRoleARNToAssumeOptional", { ns: "models" })}</FormLabel>
 										<FormDescription>
-											Assume this IAM role with the workload&apos;s credentials before the GCP exchange. Usually unnecessary: map the
-											workload&apos;s own role in the pool provider instead.
+											{t("ui.apiKeysFormFragment.assumeThisIAMRoleWithTheWorkloadSCredentialsBefore", { ns: "models" })}
 										</FormDescription>
 										<FormControl>
 											<SecretVarInput
 												data-testid="apikey-vertex-aws-wif-aws-role-arn-input"
-												placeholder="arn:aws:iam::123456789012:role/VertexCaller or env.VERTEX_AWS_ROLE_ARN"
+												placeholder={t("ui.apiKeysFormFragment.arnAwsIam123456789012RoleVertexCallerOrEnvVERTEXAWSROLEARN", {
+													ns: "models",
+												})}
 												{...field}
 											/>
 										</FormControl>
 										{isRedacted(field.value?.value ?? "") && (
 											<div className="text-muted-foreground mt-1 flex items-center gap-1 text-xs">
 												<Info className="h-3 w-3" />
-												<span>Stored securely. Edit to update.</span>
+												<span>{t("ui.apiKeysFormFragment.storedSecurelyEditToUpdate", { ns: "models" })}</span>
 											</div>
 										)}
 										<FormMessage />
@@ -956,11 +951,9 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 						render={({ field }) => (
 							<FormItem className="flex flex-row items-center justify-between rounded-sm border p-2">
 								<div className="space-y-1.5">
-									<FormLabel>Session routing</FormLabel>
+									<FormLabel>{t("ui.apiKeysFormFragment.sessionRouting", { ns: "models" })}</FormLabel>
 									<FormDescription>
-										Send each request&apos;s prompt_cache_key to Gemini models as session_id. Vertex routes requests with the same session
-										ID to one replica, so they reuse its implicit cache. Enable only if Google has turned on session routing for this
-										key&apos;s project.
+										{t("ui.apiKeysFormFragment.sendEachRequestSPromptCacheKeyToGeminiModelsAsSessionId", { ns: "models" })}
 									</FormDescription>
 								</div>
 								<FormControl>
@@ -1216,8 +1209,8 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 						name="key.cloudflare_key_config.account_id"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Account ID (Required)</FormLabel>
-								<FormDescription>The Cloudflare account that runs Workers AI.</FormDescription>
+								<FormLabel>{t("ui.apiKeysFormFragment.accountIDRequired", { ns: "models" })}</FormLabel>
+								<FormDescription>{t("ui.apiKeysFormFragment.theCloudflareAccountThatRunsWorkersAI", { ns: "models" })}</FormDescription>
 								<FormControl>
 									<SecretVarInput data-testid="key-input-cloudflare-account-id" placeholder="env.CLOUDFLARE_ACCOUNT_ID" {...field} />
 								</FormControl>
@@ -1230,7 +1223,7 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 			{isOpenAICompatible && (
 				<div className="space-y-4">
 					<div className="space-y-2">
-						<FormLabel>Authentication Method</FormLabel>
+						<FormLabel>{t("providers.keys.authMethod", { ns: "models" })}</FormLabel>
 						<Tabs
 							value={openaiAuthType}
 							onValueChange={(v) => {
@@ -1248,10 +1241,10 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 						>
 							<TabsList className="grid w-full grid-cols-2">
 								<TabsTrigger data-testid="apikey-openai-api-key-tab" value="api_key">
-									API Key
+									{t("providers.apiKey", { ns: "models" })}
 								</TabsTrigger>
 								<TabsTrigger data-testid="apikey-openai-oauth-tab" value="oauth">
-									OAuth (minted token)
+									{t("ui.apiKeysFormFragment.oAuthMintedToken", { ns: "models" })}
 								</TabsTrigger>
 							</TabsList>
 						</Tabs>
@@ -1262,9 +1255,14 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 							name="key.value"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>API Key</FormLabel>
+									<FormLabel>{t("providers.apiKey", { ns: "models" })}</FormLabel>
 									<FormControl>
-										<SecretVarInput data-testid="key-input-openai-api-key" placeholder="API Key or env.MY_KEY" type="text" {...field} />
+										<SecretVarInput
+											data-testid="key-input-openai-api-key"
+											placeholder={t("providers.keys.apiKeyOrEnv", { ns: "models" })}
+											type="text"
+											{...field}
+										/>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -1274,24 +1272,27 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 					{openaiAuthType === "oauth" && (
 						<>
 							<p className="text-muted-foreground text-sm">
-								Bifrost requests an access token from the token endpoint, sends it as the bearer, caches it per credential and refreshes it
-								before it expires. Use this for upstreams that issue short-lived tokens instead of a static key.
+								{t("ui.apiKeysFormFragment.bifrostRequestsAnAccessTokenFromTheTokenEndpoint", { ns: "models" })}
 							</p>
 							<FormField
 								control={control}
 								name="key.oauth_key_config.grant_type"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Grant Type</FormLabel>
+										<FormLabel>{t("ui.apiKeysFormFragment.grantType", { ns: "models" })}</FormLabel>
 										<Select value={field.value ?? "client_credentials"} onValueChange={field.onChange}>
 											<FormControl>
 												<SelectTrigger className="w-full" data-testid="key-select-oauth-grant-type">
-													<SelectValue placeholder="Client credentials" />
+													<SelectValue placeholder={t("ui.apiKeysFormFragment.clientCredentials", { ns: "models" })} />
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												<SelectItem value="client_credentials">Client credentials (client ID + secret)</SelectItem>
-												<SelectItem value="jwt_bearer">JWT bearer (signed assertion, RFC 7523)</SelectItem>
+												<SelectItem value="client_credentials">
+													{t("ui.apiKeysFormFragment.clientCredentialsClientIDSecret", { ns: "models" })}
+												</SelectItem>
+												<SelectItem value="jwt_bearer">
+													{t("ui.apiKeysFormFragment.jWTBearerSignedAssertionRFC7523", { ns: "models" })}
+												</SelectItem>
 											</SelectContent>
 										</Select>
 										<FormMessage />
@@ -1303,8 +1304,10 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 								name="key.oauth_key_config.token_url"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Token URL</FormLabel>
-										<FormDescription>The identity provider&apos;s token endpoint. Must be https.</FormDescription>
+										<FormLabel>{t("registry.sheet.tokenUrl", { ns: "mcp" })}</FormLabel>
+										<FormDescription>
+											{t("ui.apiKeysFormFragment.theIdentityProviderSTokenEndpointMustBeHttps", { ns: "models" })}
+										</FormDescription>
 										<FormControl>
 											<SecretVarInput
 												data-testid="key-input-oauth-token-url"
@@ -1323,9 +1326,13 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 										name="key.oauth_key_config.client_id"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Client ID</FormLabel>
+												<FormLabel>{t("providers.keys.clientId", { ns: "models" })}</FormLabel>
 												<FormControl>
-													<SecretVarInput data-testid="key-input-oauth-client-id" placeholder="Client ID or env.IDP_CLIENT_ID" {...field} />
+													<SecretVarInput
+														data-testid="key-input-oauth-client-id"
+														placeholder={t("ui.apiKeysFormFragment.clientIDOrEnvIDPCLIENTID", { ns: "models" })}
+														{...field}
+													/>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -1336,11 +1343,11 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 										name="key.oauth_key_config.client_secret"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Client Secret</FormLabel>
+												<FormLabel>{t("providers.keys.clientSecret", { ns: "models" })}</FormLabel>
 												<FormControl>
 													<SecretVarInput
 														data-testid="key-input-oauth-client-secret"
-														placeholder="Client secret or env.IDP_CLIENT_SECRET"
+														placeholder={t("ui.apiKeysFormFragment.clientSecretOrEnvIDPCLIENTSECRET", { ns: "models" })}
 														{...field}
 													/>
 												</FormControl>
@@ -1353,20 +1360,23 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 										name="key.oauth_key_config.auth_style"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Credential Placement</FormLabel>
+												<FormLabel>{t("ui.apiKeysFormFragment.credentialPlacement", { ns: "models" })}</FormLabel>
 												<FormDescription>
-													Where the token request carries the client ID and secret. Header (HTTP Basic) is the standard; some providers only
-													accept them as form fields.
+													{t("ui.apiKeysFormFragment.whereTheTokenRequestCarriesTheClientIDAnd", { ns: "models" })}
 												</FormDescription>
 												<Select value={field.value ?? "header"} onValueChange={field.onChange}>
 													<FormControl>
 														<SelectTrigger className="w-full" data-testid="key-select-oauth-auth-style">
-															<SelectValue placeholder="Header" />
+															<SelectValue placeholder={t("ui.apiKeysFormFragment.header", { ns: "models" })} />
 														</SelectTrigger>
 													</FormControl>
 													<SelectContent>
-														<SelectItem value="header">Authorization header (HTTP Basic)</SelectItem>
-														<SelectItem value="body">Form body (client_id / client_secret)</SelectItem>
+														<SelectItem value="header">
+															{t("ui.apiKeysFormFragment.authorizationHeaderHTTPBasic", { ns: "models" })}
+														</SelectItem>
+														<SelectItem value="body">
+															{t("ui.apiKeysFormFragment.formBodyClientIdClientSecret", { ns: "models" })}
+														</SelectItem>
 													</SelectContent>
 												</Select>
 												<FormMessage />
@@ -1382,8 +1392,8 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 										name="key.oauth_key_config.private_key"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Private Key</FormLabel>
-												<FormDescription>RSA or EC private key in PEM form. Bifrost signs each assertion with it.</FormDescription>
+												<FormLabel>{t("providers.keys.privateKey", { ns: "models" })}</FormLabel>
+												<FormDescription>{t("ui.apiKeysFormFragment.rSAOrECPrivateKeyInPEMFormBifrost", { ns: "models" })}</FormDescription>
 												<FormControl>
 													<SecretVarInput
 														data-testid="key-input-oauth-private-key"
@@ -1402,8 +1412,10 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 										name="key.oauth_key_config.issuer"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Issuer</FormLabel>
-												<FormDescription>The iss claim, usually the client or service account ID.</FormDescription>
+												<FormLabel>{t("ui.apiKeysFormFragment.issuer", { ns: "models" })}</FormLabel>
+												<FormDescription>
+													{t("ui.apiKeysFormFragment.theIssClaimUsuallyTheClientOrServiceAccount", { ns: "models" })}
+												</FormDescription>
 												<FormControl>
 													<Input data-testid="key-input-oauth-issuer" placeholder="client-id" {...field} value={field.value ?? ""} />
 												</FormControl>
@@ -1416,8 +1428,8 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 										name="key.oauth_key_config.subject"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Subject (Optional)</FormLabel>
-												<FormDescription>The sub claim. Defaults to the issuer.</FormDescription>
+												<FormLabel>{t("ui.apiKeysFormFragment.subjectOptional", { ns: "models" })}</FormLabel>
+												<FormDescription>{t("ui.apiKeysFormFragment.theSubClaimDefaultsToTheIssuer", { ns: "models" })}</FormDescription>
 												<FormControl>
 													<Input
 														data-testid="key-input-oauth-subject"
@@ -1435,8 +1447,10 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 										name="key.oauth_key_config.audience"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Audience</FormLabel>
-												<FormDescription>The aud claim, usually the token endpoint itself.</FormDescription>
+												<FormLabel>{t("registry.form.audience", { ns: "mcp" })}</FormLabel>
+												<FormDescription>
+													{t("ui.apiKeysFormFragment.theAudClaimUsuallyTheTokenEndpointItself", { ns: "models" })}
+												</FormDescription>
 												<FormControl>
 													<Input
 														data-testid="key-input-oauth-audience"
@@ -1454,8 +1468,10 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 										name="key.oauth_key_config.key_id"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Key ID (Optional)</FormLabel>
-												<FormDescription>The kid header, when the identity provider selects keys by ID.</FormDescription>
+												<FormLabel>{t("ui.apiKeysFormFragment.keyIDOptional", { ns: "models" })}</FormLabel>
+												<FormDescription>
+													{t("ui.apiKeysFormFragment.theKidHeaderWhenTheIdentityProviderSelectsKeys", { ns: "models" })}
+												</FormDescription>
 												<FormControl>
 													<Input data-testid="key-input-oauth-key-id" placeholder="kid-1" {...field} value={field.value ?? ""} />
 												</FormControl>
@@ -1468,7 +1484,7 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 										name="key.oauth_key_config.signing_algorithm"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Signing Algorithm</FormLabel>
+												<FormLabel>{t("ui.apiKeysFormFragment.signingAlgorithm", { ns: "models" })}</FormLabel>
 												<Select value={field.value ?? "RS256"} onValueChange={field.onChange}>
 													<FormControl>
 														<SelectTrigger className="w-full" data-testid="key-select-oauth-signing-algorithm">
@@ -1492,8 +1508,10 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 										name="key.oauth_key_config.assertion_lifetime_seconds"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Assertion Lifetime (seconds)</FormLabel>
-												<FormDescription>How long each signed assertion is valid for. Default 300.</FormDescription>
+												<FormLabel>{t("ui.apiKeysFormFragment.assertionLifetimeSeconds", { ns: "models" })}</FormLabel>
+												<FormDescription>
+													{t("ui.apiKeysFormFragment.howLongEachSignedAssertionIsValidForDefault", { ns: "models" })}
+												</FormDescription>
 												<FormControl>
 													<Input
 														data-testid="key-input-oauth-assertion-lifetime"
@@ -1517,11 +1535,11 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 								name="key.oauth_key_config.scopes"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Scopes (Optional)</FormLabel>
+										<FormLabel>{t("providers.keys.scopesOptional", { ns: "models" })}</FormLabel>
 										<FormControl>
 											<TagInput
 												data-testid="key-input-oauth-scopes"
-												placeholder="Add scope (Enter or comma)"
+												placeholder={t("providers.keys.addScopePlaceholder", { ns: "models" })}
 												value={field.value ?? []}
 												onValueChange={field.onChange}
 											/>
@@ -1536,8 +1554,10 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 									name="key.oauth_key_config.audience"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Audience (Optional)</FormLabel>
-											<FormDescription>Sent as the audience form parameter, for providers that scope tokens by API.</FormDescription>
+											<FormLabel>{t("ui.apiKeysFormFragment.audienceOptional", { ns: "models" })}</FormLabel>
+											<FormDescription>
+												{t("ui.apiKeysFormFragment.sentAsTheAudienceFormParameterForProvidersThat", { ns: "models" })}
+											</FormDescription>
 											<FormControl>
 												<Input
 													data-testid="key-input-oauth-cc-audience"

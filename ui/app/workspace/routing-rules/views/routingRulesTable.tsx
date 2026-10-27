@@ -55,7 +55,7 @@ function RoutingRuleActionsMenu({
 					variant="ghost"
 					size="icon"
 					className="h-8 w-8"
-					aria-label={`Actions for routing rule ${rule.name}`}
+					aria-label={tc("accessibility.routingruleActions", { ns: "common", name: rule.name })}
 					data-testid={`routing-rule-actions-${rule.id}-btn`}
 				>
 					<MoreHorizontal className="h-4 w-4" />
@@ -297,7 +297,12 @@ export function RoutingRulesTable({
 			{totalCount > 0 && (
 				<div className="flex shrink-0 items-center justify-between text-xs" data-testid="pagination">
 					<div className="text-muted-foreground flex items-center gap-2">
-						{(offset + 1).toLocaleString()}-{Math.min(offset + limit, totalCount).toLocaleString()} of {totalCount.toLocaleString()} entries
+						{t("pagination.entries", {
+							ns: "common",
+							from: (offset + 1).toLocaleString(),
+							to: Math.min(offset + limit, totalCount).toLocaleString(),
+							total: totalCount.toLocaleString(),
+						})}
 					</div>
 
 					<div className="flex items-center gap-2">
@@ -307,15 +312,13 @@ export function RoutingRulesTable({
 							onClick={() => onOffsetChange(Math.max(0, offset - limit))}
 							disabled={offset === 0}
 							data-testid="routing-rules-pagination-prev-btn"
-							aria-label="Previous page"
+							aria-label={t("providers.previousPage", { ns: "models" })}
 						>
 							<ChevronLeft className="size-3" />
 						</Button>
 
 						<div className="flex items-center gap-1">
-							<span>Page</span>
-							<span>{Math.floor(offset / limit) + 1}</span>
-							<span>of {Math.ceil(totalCount / limit)}</span>
+							{t("pagination.page", { ns: "common", page: Math.floor(offset / limit) + 1, total: Math.ceil(totalCount / limit) })}
 						</div>
 
 						<Button
@@ -324,7 +327,7 @@ export function RoutingRulesTable({
 							onClick={() => onOffsetChange(offset + limit)}
 							disabled={offset + limit >= totalCount}
 							data-testid="routing-rules-pagination-next-btn"
-							aria-label="Next page"
+							aria-label={t("providers.nextPage", { ns: "models" })}
 						>
 							<ChevronRight className="size-3" />
 						</Button>
@@ -339,7 +342,7 @@ export function RoutingRulesTable({
 						<AlertDialogDescription>{t("routing.deleteConfirm", { name: ruleToDelete?.name })}</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+						<AlertDialogCancel disabled={isDeleting}>{t("cancel", { ns: "common" })}</AlertDialogCancel>
 						<AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
 							{isDeleting ? t("routing.deleting") : tc("delete")}
 						</AlertDialogAction>
@@ -351,6 +354,7 @@ export function RoutingRulesTable({
 }
 
 function TargetsSummary({ targets }: { targets: RoutingTarget[] }) {
+	const { t: tCopy } = useTranslation();
 	if (!targets || targets.length === 0) {
 		return <span className="text-muted-foreground text-sm">-</span>;
 	}
@@ -366,7 +370,8 @@ function TargetsSummary({ targets }: { targets: RoutingTarget[] }) {
 			</div>
 			{targets.length > 1 && (
 				<span className="text-muted-foreground text-xs">
-					+{targets.length - 1} more target{targets.length > 2 ? "s" : ""}
+					+{targets.length - 1} {tCopy("ui.routingRulesTable.moreTarget", { ns: "models" })}
+					{targets.length > 2 ? "s" : ""}
 				</span>
 			)}
 		</div>

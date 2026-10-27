@@ -1,3 +1,4 @@
+import i18nReview from "@/lib/i18n";
 import { BifrostConfig, GlobalProxyConfig, LatestReleaseResponse } from "@/lib/types/config";
 import axios from "axios";
 import { baseApi } from "./baseApi";
@@ -93,7 +94,7 @@ export const configApi = baseApi.injectEndpoints({
 								error: {
 									status: "TIMEOUT_ERROR",
 									error: "Request timeout",
-									data: { error: { message: "Request timeout" } },
+									data: { error: { message: i18nReview.t("ui.configApi.requestTimeout", { ns: "common" }) } },
 								},
 							};
 						}
@@ -105,7 +106,7 @@ export const configApi = baseApi.injectEndpoints({
 						error: {
 							status: "FETCH_ERROR",
 							error: String(error),
-							data: { error: { message: "Network error" } },
+							data: { error: { message: i18nReview.t("ui.configApi.networkError", { ns: "common" }) } },
 						},
 					};
 				}

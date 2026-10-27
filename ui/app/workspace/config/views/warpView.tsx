@@ -554,7 +554,7 @@ export default function WarpView() {
 									    maturity signal actually informs a decision. */}
 									<div className="flex items-center gap-2">
 										<Label htmlFor="warp-enabled">{t("warp.enable")}</Label>
-										<Badge variant="secondary">ALPHA</Badge>
+										<Badge variant="secondary">{t("ui.warpView.aLPHA", { ns: "config" })}</Badge>
 									</div>
 									<p className="text-muted-foreground text-sm">{t("warp.enableHelp")}</p>
 								</div>
@@ -584,7 +584,7 @@ export default function WarpView() {
 
 						<WarpSection
 							title={localeMessages.t("modelAccess.modelsTab", { ns: "common" })}
-							description="The models Warp reasons with and writes answers from. The default answers unless someone picks another in the Warp panel. A capable model pays for itself here."
+							description={t("ui.warpView.theModelsWarpReasonsWithAndWritesAnswersFrom", { ns: "config" })}
 						>
 							{/* A successful empty list is its own situation, distinct from
 							    loading and from a failed query. Without this the selector is
@@ -649,11 +649,12 @@ export default function WarpView() {
 									data-testid="warp-add-model-btn"
 								>
 									<Plus className="size-3.5" />
-									Add model
+									{t("ui.warpView.addModel", { ns: "config" })}
 								</Button>
 								{form.models.length > WARP_MAX_ADDITIONAL_MODELS && (
 									<p className="text-muted-foreground text-xs">
-										Warp offers its default and up to {WARP_MAX_ADDITIONAL_MODELS} more models.
+										{t("ui.warpView.warpOffersItsDefaultAndUpTo", { ns: "config" }) + " "}
+										{WARP_MAX_ADDITIONAL_MODELS} {t("ui.warpView.moreModels", { ns: "config" })}
 									</p>
 								)}
 							</div>
@@ -1143,6 +1144,7 @@ interface WarpModelRowFieldsProps {
 
 /** One provider, model and key. Each row loads its own provider's keys, so the list can mix providers. */
 function WarpModelRowFields({ row, index, disabled, error, onChange, onMakeDefault, onRemove }: WarpModelRowFieldsProps) {
+	const { t: tCopy } = useTranslation();
 	const isDefault = index === 0;
 	// The default row keeps the ids it had as the page's only model.
 	const suffix = isDefault ? "" : `-${index}`;
@@ -1173,7 +1175,9 @@ function WarpModelRowFields({ row, index, disabled, error, onChange, onMakeDefau
 	return (
 		<div className="space-y-3 py-4 first:pt-0 last:pb-0" data-testid={`warp-model-row${suffix}`}>
 			<div className="flex min-h-7 items-center justify-between gap-3">
-				<h4 className="text-sm font-medium">{isDefault ? "Default model" : `Model ${index + 1}`}</h4>
+				<h4 className="text-sm font-medium">
+					{isDefault ? tCopy("ui.warpView.defaultModel", { ns: "config" }) : tCopy("warp.modelNumber", { ns: "config", number: index + 1 })}
+				</h4>
 				{!isDefault && (
 					<div className="flex items-center gap-1">
 						<Button
@@ -1185,7 +1189,7 @@ function WarpModelRowFields({ row, index, disabled, error, onChange, onMakeDefau
 							disabled={disabled || !row.provider || !row.model}
 							data-testid={`warp-model-make-default-btn${suffix}`}
 						>
-							Make default
+							{tCopy("ui.warpView.makeDefault", { ns: "config" })}
 						</Button>
 						<Button
 							type="button"
@@ -1194,7 +1198,7 @@ function WarpModelRowFields({ row, index, disabled, error, onChange, onMakeDefau
 							className="size-7"
 							onClick={onRemove}
 							disabled={disabled}
-							aria-label={`Remove model ${index + 1}`}
+							aria-label={tCopy("warp.removeModel", { ns: "config", number: index + 1 })}
 							data-testid={`warp-model-remove-btn${suffix}`}
 						>
 							<Trash2 className="size-3.5" />
@@ -1313,7 +1317,7 @@ function WarpModelRowFields({ row, index, disabled, error, onChange, onMakeDefau
 					)}
 					{row.provider && isKeysError && (
 						<p className="text-destructive flex items-center gap-2 text-xs" role="alert">
-							Could not load this provider&apos;s keys.
+							{tCopy("ui.warpView.couldNotLoadThisProviderSKeys", { ns: "config" })}
 							<button type="button" onClick={() => refetchKeys()} className="underline" data-testid={`warp-keys-retry${suffix}`}>
 								{localeMessages.t("promptRepo.retry", { ns: "config" })}
 							</button>
@@ -1366,6 +1370,7 @@ interface WarpFieldProps {
 }
 
 function WarpField({ label, htmlFor, hint, error, className, children }: WarpFieldProps) {
+	const { t: tReview } = useTranslation();
 	return (
 		<div className={cn("flex min-w-0 flex-col gap-1.5", className)}>
 			<div className="flex items-center gap-1.5">
@@ -1376,7 +1381,7 @@ function WarpField({ label, htmlFor, hint, error, className, children }: WarpFie
 							<button
 								type="button"
 								className="text-muted-foreground hover:text-foreground inline-flex"
-								aria-label={`About ${label}`}
+								aria-label={tReview("aboutField", { ns: "common", field: label })}
 								data-testid={`${htmlFor}-info`}
 							>
 								<Info className="size-3.5" />

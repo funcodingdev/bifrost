@@ -457,15 +457,15 @@ export const createColumns = (
 						const sessionCount = log.session_child_count ?? 0;
 						if (sessionCount > 0) {
 							const isExpanded = meta.expandedSessionIds.has(log.id);
-							const others = `${sessionCount} more request${sessionCount === 1 ? "" : "s"}`;
+
 							return (
 								<GroupToggle
 									testId="log-session-expand-btn"
 									className="pl-1"
 									stubX={TREE_TRUNK_X[0]}
-									label={<span className="truncate tabular-nums">{sessionCount + 1} turns</span>}
-									ariaLabel={isExpanded ? "Collapse this session" : `Expand ${others} in this session`}
-									tooltip={`Session of ${sessionCount + 1} requests sharing a session_id. Expand to see the other ${others.replace("more ", "")}.`}
+									label={<span className="truncate tabular-nums">{t("logs.sessionTurnCount", { count: sessionCount + 1 })}</span>}
+									ariaLabel={isExpanded ? t("logs.collapseSession") : t("logs.expandSession", { count: sessionCount })}
+									tooltip={t("logs.sessionGroupHelp", { total: sessionCount + 1, count: sessionCount })}
 									isExpanded={isExpanded}
 									isLoading={meta.loadingSessionIds.has(log.id) || meta.loadingChainIds.has(log.id)}
 									onToggle={() => meta.onToggleSession(log)}
@@ -532,7 +532,11 @@ export const createColumns = (
 					<button
 						type="button"
 						data-testid="logs-row-open-btn"
-						aria-label={`${format(date, "MMM dd HH:mm:ss", { locale: dateFnsLocale(i18n.resolvedLanguage) })} ${formatDistanceToNow(date, { addSuffix: true, locale: dateFnsLocale(i18n.resolvedLanguage) })}, open log details`}
+						aria-label={localeMessages.t("logs.details.openTimedLog", {
+							ns: "observability",
+							time: format(date, "MMM dd HH:mm:ss", { locale: dateFnsLocale(i18n.resolvedLanguage) }),
+							relative: formatDistanceToNow(date, { addSuffix: true, locale: dateFnsLocale(i18n.resolvedLanguage) }),
+						})}
 						className="focus-visible:ring-ring flex cursor-pointer flex-col rounded-sm text-left leading-tight focus-visible:ring-2 focus-visible:outline-none"
 					>
 						<span className="font-mono text-xs tabular-nums">
@@ -655,10 +659,14 @@ export const createColumns = (
 							<TooltipTrigger asChild>
 								<div className="flex flex-col items-start gap-0.5 pl-4 leading-tight">
 									<span className="font-mono text-[12px] tabular-nums">{formatCompactNumber(row.original.session_total_tokens ?? 0)}</span>
-									<span className="text-muted-foreground font-mono text-[10.5px] tabular-nums">{sessionCount + 1} requests</span>
+									<span className="text-muted-foreground font-mono text-[10.5px] tabular-nums">
+										{t("logs.sessionRequestCount", { count: sessionCount + 1 })}
+									</span>
 								</div>
 							</TooltipTrigger>
-							<TooltipContent>Total across {sessionCount + 1} requests in this session. Expand the row to see them.</TooltipContent>
+							<TooltipContent>
+								Total across {t("logs.sessionRequestCount", { count: sessionCount + 1 })} in this session. Expand the row to see them.
+							</TooltipContent>
 						</Tooltip>
 					);
 				}
@@ -713,7 +721,9 @@ export const createColumns = (
 							<TooltipTrigger asChild>
 								<div className="pl-4 font-mono text-sm tabular-nums">{formatCost(row.original.session_total_cost ?? 0)}</div>
 							</TooltipTrigger>
-							<TooltipContent>Total across {sessionCount + 1} requests in this session. Expand the row to see them.</TooltipContent>
+							<TooltipContent>
+								Total across {t("logs.sessionRequestCount", { count: sessionCount + 1 })} in this session. Expand the row to see them.
+							</TooltipContent>
 						</Tooltip>
 					);
 				}

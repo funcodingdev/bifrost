@@ -90,7 +90,7 @@ import { ChevronRight } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useCookies } from "react-cookie";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { Badge } from "./ui/badge";
 import { PromoCardStack } from "./ui/promoCardStack";
 
@@ -125,7 +125,9 @@ const MCPIcon = ({ className, label = "MCP clients icon" }: { className?: string
 // Base promotional card (memoized outside component to prevent recreation)
 const productionSetupHelpCard = {
 	id: "production-setup",
-	title: "Need help with production setup?",
+	get title() {
+		return localeMessages.t("ui.sidebar.needHelpWithProductionSetup", { ns: "common" });
+	},
 	description: (
 		<>
 			{localeMessages.t("promo.productionSetup.body", { ns: "shell" })}
@@ -216,6 +218,7 @@ const SidebarItemView = ({
 	expandSidebar: () => void;
 	highlightedUrl?: string;
 }) => {
+	const { t: tCopy } = useTranslation();
 	const [flyoutOpen, setFlyoutOpen] = useState(false);
 	const flyoutCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const openFlyout = () => {
@@ -289,7 +292,7 @@ const SidebarItemView = ({
 				</span>
 				{item.new && (
 					<Badge data-new-badge="true" className={`${newBadgeClassName} ml-auto ${hasSubItems ? "mr-2" : ""}`}>
-						New
+						{tCopy("ui.sidebar.new", { ns: "common" })}
 					</Badge>
 				)}
 				{item.tag && (
@@ -689,7 +692,7 @@ export default function AppSidebar() {
 				testId: "llm-logs",
 				url: "/workspace/logs",
 				icon: Telescope,
-				description: "Request logs & monitoring",
+				description: t("navDesc.observability", { ns: "shell" }),
 				hasAccess:
 					hasLogsAccess || hasDashboardAccess || hasMCPLogsAccess || hasAgentLogsAccess || hasObservabilityAccess || hasSettingsAccess,
 				subItems: [
@@ -719,11 +722,11 @@ export default function AppSidebar() {
 					},
 					{
 						id: "agent-logs",
-						title: "Agent Logs",
+						title: t("ui.sidebar.agentLogs", { ns: "common" }),
 						testId: "agent-logs",
 						url: "/workspace/agent-logs",
 						icon: Bot,
-						description: "Agent request logs",
+						description: t("ui.sidebar.agentRequestLogs", { ns: "common" }),
 						hasAccess: hasAgentLogsAccess,
 					},
 					{
@@ -823,7 +826,7 @@ export default function AppSidebar() {
 				title: t("nav.mcpGateway", { defaultValue: "MCP Servers" }),
 				testId: "mcp-gateway", // keep the pre-rename E2E selector stable
 				icon: MCPIcon,
-				description: "MCP configuration",
+				description: t("navDesc.mcpGateway", { ns: "shell" }),
 				url: "/workspace/mcp-gateway",
 				hasAccess: hasMCPGatewayAccess || hasVirtualMCPsAccess,
 				subItems: [
@@ -880,39 +883,39 @@ export default function AppSidebar() {
 			},
 			{
 				id: "agent-catalog",
-				title: "Agents",
+				title: t("ui.sidebar.agents", { ns: "common" }),
 				testId: "agent-catalog",
 				url: "/workspace/agent-gateway",
 				icon: Bot,
-				description: "Register and manage A2A agents",
+				description: t("ui.sidebar.registerAndManageA2AAgents", { ns: "common" }),
 				hasAccess: hasAgentGatewayAccess,
 				new: true,
 				subItems: [
 					{
 						id: "agent-catalog",
-						title: "Agent Catalog",
+						title: t("ui.sidebar.agentCatalog", { ns: "common" }),
 						testId: "agent-catalog",
 						url: "/workspace/agent-gateway",
 						icon: LayoutGrid,
-						description: "Registered A2A agents",
+						description: t("ui.sidebar.registeredA2AAgents", { ns: "common" }),
 						hasAccess: hasAgentGatewayAccess,
 					},
 					{
 						id: "push-configurations",
-						title: "Push Configurations",
+						title: t("ui.sidebar.pushConfigurations", { ns: "common" }),
 						testId: "push-configurations",
 						url: "/workspace/agent-gateway/push-configs",
 						icon: Webhook,
-						description: "Stored A2A push callbacks",
+						description: t("ui.sidebar.storedA2APushCallbacks", { ns: "common" }),
 						hasAccess: hasAgentGatewayAccess,
 					},
 					{
 						id: "agent-settings",
-						title: "Agent Settings",
+						title: t("ui.sidebar.agentSettings", { ns: "common" }),
 						testId: "agent-settings",
 						url: "/workspace/config/agent-gateway",
 						icon: Settings,
-						description: "Agent Gateway configuration",
+						description: t("ui.sidebar.agentGatewayConfiguration", { ns: "common" }),
 						hasAccess: hasSettingsAccess,
 					},
 				],
@@ -977,11 +980,11 @@ export default function AppSidebar() {
 					},
 					{
 						id: "org-chart",
-						title: "Org Chart",
+						title: t("ui.sidebar.orgChart", { ns: "common" }),
 						testId: "org-chart",
 						url: "/workspace/governance/org-chart",
 						icon: Network,
-						description: "Budgets and usage across business units, teams and users",
+						description: t("ui.sidebar.budgetsAndUsageAcrossBusinessUnitsTeamsAndUsers", { ns: "common" }),
 						// The chart is read from business units down, so it follows the Business Units entry.
 						hasAccess: hasBusinessUnitsAccess,
 						new: true,
@@ -1087,11 +1090,11 @@ export default function AppSidebar() {
 					},
 					{
 						id: "incidents",
-						title: "Incidents",
+						title: t("ui.sidebar.incidents", { ns: "common" }),
 						testId: "incidents",
 						url: "/workspace/guardrails/incidents",
 						icon: TriangleAlert,
-						description: "Requests blocked or flagged by guardrails",
+						description: t("ui.sidebar.requestsBlockedOrFlaggedByGuardrails", { ns: "common" }),
 						hasAccess: hasGuardrailsConfigAccess && hasLogsAccess,
 					},
 				],
@@ -1139,47 +1142,47 @@ export default function AppSidebar() {
 			},
 			{
 				id: "cluster",
-				title: "Cluster",
+				title: t("ui.sidebar.cluster", { ns: "common" }),
 				testId: "cluster",
 				url: "/workspace/cluster",
 				icon: Network,
-				description: "Monitor the Bifrost cluster",
+				description: t("ui.sidebar.monitorTheBifrostCluster", { ns: "common" }),
 				hasAccess: hasClusterConfigAccess,
 				subItems: [
 					{
 						id: "nodes",
-						title: "Nodes",
+						title: t("ui.sidebar.nodes", { ns: "common" }),
 						testId: "nodes",
 						url: "/workspace/cluster/overview",
 						icon: Server,
-						description: "Node health, CPU, memory and request rate",
+						description: t("ui.sidebar.nodeHealthCPUMemoryAndRequestRate", { ns: "common" }),
 						hasAccess: hasClusterConfigAccess,
 					},
 					{
 						id: "storage",
-						title: "Storage",
+						title: t("ui.sidebar.storage", { ns: "common" }),
 						testId: "storage",
 						url: "/workspace/cluster/storage",
 						icon: Database,
-						description: "Config and logs store databases, pools and slow queries",
+						description: t("ui.sidebar.configAndLogsStoreDatabasesPoolsAndSlowQueries", { ns: "common" }),
 						hasAccess: hasClusterConfigAccess,
 					},
 					{
 						id: "incidents",
-						title: "Incidents",
+						title: t("ui.sidebar.incidents", { ns: "common" }),
 						testId: "incidents",
 						url: "/workspace/cluster/incidents",
 						icon: TriangleAlert,
-						description: "Memory, message delivery and database incidents",
+						description: t("ui.sidebar.memoryMessageDeliveryAndDatabaseIncidents", { ns: "common" }),
 						hasAccess: hasClusterConfigAccess,
 					},
 					{
 						id: "settings",
-						title: "Settings",
+						title: t("nav.adaptiveRoutingSettings", { ns: "shell" }),
 						testId: "settings",
 						url: "/workspace/cluster/settings",
 						icon: Settings2Icon,
-						description: "Monitoring, sample retention and memory threshold",
+						description: t("ui.sidebar.monitoringSampleRetentionAndMemoryThreshold", { ns: "common" }),
 						// The settings API sits under the Settings resource; saving also needs Settings update.
 						hasAccess: hasClusterConfigAccess && hasSettingsAccess,
 					},
@@ -1203,11 +1206,11 @@ export default function AppSidebar() {
 					},
 					{
 						id: "incidents",
-						title: "Incidents",
+						title: t("ui.sidebar.incidents", { ns: "common" }),
 						testId: "incidents",
 						url: "/workspace/adaptive-routing/incidents",
 						icon: TriangleAlert,
-						description: "Adaptive routing incidents",
+						description: t("ui.sidebar.adaptiveRoutingIncidents", { ns: "common" }),
 						hasAccess: isAdaptiveRoutingAllowed,
 					},
 					{
@@ -1233,11 +1236,11 @@ export default function AppSidebar() {
 						},
 						{
 							id: "skills-repository",
-							title: "Skills",
+							title: t("skillsRepo.breadcrumb", { ns: "config" }),
 							testId: "skills-repository",
 							url: "/workspace/skills-repo",
 							icon: BookOpenText,
-							description: "Manage skills and marketplace settings",
+							description: t("ui.sidebar.manageSkillsAndMarketplaceSettings", { ns: "common" }),
 							hasAccess: hasSkillsRepositoryAccess || hasSettingsAccess,
 							subItems: [
 								{
@@ -1251,11 +1254,11 @@ export default function AppSidebar() {
 								},
 								{
 									id: "skills-settings",
-									title: "Skills Settings",
+									title: t("ui.sidebar.skillsSettings", { ns: "common" }),
 									testId: "skills-settings",
 									url: "/workspace/config/skills",
 									icon: Settings,
-									description: "Skills marketplace configuration",
+									description: t("ui.sidebar.skillsMarketplaceConfiguration", { ns: "common" }),
 									hasAccess: hasSettingsAccess,
 								},
 							],
@@ -1644,16 +1647,17 @@ export default function AppSidebar() {
 		if (setupRequired) {
 			cards.push({
 				id: "setup-required",
-				title: "Dashboard auth not configured",
+				title: t("ui.sidebar.dashboardAuthNotConfigured", { ns: "common" }),
 				description: (
 					<div className="flex h-full flex-col gap-2 text-xs text-amber-700 dark:text-amber-300/80" data-testid="setup-required-banner">
 						<p>
-							All management APIs accept the setup token in the <code className="font-semibold">X-Bifrost-Setup-Token</code> header until
-							you create an admin account.
+							{t("ui.sidebar.allManagementAPIsAcceptTheSetupTokenInThe", { ns: "common" }) + " "}
+							<code className="font-semibold">X-Bifrost-Setup-Token</code>{" "}
+							{t("ui.sidebar.headerUntilYouCreateAnAdminAccount", { ns: "common" })}
 						</p>
 						<div className="mt-auto flex items-center gap-3 pb-1">
 							<Link to="/workspace/config/security" className="text-primary font-medium underline" data-testid="setup-required-banner-link">
-								Create admin
+								{t("ui.sidebar.createAdmin", { ns: "common" })}
 							</Link>
 							<a
 								href="https://docs.getbifrost.ai/quickstart/gateway/setting-up-auth"
@@ -1739,16 +1743,20 @@ export default function AppSidebar() {
 						{t("promo.productionSetup.body")}
 						<br />
 						<br />
-						{t("promo.productionSetup.bookPrefix")}{" "}
-						<a
-							href="https://calendly.com/maximai/bifrost-demo?utm_source=bfd_sdbr"
-							target="_blank"
-							className="text-primary font-medium underline"
-							rel="noopener noreferrer"
-						>
-							{t("promo.productionSetup.here")}
-						</a>
-						.
+						<Trans
+							ns="shell"
+							i18nKey="promo.productionSetup.bookDemo"
+							components={{
+								link: (
+									<a
+										href="https://calendly.com/maximai/bifrost-demo?utm_source=bfd_sdbr"
+										target="_blank"
+										className="text-primary font-medium underline"
+										rel="noopener noreferrer"
+									/>
+								),
+							}}
+						/>
 					</>
 				),
 				dismissible: true,

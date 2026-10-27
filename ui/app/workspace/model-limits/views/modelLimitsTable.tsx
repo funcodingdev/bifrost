@@ -68,6 +68,7 @@ function ModelLimitActionsMenu({
 	onEdit: (config: ModelConfig) => void;
 	onDelete: (configId: string) => void;
 }) {
+	const { t: tCopy } = useTranslation();
 	const [isOpen, setIsOpen] = useState(false);
 	// A readOnly-registered scope (e.g. enterprise's access_profile) can only be
 	// changed by editing its owner — no delete here, and "Edit" just opens the
@@ -81,7 +82,7 @@ function ModelLimitActionsMenu({
 					variant="ghost"
 					size="icon"
 					className="h-8 w-8"
-					aria-label={`Actions for model limit ${config.model_name}`}
+					aria-label={tCopy("accessibility.modellimitActions", { ns: "common", name: config.model_name })}
 					data-testid={`model-limit-button-actions-${toTestIdPart(config.model_name)}-${toTestIdPart(config.provider || "all")}`}
 				>
 					<MoreHorizontal className="h-4 w-4" />
@@ -99,7 +100,7 @@ function ModelLimitActionsMenu({
 					}}
 				>
 					<Edit className="h-4 w-4" />
-					{isManaged ? "View" : localeMessages.t("edit", { ns: "common" })}
+					{isManaged ? tCopy("ui.modelLimitsTable.view", { ns: "models" }) : localeMessages.t("edit", { ns: "common" })}
 				</DisabledReasonMenuItem>
 				<DisabledReasonMenuItem
 					reason={actionDisabledReason(
@@ -213,7 +214,7 @@ export default function ModelLimitsTable({
 	const handleDelete = async (id: string) => {
 		try {
 			await deleteModelConfig(id).unwrap();
-			toast.success("Limit deleted successfully");
+			toast.success(t("modelLimits.deletedSuccess", { ns: "models" }));
 			setDeleteModelConfigId(null);
 		} catch (error) {
 			toast.error(getErrorMessage(error));
@@ -301,7 +302,11 @@ export default function ModelLimitsTable({
 					</div>
 
 					<Select value={scope || "all"} onValueChange={(v) => onScopeChange(v === "all" ? "" : v)}>
-						<SelectTrigger className="w-[160px]" aria-label="Filter by scope" data-testid="model-limits-filter-scope">
+						<SelectTrigger
+							className="w-[160px]"
+							aria-label={t("ui.modelLimitsTable.filterByScope", { ns: "models" })}
+							data-testid="model-limits-filter-scope"
+						>
 							<SelectValue placeholder={t("modelLimits.allScopes")} />
 						</SelectTrigger>
 						<SelectContent>
@@ -482,7 +487,8 @@ export default function ModelLimitsTable({
 																	{formatCurrency(b.current_usage)} / {formatCurrency(b.max_limit)}
 																</span>
 																<span className="text-muted-foreground text-xs">
-																	Resets {formatResetDuration(b.reset_duration)}
+																	{t("ui.modelLimitsTable.resets", { ns: "models" }) + " "}
+																	{formatResetDuration(b.reset_duration)}
 																	{config.calendar_aligned && supportsCalendarAlignment(b.reset_duration) && " (calendar)"}
 																</span>
 															</div>
@@ -510,7 +516,7 @@ export default function ModelLimitsTable({
 																				</span>
 																			</div>
 																			<Progress
-																				aria-label="Token usage"
+																				aria-label={t("ui.modelLimitsTable.tokenUsage", { ns: "models" })}
 																				value={tokenPercentage}
 																				className={cn(
 																					"bg-muted/70 dark:bg-muted/30 h-1",
@@ -530,7 +536,8 @@ export default function ModelLimitsTable({
 																			{localeMessages.t("promptRepo.tokens", { ns: "config" })}
 																		</p>
 																		<p className="text-primary-foreground/80 text-xs">
-																			Resets {formatResetDuration(config.rate_limit.token_reset_duration || "1h")}
+																			{t("ui.modelLimitsTable.resets", { ns: "models" }) + " "}
+																			{formatResetDuration(config.rate_limit.token_reset_duration || "1h")}
 																		</p>
 																	</TooltipContent>
 																</Tooltip>
@@ -542,13 +549,16 @@ export default function ModelLimitsTable({
 																	<TooltipTrigger asChild>
 																		<div className="space-y-1.5">
 																			<div className="flex items-center justify-between gap-4 text-xs">
-																				<span className="font-medium">{config.rate_limit.request_max_limit.toLocaleString()} req</span>
+																				<span className="font-medium">
+																					{config.rate_limit.request_max_limit.toLocaleString()}{" "}
+																					{t("ui.modelLimitsTable.req", { ns: "models" })}
+																				</span>
 																				<span className="text-muted-foreground">
 																					{formatResetDuration(config.rate_limit.request_reset_duration || "1h")}
 																				</span>
 																			</div>
 																			<Progress
-																				aria-label="Request usage"
+																				aria-label={t("ui.modelLimitsTable.requestUsage", { ns: "models" })}
 																				value={requestPercentage}
 																				className={cn(
 																					"bg-muted/70 dark:bg-muted/30 h-1",
@@ -564,10 +574,12 @@ export default function ModelLimitsTable({
 																	<TooltipContent>
 																		<p className="font-medium">
 																			{config.rate_limit.request_current_usage.toLocaleString()} /{" "}
-																			{config.rate_limit.request_max_limit.toLocaleString()} requests
+																			{config.rate_limit.request_max_limit.toLocaleString()}{" "}
+																			{t("ui.modelLimitsTable.requests", { ns: "models" })}
 																		</p>
 																		<p className="text-primary-foreground/80 text-xs">
-																			Resets {formatResetDuration(config.rate_limit.request_reset_duration || "1h")}
+																			{t("ui.modelLimitsTable.resets", { ns: "models" }) + " "}
+																			{formatResetDuration(config.rate_limit.request_reset_duration || "1h")}
 																		</p>
 																	</TooltipContent>
 																</Tooltip>
@@ -607,8 +619,12 @@ export default function ModelLimitsTable({
 				{totalCount > 0 && (
 					<div className="flex shrink-0 items-center justify-between text-xs" data-testid="pagination">
 						<div className="text-muted-foreground flex items-center gap-2">
-							{(offset + 1).toLocaleString()}-{Math.min(offset + limit, totalCount).toLocaleString()} of {totalCount.toLocaleString()}{" "}
-							{localeMessages.t("routing.entries", { ns: "models" })}
+							{t("pagination.entries", {
+								ns: "common",
+								from: (offset + 1).toLocaleString(),
+								to: Math.min(offset + limit, totalCount).toLocaleString(),
+								total: totalCount.toLocaleString(),
+							})}
 						</div>
 
 						<div className="flex items-center gap-2">
@@ -624,9 +640,7 @@ export default function ModelLimitsTable({
 							</Button>
 
 							<div className="flex items-center gap-1">
-								<span>{localeMessages.t("modelCatalog.page", { ns: "models" })}</span>
-								<span>{Math.floor(offset / limit) + 1}</span>
-								<span>of {Math.ceil(totalCount / limit)}</span>
+								{t("pagination.page", { ns: "common", page: Math.floor(offset / limit) + 1, total: Math.ceil(totalCount / limit) })}
 							</div>
 
 							<Button

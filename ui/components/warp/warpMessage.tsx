@@ -103,6 +103,7 @@ function WarpTimeline({
 	toolCalls?: WarpTurnToolCall[];
 	isStreaming?: boolean;
 }) {
+	const { t: tCopy } = useTranslation();
 	const items = useMemo(() => warpTimeline(content, toolCalls), [content, toolCalls]);
 	const last = items[items.length - 1];
 	// Nothing yet, or every lookup is back: the longest silence, which otherwise reads as hung.
@@ -139,7 +140,7 @@ function WarpTimeline({
 								className="text-muted-foreground my-3 rounded-sm border border-dashed p-3 text-xs"
 								data-testid="warp-chart-invalid"
 							>
-								Chart unavailable.
+								{tCopy("ui.warpMessage.chartUnavailable", { ns: "common" })}
 							</div>
 						);
 					}

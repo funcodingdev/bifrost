@@ -1,3 +1,5 @@
+import { dateFnsLocale } from "@/lib/i18n/dateLocale";
+import { getLocale as getUILocale } from "@/lib/i18n";
 import { getMCPLogPresentation, getMCPArgumentPreview } from "@/lib/utils/mcpLogPresentation";
 import { AttributionCell } from "@/components/logAttributionCell";
 import { Badge } from "@/components/ui/badge";
@@ -63,7 +65,9 @@ export const createMCPColumns = (
 			return (
 				<div className="flex flex-col leading-tight">
 					<span className="font-mono text-xs tabular-nums">{format(date, "MMM dd  HH:mm:ss")}</span>
-					<span className="text-muted-foreground text-[10.5px] tabular-nums">{formatDistanceToNow(date, { addSuffix: true })}</span>
+					<span className="text-muted-foreground text-[10.5px] tabular-nums">
+						{formatDistanceToNow(date, { addSuffix: true, locale: dateFnsLocale(getUILocale()) })}
+					</span>
 				</div>
 			);
 		},

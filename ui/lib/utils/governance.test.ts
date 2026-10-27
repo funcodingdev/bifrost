@@ -283,3 +283,21 @@ describe("multi-unit override expiry", () => {
 		expect(getBudgetOverrideValidUntil(budget, 2, true)).toEqual(getBudgetOverrideValidUntil(budget, 2, false));
 	});
 });
+import i18n from "@/lib/i18n";
+
+it("translates reset periods and fiscal month ranges without changing reset values", async () => {
+	const values = budgetResetDurationOptions.map((option) => option.value);
+	try {
+		await i18n.changeLanguage("zh-CN");
+		expect(resetDurationLabels["1h"]).toBe("每小时");
+		expect(budgetResetDurationOptions.find((option) => option.value === "1Q")?.label).toBe("每季度");
+		expect(parseResetPeriod("2Q")).toBe("2 个季度");
+		expect(quarterRanges(4)[0]).toEqual({ label: "Q1", range: "4月–6月" });
+		expect(budgetResetDurationOptions.map((option) => option.value)).toEqual(values);
+		await i18n.changeLanguage("en");
+		expect(resetDurationLabels["1h"]).toBe("Hourly");
+		expect(quarterRanges(4)[0].range).toBe("Apr–Jun");
+	} finally {
+		await i18n.changeLanguage("en");
+	}
+});

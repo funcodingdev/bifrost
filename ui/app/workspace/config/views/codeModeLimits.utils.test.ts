@@ -75,3 +75,20 @@ describe("coreConfigSchema mcp_code_mode_limits", () => {
 		}
 	});
 });
+import i18n from "@/lib/i18n";
+
+it("translates code-mode metadata and validation at read time", async () => {
+	const original = CODE_MODE_LIMIT_FIELDS.map(({ key, defaultValue }) => ({ key, defaultValue }));
+	const english = CODE_MODE_LIMIT_FIELDS[0].label;
+	try {
+		await i18n.changeLanguage("zh-CN");
+		expect(CODE_MODE_LIMIT_FIELDS[0].label).toBe("源码大小上限（字节）");
+		expect(CODE_MODE_LIMIT_FIELDS[0].description).toBe("单次执行可提交的源码大小上限。");
+		expect(validateCodeModeLimits({ max_source_bytes: -1 })).toContain("源码大小上限（字节）");
+		expect(CODE_MODE_LIMIT_FIELDS.map(({ key, defaultValue }) => ({ key, defaultValue }))).toEqual(original);
+		await i18n.changeLanguage("en");
+		expect(CODE_MODE_LIMIT_FIELDS[0].label).toBe(english);
+	} finally {
+		await i18n.changeLanguage("en");
+	}
+});

@@ -39,3 +39,18 @@ describe("parseSemanticTimeoutMs", () => {
 		expect(parseSemanticTimeoutMs("1m30x")).toBe(DEFAULT_SEMANTIC_TIMEOUT_MS);
 	});
 });
+import i18n from "@/lib/i18n";
+import { SEMANTIC_FALLBACK_OPTIONS } from "./complexityRouter";
+
+test("keeps semantic fallback choices distinct in both languages", async () => {
+	try {
+		for (const language of ["zh-CN", "en"]) {
+			await i18n.changeLanguage(language);
+			expect(SEMANTIC_FALLBACK_OPTIONS.map((option) => option.value)).toEqual(["none", "llm", "decision"]);
+			expect(new Set(SEMANTIC_FALLBACK_OPTIONS.map((option) => option.label)).size).toBe(3);
+			for (const option of SEMANTIC_FALLBACK_OPTIONS) expect(option.description).not.toContain("ui.");
+		}
+	} finally {
+		await i18n.changeLanguage("en");
+	}
+});

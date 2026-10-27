@@ -57,7 +57,12 @@ function ProviderKeyActionsMenu({
 	return (
 		<DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
 			<DropdownMenuTrigger asChild>
-				<Button onClick={(e) => e.stopPropagation()} variant="ghost" aria-label="Key actions" data-testid="key-actions-trigger">
+				<Button
+					onClick={(e) => e.stopPropagation()}
+					variant="ghost"
+					aria-label={tc("ui.modelProviderKeysTableView.keyActions", { ns: "models" })}
+					data-testid="key-actions-trigger"
+				>
 					<EllipsisIcon className="h-5 w-5" aria-hidden="true" />
 				</Button>
 			</DropdownMenuTrigger>
@@ -356,7 +361,7 @@ export default function ModelProviderKeysTableView({ provider, className, header
 										</TableCell>
 										<TableCell>
 											<Switch
-												aria-label={`Enable key ${key.name}`}
+												aria-label={t("providers.keys.enableNamed", { ns: "models", name: key.name })}
 												data-testid="key-enabled-switch"
 												checked={isKeyEnabled}
 												size="md"

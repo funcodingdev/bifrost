@@ -1,3 +1,4 @@
+import i18nReview from "@/lib/i18n";
 /**
  * Complexity Router Type Definitions
  * Mirrors the AnalyzerConfig shape exchanged with /governance/complexity-analyzer-config.
@@ -160,8 +161,12 @@ export const COMPLEXITY_MECHANISM_VALUES = ["semantic", "decision", "llm", "sess
 // "lexical" — the classifier that actually wrote them — for the detail view.
 export const COMPLEXITY_MECHANISM_LABELS: Record<string, string> = {
 	lexical: "Lexical",
-	semantic: "Semantic",
-	decision: "Decision model",
+	get semantic() {
+		return i18nReview.t("ui.sections.semantic", { ns: "models" });
+	},
+	get decision() {
+		return i18nReview.t("ui.page.decisionModel", { ns: "models" });
+	},
 	llm: "LLM",
 	session: "Session",
 	skipped: "Skipped",
@@ -183,18 +188,30 @@ export const TIER_PHRASE_LIST_DEFINITIONS: Array<{
 }> = [
 	{
 		key: "simple_keywords",
-		label: "Simple",
-		description: "Requests to route to your cheapest, fastest model.",
+		get label() {
+			return i18nReview.t("routing.complexityUi.tierSimple", { ns: "models" });
+		},
+		get description() {
+			return i18nReview.t("routing.complexityUi.tierSimpleDesc", { ns: "models" });
+		},
 	},
 	{
 		key: "medium_keywords",
-		label: "Medium",
-		description: "Requests that need more capability than your cheapest model, but not your most capable.",
+		get label() {
+			return i18nReview.t("routing.complexityUi.tierMedium", { ns: "models" });
+		},
+		get description() {
+			return i18nReview.t("routing.complexityUi.tierMediumDesc", { ns: "models" });
+		},
 	},
 	{
 		key: "complex_keywords",
-		label: "Complex",
-		description: "Requests that justify your most capable model.",
+		get label() {
+			return i18nReview.t("routing.complexityUi.tierComplex", { ns: "models" });
+		},
+		get description() {
+			return i18nReview.t("routing.complexityUi.tierComplexDesc", { ns: "models" });
+		},
 	},
 ];
 
@@ -288,12 +305,16 @@ export const DEFAULT_SEMANTIC_CONFIG: SemanticConfig = {
 export const SEMANTIC_VECTOR_STORE_OPTIONS: Array<{ value: SemanticVectorStore; label: string; tooltip: string }> = [
 	{
 		value: "embedded",
-		label: "Embedded",
+		get label() {
+			return i18nReview.t("routing.complexityUi.vectorStoreEmbedded", { ns: "models" });
+		},
 		tooltip: "Keeps phrase vectors in Bifrost's own memory. No infrastructure to run, but every restart re-embeds them.",
 	},
 	{
 		value: "vector_store",
-		label: "Vector Store",
+		get label() {
+			return i18nReview.t("routing.complexityUi.vectorStoreExternal", { ns: "models" });
+		},
 		tooltip:
 			"Keeps phrase vectors in the vector store configured for Bifrost, so they survive restarts. Falls back to Embedded if no vector store is available.",
 	},
@@ -303,7 +324,9 @@ export const SEMANTIC_STATUS_LABELS: Record<SemanticStatusInfo["state"], string>
 	disabled: "Disabled",
 	warming: "Warming up",
 	ready: "Ready",
-	failed: "Failed",
+	get failed() {
+		return i18nReview.t("ui.complexityRouter.failed", { ns: "models" });
+	},
 };
 
 // Duration strings round-trip through the API as Go durations ("500ms"), but the
@@ -363,26 +386,43 @@ export const DEFAULT_LLM_CONFIG: LLMConfig = {
 export const SEMANTIC_FALLBACK_OPTIONS: Array<{ value: SemanticFallback; label: string; description: string }> = [
 	{
 		value: "none",
-		label: "None",
-		description: "A request matching no phrase confidently carries no tier, and rules referencing complexity_tier do not match it.",
+		get label() {
+			return i18nReview.t("virtualKeys.none", { ns: "models" });
+		},
+		get description() {
+			return i18nReview.t("routing.complexityUi.fallbackNoneDesc", { ns: "models" });
+		},
 	},
 	{
 		value: "llm",
-		label: "LLM classifier",
-		description: "A chat model names the tier instead. Slower and costlier than an embedding, but only unmatched requests pay for it.",
+		get label() {
+			return i18nReview.t("routing.complexityUi.fallbackLlm", { ns: "models" });
+		},
+		get description() {
+			return i18nReview.t("routing.complexityUi.fallbackLlmDesc", { ns: "models" });
+		},
 	},
 	{
 		value: "decision",
-		label: "Decision model",
-		description:
-			"A decision model names the tier when semantic matching has no result, using the same tier guidance as when it is the primary classifier.",
+		get label() {
+			return i18nReview.t("ui.page.decisionModel", { ns: "models" });
+		},
+		get description() {
+			return i18nReview.t("ui.complexityRouter.aDecisionModelNamesTheTierWhenSemanticMatching", { ns: "models" });
+		},
 	},
 ];
 
 export const SEMANTIC_FALLBACK_LABELS: Record<SemanticFallback, string> = {
-	none: "None",
-	llm: "LLM classifier",
-	decision: "Decision model",
+	get none() {
+		return i18nReview.t("virtualKeys.none", { ns: "models" });
+	},
+	get llm() {
+		return i18nReview.t("routing.complexityUi.fallbackLlm", { ns: "models" });
+	},
+	get decision() {
+		return i18nReview.t("ui.page.decisionModel", { ns: "models" });
+	},
 };
 
 // Same duration round-trip as parseSemanticTimeoutMs, with the llm default.

@@ -1,3 +1,4 @@
+import i18nReview from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,7 +29,11 @@ const mcpLibrarySettingsSchema = z.object({
 	// declares mcp_library_sync_interval as `anyOf: [{const: 0}, {minimum:
 	// 3600}]`, so a fractional value below 1h would be rejected server-side.
 	mcp_library_sync_interval_hours: z
-		.number({ message: "Sync interval is required" })
+		.number({
+			get message() {
+				return i18nReview.t("library.settings.intervalRequired", { ns: "mcp" });
+			},
+		})
 		.max(8760, "Sync interval cannot exceed 8760 hours (1 year)")
 		.refine((hours) => hours === 0 || hours >= 1, "Sync interval must be 0 (disabled) or at least 1 hour"),
 });
@@ -149,8 +154,9 @@ export function MCPLibrarySettingsSheet({ open, onClose }: MCPLibrarySettingsShe
 							<div className="space-y-0.5">
 								<Label htmlFor="mcp-library-url">{t("library.settings.urlLabel")}</Label>
 								<p className="text-muted-foreground text-sm">
-									URL to a custom MCP server catalog. Leave empty to use the default Bifrost catalog. For air-gapped deployments, set a{" "}
-									<code>file://</code> URL in <code>config.json</code>.
+									{t("ui.mcpLibrarySettingsSheet.uRLToACustomMCPServerCatalogLeaveEmpty", { ns: "mcp" })} <code>file://</code>{" "}
+									{t("ui.mcpLibrarySettingsSheet.uRLIn", { ns: "mcp" }) + " "}
+									<code>config.json</code>.
 								</p>
 							</div>
 							<Input

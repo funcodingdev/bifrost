@@ -1,3 +1,4 @@
+import i18nReview from "@/lib/i18n";
 import { useTranslation } from "react-i18next";
 import { FilterSidebarTrigger } from "@/components/filters/filterSidebarTrigger";
 import { Button } from "@/components/ui/button";
@@ -1032,6 +1033,7 @@ function ComplexityMechanismFilter({ filters, onFiltersChange, defaultOpen }: Fi
 // ---------------------------------------------------------------------------
 
 function AgentFilter({ filters, onFiltersChange }: FilterComponentProps) {
+	const { t: tCopy } = useTranslation();
 	const selected = filters.agent_names ?? [];
 	const hasActive = selected.length > 0;
 	const [opened, setOpened] = useState(hasActive);
@@ -1046,10 +1048,16 @@ function AgentFilter({ filters, onFiltersChange }: FilterComponentProps) {
 	);
 
 	return (
-		<FilterSection title="Agent" defaultOpen={hasActive} loading={isLoading} onOpenChange={setOpened} testId="agent-filter-toggle">
+		<FilterSection
+			title={tCopy("ui.logsFilterSidebar.agent", { ns: "common" })}
+			defaultOpen={hasActive}
+			loading={isLoading}
+			onOpenChange={setOpened}
+			testId="agent-filter-toggle"
+		>
 			<SearchableCheckboxList
 				inputRef={searchInputRef}
-				placeholder="Search agents"
+				placeholder={tCopy("ui.logsFilterSidebar.searchAgents", { ns: "common" })}
 				items={items}
 				isSelected={(name) => selected.includes(name)}
 				onToggle={(name) => {
@@ -1083,15 +1091,20 @@ function RequestSessionFilter({ filters, onFiltersChange, defaultOpen }: FilterC
 }
 
 function AgentCorrelationFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentProps) {
+	const { t: tCopy } = useTranslation();
 	const hasActive = !!filters.agent_correlation_id;
 	return (
-		<FilterSection title="Agent correlation ID" defaultOpen={defaultOpen || hasActive} testId="agent-correlation-filter-toggle">
+		<FilterSection
+			title={tCopy("ui.logsFilterSidebar.agentCorrelationID", { ns: "common" })}
+			defaultOpen={defaultOpen || hasActive}
+			testId="agent-correlation-filter-toggle"
+		>
 			<div className="relative">
 				<Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2" />
 				<Input
 					value={filters.agent_correlation_id || ""}
 					onChange={(event) => onFiltersChange({ ...filters, agent_correlation_id: event.target.value })}
-					placeholder="Exact Agent correlation ID"
+					placeholder={tCopy("ui.logsFilterSidebar.exactAgentCorrelationID", { ns: "common" })}
 					className="h-8 border-0 pl-8 text-sm"
 					data-testid="agent-correlation-id-filter-input"
 				/>
@@ -1439,8 +1452,18 @@ function CostFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentPr
 // ---------------------------------------------------------------------------
 
 const LocalCachingOptions: { key: string; label: string }[] = [
-	{ key: "direct", label: "Direct cache" },
-	{ key: "semantic", label: "Semantic cache" },
+	{
+		key: "direct",
+		get label() {
+			return i18nReview.t("ui.logsFilterSidebar.directCache", { ns: "common" });
+		},
+	},
+	{
+		key: "semantic",
+		get label() {
+			return i18nReview.t("ui.logsFilterSidebar.semanticCache", { ns: "common" });
+		},
+	},
 ];
 
 function LocalCachingFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentProps) {
@@ -1499,6 +1522,7 @@ function LabelledMetadataFilter({
 	onFiltersChange,
 	defaultOpen,
 }: FilterComponentProps & { group: LabelledMetadataFilterGroup }) {
+	const { t: tCopy } = useTranslation();
 	const hasActive = group.fields.some((field) => filters.metadata_filters?.[field.key] !== undefined);
 	const [opened, setOpened] = useState(defaultOpen || hasActive);
 	// The page's time range: a custom one as it is, a relative period (which carries no start or end)
@@ -1525,7 +1549,11 @@ function LabelledMetadataFilter({
 			onOpenChange={setOpened}
 			testId={`labelled-metadata-${group.title}-filter-toggle`}
 		>
-			{fields.length === 0 && <div className="text-muted-foreground px-3 py-2 text-xs">Nothing recorded in this time range</div>}
+			{fields.length === 0 && (
+				<div className="text-muted-foreground px-3 py-2 text-xs">
+					{tCopy("ui.logsFilterSidebar.nothingRecordedInThisTimeRange", { ns: "common" })}
+				</div>
+			)}
 			{fields.map(({ field, options }) => (
 				<div key={field.key} data-testid={`labelled-metadata-${field.key}-filter-group`}>
 					<div className="text-muted-foreground px-3 pt-2 pb-1 text-xs font-medium">{field.label}</div>

@@ -247,7 +247,7 @@ function OverviewTabImpl({
 											<Tooltip>
 												<TooltipTrigger asChild>
 													<span tabIndex={0} data-testid="cost-legend-more-trigger" className="text-muted-foreground cursor-default">
-														+{costModels.length - 1} more
+														+{costModels.length - 1} {t("ui.overviewTab.more", { ns: "observability" })}
 													</span>
 												</TooltipTrigger>
 												<TooltipContent>
@@ -393,7 +393,7 @@ function OverviewTabImpl({
 											<Tooltip>
 												<TooltipTrigger asChild>
 													<span tabIndex={0} data-testid="usage-legend-more-trigger" className="text-muted-foreground cursor-default">
-														+{usageModels.length - 1} more
+														+{usageModels.length - 1} {t("ui.overviewTab.more", { ns: "observability" })}
 													</span>
 												</TooltipTrigger>
 												<TooltipContent>

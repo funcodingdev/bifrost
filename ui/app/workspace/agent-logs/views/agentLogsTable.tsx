@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
 	buildPinStyle,
 	type ColumnConfigEntry,
@@ -66,6 +67,7 @@ export function AgentLogsDataTable({
 	onTogglePin,
 	onReorderColumns,
 }: DataTableProps) {
+	const { t: tCopy } = useTranslation();
 	const [sorting, setSorting] = useState<SortingState>([
 		{ id: pagination.sort_by === "latency" ? "duration" : pagination.sort_by, desc: pagination.order === "desc" },
 	]);
@@ -180,12 +182,12 @@ export function AgentLogsDataTable({
 										{polling ? (
 											<>
 												<RefreshCw className="h-4 w-4 animate-spin" />
-												Waiting for new Agent Logs...
+												{tCopy("ui.agentLogsTable.waitingForNewAgentLogs", { ns: "agents" })}
 											</>
 										) : (
 											<Button variant="ghost" size="sm" onClick={onRefresh} disabled={loading} data-testid="agent-logs-table-refresh-btn">
 												<RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-												Refresh
+												{tCopy("labels.refresh", { ns: "observability" })}
 											</Button>
 										)}
 									</div>
@@ -243,7 +245,9 @@ export function AgentLogsDataTable({
 																onClick={() => sessionExpansion.onLoadMore(id)}
 																data-testid="agent-logs-session-load-more-btn"
 															>
-																{sessionExpansion.loadingIds.has(id) ? "Loading..." : "Load more operations"}
+																{sessionExpansion.loadingIds.has(id)
+																	? tCopy("customPricing.loadingDots", { ns: "models" })
+																	: tCopy("ui.agentLogsTable.loadMoreOperations", { ns: "agents" })}
 															</Button>
 														</TableCell>
 													</TableRow>
@@ -253,7 +257,7 @@ export function AgentLogsDataTable({
 							) : loading ? null : (
 								<TableRow>
 									<TableCell colSpan={columns.length} className="h-24 text-center">
-										No results found. Try adjusting your filters and/or time range.
+										{tCopy("mcpLogs.noResults", { ns: "observability" })}
 									</TableCell>
 								</TableRow>
 							)}
@@ -263,8 +267,12 @@ export function AgentLogsDataTable({
 				{/* Pagination Footer */}
 				<div className="flex items-center justify-between text-xs" data-testid="pagination">
 					<div className="text-muted-foreground flex items-center gap-2">
-						{startItemDisplay.toLocaleString()}-{endItemDisplay.toLocaleString()} of {totalItems.toLocaleString()}{" "}
-						{sessionExpansion ? "groups" : "entries"}
+						{tCopy(sessionExpansion ? "logs.groupRange" : "pagination.entries", {
+							ns: sessionExpansion ? "agents" : "common",
+							from: startItemDisplay.toLocaleString(),
+							to: endItemDisplay.toLocaleString(),
+							total: totalItems.toLocaleString(),
+						})}
 					</div>
 
 					<div className="flex items-center gap-2">
@@ -274,15 +282,13 @@ export function AgentLogsDataTable({
 							onClick={() => goToPage(currentPage - 1)}
 							disabled={currentPage <= 1}
 							data-testid="prev-page"
-							aria-label="Previous page"
+							aria-label={tCopy("skillsRepo.previousPage", { ns: "config" })}
 						>
 							<ChevronLeft className="size-3" />
 						</Button>
 
 						<div className="flex items-center gap-1">
-							<span>Page</span>
-							<span>{currentPage}</span>
-							<span>of {totalPages}</span>
+							{tCopy("pagination.page", { ns: "common", page: currentPage, total: totalPages })}
 						</div>
 
 						<Button
@@ -291,7 +297,7 @@ export function AgentLogsDataTable({
 							onClick={() => goToPage(currentPage + 1)}
 							disabled={totalPages === 0 || currentPage >= totalPages}
 							data-testid="next-page"
-							aria-label="Next page"
+							aria-label={tCopy("skillsRepo.nextPage", { ns: "config" })}
 						>
 							<ChevronRight className="size-3" />
 						</Button>

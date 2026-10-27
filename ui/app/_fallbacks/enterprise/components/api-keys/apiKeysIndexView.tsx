@@ -65,14 +65,17 @@ curl --location 'http://localhost:8080/v1/chat/completions'
 					<p className="text-md text-muted-foreground">
 						{isInferenceAuthDisabled ? (
 							<>
-								Authentication is currently <strong>disabled for inference API calls</strong>. You can make inference requests without
-								authentication. Dashboard and admin API calls still require Basic auth with your admin credentials encoded in the standard{" "}
-								<code className="bg-muted rounded px-1 py-0.5 text-sm">username:password</code> format with base64 encoding.
+								{t("ui.apiKeysIndexView.authenticationIsCurrently", { ns: "common" }) + " "}
+								<strong>{t("ui.apiKeysIndexView.disabledForInferenceAPICalls", { ns: "common" })}</strong>
+								{t("ui.apiKeysIndexView.youCanMakeInferenceRequestsWithoutAuthenticationDashboard", { ns: "common" })}{" "}
+								<code className="bg-muted rounded px-1 py-0.5 text-sm">username:password</code>{" "}
+								{t("ui.apiKeysIndexView.formatWithBase64Encoding", { ns: "common" })}
 							</>
 						) : (
 							<>
-								Use Basic auth with your admin credentials when making API calls to Bifrost. Encode your credentials in the standard{" "}
-								<code className="bg-muted rounded px-1 py-0.5 text-sm">username:password</code> format with base64 encoding.
+								{t("ui.apiKeysIndexView.useBasicAuthWithYourAdminCredentialsWhenMaking", { ns: "common" })}{" "}
+								<code className="bg-muted rounded px-1 py-0.5 text-sm">username:password</code>{" "}
+								{t("ui.apiKeysIndexView.formatWithBase64Encoding", { ns: "common" })}
 							</>
 						)}
 					</p>

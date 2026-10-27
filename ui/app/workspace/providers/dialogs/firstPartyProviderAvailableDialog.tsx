@@ -39,17 +39,22 @@ export default function FirstPartyProviderAvailableDialog({ show, customProvider
 					</AlertDialogTitle>
 					{nameReserved ? (
 						<AlertDialogDescription data-testid="first-party-provider-name-reserved">
-							Bifrost now supports {label} natively, and the name <span className="text-foreground font-medium">{customProviderName}</span>{" "}
-							belongs to the official provider. Your custom provider keeps serving requests, but its settings can no longer be saved and
-							config.json entries for it are skipped. Recreate it as a custom provider under another name (for example{" "}
-							<span className="text-foreground font-medium">{knownProvider}-custom</span>), then delete this one.
+							{t("ui.firstPartyProviderAvailableDialog.bifrostNowSupports", { ns: "models" }) + " "}
+							{label} {t("ui.firstPartyProviderAvailableDialog.nativelyAndTheName", { ns: "models" }) + " "}
+							<span className="text-foreground font-medium">{customProviderName}</span>{" "}
+							{t("ui.firstPartyProviderAvailableDialog.belongsToTheOfficialProviderYourCustomProviderKeeps", { ns: "models" })}{" "}
+							<span className="text-foreground font-medium">{knownProvider}-custom</span>
+							{t("ui.firstPartyProviderAvailableDialog.thenDeleteThisOne", { ns: "models" })}
 						</AlertDialogDescription>
 					) : (
 						<AlertDialogDescription>
-							We noticed you have a custom provider named <span className="text-foreground font-medium">{customProviderName}</span>. Bifrost
-							now supports {label} natively. You can delete the custom provider and add the official {label} integration from{" "}
-							<span className="text-foreground font-medium">{localeMessages.t("providers.addNewProviderAria", { ns: "models" })}</span>, or
-							keep using your custom provider as is.
+							{t("ui.firstPartyProviderAvailableDialog.weNoticedYouHaveACustomProviderNamed", { ns: "models" }) + " "}
+							<span className="text-foreground font-medium">{customProviderName}</span>
+							{t("ui.firstPartyProviderAvailableDialog.bifrostNowSupports2", { ns: "models" }) + " "}
+							{label} {t("ui.firstPartyProviderAvailableDialog.nativelyYouCanDeleteTheCustomProviderAndAdd", { ns: "models" }) + " "}
+							{label} {t("ui.firstPartyProviderAvailableDialog.integrationFrom", { ns: "models" })}{" "}
+							<span className="text-foreground font-medium">{localeMessages.t("providers.addNewProviderAria", { ns: "models" })}</span>
+							{t("ui.firstPartyProviderAvailableDialog.orKeepUsingYourCustomProviderAsIs", { ns: "models" })}
 						</AlertDialogDescription>
 					)}
 				</AlertDialogHeader>

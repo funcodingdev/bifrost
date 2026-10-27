@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { BarChart3, LineChart } from "lucide-react";
 
@@ -10,14 +11,20 @@ interface ChartTypeToggleProps {
 }
 
 export function ChartTypeToggle({ chartType, onToggle, "data-testid": testId }: ChartTypeToggleProps) {
+	const { t: tCopy } = useTranslation();
 	return (
-		<div className="flex items-center gap-1" role="group" aria-label="Chart type" data-testid={testId}>
+		<div
+			className="flex items-center gap-1"
+			role="group"
+			aria-label={tCopy("ui.chartTypeToggle.chartType", { ns: "observability" })}
+			data-testid={testId}
+		>
 			<Button
 				variant={chartType === "bar" ? "secondary" : "ghost"}
 				size="sm"
 				className="h-7 w-7 p-0"
 				onClick={() => onToggle("bar")}
-				aria-label="Bar chart"
+				aria-label={tCopy("ui.chartTypeToggle.barChart", { ns: "observability" })}
 				aria-pressed={chartType === "bar"}
 				data-testid={testId ? `${testId}-bar-btn` : undefined}
 			>
@@ -28,7 +35,7 @@ export function ChartTypeToggle({ chartType, onToggle, "data-testid": testId }: 
 				size="sm"
 				className="h-7 w-7 p-0"
 				onClick={() => onToggle("line")}
-				aria-label="Line chart"
+				aria-label={tCopy("ui.chartTypeToggle.lineChart", { ns: "observability" })}
 				aria-pressed={chartType === "line"}
 				data-testid={testId ? `${testId}-line-btn` : undefined}
 			>

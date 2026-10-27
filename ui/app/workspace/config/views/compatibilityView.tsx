@@ -73,7 +73,7 @@ export default function CompatibilityView() {
 					rel="noopener noreferrer"
 					data-testid="litellm-docs-link"
 				>
-					{t("learnMore")} about the compatibility plugin
+					{t("learnMore")} {t("ui.compatibilityView.aboutTheCompatibilityPlugin", { ns: "config" })}
 				</a>
 			</PageTitle>
 
@@ -166,11 +166,10 @@ export default function CompatibilityView() {
 				<div className="flex items-center justify-between space-x-2">
 					<div className="space-y-0.5">
 						<label htmlFor="compat-force-reasoning-only-models-to-responses" className="text-sm font-medium">
-							Use Responses API for reasoning only OpenAI models
+							{t("ui.compatibilityView.useResponsesAPIForReasoningOnlyOpenAIModels", { ns: "config" })}
 						</label>
 						<p className="text-muted-foreground text-sm">
-							Route chat completion requests to the Responses API for models that cannot reason with tool calls on chat completions, instead
-							of turning reasoning off.
+							{t("ui.compatibilityView.routeChatCompletionRequestsToTheResponsesAPIFor", { ns: "config" })}
 						</p>
 					</div>
 					<Switch
@@ -186,11 +185,10 @@ export default function CompatibilityView() {
 				<div className="flex items-center justify-between space-x-2">
 					<div className="space-y-0.5">
 						<label htmlFor="compat-convert-decision-to-responses" className="text-sm font-medium">
-							Emulate Decisions API on non-decision models
+							{t("ui.compatibilityView.emulateDecisionsAPIOnNonDecisionModels", { ns: "config" })}
 						</label>
 						<p className="text-muted-foreground text-sm">
-							Answer decision requests for models without a native decisions endpoint by prompting the model through the Responses API with
-							a forced function tool. When off, those requests fail as unsupported.
+							{t("ui.compatibilityView.answerDecisionRequestsForModelsWithoutANativeDecisions", { ns: "config" })}
 						</p>
 					</div>
 					<Switch

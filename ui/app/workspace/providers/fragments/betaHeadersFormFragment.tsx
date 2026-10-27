@@ -283,7 +283,7 @@ export function BetaHeadersFormFragment({ provider }: BetaHeadersFormFragmentPro
 				<div className="space-y-2 px-4 pb-6 md:px-6">
 					<p className="text-muted-foreground text-xs">
 						{isTypesafe
-							? "Configure which TypeSafe headers Bifrost may send for this provider. Override a default to stop Bifrost from sending it."
+							? t("ui.betaHeadersFormFragment.configureWhichTypeSafeHeadersBifrostMaySendForThis", { ns: "models" })
 							: localeMessages.t("providers.betaHeaders.intro", { ns: "models" })}
 					</p>
 					<div className="rounded-md border">

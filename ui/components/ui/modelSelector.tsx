@@ -1,3 +1,4 @@
+import i18nReview from "@/lib/i18n";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -114,7 +115,14 @@ export type ModelSelectorProps = ModelSelectorSingleProps | ModelSelectorMultiPr
  * The wildcard row, for the surfaces whose list accepts "*" as "every model". Ready to hand
  * to `extraOptions`; module level so its identity is stable across renders.
  */
-export const ALL_MODELS_OPTION: ModelSelectorOption[] = [{ value: "*", label: "All Models" }];
+export const ALL_MODELS_OPTION: ModelSelectorOption[] = [
+	{
+		value: "*",
+		get label() {
+			return i18nReview.t("modelAccess.allModels", { ns: "common" });
+		},
+	},
+];
 
 /** A catalog row. Base models carry only a name, so everything past it is optional. */
 interface ListedModel {
@@ -453,7 +461,7 @@ export function ModelSelector(props: ModelSelectorProps) {
 									<span
 										role="button"
 										tabIndex={-1}
-										aria-label={`Remove ${labelFor(value)}`}
+										aria-label={t("accessibility.removeNamed", { ns: "common", name: labelFor(value) })}
 										className="text-muted-foreground hover:text-foreground flex shrink-0 cursor-pointer items-center"
 										onClick={(e) => {
 											e.preventDefault();
@@ -514,7 +522,7 @@ export function ModelSelector(props: ModelSelectorProps) {
 
 					{pinned.length > 0 && (
 						<ComboboxGroup>
-							<ComboboxLabel>Selected</ComboboxLabel>
+							<ComboboxLabel>{t("ui.entityAssociationSelect.selected", { ns: "common" })}</ComboboxLabel>
 							{pinned.map(renderOption)}
 						</ComboboxGroup>
 					)}

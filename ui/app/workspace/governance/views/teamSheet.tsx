@@ -379,7 +379,7 @@ export default function TeamSheet({ team, onSave, onCancel }: TeamSheetProps) {
 				<SheetHeader className="flex flex-col items-start px-0 py-4" headerClassName="mb-0 sticky -top-4 bg-card z-10 px-4 md:px-8">
 					<SheetTitle className="flex items-center gap-2">
 						{isEditing ? t("teams.sheet.editTitle") : t("teams.sheet.createTitle")}
-						{team?.id && <CopyableId id={team.id} entityLabel="Team" />}
+						{team?.id && <CopyableId id={team.id} entityLabel={t("ui.teamSheet.team", { ns: "governance" })} />}
 					</SheetTitle>
 					<SheetDescription>{isEditing ? t("teams.sheet.editDescription") : t("teams.sheet.createDescription")}</SheetDescription>
 				</SheetHeader>
@@ -551,8 +551,7 @@ export default function TeamSheet({ team, onSave, onCancel }: TeamSheetProps) {
 											{t("sheet.alignToCalendar")}
 										</Label>
 										<p className="text-muted-foreground text-xs">
-											Reset budgets and rate limits at the start of each period (e.g. 1st of month) instead of rolling from creation date.
-											Single-unit day, week, month, quarter and year windows align to calendar boundaries. Other durations remain rolling.
+											{t("ui.customerSheet.resetBudgetsAndRateLimitsAtTheStartOf", { ns: "governance" })}
 										</p>
 									</div>
 									<Switch

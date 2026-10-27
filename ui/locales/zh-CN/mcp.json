@@ -187,8 +187,8 @@
 			"connectionAuthLocked": "传输与目标来自库条目。请选择对该目标的请求如何鉴权。",
 			"connectionAuthOpen": "选择 Bifrost 如何连接到此服务器，以及（对于网络传输）请求如何鉴权。",
 			"selectConnectionType": "选择连接类型",
-			"httpStreamable": "HTTP (Streamable)",
-			"sseLabel": "Server-Sent Events (SSE)",
+			"httpStreamable": "HTTP（可流式传输）",
+			"sseLabel": "服务器发送事件（SSE）",
 			"stdioLabel": "STDIO",
 			"connectionImmutable": "连接类型与鉴权设置之后无法更改。",
 			"connectionUrl": "连接 URL",
@@ -196,7 +196,7 @@
 			"authenticationType": "鉴权类型",
 			"selectAuthType": "选择鉴权类型",
 			"oauth20": "OAuth 2.0",
-			"tokenExchangeObo": "Token Exchange (On-Behalf-Of)",
+			"tokenExchangeObo": "令牌交换（代表用户）",
 			"tokenExchangeUnavailable": "此服务器需要令牌交换，而这需要已启用的身份提供方。请先配置一个，或选择其他鉴权类型以继续。",
 			"selectAuthScope": "选择鉴权范围",
 			"shared": "共享",
@@ -210,7 +210,7 @@
 			"staticHeadersDesc": "可选，与每位调用方提供的值一并应用。",
 			"tokenExchangeConfig": "令牌交换配置",
 			"tokenExchangeConfigDesc": "用于将调用方身份令牌交换为此服务器访问权限的凭证与范围。",
-			"audience": "Audience",
+			"audience": "受众",
 			"audienceTooltipEntra": "身份提供方上资源应用的 Application (client) ID — 裸 GUID，不是 Expose an API 下显示的 api://... Application ID URI。交换得到的令牌会限定到它。",
 			"audienceTooltip": "此服务器在身份提供方注册的资源标识符。交换得到的令牌会限定到它。",
 			"exchangeApplication": "交换应用",
@@ -230,13 +230,13 @@
 			"oauthConfig": "OAuth 配置",
 			"oauthConfigDesc": "此服务器通过 OAuth 鉴权所用的凭证与端点。",
 			"scopesOptionalComma": "Scopes（可选，逗号分隔）",
-			"resource": "Resource",
+			"resource": "资源",
 			"oauthClientIdOptional": "OAuth 客户端 ID（可选）",
 			"oauthClientIdPlaceholder": "your-client-id（留空则自动生成）",
 			"oauthClientIdHelper": "若留空且提供方支持，将通过动态注册自动生成",
 			"oauthClientIdTooltip": "留空以使用 Dynamic Client Registration (RFC 7591)。若支持，Bifrost 会自动向 OAuth 提供方注册。",
 			"oauthClientSecretPkce": "OAuth 客户端密钥（PKCE 可选）",
-			"oauthClientSecretPlaceholder": "your-client-secret",
+			"oauthClientSecretPlaceholder": "输入客户端密钥",
 			"oauthClientSecretHelper": "使用 PKCE 的公共客户端请留空",
 			"authorizeUrlOptional": "授权 URL（可选，自动发现）",
 			"tokenUrlOptional": "令牌 URL（可选，自动发现）",
@@ -355,7 +355,7 @@
 			"oauthDisabledRotate": "客户端处于禁用状态时无法轮换 OAuth 配置。请先重新启用客户端再更新。",
 			"oauthRotateWarning": "更改任何 OAuth 配置字段会立即登出此 MCP 客户端上的所有当前会话，包括共享与每用户会话。所有人都需要重新鉴权。",
 			"tokenExchangeEvictWarning": "更改任何令牌交换字段会立即清除此服务器的所有已缓存交换令牌。每位调用方的下一次工具调用会重新交换新令牌。",
-			"extraHeadersPlaceholder": "*, or: authorization, x-user-id",
+			"extraHeadersPlaceholder": "*，或 authorization, x-user-id",
 			"autoExecuteHelp": "仅在 Bifrost 以 Agent Mode 运行 LLM 循环时生效。在 MCP Gateway 模式下，由已连接的客户端（Claude Desktop、Cursor 等）控制工具批准，此设置会被忽略。点击了解更多。",
 			"allowByDefaultHelp": "启用后，任何调用方无需显式分配即可使用此 MCP 服务器，并允许全部工具。对某个调用方的显式分配优先于此设置。",
 			"addVirtualKey": "添加虚拟密钥",
@@ -586,7 +586,7 @@
 			"discoveryDesc": "用于浏览、筛选和归属此条目的可选元数据。",
 			"publisher": "发布者",
 			"tagsComma": "标签（逗号分隔）",
-			"tagsPlaceholder": "internal, database",
+			"tagsPlaceholder": "内部, 数据库",
 			"iconUrl": "图标 URL",
 			"docsUrl": "文档 URL",
 			"addedToast": "服务器已添加到库。",
@@ -692,8 +692,8 @@
 		},
 		"refreshToken": "刷新 token",
 		"scopes": "权限范围",
-		"scopesHelp": "供应商在登录时授予的权限范围，来自其 token 响应。供应商未返回该信息时显示短横线。请求头提交和待完成的登录没有权限范围。",
-		"refreshTokenHelp": "供应商是否签发了刷新 token。已签发：Bifrost 会在使用时自动续期访问 token。未签发：访问 token 过期后需要重新认证。上游拒绝：供应商拒绝了上次刷新，需要重新认证。请求头记录和待完成的登录没有 token。",
+		"scopesHelp": "提供商在登录时授予的权限范围，来自其 token 响应。提供商未返回该信息时显示短横线。请求头提交和待完成的登录没有权限范围。",
+		"refreshTokenHelp": "提供商是否签发了刷新 token。已签发：Bifrost 会在使用时自动续期访问 token。未签发：访问 token 过期后需要重新认证。上游拒绝：提供商拒绝了上次刷新，需要重新认证。请求头记录和待完成的登录没有 token。",
 		"refreshed": "刷新于{{time}}",
 		"sessionBound": "绑定至会话",
 		"auth": {
@@ -873,7 +873,7 @@
 			"servedAt": "服务于",
 			"descriptionPlaceholder": "此虚拟 MCP 的用途（可选）",
 			"enabledHelp": "禁用后，端点停止提供服务，也不会为任何密钥解析。",
-			"namePlaceholder": "Machine Learning Team"
+			"namePlaceholder": "机器学习团队"
 		},
 		"tools": {
 			"tooltip": "选择此虚拟 MCP 暴露哪些 MCP 服务器，以及对每个服务器暴露哪些工具。添加服务器后，可选择特定工具，或选择<strong>允许全部工具</strong>以暴露全部。",
@@ -895,7 +895,7 @@
 		"connectAgent": "连接 Agent",
 		"title": "安装 Bifrost MCP",
 		"description": "为你的 Agent harness 生成可复制的命令或配置。",
-		"harness": "Harness",
+		"harness": "客户端",
 		"authentication": "鉴权",
 		"virtualKey": "虚拟密钥",
 		"virtualKeyDesc": "客户端发送虚拟密钥请求头。治理、预算和工具访问遵循你在下方选择的密钥。",
@@ -926,5 +926,108 @@
 		"scopeUser": "用户",
 		"scopeGlobal": "全局",
 		"scopeWorkspace": "工作区"
+	},
+	"ui": {
+		"emptyState": {
+			"codeLanguage": "代码语言"
+		},
+		"page": {
+			"noSyncedServersYet": "尚未同步服务器",
+			"noServersFound": "未找到服务器",
+			"configureTheLibrarySyncSourceInSettingsToPopulate": "在设置中配置库同步来源后，此目录将自动填充。",
+			"tryAdjustingYourSearchOrFilters": "请尝试调整搜索条件或筛选器。",
+			"of": "/",
+			"authorizationComplete": "授权完成",
+			"youCanCloseThisTab": "你可以关闭此标签页。",
+			"thisWindowCanBeClosed": "可以关闭此窗口。",
+			"backToMCPRegistry": "返回 MCP 注册中心",
+			"completingThisAuthenticationNeedsASignedInBifrostAccountTaking": "完成认证需要已登录的 Bifrost 账户。正在跳转到登录页面，登录后会自动返回以完成认证。"
+		},
+		"mcpLibrarySettingsSheet": {
+			"uRLToACustomMCPServerCatalogLeaveEmpty": "自定义 MCP 服务器目录的 URL。留空时使用 Bifrost 默认目录。对于隔离网络部署，请设置",
+			"uRLIn": "URL，配置位置："
+		},
+		"mcpClientFormFields": {
+			"openAPIDocumentAuthentication": "OpenAPI 文档与认证",
+			"serverSource": "服务器来源",
+			"connectToAnMCPServer": "连接到 MCP 服务器",
+			"generateFromAnOpenAPISpec": "从 OpenAPI 规范生成",
+			"openAPIDocument": "OpenAPI 文档",
+			"staticHeadersSentWithEveryRequestToTheAPI": "随每次 API 请求发送的固定请求头，与上方配置的凭据一同发送。",
+			"commaSeparatedHeaderNamesEachCallerMustSupplyOnFirst": "每位调用者首次使用时必须提供的请求头名称，以逗号分隔。这些请求头是 API 认证要求之外的附加要求。值由用户分别提交，不保存在服务器配置中。",
+			"baseURLIsRequired": "请填写基础 URL",
+			"bifrostBuildsAnMCPServerFromTheDocumentEvery": "Bifrost 根据文档构建 MCP 服务器：每个受支持的操作都会成为工具，工具调用将转发给 API。创建后无法修改服务器来源和认证方式。",
+			"chooseHowBifrostConnectsToThisServerAndFor": "选择 Bifrost 连接此服务器的方式。使用网络传输时，还需配置请求认证方式。这些设置在创建后无法修改。"
+		},
+		"mcpClientSheet": {
+			"theReplacementDocumentIsNotParsedYet": "替换文档尚未解析",
+			"stillReadingTheCurrentDocument": "仍在读取当前文档",
+			"tryAgainInAMomentSoAutoExecuteSettingsAnd": "请稍后重试，以便将自动执行设置和工具价格保留到替换后的配置中。",
+			"autoExecuteSettingsAndToolPricesWillNotCarryOver": "自动执行设置和工具价格将无法保留",
+			"theCurrentDocumentCouldNotBeReadToMatch": "无法读取当前文档，因此无法与新操作匹配。再次保存可继续替换，之后请在“工具”标签页中重新设置。",
+			"selectAtLeastOneOperation": "至少选择一项操作",
+			"tickTheOperationsThisServerShouldExposeAsTools": "勾选此服务器需要公开为工具的操作。",
+			"generatedFromAnOpenAPISpec": "从 OpenAPI 规范生成",
+			"calls": "次调用",
+			"replaceSpec": "替换规范",
+			"pasteOrUploadTheNewDocumentOrFetchIt": "粘贴、上传新文档，或从 URL 获取。名称未变的操作会保持选中，保存时将按新文档重新构建服务器。",
+			"loadingTheStoredDocument": "正在加载已保存的文档…",
+			"cancelReplace": "取消替换",
+			"overrideTheGlobalToolSyncIntervalExecutionTimeoutAnd": "覆盖此服务器的全局工具同步间隔、执行超时和指令长度上限。",
+			"maxInstructionLengthBytes": "最大指令长度（字节）",
+			"capOnTheInstructionsForwardedFromThisServerLeave": "限制从此服务器转发的指令长度。留空或设为 0 时使用全局设置。全部服务器的指令总长度仍受全局总上限约束。",
+			"aReplacementDocumentIsOpenOnTheGeneralTab": "“常规”标签页中已打开替换文档，保存的工具由其操作列表决定。请先保存或取消替换，再在此编辑工具。",
+			"baseURLFromTheDocumentSServers": "使用文档 servers 中的基础 URL"
+		},
+		"mcpClientsTable": {
+			"theClientSConnectionStateHealthyUnstableNeedsReAuthorizationAnd": "客户端的连接状态，例如正常、不稳定或需要重新授权。“不稳定”反映 Bifrost 自身对服务器的连接检查，而非工具调用结果；此状态会自动恢复，且不会阻止工具调用。对于 OAuth、请求头或令牌交换等按用户认证的客户端，此处仅反映 Bifrost 为定期刷新工具列表而保留的管理员凭据状态，不影响各用户自己的会话。",
+			"headersVerifiedSuccessfullyEachUserWillSubmitTheirOwn": "请求头验证成功。每位用户在使用此 MCP 服务器时需分别提交自己的请求头值。"
+		},
+		"openApiPreviewPanel": {
+			"tool": "个工具",
+			"selectTheUpstreamServer": "选择上游服务器",
+			"custom": "自定义…",
+			"everyOperationDeclaresItsOwnServerSoCallsGo": "每项操作均声明了自己的服务器，请求将发送至对应地址。仅在需要统一覆盖所有地址时设置基础 URL。",
+			"theDocumentDeclaresNoAbsoluteServerURLSoThe": "文档未声明绝对服务器 URL，必须在此指定上游地址。",
+			"aPIAuthentication": "API 认证",
+			"eachCallerSuppliesTheseThroughThePerUserHeaderNamed": "每位调用者通过对应认证方案指定的用户请求头提供凭据，并原样转发给 API。通过查询参数或 Cookie 发送的方案仍使用已保存的值。",
+			"credentialsForTheSecuritySchemesTheDocumentDeclaresThey": "文档所声明安全方案的凭据。凭据将加密保存并用于每次调用，支持 env.VAR 引用。",
+			"thisDocumentDeclaresNoSecuritySchemesAddStaticHeaders": "此文档未声明安全方案。如果 API 仍需凭据，请在下方添加固定请求头。",
+			"unsupported": "不支持",
+			"headerEachCallerSuppliesForwardedAsIsItIs": "每位调用者提供的请求头，将原样转发，并加入必需请求头列表。",
+			"tickedOperationsBecomeToolsOfThisServerUnsupportedOnes": "勾选的操作将成为此服务器的工具。不支持的操作会列出具体原因。",
+			"selected": "已选择",
+			"searchOperations": "搜索操作…",
+			"noOperationMatchesTheSearch": "没有匹配的操作。",
+			"deprecated": "已弃用",
+			"untitledAPI": "未命名 API"
+		},
+		"openApiSpecSource": {
+			"paste": "粘贴",
+			"pasteTheOpenAPIOrSwaggerDocumentAsJSONOr": "粘贴 JSON 或 YAML 格式的 OpenAPI 或 Swagger 文档，支持 2.0、3.0、3.1 和 3.2。",
+			"specURL": "规范 URL",
+			"bifrostFetchesTheDocumentOnceAndStoresItWith": "Bifrost 将获取一次文档并随服务器保存，同时保留此 URL 作为来源。",
+			"chooseFile": "选择文件",
+			"jSONOrYAMLUpTo": "JSON 或 YAML 格式，最大",
+			"theFileIsReadInYourBrowserAnd": "。文件将在浏览器中读取并随服务器保存。",
+			"parsingTheDocument": "正在解析文档…",
+			"theURLOrServerNameChangedSinceTheDocument": "获取文档后，URL 或服务器名称已更改。请重新获取，以刷新下方的操作列表。"
+		},
+		"grantActions": {
+			"grantActions": "授权操作",
+			"viewAuthSessions": "查看认证会话"
+		},
+		"mcpClientOpenApiUtils": {
+			"apiKey": "API 密钥",
+			"username": "用户名",
+			"password": "密码",
+			"bearerToken": "Bearer 令牌"
+		}
+	},
+	"openapi": {
+		"userHeader": "{{name}} 用户请求头",
+		"userCredentialHelp": "每位调用者提供的请求头，将原样转发。值必须为完整凭据，例如“{{example}}”。此请求头会加入“必需请求头”列表。",
+		"operationsCount": "操作（{{supported}} / {{total}} 项受支持）",
+		"fileTooLarge": "文件超过 OpenAPI 文档的大小上限 {{limit}}。"
 	}
 }

@@ -501,6 +501,7 @@ function SessionsTabLink({ variant = "outline" }: { variant?: "outline" | "ghost
 // Bounces a signed-out visitor through /login and back via ?goto= (SSO stashes
 // it across the IdP hop). The card covers a blocked redirect.
 function RedirectToSignIn({ loginHref }: { loginHref: string }) {
+	const { t: tCopy } = useTranslation();
 	useEffect(() => {
 		// replace(), so Back from /login doesn't re-enter the redirect.
 		window.location.replace(loginHref);
@@ -513,7 +514,7 @@ function RedirectToSignIn({ loginHref }: { loginHref: string }) {
 			</div>
 			<h1 className="text-xl font-semibold tracking-tight">{localeMessages.t("consent.signInToContinue", { ns: "login" })}</h1>
 			<p className="text-muted-foreground mt-2 text-sm">
-				Completing this authentication needs a signed-in Bifrost account. Taking you to sign in — you'll come straight back here to finish.
+				{tCopy("ui.page.completingThisAuthenticationNeedsASignedInBifrostAccountTaking", { ns: "mcp" })}
 			</p>
 			<div className="mt-6">
 				<Button asChild data-testid="mcp-auth-signin-required-link">

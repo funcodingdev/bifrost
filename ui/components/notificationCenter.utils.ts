@@ -1,3 +1,4 @@
+import i18n from "@/lib/i18n";
 import type { SidekiqJob } from "@/lib/types/sidekiq";
 
 /**
@@ -65,9 +66,9 @@ const SIDEKIQ_JOB_LABELS: Record<string, string> = {
 /** Friendly name for a job kind; unknown kinds fall back to a humanized kind string. */
 export function sidekiqJobLabel(kind: string): string {
 	const known = SIDEKIQ_JOB_LABELS[kind];
-	if (known) return known;
+	if (known) return i18n.t(`jobs.kind.${kind}`, { ns: "common", defaultValue: known });
 	const words = kind.replace(/[_-]+/g, " ").trim();
-	return words ? words.charAt(0).toUpperCase() + words.slice(1) : "Background job";
+	return words ? words.charAt(0).toUpperCase() + words.slice(1) : i18n.t("jobs.background", { ns: "common" });
 }
 
 /**

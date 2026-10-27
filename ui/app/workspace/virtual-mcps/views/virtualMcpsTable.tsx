@@ -273,9 +273,7 @@ export default function VirtualMCPsTable({
 							</Button>
 
 							<div className="flex items-center gap-1">
-								<span>{t("common.page")}</span>
-								<span>{Math.floor(offset / limit) + 1}</span>
-								<span>{t("common.ofPages", { total: Math.ceil(totalCount / limit) })}</span>
+								{t("pagination.page", { ns: "common", page: Math.floor(offset / limit) + 1, total: Math.ceil(totalCount / limit) })}
 							</div>
 
 							<Button

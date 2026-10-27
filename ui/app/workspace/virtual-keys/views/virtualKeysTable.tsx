@@ -194,6 +194,7 @@ function MetadataFilter({
 	metadataValue: string;
 	onChange: (key: string, value: string) => void;
 }) {
+	const { t: tCopy } = useTranslation();
 	const [open, setOpen] = useState(false);
 	const [draftKey, setDraftKey] = useState(metadataKey);
 	const [draftValue, setDraftValue] = useState(metadataValue);
@@ -220,7 +221,11 @@ function MetadataFilter({
 					type="button"
 					variant="outline"
 					className="h-9 max-w-[250px] gap-2 px-3"
-					aria-label={active ? `Metadata filter ${metadataKey}=${metadataValue}` : "Filter by metadata"}
+					aria-label={
+						active
+							? tCopy("virtualKeys.metadataFilterNamed", { ns: "governance", key: metadataKey, value: metadataValue })
+							: tCopy("ui.virtualKeysTable.filterByMetadata", { ns: "governance" })
+					}
 					data-testid="vk-metadata-filter-trigger"
 				>
 					<Tag className="size-4 shrink-0" />
@@ -241,7 +246,7 @@ function MetadataFilter({
 						<Label htmlFor="vk-metadata-filter-key">{localeMessages.t("providers.entityKeyCap", { ns: "models" })}</Label>
 						<Input
 							id="vk-metadata-filter-key"
-							placeholder="e.g., cost_center"
+							placeholder={tCopy("ui.virtualKeysTable.eGCostCenter", { ns: "governance" })}
 							value={draftKey}
 							onChange={(e) => setDraftKey(e.target.value)}
 							data-testid="vk-metadata-filter-key-input"
@@ -252,14 +257,14 @@ function MetadataFilter({
 						<Label htmlFor="vk-metadata-filter-value">{localeMessages.t("skillsRepo.value", { ns: "config" })}</Label>
 						<Input
 							id="vk-metadata-filter-value"
-							placeholder="Exact value"
+							placeholder={tCopy("ui.virtualKeysTable.exactValue", { ns: "governance" })}
 							value={draftValue}
 							onChange={(e) => setDraftValue(e.target.value)}
 							data-testid="vk-metadata-filter-value-input"
 						/>
 					</div>
 					<Button type="submit" size="sm" className="w-full" disabled={!draftKey || !!keyError} data-testid="vk-metadata-filter-apply-btn">
-						Apply
+						{tCopy("ui.virtualKeysTable.apply", { ns: "governance" })}
 					</Button>
 				</form>
 			</PopoverContent>
@@ -889,7 +894,7 @@ export default function VirtualKeysTable({
 
 						{hasActiveFilters && (
 							<p className="text-muted-foreground text-xs">
-								Filters applied:{" "}
+								{t("ui.virtualKeysTable.filtersApplied", { ns: "governance" })}{" "}
 								{[
 									debouncedSearch && `search "${debouncedSearch}"`,
 									customerFilter && "customer filter",
@@ -1026,7 +1031,7 @@ export default function VirtualKeysTable({
 						<MetadataFilter metadataKey={metadataFilterKey} metadataValue={metadataFilterValue} onChange={onMetadataFilterChange} />
 						<FilterClearButton
 							show={!!metadataFilterKey}
-							label="Clear metadata filter"
+							label={t("ui.virtualKeysTable.clearMetadataFilter", { ns: "governance" })}
 							onClear={() => onMetadataFilterChange("", "")}
 							data-testid="vk-metadata-filter-clear-btn"
 						/>
@@ -1148,7 +1153,7 @@ export default function VirtualKeysTable({
 												<Checkbox
 													checked={selectedIds.has(vk.id)}
 													onCheckedChange={(checked) => toggleSelectVirtualKey(vk.id, checked === true)}
-													aria-label={`Select virtual key ${vk.name}`}
+													aria-label={t("virtualKeys.selectNamed", { ns: "governance", name: vk.name })}
 													data-testid={`vk-select-checkbox-${vk.name}`}
 												/>
 											</TableCell>
@@ -1199,11 +1204,13 @@ export default function VirtualKeysTable({
 														variant="destructive"
 														className="text-xs"
 														title={
-															(vk.delete_after_expire ?? deleteExpiredByDefault) ? "Deleted automatically within about a day" : undefined
+															(vk.delete_after_expire ?? deleteExpiredByDefault)
+																? t("ui.virtualKeysTable.deletedAutomaticallyWithinAboutADay", { ns: "governance" })
+																: undefined
 														}
 													>
 														{(vk.delete_after_expire ?? deleteExpiredByDefault)
-															? "Expired · auto-delete"
+															? t("ui.virtualKeysTable.expiredAutoDelete", { ns: "governance" })
 															: t("virtualKeys.expired", { ns: "models" })}
 													</Badge>
 												) : (

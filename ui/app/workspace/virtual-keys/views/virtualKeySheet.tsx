@@ -1,3 +1,5 @@
+import { dateFnsLocale } from "@/lib/i18n/dateLocale";
+import { getLocale as getUILocale } from "@/lib/i18n";
 import localeMessages from "@/lib/i18n";
 import { CalendarAlignmentNotice } from "@/components/calendarAlignmentNotice";
 import { calendarWindowDurations, isMultiUnitDuration } from "@/lib/constants/governance";
@@ -292,7 +294,9 @@ function ExpiryPickerField({ value, onChange, deleteAfterExpire, onDeleteAfterEx
 			<FormLabel>{t("virtualKeys.expiry")}</FormLabel>
 			<p className="text-muted-foreground text-xs">
 				{value
-					? t("virtualKeys.expiresIn", { when: formatDistanceToNow(new Date(value), { addSuffix: true }) })
+					? t("virtualKeys.expiresIn", {
+							when: formatDistanceToNow(new Date(value), { addSuffix: true, locale: dateFnsLocale(getUILocale()) }),
+						})
 					: t("virtualKeys.neverExpires")}
 			</p>
 			<div className="flex flex-wrap gap-1.5">
@@ -339,13 +343,18 @@ function ExpiryPickerField({ value, onChange, deleteAfterExpire, onDeleteAfterEx
 				<div className="flex items-center justify-between gap-4 pt-1">
 					<div className="grid gap-0.5 leading-none">
 						<Label htmlFor="vk-delete-after-expire" className="text-sm font-normal">
-							Delete after expire
+							{t("ui.virtualKeySheet.deleteAfterExpire", { ns: "governance" })}
 						</Label>
 						<p className="text-muted-foreground text-xs">
-							The key is removed automatically within about a day of expiring.{" "}
+							{t("ui.virtualKeySheet.theKeyIsRemovedAutomaticallyWithinAboutADay", { ns: "governance" })}{" "}
 							{deleteAfterExpire === deleteExpiredByDefault
-								? `Follows the workspace default (${deleteExpiredByDefault ? "on" : "off"}), set under Settings → Security.`
-								: "Overrides the workspace default for this key."}
+								? t("virtualKeys.expiry.workspaceDefault", {
+										ns: "governance",
+										state: deleteExpiredByDefault
+											? t("virtualKeys.expiry.on", { ns: "governance" })
+											: t("virtualKeys.expiry.off", { ns: "governance" }),
+									})
+								: t("ui.virtualKeySheet.overridesTheWorkspaceDefaultForThisKey", { ns: "governance" })}
 						</p>
 					</div>
 					<Switch
@@ -734,11 +743,15 @@ export default function VirtualKeySheet({ virtualKey, defaultOwner, onSave, onCa
 	const watchedBusinessUnitId = form.watch("businessUnitId");
 	const owner =
 		watchedEntityType === "team" && watchedTeamId
-			? { entityType: "team" as const, entityId: watchedTeamId, label: "team" }
+			? { entityType: "team" as const, entityId: watchedTeamId, label: t("entities.team", { ns: "common" }) }
 			: watchedEntityType === "customer" && watchedCustomerId
-				? { entityType: "customer" as const, entityId: watchedCustomerId, label: "customer" }
+				? { entityType: "customer" as const, entityId: watchedCustomerId, label: t("entities.customer", { ns: "common" }) }
 				: watchedEntityType === "business_unit" && watchedBusinessUnitId
-					? { entityType: "business_unit" as const, entityId: watchedBusinessUnitId, label: "business unit" }
+					? {
+							entityType: "business_unit" as const,
+							entityId: watchedBusinessUnitId,
+							label: t("ui.virtualKeySheet.businessUnit", { ns: "governance" }),
+						}
 					: undefined;
 	const {
 		data: ownerProfileData,
@@ -771,8 +784,12 @@ export default function VirtualKeySheet({ virtualKey, defaultOwner, onSave, onCa
 	const ownerProfileNotice =
 		ownerProfile && owner ? (
 			<p data-testid="vk-owner-profile-notice">
-				Governed by <span className="font-medium">{ownerProfile.name}</span>, the access profile of this {owner.label}. Its budgets, rate
-				limits and providers apply to this key.
+				<Trans
+					ns="governance"
+					i18nKey="virtualKeys.ownerProfileNotice"
+					components={{ profile: <span className="font-medium" /> }}
+					values={{ profile: ownerProfile.name, owner: owner.label }}
+				/>
 			</p>
 		) : null;
 
@@ -1414,10 +1431,7 @@ export default function VirtualKeySheet({ virtualKey, defaultOwner, onSave, onCa
 								<Alert variant="warning">
 									<AlertTriangle className="h-4 w-4" />
 									<AlertDescription className="flex items-center justify-between gap-4">
-										<span>
-											Couldn&apos;t check whether an access profile governs the keys you create. You can still create one — if a profile
-											does govern it, the profile&apos;s providers, budgets, rate limits and MCP access replace what you set here.
-										</span>
+										<span>{t("ui.virtualKeySheet.couldnTCheckWhetherAnAccessProfileGovernsTheKeys", { ns: "governance" })}</span>
 										<Button type="button" size="sm" variant="outline" onClick={() => refetchVkCreationPolicy()}>
 											{localeMessages.t("modelCatalog.retry", { ns: "models" })}
 										</Button>
@@ -1547,9 +1561,7 @@ export default function VirtualKeySheet({ virtualKey, defaultOwner, onSave, onCa
 												useSecretVarInput={false}
 											/>
 											<p className="text-muted-foreground text-xs">
-												Key/value labels for cost attribution. They are copied onto every log entry this key produces, so logs and spend can
-												be filtered by them, and they override request headers with the same name. Keys use letters, digits, &quot;.&quot;,
-												&quot;_&quot; and &quot;-&quot;.
+												{t("ui.virtualKeySheet.keyValueLabelsForCostAttributionTheyAreCopiedOnto", { ns: "governance" })}
 											</p>
 											<FormMessage />
 										</FormItem>
@@ -1793,9 +1805,7 @@ export default function VirtualKeySheet({ virtualKey, defaultOwner, onSave, onCa
 															{t("virtualKeys.alignCalendar")}
 														</Label>
 														<p id="vk-budget-calendar-aligned-description" className="text-muted-foreground text-xs">
-															{t("providers.reset")} budgets and rate limits at the start of each period (e.g. 1st of month) instead of
-															rolling from creation date. Single-unit day, week, month, quarter and year windows align to calendar
-															boundaries. Other durations remain rolling.
+															{t("providers.reset")} {t("ui.virtualKeySheet.budgetsAndRateLimitsAtTheStartOfEach", { ns: "governance" })}
 														</p>
 													</div>
 													<Switch
@@ -1900,7 +1910,7 @@ export default function VirtualKeySheet({ virtualKey, defaultOwner, onSave, onCa
 																// Enterprise-only, like the user option below; kept visible when the VK is
 																// already owned by a business unit so the current state is never mislabelled.
 																...(BusinessUnitPicker || field.value === "business_unit"
-																	? [{ value: "business_unit", label: "Assign to Business Unit" }]
+																	? [{ value: "business_unit", label: t("ui.virtualKeySheet.assignToBusinessUnit", { ns: "governance" }) }]
 																	: []),
 																// Enterprise-only; also kept visible when the VK is already
 																// user-assigned so the current state is never mislabelled.
@@ -2008,7 +2018,9 @@ export default function VirtualKeySheet({ virtualKey, defaultOwner, onSave, onCa
 													name="businessUnitId"
 													render={({ field }) => (
 														<FormItem>
-															<FormLabel className="font-normal">Select Business Unit</FormLabel>
+															<FormLabel className="font-normal">
+																{t("ui.virtualKeySheet.selectBusinessUnit", { ns: "governance" })}
+															</FormLabel>
 															<BusinessUnitPicker
 																value={field.value || ""}
 																disabled={isOwnerLocked}

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { SecretVar } from "@/lib/types/schemas";
 import { cn } from "@/lib/utils";
 import * as React from "react";
@@ -58,6 +59,7 @@ export const SecretVarInput = React.forwardRef<HTMLInputElement | HTMLTextAreaEl
 		},
 		ref,
 	) => {
+		const { t: tCopy } = useTranslation();
 		const hasChanged = useRef(false);
 		const isUserChange = useRef(false);
 
@@ -166,7 +168,11 @@ export const SecretVarInput = React.forwardRef<HTMLInputElement | HTMLTextAreaEl
 						</Badge>
 					)}
 				</div>
-				{showEnvHint && <p className="mt-1.5 text-xs text-orange-400">The resolved value will appear after saving</p>}
+				{showEnvHint && (
+					<p className="mt-1.5 text-xs text-orange-400">
+						{tCopy("ui.secretVarInput.theResolvedValueWillAppearAfterSaving", { ns: "common" })}
+					</p>
+				)}
 			</div>
 		);
 	},
