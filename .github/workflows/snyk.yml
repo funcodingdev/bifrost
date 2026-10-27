@@ -10,8 +10,32 @@ permissions:
   security-events: write
 
 jobs:
+  configuration:
+    name: Check Snyk configuration
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      enabled: ${{ steps.snyk.outputs.enabled }}
+    steps:
+      - name: Check scanning credentials
+        id: snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          if [ -n "$SNYK_TOKEN" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            echo "Snyk credentials are configured; scanning jobs are enabled." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Snyk scans were not run because SNYK_TOKEN is not configured. Add the repository Actions secret to enable scanning."
+            echo "Snyk scans were **not run**. Configure the repository Actions secret \`SNYK_TOKEN\` to enable dependency and code scanning." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
   snyk-open-source:
     name: Snyk Open Source (deps)
+    needs: configuration
+    if: needs.configuration.outputs.enabled == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Harden Runner
@@ -47,7 +71,7 @@ jobs:
           node-version: "25"
 
       - name: Install uv
-        uses: step-security/setup-uv@ccf0a26ce9117d9e99292b0ce953ea5d9ffe778e # v7.3.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           version: "0.11.0"
           python-version: "3.11"
@@ -85,6 +109,8 @@ jobs:
 
   snyk-code:
     name: Snyk Code (SAST)
+    needs: configuration
+    if: needs.configuration.outputs.enabled == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Harden Runner
@@ -121,7 +147,7 @@ jobs:
           node-version: "25"
 
       - name: Install uv
-        uses: step-security/setup-uv@ccf0a26ce9117d9e99292b0ce953ea5d9ffe778e # v7.3.0
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           version: "0.11.0"
           python-version: "3.11"
