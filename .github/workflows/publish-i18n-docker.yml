@@ -69,17 +69,17 @@ jobs:
           echo "VERSION=$version" >> "$GITHUB_ENV"
 
       - name: Set up Docker Buildx
-        uses: step-security/setup-buildx-action@f931205d68723ad9589fd2a7e2ece238bf9de341 # v4.0.0
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
       - name: Log in to GHCR
-        uses: step-security/docker-login-action@870af644803bf9f204aed474adbad2958fec048b # v4.1.0
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build image from local module sources
-        uses: step-security/docker-build-push-action@846549baaf047e867d038826129a64d81df0f704 # v7.1.0
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
           file: transports/Dockerfile.local
@@ -161,10 +161,10 @@ jobs:
       packages: write
     steps:
       - name: Set up Docker Buildx
-        uses: step-security/setup-buildx-action@f931205d68723ad9589fd2a7e2ece238bf9de341 # v4.0.0
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
       - name: Log in to GHCR
-        uses: step-security/docker-login-action@870af644803bf9f204aed474adbad2958fec048b # v4.1.0
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -219,7 +219,9 @@ jobs:
           cat > "$notes" <<EOF
           Bifrost 中文发行版，基于上游 dev 分支的 ${version%.*} 版本，中文修订号为 ${version##*.}。
 
-          - Dashboard 支持简体中文及其他 10 种界面语言。
+          - Dashboard 仅保留简体中文和英文，默认语言为简体中文。
+          - 补齐业务页面、弹窗、校验提示、分页及日期文案，并优化中文翻译。
+          - 修复复杂度路由的决策模型回退标签，同步 Go 工具模块依赖。
           - 支持 linux/amd64 和 linux/arm64。
           - 两种架构均通过容器健康、程序版本及中文 UI 资源检查。
           - 镜像已公开，可直接拉取。
