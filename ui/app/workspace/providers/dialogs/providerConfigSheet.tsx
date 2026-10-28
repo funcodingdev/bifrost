@@ -45,7 +45,7 @@ const availableTabs = (
 	}
 	tabs.push({
 		id: "network",
-		label: t("providers.network"),
+		label: t("providers.networkTab"),
 	});
 	tabs.push({
 		id: "proxy",
@@ -64,7 +64,7 @@ const availableTabs = (
 	if (hasBetaHeaders) {
 		tabs.push({
 			id: "beta-headers",
-			label: t("providers.betaHeaders"),
+			label: t("providers.betaHeadersTab"),
 		});
 	}
 	tabs.push({
@@ -81,7 +81,7 @@ const availableTabs = (
 	});
 	tabs.push({
 		id: "debugging",
-		label: t("providers.debugging"),
+		label: t("providers.debuggingTab"),
 	});
 	if (isOpenAI) {
 		tabs.push({

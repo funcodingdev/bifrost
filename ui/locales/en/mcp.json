@@ -522,6 +522,7 @@
 			"urlPlaceholder": "https://getbifrost.ai/mcp-library"
 		},
 		"grid": "Grid",
+		"tableLabel": "Table",
 		"table": {
 			"icon": "Icon",
 			"server": "Server",
