@@ -65,6 +65,34 @@ func RegisterLegacyLimitGuard(guard LegacyLimitGuard) {
 	legacyLimitGuardMu.Unlock()
 }
 
+// StoreWrapper builds the store the plugin runs on from the local one Init loaded. A build that
+// governs more than virtual keys (users, business units, a customer reached through several teams)
+// wraps the local store, keeping its state and overriding what it resolves differently.
+//
+// The wrapper sees the store before anything else does, so the resolver, the tracker and every
+// caller of GetGovernanceStore share the wrapped store from the start. InitFromStore is the
+// alternative for a caller that builds the plugin itself; this is for a plugin the transport builds.
+type StoreWrapper func(local *LocalGovernanceStore) (GovernanceStore, error)
+
+var (
+	storeWrapperMu sync.RWMutex
+	storeWrapper   StoreWrapper
+)
+
+// RegisterStoreWrapper installs the wrapper Init applies for this process. Passing nil clears it,
+// which is how a test puts the process back as it found it.
+func RegisterStoreWrapper(wrapper StoreWrapper) {
+	storeWrapperMu.Lock()
+	storeWrapper = wrapper
+	storeWrapperMu.Unlock()
+}
+
+func registeredStoreWrapper() StoreWrapper {
+	storeWrapperMu.RLock()
+	defer storeWrapperMu.RUnlock()
+	return storeWrapper
+}
+
 // LegacyLimitsGovernedBy names what already governs this entity's spend, or "" when nothing does -
 // including every build where no guard is registered.
 func LegacyLimitsGovernedBy(ctx context.Context, holderKind, holderID string) (string, error) {
@@ -263,11 +291,20 @@ func Init(
 	}
 
 	newStoreStart := time.Now()
-	governanceStore, err := NewLocalGovernanceStore(ctx, logger, configStore, governanceConfig, modelCatalog, inMemoryStore)
+	localStore, err := NewLocalGovernanceStore(ctx, logger, configStore, governanceConfig, modelCatalog, inMemoryStore)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize governance store: %w", err)
 	}
 	logger.Info("[startup-timing] NewLocalGovernanceStore took %v", time.Since(newStoreStart))
+	var governanceStore GovernanceStore = localStore
+	if wrap := registeredStoreWrapper(); wrap != nil {
+		if governanceStore, err = wrap(localStore); err != nil {
+			return nil, fmt.Errorf("failed to wrap governance store: %w", err)
+		}
+		if governanceStore == nil {
+			return nil, fmt.Errorf("governance store wrapper returned no store")
+		}
+	}
 
 	// Initialize components in dependency order with fixed, optimal settings
 	// Resolver (pure decision engine for hierarchical governance, depends only on store)
