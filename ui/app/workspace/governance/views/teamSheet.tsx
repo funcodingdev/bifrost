@@ -28,6 +28,7 @@ import { getErrorMessage, useCreateTeamMutation, useUpdateTeamMutation } from "@
 import { CreateTeamRequest, Team, UpdateTeamRequest } from "@/lib/types/governance";
 import { budgetSignature, formatCurrency } from "@/lib/utils/governance";
 import { Validator } from "@/lib/utils/validation";
+import { TeamSheetExtras } from "@enterprise/components/user-groups/teamSheetExtras";
 import { RbacOperation, RbacResource, useRbac } from "@enterprise/lib";
 import { formatDistanceToNow } from "date-fns";
 import { dateFnsLocale } from "@/lib/i18n/dateLocale";
@@ -435,6 +436,9 @@ export default function TeamSheet({ team, onSave, onCancel }: TeamSheetProps) {
 								</div>
 								<p className="text-muted-foreground text-sm">{t("teams.sheet.customerHelp")}</p>
 							</div>
+
+							{/* Members and extra customers: enterprise only, nothing in OSS. */}
+							{team?.id && <TeamSheetExtras teamId={team.id} />}
 						</div>
 
 						{/* Multi-budget configuration: one row per budget, each keyed by reset_duration */}
