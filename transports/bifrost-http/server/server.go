@@ -226,6 +226,11 @@ type LogRedactionMappingResolverProvider interface {
 	GetLogRedactionMappingResolver() handlers.LogRedactionMappingResolver
 }
 
+// GetLogRedactionMappingResolver implements LogRedactionMappingResolverProvider.
+func (s *BifrostHTTPServer) GetLogRedactionMappingResolver() handlers.LogRedactionMappingResolver {
+	return s.LogRedactionMappingResolver
+}
+
 // MCPLogRedactionMappingResolverProvider is implemented by servers that can attach reveal data to MCP log-detail responses.
 type MCPLogRedactionMappingResolverProvider interface {
 	// GetMCPLogRedactionMappingResolver returns the resolver used by the logging handler.
@@ -309,6 +314,9 @@ type BifrostHTTPServer struct {
 	// per page. Optional; wired at server init when available, otherwise left nil
 	// so the VK read paths report no assignee (OSS has no user directory).
 	VirtualKeyAssigneeResolver handlers.VirtualKeyAssigneeResolver
+	// LogRedactionMappingResolver attaches reveal data to log-detail responses
+	// for callers allowed to see it; nil serves details without any.
+	LogRedactionMappingResolver handlers.LogRedactionMappingResolver
 	// VirtualKeyBusinessUnitResolver names each VK's owning business unit on the
 	// governance read paths. Nil on OSS builds; set by the enterprise wrapper.
 	VirtualKeyBusinessUnitResolver handlers.VirtualKeyBusinessUnitResolver

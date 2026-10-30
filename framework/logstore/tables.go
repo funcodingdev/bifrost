@@ -600,8 +600,20 @@ func (l *Log) BeforeCreate(tx *gorm.DB) error {
 	if l.CreatedAt.IsZero() {
 		l.CreatedAt = time.Now().UTC()
 	}
-	return l.SerializeFields()
+	if err := l.SerializeFields(); err != nil {
+		return err
+	}
+	if hook := BeforeWriteHook; hook != nil {
+		return hook(l)
+	}
+	return nil
 }
+
+// BeforeWriteHook, when set, runs on every LLM log row after its fields are
+// serialized and before it is written. Enterprise builds use it to apply
+// guardrail redaction (l.RedactionData) to the stored content and to attach the
+// encrypted reversible mapping. Set it once at startup, before logging begins.
+var BeforeWriteHook func(l *Log) error
 
 // AfterFind GORM hook to deserialize JSON fields
 func (l *Log) AfterFind(tx *gorm.DB) error {
