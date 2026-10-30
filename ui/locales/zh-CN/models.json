@@ -1220,7 +1220,7 @@
 		"requestTypes": "请求类型",
 		"selectRequestTypes": "选择请求类型…",
 		"pricingFields": "定价字段",
-		"usdPerUnit": "（每单位美元）",
+		"usdPerUnit": "（每单位 USD）",
 		"removeField": "移除字段",
 		"searchAllFields": "搜索全部定价字段…",
 		"noFieldsMatch": "没有字段匹配“{{search}}”",
@@ -1871,7 +1871,7 @@
 			"pricingConfigurationUpdatedSuccessfully": "定价配置已更新",
 			"failedToUpdatePricingConfiguration": "更新定价配置失败",
 			"ignoreProviderReportedCost": "忽略提供商报告的费用",
-			"discardTheCostTheProviderReturnsInItsUsage": "忽略提供商在用量对象中返回的费用，改由 Bifrost 根据模型定价和定价覆盖计算。适用于提供商以积分或非美元货币等自有单位报告费用的情况。没有定价或覆盖规则的模型会按 $0 记录。",
+			"discardTheCostTheProviderReturnsInItsUsage": "忽略提供商在用量对象中返回的费用，改由 Bifrost 根据模型定价和定价覆盖计算。适用于提供商以积分或非 USD货币等自有单位报告费用的情况。没有定价或覆盖规则的模型会按 $0 记录。",
 			"savePricingConfiguration": "保存定价配置"
 		},
 		"modelProviderKeysTableView": {
@@ -1913,9 +1913,9 @@
 			"lessThanOrEqual": "小于或等于",
 			"greaterThan": "大于",
 			"lessThan": "小于",
-			"startswith": "开头为",
+			"startswith": "StartsWith",
 			"contains": "包含",
-			"endswith": "结尾为"
+			"endswith": "EndsWith"
 		}
 	}
 }

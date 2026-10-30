@@ -455,7 +455,7 @@
 		"noLimit": "无限制",
 		"reset": "重置",
 		"addBudgetButton": "添加预算",
-		"maximumSpend": "最大支出（美元）",
+		"maximumSpend": "最大支出（USD）",
 		"noBudgetLimits": "尚未配置预算上限。"
 	},
 	"filters": {
