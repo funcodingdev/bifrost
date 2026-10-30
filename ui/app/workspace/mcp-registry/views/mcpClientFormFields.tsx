@@ -1,7 +1,3 @@
-import localeMessages from "@/lib/i18n";
-import i18n from "@/lib/i18n";
-import { Trans } from "react-i18next";
-import { useTranslation } from "react-i18next";
 import BetaBadge from "@/components/betaBadge";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { HeadersTable } from "@/components/ui/headersTable";
@@ -24,8 +20,18 @@ import {
 	MCPTLSConfig,
 	SecretVar,
 } from "@/lib/types/mcp";
-import { mcpOpenAPIConfigSchema } from "@/lib/types/schemas";
+import {
+	hasPrivateKeySettingsWithoutKey,
+	hasSendMethodWithoutSecret,
+	isHTTPSOrLoopbackURL,
+	isSecretVarSet,
+	mcpOpenAPIConfigSchema,
+	PRIVATE_KEY_REQUIRED_MESSAGE,
+	SECRET_REQUIRED_FOR_METHOD_MESSAGE,
+} from "@/lib/types/schemas";
 import { parseArrayFromText } from "@/lib/utils/array";
+import { buildOAuthConfigPayload } from "./mcpClientOAuthPayload";
+import { RbacOperation, RbacResource, useRbac } from "@enterprise/lib";
 import { useGetSCIMProvidersQuery } from "@enterprise/lib/store/apis/scimApi";
 import { Info } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
@@ -42,12 +48,13 @@ import {
 	type OpenAPICredentialField,
 	type OpenAPISourceMode,
 } from "./mcpClientOpenApiUtils";
+import { MaxProtocolVersionSelect } from "./maxProtocolVersionSelect";
 import { OAuthAdvancedFields } from "./oauthAdvancedFields";
 import { OpenAPIPreviewPanel, type OpenAPIBaseUrlChoice } from "./openApiPreviewPanel";
 import { OpenAPISpecSource } from "./openApiSpecSource";
 import { SectionHeader } from "./sectionHeader";
 import { TLSConfigFields } from "./tlsConfigFields";
-import { TokenExchangeFields } from "./tokenExchangeFields";
+import { exchangesAsSSOApplication, TokenExchangeFields, tokenExchangeProfilePayload } from "./tokenExchangeFields";
 
 /**
  * Shared configuration body for creating an MCP client. Rendered identically by
@@ -280,7 +287,7 @@ export function getHeadersValidationError(headers: Record<string, SecretVar> | u
 	if (!headers) return null;
 	for (const [key, secretVar] of Object.entries(headers)) {
 		if (!secretVar.value && !secretVar.ref) {
-			return localeMessages.t("registry.form.headerMustHaveValue", { ns: "mcp", key });
+			return `Header "${key}" must have a value`;
 		}
 	}
 	return null;
@@ -315,10 +322,10 @@ export function validateMCPClientForm({
 		const connRef = data.connection_string?.ref?.trim() || "";
 		const isSecret = data.connection_string?.type === "env" || data.connection_string?.type === "vault";
 		if (!connVal && !connRef) {
-			setError("connection_string", { message: localeMessages.t("registry.form.connectionUrlRequired", { ns: "mcp" }) });
+			setError("connection_string", { message: "Connection URL is required" });
 			hasErrors = true;
 		} else if (!isSecret && connVal && !/^https?:\/\/.+/.test(connVal)) {
-			setError("connection_string", { message: localeMessages.t("registry.form.connectionUrlHttp", { ns: "mcp" }) });
+			setError("connection_string", { message: "Connection URL must start with http:// or https://" });
 			hasErrors = true;
 		}
 	}
@@ -326,45 +333,76 @@ export function validateMCPClientForm({
 	if (!skipConnection && connectionType === "stdio") {
 		const cmd = data.stdio_config?.command || "";
 		if (!cmd.trim()) {
-			setError("stdio_config.command", { message: localeMessages.t("registry.form.commandRequiredStdio", { ns: "mcp" }) });
+			setError("stdio_config.command", { message: "Command is required for STDIO connections" });
 			hasErrors = true;
 		} else if (/[<>|&;]/.test(cmd)) {
-			setError("stdio_config.command", { message: localeMessages.t("registry.form.commandShellChars", { ns: "mcp" }) });
+			setError("stdio_config.command", { message: "Command cannot contain special shell characters" });
 			hasErrors = true;
 		}
 	}
 
 	if (authType === "oauth" || authType === "per_user_oauth") {
 		if (data.oauth_config?.authorize_url && !/^https?:\/\/.+$/.test(data.oauth_config.authorize_url)) {
-			setError("oauth_config.authorize_url", { message: localeMessages.t("registry.form.authorizeUrlHttp", { ns: "mcp" }) });
+			setError("oauth_config.authorize_url", { message: "Authorize URL must start with http:// or https://" });
 			hasErrors = true;
 		}
 		if (data.oauth_config?.token_url && !/^https?:\/\/.+$/.test(data.oauth_config.token_url)) {
-			setError("oauth_config.token_url", { message: localeMessages.t("registry.form.tokenUrlHttp", { ns: "mcp" }) });
+			setError("oauth_config.token_url", { message: "Token URL must start with http:// or https://" });
 			hasErrors = true;
 		}
 		if (data.oauth_config?.registration_url && !/^https?:\/\/.+$/.test(data.oauth_config.registration_url)) {
-			setError("oauth_config.registration_url", { message: localeMessages.t("registry.form.registrationUrlHttp", { ns: "mcp" }) });
+			setError("oauth_config.registration_url", { message: "Registration URL must start with http:// or https://" });
 			hasErrors = true;
 		}
 		if (satellites.resourceText.trim() && !isValidOAuthResourceURI(satellites.resourceText.trim())) {
-			onToast(
-				localeMessages.t("registry.form.invalidResourceTitle", { ns: "mcp" }),
-				localeMessages.t("registry.form.invalidResourceDesc", { ns: "mcp" }),
-			);
+			onToast("Invalid resource URI", "OAuth resource must be an absolute URI without a fragment.");
 			hasErrors = true;
 		}
 	}
 
 	if (authType === "token_exchange") {
 		if (!data.token_exchange?.audience?.trim()) {
-			setError("token_exchange.audience", { message: localeMessages.t("registry.form.audienceRequired", { ns: "mcp" }) });
+			setError("token_exchange.audience", { message: "Audience is required for token exchange" });
 			hasErrors = true;
 		}
-		if (!data.token_exchange?.use_idp_credentials) {
+		if (!data.token_exchange?.use_idp_credentials && data.token_exchange?.profile !== "id_jag") {
 			const exchangeClientId = data.token_exchange?.client_id;
 			if (!exchangeClientId?.value && !exchangeClientId?.ref) {
-				setError("token_exchange.client_id", { message: localeMessages.t("registry.form.exchangeClientIdRequired", { ns: "mcp" }) });
+				setError("token_exchange.client_id", { message: "Exchange client ID is required for token exchange" });
+				hasErrors = true;
+			}
+		}
+		if (data.token_exchange?.profile === "id_jag") {
+			if (!isSecretVarSet(data.token_exchange?.resource_client_id)) {
+				setError("token_exchange.resource_client_id", { message: "Client ID at the upstream server is required for Cross App Access" });
+				hasErrors = true;
+			}
+			if (isSecretVarSet(data.token_exchange?.resource_client_secret) && isSecretVarSet(data.token_exchange?.resource_private_key)) {
+				setError("token_exchange.resource_private_key", {
+					message: "Use either a client secret or a private key at the upstream server, not both",
+				});
+				hasErrors = true;
+			}
+			if (hasPrivateKeySettingsWithoutKey(data.token_exchange)) {
+				setError("token_exchange.resource_private_key", { message: PRIVATE_KEY_REQUIRED_MESSAGE });
+				hasErrors = true;
+			}
+			if (hasSendMethodWithoutSecret(data.token_exchange)) {
+				setError("token_exchange.resource_client_secret", { message: SECRET_REQUIRED_FOR_METHOD_MESSAGE });
+				hasErrors = true;
+			}
+			const endpoint = data.token_exchange?.resource_token_endpoint?.trim();
+			if (endpoint && !isHTTPSOrLoopbackURL(endpoint)) {
+				setError("token_exchange.resource_token_endpoint", {
+					message: "Token endpoint must be an https URL (http is allowed only for localhost)",
+				});
+				hasErrors = true;
+			}
+			const assertionAudience = data.token_exchange?.resource_assertion_audience?.trim();
+			if (assertionAudience && !isHTTPSOrLoopbackURL(assertionAudience)) {
+				setError("token_exchange.resource_assertion_audience", {
+					message: "Assertion audience must be an https URL (http is allowed only for localhost)",
+				});
 				hasErrors = true;
 			}
 		}
@@ -408,7 +446,7 @@ export function validateMCPClientForm({
 				hasErrors = true;
 			}
 			if (openAPIBaseUrlRequired(openapi.baseUrlChoice, openapi.preview) && !oc?.base_url?.trim()) {
-				setError("openapi_config.base_url", { message: localeMessages.t("ui.mcpClientFormFields.baseURLIsRequired", { ns: "mcp" }) });
+				setError("openapi_config.base_url", { message: "Base URL is required" });
 				hasErrors = true;
 			}
 		}
@@ -480,21 +518,11 @@ export function buildMCPClientPayload(data: CreateMCPClientRequest, satellites: 
 		tls_config: isStdio ? undefined : buildTLSConfigPayload(data.tls_config),
 		oauth_config:
 			authType === "oauth" || authType === "per_user_oauth"
-				? {
-						client_id: data.oauth_config?.client_id ?? emptySecretVar,
-						client_secret:
-							data.oauth_config?.client_secret?.value ||
-							data.oauth_config?.client_secret?.type === "env" ||
-							data.oauth_config?.client_secret?.type === "vault"
-								? data.oauth_config.client_secret
-								: undefined,
-						authorize_url: data.oauth_config?.authorize_url || undefined,
-						token_url: data.oauth_config?.token_url || undefined,
-						registration_url: data.oauth_config?.registration_url || undefined,
-						scopes: satellites.scopesText.trim() ? parseArrayFromText(satellites.scopesText) : undefined,
-						server_url: data.connection_string?.value || undefined,
-						resource: satellites.resourceText.trim() || undefined,
-					}
+				? buildOAuthConfigPayload(data.oauth_config, {
+						serverURL: data.connection_string?.value,
+						scopesText: satellites.scopesText,
+						resourceText: satellites.resourceText,
+					})
 				: undefined,
 		// Every network auth type can carry static admin headers on data.headers
 		// (per-user values are submitted separately by end users); STDIO has no
@@ -505,9 +533,9 @@ export function buildMCPClientPayload(data: CreateMCPClientRequest, satellites: 
 			authType === "token_exchange"
 				? {
 						audience: data.token_exchange?.audience?.trim() || "",
-						use_idp_credentials: data.token_exchange?.use_idp_credentials || undefined,
-						client_id: data.token_exchange?.use_idp_credentials ? undefined : (data.token_exchange?.client_id ?? emptySecretVar),
-						client_secret: data.token_exchange?.use_idp_credentials
+						use_idp_credentials: exchangesAsSSOApplication(data.token_exchange) || undefined,
+						client_id: exchangesAsSSOApplication(data.token_exchange) ? undefined : (data.token_exchange?.client_id ?? emptySecretVar),
+						client_secret: exchangesAsSSOApplication(data.token_exchange)
 							? undefined
 							: data.token_exchange?.client_secret?.value ||
 								  data.token_exchange?.client_secret?.type === "env" ||
@@ -516,6 +544,7 @@ export function buildMCPClientPayload(data: CreateMCPClientRequest, satellites: 
 								: undefined,
 						scopes: satellites.tokenExchangeScopesText.trim() ? parseArrayFromText(satellites.tokenExchangeScopesText) : undefined,
 						authorization_server_url: data.token_exchange?.authorization_server_url?.trim() || undefined,
+						...tokenExchangeProfilePayload(data.token_exchange),
 					}
 				: undefined,
 		// Network transports expose every tool the server reports; an openapi
@@ -525,22 +554,26 @@ export function buildMCPClientPayload(data: CreateMCPClientRequest, satellites: 
 			: ["*"],
 		// Extra headers only ride on the network transports.
 		allowed_extra_headers: isStdio ? undefined : parseArrayFromText(satellites.allowedExtraHeadersText),
+		// An openapi server is synthesized in process; there is no protocol to negotiate.
+		max_protocol_version: isOpenAPI ? undefined : data.max_protocol_version,
 	};
 }
 
 /**
- * Warns that STDIO servers shell out to the host, which only carries the usual
- * runtimes on the official image. Shown wherever a STDIO server is configured.
+ * Warns that STDIO servers shell out to the host, and the official image ships
+ * no runtimes (npx, python) for them. Shown wherever a STDIO server is configured.
  */
 export function StdioRuntimeNotice() {
-	const { t } = useTranslation("mcp");
 	return (
 		<div className="rounded-lg border border-amber-200 bg-amber-50 p-3" data-testid="stdio-docker-notice">
 			<div className="flex items-start gap-2">
 				<Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-700" />
 				<div className="flex-1">
-					<p className="text-xs font-medium text-amber-900">{t("registry.form.dockerNotice")}</p>
-					<p className="mt-0.5 text-xs text-amber-800">{t("registry.form.dockerNoticeBody")}</p>
+					<p className="text-xs font-medium text-amber-900">Docker Notice</p>
+					<p className="mt-0.5 text-xs text-amber-800">
+						If using the official Bifrost Docker image, STDIO connections may not work because common commands like npx, python, etc.
+						aren&apos;t installed. You can safely ignore this if running locally or using a custom image with the necessary dependencies.
+					</p>
 				</div>
 			</div>
 		</div>
@@ -565,7 +598,6 @@ interface MCPClientFormFieldsProps {
 }
 
 export function MCPClientFormFields({ form, satellites, headersValidationError, lockConnection, stdioEnvKeys }: MCPClientFormFieldsProps) {
-	const { t } = useTranslation("mcp");
 	const { control, setValue, watch, clearErrors } = form;
 	const connectionType = watch("connection_type");
 	const authType = watch("auth_type");
@@ -573,8 +605,10 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 	// Token exchange is backed by the deployment's identity-provider
 	// integration, so the option only renders when one is enabled. The exact
 	// exchange-client requirement is enforced server-side at create; a missing
-	// tokenExchangeClient section surfaces as the create error.
-	const { data: scimProviders } = useGetSCIMProvidersQuery(undefined, { skip: !IS_ENTERPRISE });
+	// tokenExchangeClient section surfaces as the create error. Reading the
+	// providers needs UserProvisioning:View; without it the option stays hidden.
+	const hasUserProvisioningAccess = useRbac(RbacResource.UserProvisioning, RbacOperation.View);
+	const { data: scimProviders } = useGetSCIMProvidersQuery(undefined, { skip: !IS_ENTERPRISE || !hasUserProvisioningAccess });
 	const enabledScimProvider = scimProviders?.find((p) => (p as { enabled?: boolean }).enabled) as { name?: string } | undefined;
 	const idpConfigured = !!enabledScimProvider;
 	// Entra's on-behalf-of grant requires use_idp_credentials — see the
@@ -759,7 +793,7 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 		<>
 			{/* Server Behavior */}
 			<div className="space-y-4">
-				<SectionHeader title={t("registry.form.serverBehavior")} description={t("registry.form.serverBehaviorDesc")} />
+				<SectionHeader title="Server Behavior" description="Control how this server participates in code mode and health checks." />
 				<div className="divide-y rounded-md border">
 					<FormField
 						control={control}
@@ -767,7 +801,7 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 						render={({ field }) => (
 							<FormItem className="flex flex-row items-center justify-between gap-4 px-4 py-3">
 								<div className="flex items-center gap-2">
-									<FormLabel htmlFor="code-mode">{t("registry.form.codeModeServer")}</FormLabel>
+									<FormLabel htmlFor="code-mode">Code Mode Server</FormLabel>
 									<TooltipProvider>
 										<Tooltip>
 											<TooltipTrigger asChild>
@@ -777,13 +811,13 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 													rel="noopener noreferrer"
 													data-testid="code-mode-link-help"
 													className="text-muted-foreground hover:text-foreground focus-visible:ring-ring rounded focus-visible:ring-2 focus-visible:outline-none"
-													aria-label={t("registry.form.learnCodeModeAria")}
+													aria-label="Learn more about Code Mode"
 												>
 													<Info className="h-4 w-4 cursor-help" />
 												</a>
 											</TooltipTrigger>
 											<TooltipContent>
-												<p>{t("registry.form.learnCodeMode")}</p>
+												<p>Click to learn more about Code Mode</p>
 											</TooltipContent>
 										</Tooltip>
 									</TooltipProvider>
@@ -800,14 +834,17 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 						render={({ field }) => (
 							<FormItem className="flex flex-row items-center justify-between gap-4 px-4 py-3">
 								<div className="flex items-center gap-2">
-									<FormLabel htmlFor="ping-available">{t("registry.form.pingAvailable")}</FormLabel>
+									<FormLabel htmlFor="ping-available">Ping Available for Health Check</FormLabel>
 									<TooltipProvider>
 										<Tooltip>
 											<TooltipTrigger asChild>
 												<Info className="text-muted-foreground h-4 w-4 cursor-help" />
 											</TooltipTrigger>
 											<TooltipContent className="max-w-xs">
-												<p>{t("registry.form.pingAvailableHelp")}</p>
+												<p>
+													Enable to use lightweight ping method for health checks. Disable if your MCP server doesn&apos;t support ping -
+													will use listTools instead.
+												</p>
 											</TooltipContent>
 										</Tooltip>
 									</TooltipProvider>
@@ -833,14 +870,18 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 								render={({ field }) => (
 									<FormItem className="flex flex-row items-center justify-between gap-4 px-4 py-3">
 										<div className="flex items-center gap-2">
-											<FormLabel htmlFor="needs-session-stickiness">{t("registry.form.persistentConnection")}</FormLabel>
+											<FormLabel htmlFor="needs-session-stickiness">Maintain Persistent Connection</FormLabel>
 											<TooltipProvider>
 												<Tooltip>
 													<TooltipTrigger asChild>
 														<Info className="text-muted-foreground h-4 w-4 cursor-help" />
 													</TooltipTrigger>
 													<TooltipContent className="max-w-xs">
-														<p>{t("registry.form.persistentConnectionHelp")}</p>
+														<p>
+															Enable to keep one shared connection open and reused across every caller. Disable to connect fresh on every
+															call instead, same as per-user auth types. Only applies to HTTP connections; SSE and STDIO always keep a
+															persistent connection.
+														</p>
 													</TooltipContent>
 												</Tooltip>
 											</TooltipProvider>
@@ -857,6 +898,35 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 								)}
 							/>
 						)}
+					{!isOpenAPI && (
+						<FormField
+							control={control}
+							name="max_protocol_version"
+							render={({ field }) => (
+								<FormItem className="flex flex-row items-center justify-between gap-4 px-4 py-3">
+									<div className="flex items-center gap-2">
+										<FormLabel>Max Protocol Version</FormLabel>
+										<TooltipProvider>
+											<Tooltip>
+												<TooltipTrigger asChild>
+													<Info className="text-muted-foreground h-4 w-4 cursor-help" />
+												</TooltipTrigger>
+												<TooltipContent className="max-w-xs">
+													<p>
+														Newest MCP protocol version Bifrost offers this server. Pick an earlier version if the server misbehaves on the
+														latest one.
+													</p>
+												</TooltipContent>
+											</Tooltip>
+										</TooltipProvider>
+									</div>
+									<FormControl>
+										<MaxProtocolVersionSelect value={field.value} onChange={field.onChange} />
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+					)}
 				</div>
 			</div>
 
@@ -865,29 +935,29 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 			{/* Connection & Authentication */}
 			<div className="space-y-4">
 				<SectionHeader
-					title={isOpenAPI ? t("ui.mcpClientFormFields.openAPIDocumentAuthentication", { ns: "mcp" }) : t("registry.form.connectionAuth")}
+					title={isOpenAPI ? "OpenAPI Document & Authentication" : "Connection & Authentication"}
 					description={
 						lockConnection
-							? t("registry.form.connectionAuthLocked")
+							? "The transport and target come from the library entry. Choose how requests to it are authenticated."
 							: isOpenAPI
-								? t("ui.mcpClientFormFields.bifrostBuildsAnMCPServerFromTheDocumentEvery", { ns: "mcp" })
-								: t("ui.mcpClientFormFields.chooseHowBifrostConnectsToThisServerAndFor", { ns: "mcp" })
+								? "Bifrost builds an MCP server from the document: every supported operation becomes a tool whose call is sent to the API. The server source and authentication settings cannot be changed later."
+								: "Choose how Bifrost connects to this server and, for network transports, how requests are authenticated. These settings cannot be changed later."
 					}
 				/>
 				<div className="space-y-4 rounded-md border p-4">
 					{!lockConnection && (
 						<FormItem className="w-full">
-							<FormLabel>{t("ui.mcpClientFormFields.serverSource", { ns: "mcp" })}</FormLabel>
+							<FormLabel>Server source</FormLabel>
 							<Tabs
 								value={isOpenAPI ? "openapi" : "mcp"}
 								onValueChange={(value) => applyConnectionType(value === "openapi" ? "openapi" : lastTransport.current)}
 							>
 								<TabsList data-testid="mcp-server-source-tabs">
 									<TabsTrigger value="mcp" data-testid="mcp-server-source-mcp">
-										{t("ui.mcpClientFormFields.connectToAnMCPServer", { ns: "mcp" })}
+										Connect to an MCP server
 									</TabsTrigger>
 									<TabsTrigger value="openapi" data-testid="mcp-server-source-openapi" className="gap-2">
-										{t("ui.mcpClientFormFields.generateFromAnOpenAPISpec", { ns: "mcp" })}
+										Generate from an OpenAPI spec
 										<BetaBadge />
 									</TabsTrigger>
 								</TabsList>
@@ -901,7 +971,7 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 							name="connection_type"
 							render={({ field }) => (
 								<FormItem className="w-full">
-									<FormLabel>{t("registry.columns.connectionType")}</FormLabel>
+									<FormLabel>Connection Type</FormLabel>
 									<Select
 										value={field.value}
 										disabled={lockConnection}
@@ -909,18 +979,18 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 									>
 										<FormControl>
 											<SelectTrigger className="w-full" data-testid="connection-type-select">
-												<SelectValue placeholder={t("registry.form.selectConnectionType")} />
+												<SelectValue placeholder="Select connection type" />
 											</SelectTrigger>
 										</FormControl>
 										<SelectContent>
 											<SelectItem value="http" data-testid="connection-type-http">
-												{localeMessages.t("registry.form.httpStreamable", { ns: "mcp" })}
+												HTTP (Streamable)
 											</SelectItem>
 											<SelectItem value="sse" data-testid="connection-type-sse">
-												{localeMessages.t("registry.form.sseLabel", { ns: "mcp" })}
+												Server-Sent Events (SSE)
 											</SelectItem>
 											<SelectItem value="stdio" data-testid="connection-type-stdio">
-												{t("registry.form.stdioLabel")}
+												STDIO
 											</SelectItem>
 										</SelectContent>
 									</Select>
@@ -938,7 +1008,7 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 								name="connection_string"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("registry.form.connectionUrl")}</FormLabel>
+										<FormLabel>Connection URL</FormLabel>
 										<SecretVarInput
 											value={field.value}
 											disabled={lockConnection}
@@ -946,7 +1016,7 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 												field.onChange(value);
 												clearErrors("connection_string");
 											}}
-											placeholder={t("registry.form.connectionUrlPlaceholder")}
+											placeholder="http://your-mcp-server:3000 or env.MCP_SERVER_URL"
 											data-testid="connection-url-input"
 										/>
 										<FormMessage />
@@ -958,7 +1028,7 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 
 					{isOpenAPI && (
 						<div className="space-y-2">
-							<FormLabel>{t("ui.mcpClientFormFields.openAPIDocument", { ns: "mcp" })}</FormLabel>
+							<FormLabel>OpenAPI document</FormLabel>
 							<OpenAPISpecSource
 								mode={openapi.sourceMode}
 								onModeChange={(mode) => {
@@ -990,33 +1060,33 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 						<>
 							{/* Auth Type */}
 							<FormItem className="w-full">
-								<FormLabel>{t("registry.form.authenticationType")}</FormLabel>
+								<FormLabel>Authentication Type</FormLabel>
 								<Select value={authKind} onValueChange={(value: MCPAuthKind) => applyAuthKind(value)}>
 									<FormControl>
 										<SelectTrigger className="w-full" data-testid="auth-type-select">
-											<SelectValue placeholder={t("registry.form.selectAuthType")} />
+											<SelectValue placeholder="Select authentication type" />
 										</SelectTrigger>
 									</FormControl>
 									<SelectContent>
 										<SelectItem value="none" data-testid="auth-type-none">
-											{t("registry.filter.none")}
+											None
 										</SelectItem>
 										<SelectItem value="headers" data-testid="auth-type-headers">
-											{t("registry.filter.headers")}
+											Headers
 										</SelectItem>
 										{/* A synthesized openapi server has no MCP handshake to run an
 										    OAuth or token-exchange flow against; the API's own security
 										    schemes are configured from the parsed document instead. */}
 										{!isOpenAPI && (
 											<SelectItem value="oauth" data-testid="auth-type-oauth">
-												{t("registry.form.oauth20")}
+												OAuth 2.0
 											</SelectItem>
 										)}
 										{/* Also rendered when it is already the selected value, so the
 										    trigger shows the real auth type rather than a placeholder. */}
 										{!isOpenAPI && ((IS_ENTERPRISE && idpConfigured) || tokenExchangeUnavailable) && (
 											<SelectItem value="token_exchange" data-testid="auth-type-token-exchange">
-												{t("registry.form.tokenExchangeObo")}
+												Token Exchange (On-Behalf-Of)
 											</SelectItem>
 										)}
 									</SelectContent>
@@ -1027,7 +1097,10 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 										data-testid="token-exchange-unavailable-notice"
 									>
 										<Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-										<p>{t("registry.form.tokenExchangeUnavailable")}</p>
+										<p>
+											This server expects token exchange, which needs an enabled identity provider. Configure one, or pick a different
+											authentication type to continue.
+										</p>
 									</div>
 								)}
 							</FormItem>
@@ -1036,19 +1109,19 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 							    shared variant; token exchange is inherently per-caller */}
 							{authKind !== "none" && authKind !== "token_exchange" && (
 								<FormItem className="w-full">
-									<FormLabel>{t("registry.columns.authScope")}</FormLabel>
+									<FormLabel>Auth Scope</FormLabel>
 									<Select value={authScope} onValueChange={(value: MCPAuthScope) => applyAuthScope(value)}>
 										<FormControl>
 											<SelectTrigger className="w-full" data-testid="auth-scope-select">
-												<SelectValue placeholder={t("registry.form.selectAuthScope")} />
+												<SelectValue placeholder="Select auth scope" />
 											</SelectTrigger>
 										</FormControl>
 										<SelectContent>
 											<SelectItem value="shared" data-testid="auth-scope-shared">
-												{t("registry.form.shared")}
+												Shared
 											</SelectItem>
 											<SelectItem value="per_user" data-testid="auth-scope-per-user">
-												{t("registry.form.perUser")}
+												Per-User
 											</SelectItem>
 										</SelectContent>
 									</Select>
@@ -1090,11 +1163,11 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 							<DottedSeparator />
 							<div className="space-y-4">
 								<SectionHeader
-									title={t("registry.filter.headers")}
+									title="Headers"
 									description={
 										isOpenAPI
-											? t("ui.mcpClientFormFields.staticHeadersSentWithEveryRequestToTheAPI", { ns: "mcp" })
-											: t("registry.form.headersDesc")
+											? "Static headers sent with every request to the API, alongside the credentials above."
+											: "Static headers sent with every request to this server."
 									}
 								/>
 								<FormField
@@ -1105,8 +1178,8 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 											<HeadersTable
 												value={field.value || {}}
 												onChange={field.onChange}
-												keyPlaceholder={t("registry.form.headerName")}
-												valuePlaceholder={t("registry.form.headerValue")}
+												keyPlaceholder="Header name"
+												valuePlaceholder="Header value"
 												label=""
 												useSecretVarInput
 											/>
@@ -1129,11 +1202,11 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 								    consistent. End users supply values per-user at first
 								    tool use via the inline auth landing page. */}
 								<SectionHeader
-									title={t("registry.form.requiredHeaders")}
+									title="Required Headers"
 									description={
 										isOpenAPI
-											? t("ui.mcpClientFormFields.commaSeparatedHeaderNamesEachCallerMustSupplyOnFirst", { ns: "mcp" })
-											: t("registry.form.requiredHeadersDesc")
+											? "Comma-separated header names each caller must supply on first use, in addition to the headers named under API authentication. Values are submitted per user, not stored on this server config."
+											: "Comma-separated header names each caller must supply on first use, e.g. X-API-Key, X-Tenant-ID. Values are submitted per user, not stored on this server config."
 									}
 								/>
 								<div className="rounded-md border p-4">
@@ -1141,7 +1214,7 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 										id="per-user-header-keys"
 										data-testid="per-user-header-keys-textarea"
 										className="h-24"
-										placeholder={t("registry.form.headerKeysPlaceholder")}
+										placeholder="X-API-Key, X-Tenant-ID"
 										value={satellites.headerKeysInput}
 										onChange={(e) => satellites.setHeaderKeysInput(e.target.value)}
 									/>
@@ -1150,7 +1223,7 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 
 							{/* Optional static admin headers (e.g. a fixed tenant header) */}
 							<div className="space-y-4">
-								<SectionHeader title={t("registry.form.staticHeaders")} description={t("registry.form.staticHeadersDesc")} />
+								<SectionHeader title="Static Headers" description="Optional, applied alongside the values each caller supplies." />
 								<FormField
 									control={control}
 									name="headers"
@@ -1159,8 +1232,8 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 											<HeadersTable
 												value={field.value || {}}
 												onChange={field.onChange}
-												keyPlaceholder={t("registry.form.headerName")}
-												valuePlaceholder={t("registry.form.headerValue")}
+												keyPlaceholder="Header name"
+												valuePlaceholder="Header value"
 												label=""
 												useSecretVarInput
 											/>
@@ -1183,8 +1256,8 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 							<DottedSeparator />
 							<div className="space-y-4" data-testid="token-exchange-fields">
 								<SectionHeader
-									title={t("registry.form.tokenExchangeConfig")}
-									description={t("registry.form.tokenExchangeConfigDesc")}
+									title="Token Exchange Configuration"
+									description="Credentials and scopes used to exchange caller identity tokens for access to this server."
 									testId="token-exchange-heading"
 								/>
 								<div className="space-y-4 rounded-md border p-4">
@@ -1193,48 +1266,69 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 										gridClassName="space-y-4"
 										audienceLabel={
 											<>
-												{t("registry.form.audience")} <span className="text-destructive">*</span>
+												Audience <span className="text-destructive">*</span>
 											</>
 										}
-										audienceTooltip={isEntraIdp ? t("registry.form.audienceTooltipEntra") : t("registry.form.audienceTooltip")}
+										audienceTooltip={
+											isEntraIdp
+												? "The resource app's Application (client) ID at your identity provider - a bare GUID, not the api://... Application ID URI shown under Expose an API. Exchanged tokens are scoped to it."
+												: "The resource identifier this server is registered as at your identity provider. Exchanged tokens are scoped to it."
+										}
 										audienceTestId="token-exchange-audience-input"
 										onAudienceTouched={() => clearErrors("token_exchange.audience")}
-										useIdPCredentialsLabel={t("registry.form.exchangeApplication")}
-										useIdPCredentialsDedicatedDescription={t("registry.form.dedicatedAppDesc")}
-										useIdPCredentialsIdPDescription={t("registry.form.idpAppDesc")}
-										useIdPCredentialsRequiredWarning={isEntraIdp && t("registry.form.entraDedicatedWarning")}
+										useIdPCredentialsLabel="Exchange application"
+										useIdPCredentialsDedicatedDescription="A separate identity-provider app, scoped only to this server. Recommended for most providers."
+										useIdPCredentialsIdPDescription="Reuses your SSO login application's own credentials. Required for Microsoft Entra ID."
+										useIdPCredentialsRequiredWarning={
+											isEntraIdp &&
+											"Your identity provider is Microsoft Entra ID - a dedicated application might not work, switch to Identity provider application."
+										}
 										onUseIdPCredentialsToggled={(checked) => {
 											if (checked) clearErrors(["token_exchange.client_id", "token_exchange.client_secret"]);
 										}}
 										clientIdLabel={
 											<>
-												{t("registry.form.exchangeClientId")} <span className="text-destructive">*</span>
+												Exchange Client ID <span className="text-destructive">*</span>
 											</>
 										}
-										clientIdTooltip={t("registry.form.exchangeClientIdTooltip")}
+										clientIdTooltip="A dedicated application at your identity provider with the token exchange (or on-behalf-of) grant enabled and permission to request this audience. Not the SSO login application. Ignored when using identity provider credentials above."
 										clientIdPlaceholder="bifrost-exchange or env.EXCHANGE_CLIENT_ID"
 										clientIdTestId="token-exchange-client-id-input"
 										onClientIdTouched={() => clearErrors("token_exchange.client_id")}
 										clientIdRedactNonEnvValue={false}
-										clientSecretLabel={t("registry.form.exchangeClientSecretOptional")}
+										clientSecretLabel="Exchange Client Secret (optional)"
 										clientSecretPlaceholder="env.EXCHANGE_CLIENT_SECRET"
-										clientSecretHelperText={t("registry.form.omitPublicClients")}
+										clientSecretHelperText="Omit for public clients."
 										clientSecretTestId="token-exchange-client-secret-input"
 										clientSecretHideValueWhenEnv={false}
 										clientSecretMaskNonEnvValue={true}
 										clientSecretRedactNonEnvValue={false}
-										authServerUrlLabel={t("registry.form.authServerUrlOptional")}
-										authServerUrlTooltip={t("registry.form.authServerUrlTooltip")}
+										authServerUrlLabel="Authorization Server URL (optional)"
+										authServerUrlTooltip={
+											<>
+												Only needed when the audience above is registered on a different authorization server than the one your SSO login
+												uses - for example, Okta&apos;s per-resource Custom Authorization Servers. Leave blank to use your SSO login&apos;s
+												issuer, which is correct for most providers. Enter an issuer, or a full token endpoint ending in /token to use it as
+												is.
+											</>
+										}
 										authServerUrlTestId="token-exchange-authorization-server-url-input"
 										scopes={{
 											variant: "textarea",
 											value: satellites.tokenExchangeScopesText,
 											onChange: satellites.setTokenExchangeScopesText,
-											label: t("registry.form.scopesOptional"),
+											label: "Scopes (optional)",
 											helperText: (
 												<>
-													<Trans t={t} i18nKey="registry.form.scopesHelper" components={{ code: <code /> }} />
-													{isEntraIdp && <Trans t={t} i18nKey="registry.form.scopesHelperEntra" components={{ code: <code /> }} />}
+													Comma-separated scopes to request on exchanged tokens. Include <code>offline_access</code> (where your identity
+													provider supports it) so the retained discovery credential can renew itself in the background.
+													{isEntraIdp && (
+														<>
+															{" "}
+															<code>offline_access</code> alone is the only scope combined with the audience&apos;s default resource access
+															- any other scope replaces the default entirely instead of adding to it.
+														</>
+													)}
 												</>
 											),
 											testId: "token-exchange-scopes-textarea",
@@ -1250,8 +1344,8 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 							<DottedSeparator />
 							<div className="space-y-4">
 								<SectionHeader
-									title={t("registry.form.oauthConfig")}
-									description={t("registry.form.oauthConfigDesc")}
+									title="OAuth Configuration"
+									description="Credentials and endpoints this server uses to authenticate via OAuth."
 									testId="oauth-advanced-heading"
 								/>
 								<div className="space-y-4 rounded-md border p-4">
@@ -1259,25 +1353,26 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 										control={control}
 										scopesRaw={satellites.scopesText}
 										onScopesRawChange={satellites.setScopesText}
-										scopesLabel={t("registry.form.scopesOptionalComma")}
+										scopesLabel="Scopes (optional, comma-separated)"
 										scopesTestId="mcp-oauth-scopes-input"
 										resource={{ mode: "raw", value: satellites.resourceText, onChange: satellites.setResourceText }}
-										resourceLabel={t("registry.form.resource")}
+										resourceLabel="Resource"
 										resourceTestId="mcp-oauth-resource-input"
-										clientIdLabel={t("registry.form.oauthClientIdOptional")}
-										clientIdPlaceholder="your-client-id (auto-generated if empty)"
-										clientIdHelperText={t("registry.form.oauthClientIdHelper")}
-										clientIdTooltip={t("registry.form.oauthClientIdTooltip")}
+										clientIdLabel="OAuth Client ID (optional)"
+										clientIdPlaceholder="your-client-id (registered automatically if empty)"
+										clientIdHelperText="Left empty, Bifrost registers itself: through its client metadata document where the provider supports it, otherwise by dynamic registration"
+										clientIdTooltip="Leave empty to let Bifrost register itself. It uses its client metadata document where the authorization server advertises support, and Dynamic Client Registration (RFC 7591) otherwise."
 										clientIdTestId="mcp-oauth-client-id"
-										clientSecretLabel={t("registry.form.oauthClientSecretPkce")}
+										clientMetadataDocumentTestId="mcp-oauth-use-client-metadata-document"
+										clientSecretLabel="OAuth Client Secret (optional for PKCE)"
 										clientSecretPlaceholder="your-client-secret"
-										clientSecretHelperText={t("registry.form.oauthClientSecretHelper")}
+										clientSecretHelperText="Leave empty for public clients using PKCE"
 										clientSecretTestId="mcp-oauth-client-secret"
-										authorizeUrlLabel={t("registry.form.authorizeUrlOptional")}
+										authorizeUrlLabel="Authorization URL (optional, auto-discovered)"
 										authorizeUrlTestId="mcp-oauth-authorize-url"
-										tokenUrlLabel={t("registry.form.tokenUrlOptional")}
+										tokenUrlLabel="Token URL (optional, auto-discovered)"
 										tokenUrlTestId="mcp-oauth-token-url"
-										registrationUrlLabel={t("registry.form.registrationUrlOptional")}
+										registrationUrlLabel="Registration URL (optional, auto-discovered)"
 										registrationUrlTestId="mcp-oauth-registration-url"
 										onFieldTouched={(field) => clearErrors(`oauth_config.${field}`)}
 									/>
@@ -1291,14 +1386,14 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 					{/* Allowed Extra Headers */}
 					<div className="space-y-4">
 						<SectionHeader
-							title={localeMessages.t("registry.sheet.allowedExtraHeaders", { ns: "mcp" })}
-							description={localeMessages.t("registry.sheet.allowedExtraHeadersDesc", { ns: "mcp" })}
+							title="Allowed Extra Headers"
+							description="Comma-separated dynamic request header names, or * to allow all. Leave empty to block all extra headers."
 						/>
 						<Input
 							id="allowed-extra-headers-input"
 							value={satellites.allowedExtraHeadersText}
 							onChange={(e) => satellites.setAllowedExtraHeadersText(e.target.value)}
-							placeholder={localeMessages.t("registry.sheet.extraHeadersPlaceholder", { ns: "mcp" })}
+							placeholder="*, or: authorization, x-user-id"
 							data-testid="allowed-extra-headers-input"
 						/>
 					</div>
@@ -1308,8 +1403,8 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 					{/* TLS / Certificate */}
 					<div className="space-y-4">
 						<SectionHeader
-							title={t("registry.form.tlsCertificate")}
-							description={t("registry.form.tlsCertificateDesc")}
+							title="TLS / Certificate"
+							description="Configure certificate verification for HTTPS connections to this server."
 							testId="tls-config-heading"
 						/>
 						<div className="space-y-4 rounded-md border p-4">
@@ -1324,8 +1419,12 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 					<DottedSeparator />
 					<div className="space-y-4">
 						<SectionHeader
-							title={t("registry.form.launchCommand")}
-							description={lockConnection ? t("registry.form.launchCommandLocked") : t("registry.form.launchCommandOpen")}
+							title="Launch Command"
+							description={
+								lockConnection
+									? "Bifrost runs this command to start the server. It comes from the library entry and can't be changed here."
+									: "Bifrost runs this command to start the server on the machine it's deployed on."
+							}
 						/>
 						<div className="space-y-4 rounded-md border p-4">
 							<StdioRuntimeNotice />
@@ -1336,7 +1435,7 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 								name="stdio_config.command"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("common.command")}</FormLabel>
+										<FormLabel>Command</FormLabel>
 										<FormControl>
 											<Input
 												{...field}
@@ -1346,7 +1445,7 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 													field.onChange(e);
 													clearErrors("stdio_config.command");
 												}}
-												placeholder={t("registry.form.commandPlaceholder")}
+												placeholder="node, python, /path/to/executable"
 												data-testid="stdio-command-input"
 											/>
 										</FormControl>
@@ -1357,13 +1456,13 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 
 							{/* Args (local state) */}
 							<div className="space-y-2">
-								<Label htmlFor="stdio-args-input">{t("registry.form.argsComma")}</Label>
+								<Label htmlFor="stdio-args-input">Arguments (comma-separated)</Label>
 								<Input
 									id="stdio-args-input"
 									value={satellites.argsText}
 									disabled={lockConnection}
 									onChange={(e) => satellites.setArgsText(e.target.value)}
-									placeholder={t("registry.form.argsPlaceholder")}
+									placeholder="--port, 3000, --config, config.json"
 									data-testid="stdio-args-input"
 								/>
 							</div>
@@ -1371,14 +1470,14 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 							{/* Envs (local state) */}
 							<div className="space-y-2" role="group" aria-labelledby="stdio-envs-label">
 								<div className="flex items-center gap-2">
-									<Label id="stdio-envs-label">{t("registry.form.envVars")}</Label>
+									<Label id="stdio-envs-label">Environment Variables</Label>
 									<TooltipProvider>
 										<Tooltip>
 											<TooltipTrigger asChild>
 												<Info className="text-muted-foreground h-4 w-4 cursor-help" />
 											</TooltipTrigger>
 											<TooltipContent className="max-w-xs">
-												<p>{t("registry.form.envVarsHelp")}</p>
+												<p>Add a value for each variable, or leave it blank to read the value from the environment where Bifrost runs.</p>
 											</TooltipContent>
 										</Tooltip>
 									</TooltipProvider>
@@ -1388,7 +1487,7 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 									onChange={satellites.setEnvVars}
 									fixedKeys={stdioEnvKeys}
 									keyPlaceholder="API_KEY"
-									valuePlaceholder={t("registry.form.envValuePlaceholder")}
+									valuePlaceholder="Value (or leave blank to use host env)"
 									label=""
 								/>
 							</div>

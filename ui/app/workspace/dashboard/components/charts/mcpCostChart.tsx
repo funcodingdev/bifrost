@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import type { MCPCostHistogramResponse } from "@/lib/types/logs";
 import { memo, useMemo } from "react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -6,7 +5,6 @@ import { CHART_COLORS, formatCost, formatFullTimestamp, formatTimestamp } from "
 import { barShape } from "./barShape";
 import { ChartErrorBoundary } from "./chartErrorBoundary";
 import type { ChartType } from "./chartTypeToggle";
-import { NoChartData } from "./noChartData";
 
 interface MCPCostChartProps {
 	data: MCPCostHistogramResponse | null;
@@ -16,7 +14,6 @@ interface MCPCostChartProps {
 }
 
 function CustomTooltip({ active, payload }: any) {
-	const { t: tCopy } = useTranslation();
 	if (!active || !payload || !payload.length) return null;
 
 	const data = payload[0]?.payload;
@@ -29,7 +26,7 @@ function CustomTooltip({ active, payload }: any) {
 				<div className="flex items-center justify-between gap-4">
 					<span className="flex items-center gap-1.5">
 						<span className="h-2 w-2 rounded-full" style={{ backgroundColor: CHART_COLORS.cost }} />
-						<span className="text-zinc-600 dark:text-zinc-400">{tCopy("labels.cost", { ns: "observability" })}</span>
+						<span className="text-zinc-600 dark:text-zinc-400">Cost</span>
 					</span>
 					<span className="font-medium">{formatCost(data.total_cost)}</span>
 				</div>
@@ -52,7 +49,7 @@ function MCPCostChartImpl({ data, chartType, startTime, endTime }: MCPCostChartP
 	}, [data]);
 
 	if (!data?.buckets || chartData.length === 0) {
-		return <NoChartData />;
+		return <div className="text-muted-foreground flex h-full items-center justify-center text-sm">No data available</div>;
 	}
 
 	const commonProps = {

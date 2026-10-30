@@ -7,11 +7,9 @@ import { CoreConfig, DefaultCoreConfig } from "@/lib/types/config";
 import { RbacOperation, RbacResource, useRbac } from "@enterprise/lib";
 import { AlertTriangle } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 export default function PerformanceTuningView() {
-	const { t } = useTranslation("config");
 	const hasSettingsUpdateAccess = useRbac(RbacResource.Settings, RbacOperation.Update);
 	const { data: bifrostConfig } = useGetCoreConfigQuery({ fromDB: true });
 	const config = bifrostConfig?.client_config;
@@ -68,43 +66,47 @@ export default function PerformanceTuningView() {
 			const maxBodySize = Number.parseInt(localValues.max_request_body_size_mb);
 
 			if (isNaN(poolSize) || poolSize <= 0) {
-				toast.error(t("performance.toastPoolPositive"));
+				toast.error("Initial pool size must be a positive number.");
 				return;
 			}
 
 			if (isNaN(maxBodySize) || maxBodySize <= 0) {
-				toast.error(t("performance.toastBodyPositive"));
+				toast.error("Max request body size must be a positive number.");
 				return;
 			}
 
 			if (!bifrostConfig) {
-				toast.error(t("configNotLoadedRefresh"));
+				toast.error("Configuration not loaded. Please refresh and try again.");
 				return;
 			}
 			await updateCoreConfig({ ...bifrostConfig, client_config: localConfig }).unwrap();
-			toast.success(t("performance.toastSaved"));
+			toast.success("Performance settings updated successfully.");
 		} catch (error) {
 			toast.error(getErrorMessage(error));
 		}
-	}, [bifrostConfig, localConfig, localValues, t, updateCoreConfig]);
+	}, [bifrostConfig, localConfig, localValues, updateCoreConfig]);
 
 	return (
 		<div className="mx-auto w-full max-w-4xl space-y-4">
-			<PageTitle title={t("performance.title")}>{t("performance.description")}</PageTitle>
+			<PageTitle title="Performance Tuning">Configure performance-related settings.</PageTitle>
 
 			<Alert variant="destructive">
 				<AlertTriangle className="h-4 w-4" />
-				<AlertDescription>{t("restartRequiredAlert")}</AlertDescription>
+				<AlertDescription>
+					These settings require a Bifrost service restart to take effect. Current connections will continue with existing settings until
+					restart.
+				</AlertDescription>
 			</Alert>
 
 			<div className="space-y-4">
+				{/* Initial Pool Size */}
 				<div>
 					<div className="flex items-center justify-between space-x-2 rounded-sm border p-4">
 						<div className="space-y-0.5">
 							<label htmlFor="initial-pool-size" className="text-sm font-medium">
-								{t("performance.initialPoolSize")}
+								Initial Pool Size
 							</label>
-							<p className="text-muted-foreground text-sm">{t("performance.initialPoolSizeHelp")}</p>
+							<p className="text-muted-foreground text-sm">The initial connection pool size.</p>
 						</div>
 						<Input
 							id="initial-pool-size"
@@ -118,13 +120,14 @@ export default function PerformanceTuningView() {
 					{needsRestart && <RestartWarning />}
 				</div>
 
+				{/* Max Request Body Size */}
 				<div>
 					<div className="flex items-center justify-between space-x-2 rounded-sm border p-4">
 						<div className="space-y-0.5">
 							<label htmlFor="max-request-body-size-mb" className="text-sm font-medium">
-								{t("performance.maxRequestBodySize")}
+								Max Request Body Size (MB)
 							</label>
-							<p className="text-muted-foreground text-sm">{t("performance.maxRequestBodySizeHelp")}</p>
+							<p className="text-muted-foreground text-sm">Maximum size of request body in megabytes.</p>
 						</div>
 						<Input
 							id="max-request-body-size-mb"
@@ -140,7 +143,7 @@ export default function PerformanceTuningView() {
 			</div>
 			<div className="flex justify-end pt-2">
 				<Button onClick={handleSave} disabled={!hasChanges || isLoading || !hasSettingsUpdateAccess}>
-					{isLoading ? t("saving") : t("saveChanges")}
+					{isLoading ? "Saving..." : "Save Changes"}
 				</Button>
 			</div>
 		</div>
@@ -148,6 +151,5 @@ export default function PerformanceTuningView() {
 }
 
 const RestartWarning = () => {
-	const { t } = useTranslation("config");
-	return <div className="text-muted-foreground mt-2 pl-4 text-xs font-semibold">{t("restartWarning")}</div>;
+	return <div className="text-muted-foreground mt-2 pl-4 text-xs font-semibold">Need to restart Bifrost to apply changes.</div>;
 };

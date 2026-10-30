@@ -9,7 +9,6 @@ import { RbacOperation, RbacResource, useRbac } from "@enterprise/lib";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm, type Resolver } from "react-hook-form";
-import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { buildProviderUpdatePayload } from "../views/utils";
 
@@ -18,10 +17,10 @@ interface OpenAIConfigFormFragmentProps {
 }
 
 export function OpenAIConfigFormFragment({ provider }: OpenAIConfigFormFragmentProps) {
-	const { t } = useTranslation("models");
 	const dispatch = useAppDispatch();
 	const hasUpdateProviderAccess = useRbac(RbacResource.ModelProvider, RbacOperation.Update);
 	const [updateProvider, { isLoading: isUpdatingProvider }] = useUpdateProviderMutation();
+	const isFireworks = provider.name === "fireworks";
 	const form = useForm<OpenAIConfigFormSchema, any, OpenAIConfigFormSchema>({
 		resolver: zodResolver(openaiConfigFormSchema) as Resolver<OpenAIConfigFormSchema, any, OpenAIConfigFormSchema>,
 		mode: "onChange",
@@ -51,11 +50,11 @@ export function OpenAIConfigFormFragment({ provider }: OpenAIConfigFormFragmentP
 		)
 			.unwrap()
 			.then(() => {
-				toast.success(t("providers.openaiUpdated"));
+				toast.success(isFireworks ? "Configuration updated successfully" : "OpenAI configuration updated successfully");
 				form.reset(data);
 			})
 			.catch((err) => {
-				toast.error(t("providers.failedUpdateOpenai"), {
+				toast.error(isFireworks ? "Failed to update configuration" : "Failed to update OpenAI configuration", {
 					description: getErrorMessage(err),
 				});
 			});
@@ -72,8 +71,14 @@ export function OpenAIConfigFormFragment({ provider }: OpenAIConfigFormFragmentP
 							<FormItem>
 								<div className="flex items-center justify-between space-x-2">
 									<div className="space-y-0.5">
-										<FormLabel>{t("providers.openaiForm.disableStore")}</FormLabel>
-										<p className="text-muted-foreground text-xs">{t("providers.openaiForm.disableStoreHelp")}</p>
+										<FormLabel>Disable Store</FormLabel>
+										<p className="text-muted-foreground text-xs">
+											With the Responses API, store defaults to true, and when it is on, the generated response is stored for later
+											retrieval via API.{" "}
+											{isFireworks
+												? "Turn off store for fireworks."
+												: "OpenAI exposes endpoints to retrieve and delete stored responses, so your response IDs become durable server-side objects instead of one-shot IDs."}
+										</p>
 									</div>
 									<FormControl>
 										<Switch
@@ -100,7 +105,7 @@ export function OpenAIConfigFormFragment({ provider }: OpenAIConfigFormFragmentP
 						disabled={!form.formState.isDirty || !form.formState.isValid || !hasUpdateProviderAccess || isUpdatingProvider}
 						isLoading={isUpdatingProvider}
 					>
-						{t("providers.saveOpenaiConfig")}
+						{isFireworks ? "Save Configuration" : "Save OpenAI Configuration"}
 					</Button>
 				</div>
 			</form>

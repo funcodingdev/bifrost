@@ -1,4 +1,3 @@
-import { Trans, useTranslation } from "react-i18next";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -38,22 +37,22 @@ export default function BudgetUsageResetDialog({
 	onChoice,
 	ownerLabel,
 }: BudgetUsageResetDialogProps) {
-	const { t: tCopy } = useTranslation();
 	return (
 		<AlertDialog open={open} onOpenChange={onOpenChange}>
 			<AlertDialogContent data-testid={testId}>
 				<AlertDialogHeader>
-					<AlertDialogTitle>{tCopy("virtualKeys.resetBudgetUsage", { ns: "models" })}</AlertDialogTitle>
+					<AlertDialogTitle>Reset budget usage?</AlertDialogTitle>
 					<AlertDialogDescription>
-						<Trans ns="common" i18nKey="budget.resetUsageHelp" values={{ owner: ownerLabel }} />
+						You changed a budget amount or reset frequency on this {ownerLabel}. Reset current usage to 0, or preserve the existing
+						counters. The reset window keeps its current start and end either way.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel onClick={() => onChoice(false)} data-testid={testId ? `${testId}-preserve-btn` : undefined}>
-						{tCopy("virtualKeys.preserveUsage", { ns: "models" })}
+						Preserve Usage
 					</AlertDialogCancel>
 					<AlertDialogAction onClick={() => onChoice(true)} data-testid={testId ? `${testId}-confirm-btn` : undefined}>
-						{tCopy("virtualKeys.resetUsage", { ns: "models" })}
+						Reset Usage
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

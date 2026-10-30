@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ResponsesMessage } from "@/lib/types/logs";
 import { cn } from "@/lib/utils";
@@ -180,15 +179,11 @@ export const getResponsesRole = (msg: ResponsesMessage): MessageRole => {
 export const flattenDeclaredTools = (tools: any[]): any[] =>
 	tools.flatMap((tool) =>
 		tool?.type === "namespace" && Array.isArray(tool.tools)
-			? (tool.tools as any[]).map((nested) => ({
-					...nested,
-					name: `${tool.name ?? "namespace"}.${nested?.name ?? ""}`,
-				}))
+			? (tool.tools as any[]).map((nested) => ({ ...nested, name: `${tool.name ?? "namespace"}.${nested?.name ?? ""}` }))
 			: [tool],
 	);
 
 export function EncryptedReveal({ text, label }: { text: string; label: string }) {
-	const { t } = useTranslation("observability");
 	const [open, setOpen] = useState(false);
 	return (
 		<div className="space-y-1">
@@ -200,9 +195,7 @@ export function EncryptedReveal({ text, label }: { text: string; label: string }
 				<ChevronDown className={cn("h-3 w-3 transition-transform", open ? "rotate-180" : "-rotate-90")} />
 				{label}
 				{!open ? (
-					<span className="text-muted-foreground/70 ml-1 font-mono text-[10px] tracking-normal normal-case">
-						{t("logs.detail.chars", { count: text.length })}
-					</span>
+					<span className="text-muted-foreground/70 ml-1 font-mono text-[10px] tracking-normal normal-case">{text.length} chars</span>
 				) : null}
 			</button>
 			{open ? <pre className="font-mono text-[12.5px] leading-[1.6] break-all whitespace-pre-wrap">{text}</pre> : null}
@@ -221,7 +214,6 @@ export function CollapsibleCode({
 	lang?: string;
 	mono?: boolean;
 }) {
-	const { t } = useTranslation("observability");
 	const [open, setOpen] = useState(false);
 	// Trailing blank lines would otherwise count as hidden content and render a
 	// "Show more" that expands to nothing visible.
@@ -243,12 +235,11 @@ export function CollapsibleCode({
 						onClick={() => setOpen((o) => !o)}
 						className="text-primary inline-flex items-center gap-1 text-[11.5px] font-medium hover:underline"
 					>
-						{open ? t("logs.detail.showLess") : t("logs.detail.showMoreLines", { count: moreCount })}
+						{open ? "Show less" : `Show ${moreCount} more lines`}
 						<ChevronDown className={cn("h-3 w-3 transition-transform", open && "rotate-180")} />
 					</button>
 					<span className="text-muted-foreground font-mono text-[10.5px]">
-						{t("logs.detail.lines", { count: lines.length })}
-						{lang ? ` · ${lang}` : ""}
+						{lines.length} lines{lang ? ` · ${lang}` : ""}
 					</span>
 				</div>
 			)}
@@ -289,7 +280,6 @@ export function MessageRow({
 	last?: boolean;
 	label?: string;
 }) {
-	const { t } = useTranslation("observability");
 	return (
 		<div className="flex gap-3">
 			<div className="flex flex-col items-center pt-1.5">
@@ -298,7 +288,7 @@ export function MessageRow({
 			</div>
 			<div className="min-w-0 flex-1 pb-4">
 				<div className="mb-1 flex items-center gap-2">
-					<span className="text-foreground text-[11.5px] font-semibold">{label ?? t(`logs.detail.roles.${role}`)}</span>
+					<span className="text-foreground text-[11.5px] font-semibold">{label ?? messageRoleLabel[role]}</span>
 					{meta ? <span className="text-muted-foreground text-[11px]">{meta}</span> : null}
 				</div>
 				<div className={cn("rounded-sm border p-3 text-[13px] leading-relaxed", messageToneClass[role])}>{children}</div>
@@ -320,7 +310,6 @@ export function ResponsesItemRow({
 	children?: ReactNode;
 	callName?: string; // the tool a function_call_output answers, when the caller resolved it
 }) {
-	const { t } = useTranslation("observability");
 	const role = getResponsesRole(msg);
 	const isToolCall = isResponsesToolCallItem(msg.type);
 	// `{}` arguments rendered as a one-line body read as an empty result.
@@ -349,31 +338,25 @@ export function ResponsesItemRow({
 			(!!reasoningParts.encrypted || reasoningParts.signatures.length > 0) &&
 			reasoningParts.summaries.length === 0 &&
 			!reasoningParts.contentText;
-		meta = totalApprox
-			? `~${t("logs.detail.tokens", { count: totalApprox })}${hasOpaqueOnly ? ` · ${t("logs.detail.encrypted")}` : ""}`
-			: hasOpaqueOnly
-				? t("logs.detail.encrypted")
-				: undefined;
+		meta = totalApprox ? `~${totalApprox} tokens${hasOpaqueOnly ? " · encrypted" : ""}` : hasOpaqueOnly ? "encrypted" : undefined;
 	} else {
 		meta = text ? (
 			role === "system" || role === "tool" ? (
 				msg.name ? (
 					<>
 						<ToolNameLabel name={msg.name} />
-						{` · ${t("logs.detail.lines", { count: lineCount })} · ~${t("logs.detail.tokens", { count: approxTokens })}`}
+						{` · ${lineCount} line${lineCount === 1 ? "" : "s"} · ~${approxTokens} tokens`}
 					</>
 				) : (
-					`${t("logs.detail.lines", { count: lineCount })} · ~${t("logs.detail.tokens", { count: approxTokens })}`
+					`${lineCount} line${lineCount === 1 ? "" : "s"} · ~${approxTokens} tokens`
 				)
 			) : (
-				t("logs.detail.lines", { count: lineCount })
+				`${lineCount} line${lineCount === 1 ? "" : "s"}`
 			)
 		) : noArguments ? (
 			<>
 				{msg.name ? <ToolNameLabel name={msg.name} /> : null}
-				{msg.name
-					? t("ui.responsesItemRow.noArguments", { ns: "observability" })
-					: t("ui.responsesItemRow.noArguments2", { ns: "observability" })}
+				{msg.name ? " · no arguments" : "no arguments"}
 			</>
 		) : msg.name ? (
 			<ToolNameLabel name={msg.name} />
@@ -383,12 +366,8 @@ export function ResponsesItemRow({
 			(() => {
 				const callable = flattenDeclaredTools(msg.tools).length;
 				return callable !== msg.tools.length
-					? t("logs.detail.toolDeclarations", {
-							type: msg.type,
-							declarations: msg.tools.length,
-							callable,
-						})
-					: `${msg.type} · ${t("logs.detail.toolCount", { count: msg.tools.length })}`;
+					? `${msg.type} · ${msg.tools.length} declarations · ${callable} callable tools`
+					: `${msg.type} · ${msg.tools.length} tool${msg.tools.length === 1 ? "" : "s"}`;
 			})()
 		) : (
 			[msg.type, summarizeResponsesToolCall(msg, mapping)].filter(Boolean).join(" · ") || undefined
@@ -396,12 +375,7 @@ export function ResponsesItemRow({
 	}
 	const usePlainText = role === "user" || role === "assistant";
 	return (
-		<MessageRow
-			role={role}
-			meta={meta}
-			last={last}
-			label={isToolCall ? t("logs.roles.assistantToolCall", { defaultValue: "Tool Call" }) : undefined}
-		>
+		<MessageRow role={role} meta={meta} last={last} label={isToolCall ? "Tool Call" : undefined}>
 			{role === "reasoning" ? (
 				reasoningHasAny && reasoningParts ? (
 					<div className="space-y-3">
@@ -409,9 +383,7 @@ export function ResponsesItemRow({
 						{reasoningParts.summaries.map((s, i) => (
 							<div key={`s-${i}`} className="space-y-1">
 								{reasoningParts.summaries.length > 1 ? (
-									<div className="text-muted-foreground text-[10.5px] font-semibold tracking-wider uppercase">
-										{t("logs.detail.summary")} {i + 1}
-									</div>
+									<div className="text-muted-foreground text-[10.5px] font-semibold tracking-wider uppercase">Summary {i + 1}</div>
 								) : null}
 								<CollapsibleCode text={s} preview={3} mono={false} />
 							</div>
@@ -419,20 +391,20 @@ export function ResponsesItemRow({
 						{reasoningParts.encrypted ? (
 							// Ciphertext is noise even at two preview lines; fold it
 							// entirely until the reader asks for it.
-							<EncryptedReveal text={reasoningParts.encrypted} label={t("logs.detail.encrypted")} />
+							<EncryptedReveal text={reasoningParts.encrypted} label="Encrypted" />
 						) : null}
 						{reasoningParts.signatures.length > 0 ? (
 							<EncryptedReveal
 								text={reasoningParts.signatures.join("\n\n")}
-								label={reasoningParts.signatures.length > 1 ? t("logs.detail.encryptedSignatures") : t("logs.detail.encryptedSignature")}
+								label={reasoningParts.signatures.length > 1 ? "Encrypted signatures" : "Encrypted signature"}
 							/>
 						) : null}
 					</div>
 				) : (
-					<div className="text-muted-foreground text-[12px] italic">{t("logs.detail.noReasoningContentAvailable")}</div>
+					<div className="text-muted-foreground text-[12px] italic">No reasoning content available</div>
 				)
 			) : noArguments ? (
-				<div className="text-muted-foreground text-[12px] italic">{t("ui.responsesItemRow.noArguments3", { ns: "observability" })}</div>
+				<div className="text-muted-foreground text-[12px] italic">No arguments</div>
 			) : text ? (
 				usePlainText ? (
 					<CollapsibleCode text={text} preview={3} mono={false} />
@@ -451,23 +423,16 @@ export function ResponsesItemRow({
 			) : Array.isArray(msg.tools) && msg.tools.length > 0 ? (
 				<CollapsibleCode text={JSON.stringify(msg.tools, null, 2)} preview={3} />
 			) : Array.isArray(msg.tools) ? (
-				<div className="text-muted-foreground text-[12px] italic">{t("logs.detail.noToolsDeclared")}</div>
+				<div className="text-muted-foreground text-[12px] italic">No tools declared</div>
 			) : itemPayload ? (
 				<CollapsibleCode text={JSON.stringify(applyRedactionMappingToValue(itemPayload, mapping), null, 2)} preview={3} />
 			) : (
-				<div className="text-muted-foreground text-[12px] italic">{t("logs.detail.noContent")}</div>
+				<div className="text-muted-foreground text-[12px] italic">No content</div>
 			)}
 			{Array.isArray(msg.content) &&
 				msg.content
 					.filter((b) => b?.type === "input_image" && b.image_url)
-					.map((b, i) => (
-						<img
-							key={`${i}-${b.image_url}`}
-							src={b.image_url}
-							alt={t("logs.detail.attachedImage")}
-							className="mt-2 max-w-full rounded border"
-						/>
-					))}
+					.map((b, i) => <img key={`${i}-${b.image_url}`} src={b.image_url} alt="Attachment" className="mt-2 max-w-full rounded border" />)}
 			{children}
 		</MessageRow>
 	);

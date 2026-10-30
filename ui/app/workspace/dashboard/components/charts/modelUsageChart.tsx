@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { StartTruncatedLabel } from "@/components/ui/truncatedLabel";
 import type { ModelHistogramResponse } from "@/lib/types/logs";
 import { formatCompactNumber } from "@/lib/utils/numbers";
@@ -12,12 +11,11 @@ import {
 	getModelColor,
 	OTHER_SERIES_COLOR,
 	OTHER_SERIES_KEY,
-	getOtherSeriesLabel,
+	OTHER_SERIES_LABEL,
 } from "../../utils/chartUtils";
 import { CappedBarStack } from "./barShape";
 import { ChartErrorBoundary } from "./chartErrorBoundary";
 import type { ChartType } from "./chartTypeToggle";
-import { NoChartData } from "./noChartData";
 
 // Sanitize model names to avoid Recharts interpreting dots/brackets as path separators
 function sanitizeModelKey(model: string): string {
@@ -33,7 +31,6 @@ interface ModelUsageChartProps {
 }
 
 function CustomTooltip({ active, payload, selectedModel, displayModels }: any) {
-	const { t: tCopy } = useTranslation();
 	if (!active || !payload || !payload.length) return null;
 
 	const data = payload[0]?.payload;
@@ -54,7 +51,7 @@ function CustomTooltip({ active, payload, selectedModel, displayModels }: any) {
 									<span className="flex items-center gap-1.5">
 										<span className="h-2 w-2 rounded-full" style={{ backgroundColor: isOther ? OTHER_SERIES_COLOR : getModelColor(idx) }} />
 										<StartTruncatedLabel className="max-w-[220px] text-zinc-600 dark:text-zinc-400">
-											{isOther ? getOtherSeriesLabel() : model}
+											{isOther ? OTHER_SERIES_LABEL : model}
 										</StartTruncatedLabel>
 									</span>
 									<span className="font-medium" style={{ color: isOther ? OTHER_SERIES_COLOR : getModelColor(idx) }}>
@@ -69,21 +66,21 @@ function CustomTooltip({ active, payload, selectedModel, displayModels }: any) {
 						<div className="flex items-center justify-between gap-4">
 							<span className="flex items-center gap-1.5">
 								<span className="bg-chart-success h-2 w-2 rounded-full" />
-								<span className="text-zinc-600 dark:text-zinc-400">{tCopy("labels.success", { ns: "observability" })}</span>
+								<span className="text-zinc-600 dark:text-zinc-400">Success</span>
 							</span>
 							<span className="text-chart-success-ink font-medium">{(data.by_model?.[selectedModel]?.success || 0).toLocaleString()}</span>
 						</div>
 						<div className="flex items-center justify-between gap-4">
 							<span className="flex items-center gap-1.5">
 								<span className="bg-chart-error h-2 w-2 rounded-full" />
-								<span className="text-zinc-600 dark:text-zinc-400">{tCopy("labels.error", { ns: "observability" })}</span>
+								<span className="text-zinc-600 dark:text-zinc-400">Error</span>
 							</span>
 							<span className="text-chart-error-ink font-medium">{(data.by_model?.[selectedModel]?.error || 0).toLocaleString()}</span>
 						</div>
 						<div className="flex items-center justify-between gap-4">
 							<span className="flex items-center gap-1.5">
 								<span className="h-2 w-2 rounded-full" style={{ backgroundColor: CHART_COLORS.cancelled }} />
-								<span className="text-zinc-600 dark:text-zinc-400">{tCopy("labels.cancelled", { ns: "observability" })}</span>
+								<span className="text-zinc-600 dark:text-zinc-400">Cancelled</span>
 							</span>
 							<span className="font-medium text-zinc-600 dark:text-zinc-400">
 								{(data.by_model?.[selectedModel]?.cancelled || 0).toLocaleString()}
@@ -148,7 +145,7 @@ function ModelUsageChartImpl({ data, chartType, startTime, endTime, selectedMode
 	}, [data, selectedModel]);
 
 	if (!data?.buckets || chartData.length === 0) {
-		return <NoChartData />;
+		return <div className="text-muted-foreground flex h-full items-center justify-center text-sm">No data available</div>;
 	}
 
 	const commonProps = {

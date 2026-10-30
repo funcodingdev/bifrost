@@ -1,7 +1,3 @@
-import i18n from "@/lib/i18n";
-import type { TFunction } from "i18next";
-import { dateFnsLocale } from "@/lib/i18n/dateLocale";
-import { getLocale as getUILocale } from "@/lib/i18n";
 import { attemptSequence, DeliveryGroup, outcomeBadge } from "@/app/workspace/webhooks/views/deliveries.utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +7,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format, formatDistanceToNow } from "date-fns";
 import { ArrowUpRight, ChevronDown, ChevronRight, Loader2, RefreshCcw } from "lucide-react";
 
-const EVENT_LABELS = new Map(WEBHOOK_EVENTS.map((event) => [event.value, event]));
+const EVENT_LABELS = new Map(WEBHOOK_EVENTS.map((event) => [event.value, event.label]));
 
 /** A short, click-to-copy id cell with the full value on hover. */
 const idCell = (value: string | undefined, onCopy: (value: string) => void, testId: string) => {
@@ -49,10 +45,16 @@ interface CreateColumnsOptions {
 	onOpenRequest: (requestId: string) => void;
 }
 
-export function createColumns(
-	{ endpointNames, expandedIds, onToggleExpanded, onCopy, onRedeliver, redeliveringIds, canManage, onOpenRequest }: CreateColumnsOptions,
-	t: TFunction = i18n.getFixedT(null, "governance"),
-): ColumnDef<DeliveryGroup>[] {
+export function createColumns({
+	endpointNames,
+	expandedIds,
+	onToggleExpanded,
+	onCopy,
+	onRedeliver,
+	redeliveringIds,
+	canManage,
+	onOpenRequest,
+}: CreateColumnsOptions): ColumnDef<DeliveryGroup>[] {
 	return [
 		{
 			id: "expand",
@@ -81,7 +83,7 @@ export function createColumns(
 		},
 		{
 			id: "time",
-			header: t("webhooks.deliveryColumns.time", { ns: "governance" }),
+			header: "Time",
 			size: 140,
 			cell: ({ row }) => {
 				const timestamp = row.original.latest?.created_at;
@@ -92,9 +94,7 @@ export function createColumns(
 				return (
 					<div className="flex flex-col leading-tight">
 						<span className="font-mono text-xs tabular-nums">{format(date, "MMM dd  HH:mm:ss")}</span>
-						<span className="text-muted-foreground text-[10.5px] tabular-nums">
-							{formatDistanceToNow(date, { addSuffix: true, locale: dateFnsLocale(getUILocale()) })}
-						</span>
+						<span className="text-muted-foreground text-[10.5px] tabular-nums">{formatDistanceToNow(date, { addSuffix: true })}</span>
 					</div>
 				);
 			},
@@ -118,13 +118,13 @@ export function createColumns(
 		},
 		{
 			id: "delivery_id",
-			header: t("webhooks.deliveryColumns.deliveryId", { ns: "governance" }),
+			header: "Delivery ID",
 			size: 110,
 			cell: ({ row }) => idCell(row.original.webhookId, onCopy, `webhook-delivery-id-${row.original.webhookId}`),
 		},
 		{
 			id: "request_id",
-			header: t("webhooks.deliveryColumns.requestId", { ns: "governance" }),
+			header: "Request ID",
 			size: 110,
 			cell: ({ row }) => {
 				const requestId = row.original.latest?.request_id;
@@ -147,30 +147,28 @@ export function createColumns(
 								<ArrowUpRight className="size-3 opacity-60 transition-opacity group-hover/request:opacity-100" />
 							</button>
 						</TooltipTrigger>
-						<TooltipContent className="font-mono">
-							{requestId} {t("webhooks.openInLogs", { ns: "governance" })}
-						</TooltipContent>
+						<TooltipContent className="font-mono">{requestId} — open in logs</TooltipContent>
 					</Tooltip>
 				);
 			},
 		},
 		{
 			id: "event",
-			header: t("webhooks.deliveryColumns.event", { ns: "governance" }),
+			header: "Event",
 			size: 170,
 			cell: ({ row }) => {
 				const event = row.original.latest?.event;
 				if (!event) return <span className="text-muted-foreground">-</span>;
 				return (
 					<Badge variant="outline" className="font-normal">
-						{EVENT_LABELS.get(event)?.label ?? event}
+						{EVENT_LABELS.get(event) ?? event}
 					</Badge>
 				);
 			},
 		},
 		{
 			id: "status",
-			header: t("webhooks.deliveryColumns.status", { ns: "governance" }),
+			header: "Status",
 			size: 190,
 			cell: ({ row }) => {
 				const latest = row.original.latest;
@@ -180,7 +178,7 @@ export function createColumns(
 						{outcomeBadge(latest)}
 						{row.original.sends.length > 1 && (
 							<Badge variant="outline" className="text-muted-foreground font-normal">
-								{t("webhooks.sendCount", { ns: "governance", count: row.original.sends.length })}
+								{row.original.sends.length} sends
 							</Badge>
 						)}
 					</div>
@@ -189,7 +187,7 @@ export function createColumns(
 		},
 		{
 			id: "responses",
-			header: t("webhooks.deliveryColumns.responses", { ns: "governance" }),
+			header: "Responses",
 			size: 200,
 			cell: ({ row }) => {
 				const attempts = row.original.latestSend?.attempts;

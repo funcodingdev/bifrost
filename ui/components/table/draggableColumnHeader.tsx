@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -35,7 +34,6 @@ export function DraggableColumnHeader<TData>({
 	onDrop: (draggedId: string, targetId: string) => void;
 	cellRef: (el: HTMLTableCellElement | null) => void;
 }) {
-	const { t: tCopy } = useTranslation();
 	const [isDragging, setIsDragging] = useState(false);
 	const [isDropTarget, setIsDropTarget] = useState(false);
 	const pinned = header.column.getIsPinned();
@@ -89,7 +87,7 @@ export function DraggableColumnHeader<TData>({
 									className="ml-1 shrink-0 opacity-0 transition-opacity group-hover/col:opacity-100 focus-visible:opacity-100"
 									onClick={(e) => e.stopPropagation()}
 									onMouseDown={(e) => e.stopPropagation()}
-									aria-label={tCopy("ui.draggableColumnHeader.columnActions", { ns: "common" })}
+									aria-label="Column actions"
 								>
 									<Ellipsis className="h-3.5 w-3.5" />
 								</Button>
@@ -97,29 +95,29 @@ export function DraggableColumnHeader<TData>({
 							<DropdownMenuContent align="start" side="bottom">
 								<DropdownMenuItem onClick={() => onHide(header.column.id)}>
 									<EyeOff className="h-4 w-4" />
-									{tCopy("ui.draggableColumnHeader.hideColumn", { ns: "common" })}
+									Hide column
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
 								{pinned === "left" ? (
 									<DropdownMenuItem onClick={() => onPin(header.column.id, "left")}>
 										<PinOff className="h-4 w-4" />
-										{tCopy("ui.draggableColumnHeader.unpin", { ns: "common" })}
+										Unpin
 									</DropdownMenuItem>
 								) : (
 									<DropdownMenuItem onClick={() => onPin(header.column.id, "left")}>
 										<ArrowLeftToLine className="h-4 w-4" />
-										{tCopy("ui.draggableColumnHeader.pinToLeft", { ns: "common" })}
+										Pin to left
 									</DropdownMenuItem>
 								)}
 								{pinned === "right" ? (
 									<DropdownMenuItem onClick={() => onPin(header.column.id, "right")}>
 										<PinOff className="h-4 w-4" />
-										{tCopy("ui.draggableColumnHeader.unpin", { ns: "common" })}
+										Unpin
 									</DropdownMenuItem>
 								) : (
 									<DropdownMenuItem onClick={() => onPin(header.column.id, "right")}>
 										<ArrowRightToLine className="h-4 w-4" />
-										{tCopy("ui.draggableColumnHeader.pinToRight", { ns: "common" })}
+										Pin to right
 									</DropdownMenuItem>
 								)}
 							</DropdownMenuContent>

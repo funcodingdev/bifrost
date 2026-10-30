@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -18,7 +17,6 @@ interface Props {
 }
 
 export default function TextArrayFieldView(props: Props) {
-	const { t: tCopy } = useTranslation();
 	const [shouldFocus, setShouldFocus] = useState(false);
 	const { field, config } = props;
 	const fieldValue = (config[field.id] as string[]) || [];
@@ -65,10 +63,7 @@ export default function TextArrayFieldView(props: Props) {
 
 			{invalid && (
 				<div className="mt-1 text-red-600">
-					{tCopy("ui.numberFieldView.pleaseKeep", { ns: "common" }) + " "}
-					{field.label} {tCopy("ui.numberFieldView.between", { ns: "common" }) + " "}
-					{field.array?.minElements} {tCopy("ui.numberFieldView.to", { ns: "common" }) + " "}
-					{field.array?.maxElements}.
+					Please keep {field.label} between {field.array?.minElements} to {field.array?.maxElements}.
 				</div>
 			)}
 
@@ -82,7 +77,7 @@ export default function TextArrayFieldView(props: Props) {
 					props.onChange([...((config[field.id] as string[]) || []), ""]);
 				}}
 			>
-				{tCopy("ui.textArrayFieldView.addString", { ns: "common" })}
+				Add string
 			</Button>
 		</div>
 	);

@@ -1,6 +1,3 @@
-import { dateFnsLocale } from "@/lib/i18n/dateLocale";
-import { getLocale as getUILocale } from "@/lib/i18n";
-import { useTranslation } from "react-i18next";
 import { formatCost, formatLatency } from "@/app/workspace/dashboard/utils/chartUtils";
 import { LogMessageCell } from "@/app/workspace/logs/views/columns";
 import { getMCPArgumentPreview } from "@/lib/utils/mcpLogPresentation";
@@ -68,34 +65,30 @@ function Pagination({
 	loading: boolean;
 	onPageChange: (page: number) => void;
 }) {
-	const { t: tCopy } = useTranslation();
 	const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 	if (total <= PAGE_SIZE) return null;
 	return (
 		<div className="flex items-center justify-between pt-2 text-xs" data-testid="correlated-logs-pagination">
 			<span className="text-muted-foreground">
-				{tCopy("pagination.entries", {
-					ns: "common",
-					from: page * PAGE_SIZE + 1,
-					to: Math.min((page + 1) * PAGE_SIZE, total),
-					total: total.toLocaleString(),
-				})}
+				{page * PAGE_SIZE + 1}-{Math.min((page + 1) * PAGE_SIZE, total)} of {total.toLocaleString()}
 			</span>
 			<div className="flex items-center gap-2">
 				<Button
 					variant="ghost"
 					size="sm"
-					aria-label={tCopy("skillsRepo.previousPage", { ns: "config" })}
+					aria-label="Previous page"
 					disabled={loading || page === 0}
 					onClick={() => onPageChange(page - 1)}
 				>
 					<ChevronLeft className="size-3" />
 				</Button>
-				<span>{tCopy("pagination.page", { ns: "common", page: page + 1, total: totalPages })}</span>
+				<span>
+					Page {page + 1} of {totalPages}
+				</span>
 				<Button
 					variant="ghost"
 					size="sm"
-					aria-label={tCopy("skillsRepo.nextPage", { ns: "config" })}
+					aria-label="Next page"
 					disabled={loading || page >= totalPages - 1}
 					onClick={() => onPageChange(page + 1)}
 				>
@@ -156,9 +149,7 @@ function CorrelatedLLMRow({ log, search }: { log: LogEntry; search: Record<strin
 						{isValid(timestamp) ? format(timestamp, "MMM dd HH:mm:ss") : log.timestamp}
 					</span>
 					{isValid(timestamp) && (
-						<span className="text-muted-foreground text-[10.5px] tabular-nums">
-							{formatDistanceToNow(timestamp, { addSuffix: true, locale: dateFnsLocale(getUILocale()) })}
-						</span>
+						<span className="text-muted-foreground text-[10.5px] tabular-nums">{formatDistanceToNow(timestamp, { addSuffix: true })}</span>
 					)}
 				</div>
 			</TableCell>
@@ -195,7 +186,6 @@ function CorrelatedLLMRow({ log, search }: { log: LogEntry; search: Record<strin
 }
 
 function CorrelatedMCPRow({ log, search }: { log: MCPToolLogEntry; search: Record<string, string> }) {
-	const { t: tCopy } = useTranslation();
 	const navigate = useNavigate();
 	const timestamp = new Date(log.timestamp);
 	const preview = getMCPArgumentPreview(log);
@@ -211,9 +201,7 @@ function CorrelatedMCPRow({ log, search }: { log: MCPToolLogEntry; search: Recor
 						{isValid(timestamp) ? format(timestamp, "MMM dd HH:mm:ss") : log.timestamp}
 					</span>
 					{isValid(timestamp) && (
-						<span className="text-muted-foreground text-[10.5px] tabular-nums">
-							{formatDistanceToNow(timestamp, { addSuffix: true, locale: dateFnsLocale(getUILocale()) })}
-						</span>
+						<span className="text-muted-foreground text-[10.5px] tabular-nums">{formatDistanceToNow(timestamp, { addSuffix: true })}</span>
 					)}
 				</div>
 			</TableCell>
@@ -227,7 +215,7 @@ function CorrelatedMCPRow({ log, search }: { log: MCPToolLogEntry; search: Recor
 			</TableCell>
 			<TableCell>
 				<Badge variant="secondary" className="w-fit max-w-full truncate font-mono">
-					{log.source === "native" ? tCopy("usageGuide.scopeLocal", { ns: "mcp" }) : log.server_label || "-"}
+					{log.source === "native" ? "Local" : log.server_label || "-"}
 				</Badge>
 			</TableCell>
 			<TableCell>
@@ -250,7 +238,6 @@ export function CorrelatedLogsContent({
 	active: boolean;
 	sortOrder?: "asc" | "desc";
 }) {
-	const { t: tCopy } = useTranslation();
 	const location = useLocation();
 	const [page, setPage] = useState(0);
 	useEffect(() => setPage(0), [correlation, sortOrder]);
@@ -298,21 +285,18 @@ export function CorrelatedLogsContent({
 				<div className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-xs">
 					{isLLM ? (
 						<>
-							<Stat label={tCopy("sheet.requests", { ns: "governance" })} value={(llmStats?.total_requests ?? 0).toLocaleString()} />
-							<Stat label={tCopy("labels.cost", { ns: "observability" })} value={formatCost(llmStats?.total_cost ?? 0)} />
-							<Stat label={tCopy("ui.correlatedLogs.tokens", { ns: "agents" })} value={(llmStats?.total_tokens ?? 0).toLocaleString()} />
-							<Stat label={tCopy("common.success", { ns: "mcp" })} value={`${(llmStats?.success_rate ?? 0).toFixed(1)}%`} />
-							<Stat label={tCopy("ui.correlatedLogs.avgLatency", { ns: "agents" })} value={formatLatency(llmStats?.average_latency ?? 0)} />
+							<Stat label="Requests" value={(llmStats?.total_requests ?? 0).toLocaleString()} />
+							<Stat label="Cost" value={formatCost(llmStats?.total_cost ?? 0)} />
+							<Stat label="Tokens" value={(llmStats?.total_tokens ?? 0).toLocaleString()} />
+							<Stat label="Success" value={`${(llmStats?.success_rate ?? 0).toFixed(1)}%`} />
+							<Stat label="Avg latency" value={formatLatency(llmStats?.average_latency ?? 0)} />
 						</>
 					) : (
 						<>
-							<Stat
-								label={tCopy("ui.correlatedLogs.executions", { ns: "agents" })}
-								value={(mcpStats?.total_executions ?? 0).toLocaleString()}
-							/>
-							<Stat label={tCopy("labels.cost", { ns: "observability" })} value={formatCost(mcpStats?.total_cost ?? 0)} />
-							<Stat label={tCopy("common.success", { ns: "mcp" })} value={`${(mcpStats?.success_rate ?? 0).toFixed(1)}%`} />
-							<Stat label={tCopy("ui.correlatedLogs.avgLatency", { ns: "agents" })} value={formatLatency(mcpStats?.average_latency ?? 0)} />
+							<Stat label="Executions" value={(mcpStats?.total_executions ?? 0).toLocaleString()} />
+							<Stat label="Cost" value={formatCost(mcpStats?.total_cost ?? 0)} />
+							<Stat label="Success" value={`${(mcpStats?.success_rate ?? 0).toFixed(1)}%`} />
+							<Stat label="Avg latency" value={formatLatency(mcpStats?.average_latency ?? 0)} />
 						</>
 					)}
 				</div>
@@ -321,8 +305,7 @@ export function CorrelatedLogsContent({
 					search={fullPageSearch}
 					className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs underline-offset-2 transition-colors hover:underline"
 				>
-					{tCopy("ui.correlatedLogs.viewAll", { ns: "agents" }) + " "}
-					<ExternalLink className="size-3" />
+					View all <ExternalLink className="size-3" />
 				</Link>
 			</div>
 
@@ -332,13 +315,11 @@ export function CorrelatedLogsContent({
 				</div>
 			) : error ? (
 				<div className="text-destructive flex h-24 items-center justify-center rounded-sm border text-sm">
-					{tCopy("ui.correlatedLogs.failedToLoadCorrelated", { ns: "agents" }) + " "}
-					{isLLM ? "LLM" : "MCP"} {tCopy("ui.correlatedLogs.logs", { ns: "agents" })}
+					Failed to load correlated {isLLM ? "LLM" : "MCP"} logs.
 				</div>
 			) : logs.length === 0 ? (
 				<div className="text-muted-foreground flex h-24 items-center justify-center rounded-sm border text-sm">
-					{tCopy("ui.correlatedLogs.noCorrelated", { ns: "agents" }) + " "}
-					{isLLM ? "LLM" : "MCP"} {tCopy("ui.correlatedLogs.logsFound", { ns: "agents" })}
+					No correlated {isLLM ? "LLM" : "MCP"} logs found.
 				</div>
 			) : (
 				<div className="overflow-hidden rounded-sm border">

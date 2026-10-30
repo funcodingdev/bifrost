@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { COMPACT_NUMBER_FORMAT, formatCompactNumber as formatNumber } from "@/lib/utils/numbers";
 import { ArrowDown, ArrowUp, ArrowUpDown, Minus } from "lucide-react";
 
@@ -20,14 +19,9 @@ export function TrendBadge({
 	positiveIsGood?: boolean;
 	isNew?: boolean;
 }) {
-	const { t: tCopy } = useTranslation();
 	// null: the previous period had none of this metric, so there is no percentage.
 	if (isNew || value === null) {
-		return (
-			<span className="inline-flex items-center gap-0.5 text-xs font-medium text-blue-600 dark:text-blue-400">
-				{tCopy("skillsRepo.newCrumb", { ns: "config" })}
-			</span>
-		);
+		return <span className="inline-flex items-center gap-0.5 text-xs font-medium text-blue-600 dark:text-blue-400">new</span>;
 	}
 
 	if (value === 0) {

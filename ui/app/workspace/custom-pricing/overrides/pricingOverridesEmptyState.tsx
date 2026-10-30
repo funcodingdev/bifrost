@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { ArrowUpRight, SlidersHorizontal } from "lucide-react";
-import { useTranslation } from "react-i18next";
 
 const PRICING_OVERRIDES_DOCS_URL = "https://docs.getbifrost.ai/providers/custom-pricing";
 
@@ -11,7 +10,6 @@ interface PricingOverridesEmptyStateProps {
 }
 
 export function PricingOverridesEmptyState({ onCreateClick }: PricingOverridesEmptyStateProps) {
-	const { t } = useTranslation("models");
 	return (
 		<div
 			className="flex min-h-[80vh] w-full flex-col items-center justify-center gap-4 py-16 text-center"
@@ -21,24 +19,24 @@ export function PricingOverridesEmptyState({ onCreateClick }: PricingOverridesEm
 				<SlidersHorizontal className="h-[5.5rem] w-[5.5rem]" strokeWidth={1} />
 			</div>
 			<div className="flex flex-col gap-1">
-				<h1 className="text-muted-foreground text-xl font-medium">{t("customPricing.emptyTitle")}</h1>
+				<h1 className="text-muted-foreground text-xl font-medium">Pricing overrides customize cost tracking per scope</h1>
 				<div className="text-muted-foreground mx-auto mt-2 w-full max-w-[600px] text-sm font-normal">
-					{t("customPricing.emptyDescription")}
+					Define custom per-token prices for specific providers, keys, or virtual keys to accurately reflect your negotiated rates.
 				</div>
 				<div className="mx-auto mt-6 flex flex-row flex-wrap items-center justify-center gap-2">
 					<Button
 						variant="outline"
-						aria-label={t("customPricing.readMoreAria")}
+						aria-label="Read more about pricing overrides (opens in new tab)"
 						data-testid="pricing-overrides-button-read-more"
 						onClick={() => {
 							window.open(`${PRICING_OVERRIDES_DOCS_URL}?utm_source=bfd`, "_blank", "noopener,noreferrer");
 						}}
 					>
-						{t("customPricing.readMore")} <ArrowUpRight className="text-muted-foreground h-3 w-3" />
+						Read more <ArrowUpRight className="text-muted-foreground h-3 w-3" />
 					</Button>
 					{onCreateClick && (
 						<Button data-testid="pricing-override-create-btn" onClick={onCreateClick}>
-							{t("customPricing.createOverride")}
+							Create Override
 						</Button>
 					)}
 				</div>

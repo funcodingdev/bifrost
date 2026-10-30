@@ -25,7 +25,6 @@ import { RbacOperation, RbacResource, useRbac } from "@enterprise/lib";
 import { parseAsInteger, parseAsString, useQueryStates } from "nuqs";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
 import { executePrompt, executeToolCall, MCPAuthRequiredError } from "./utils/executor";
 
 interface PromptContextValue {
@@ -128,7 +127,6 @@ export function usePromptContext() {
 }
 
 export function PromptProvider({ children }: { children: ReactNode }) {
-	const { t } = useTranslation("config");
 	// RBAC permissions
 	const canCreate = useRbac(RbacResource.PromptRepository, RbacOperation.Create);
 	const canUpdate = useRbac(RbacResource.PromptRepository, RbacOperation.Update);
@@ -432,12 +430,12 @@ export function PromptProvider({ children }: { children: ReactNode }) {
 		async (promptId: string, folderId: string | null) => {
 			try {
 				await updatePrompt({ id: promptId, data: { folder_id: folderId } }).unwrap();
-				toast.success(t("promptRepo.toastPromptMoved"));
+				toast.success("Prompt moved successfully");
 			} catch (err) {
-				toast.error(getErrorMessage(err) || t("promptRepo.toastMovePromptFailed"));
+				toast.error(getErrorMessage(err) || "Failed to move prompt");
 			}
 		},
-		[updatePrompt, t],
+		[updatePrompt],
 	);
 
 	const handleDeleteFolder = useCallback(async () => {
@@ -445,30 +443,30 @@ export function PromptProvider({ children }: { children: ReactNode }) {
 
 		try {
 			await deleteFolder(deleteFolderDialog.folder.id).unwrap();
-			toast.success(t("promptRepo.toastFolderDeleted"));
+			toast.success("Folder deleted");
 			setDeleteFolderDialog({ open: false });
 			if (selectedPrompt?.folder_id === deleteFolderDialog.folder.id) {
 				setUrlState({ promptId: null, sessionId: null, versionId: null });
 			}
 		} catch (err) {
-			toast.error(t("promptRepo.toastDeleteFolderFailed"), { description: getErrorMessage(err) });
+			toast.error("Failed to delete folder", { description: getErrorMessage(err) });
 		}
-	}, [deleteFolderDialog.folder, deleteFolder, selectedPrompt, setUrlState, t]);
+	}, [deleteFolderDialog.folder, deleteFolder, selectedPrompt, setUrlState]);
 
 	const handleDeletePrompt = useCallback(async () => {
 		if (!deletePromptDialog.prompt) return;
 
 		try {
 			await deletePrompt(deletePromptDialog.prompt.id).unwrap();
-			toast.success(t("promptRepo.toastPromptDeleted"));
+			toast.success("Prompt deleted");
 			setDeletePromptDialog({ open: false });
 			if (selectedPromptId === deletePromptDialog.prompt.id) {
 				setUrlState({ promptId: null, sessionId: null, versionId: null });
 			}
 		} catch (err) {
-			toast.error(t("promptRepo.toastDeletePromptFailed"), { description: getErrorMessage(err) });
+			toast.error("Failed to delete prompt", { description: getErrorMessage(err) });
 		}
-	}, [deletePromptDialog.prompt, deletePrompt, selectedPromptId, setUrlState, t]);
+	}, [deletePromptDialog.prompt, deletePrompt, selectedPromptId, setUrlState]);
 
 	const handleSendMessage = useCallback(
 		async (pendingMessage?: Message) => {
@@ -626,12 +624,12 @@ export function PromptProvider({ children }: { children: ReactNode }) {
 				await handleSubmitToolResult(afterIndex, toolCall.id, content);
 			} catch (err) {
 				if (err instanceof MCPAuthRequiredError) throw err;
-				toast.error(t("promptRepo.toastExecuteToolFailed"), {
+				toast.error("Failed to execute tool", {
 					description: getErrorMessage(err),
 				});
 			}
 		},
-		[apiKeyId, customHeaders, handleSubmitToolResult, t],
+		[apiKeyId, customHeaders, handleSubmitToolResult],
 	);
 
 	const handleSubmitAllToolResults = useCallback(
@@ -744,12 +742,9 @@ export function PromptProvider({ children }: { children: ReactNode }) {
 			const failures = settled.filter((r): r is PromiseRejectedResult => r.status === "rejected").map((r) => getErrorMessage(r.reason));
 
 			if (failures.length > 0) {
-				const detail =
-					failures.length <= 3
-						? failures.join("; ")
-						: `${failures.slice(0, 2).join("; ")} ${t("promptRepo.andMore", { count: failures.length - 2 })}`;
-				toast.error(t("promptRepo.toolExecutionsFailed", { failed: failures.length, total: toolCalls.length }), {
-					description: failures.length === toolCalls.length ? detail : t("promptRepo.successfulKept", { detail }),
+				const detail = failures.length <= 3 ? failures.join("; ") : `${failures.slice(0, 2).join("; ")} and ${failures.length - 2} more`;
+				toast.error(`${failures.length} of ${toolCalls.length} tool executions failed`, {
+					description: failures.length === toolCalls.length ? detail : `${detail}. Successful results were kept; fill the rest manually.`,
 				});
 			}
 
@@ -757,7 +752,7 @@ export function PromptProvider({ children }: { children: ReactNode }) {
 				try {
 					await handleSubmitAllToolResults(afterIndex, successes);
 				} catch (err) {
-					toast.error(t("promptRepo.toastSubmitToolResultsFailed"), {
+					toast.error("Failed to submit tool results", {
 						description: getErrorMessage(err),
 					});
 				}
@@ -766,7 +761,7 @@ export function PromptProvider({ children }: { children: ReactNode }) {
 
 			return successes.length > 0 ? successes : undefined;
 		},
-		[apiKeyId, customHeaders, handleExecuteToolCall, handleSubmitAllToolResults, t],
+		[apiKeyId, customHeaders, handleExecuteToolCall, handleSubmitAllToolResults],
 	);
 
 	const handleStopStreaming = useCallback(() => {

@@ -5,7 +5,6 @@ import QuarterStartSelect from "@/components/ui/quarterStartSelect";
 import { budgetResetDurationOptions } from "@/lib/constants/governance";
 import { Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
 
 export interface BudgetLineEntry {
 	id?: string;
@@ -40,7 +39,6 @@ export default function MultiBudgetLines({
 	showReset,
 	maxLines,
 }: MultiBudgetLinesProps) {
-	const { t } = useTranslation("governance");
 	// Track which reset durations are already used (for duplicate detection)
 	const usedDurations = useMemo(() => {
 		const counts = new Map<string, number>();
@@ -97,20 +95,20 @@ export default function MultiBudgetLines({
 					{onReset && (showReset ?? true) && (
 						<Button data-testid={`${testId}-reset-btn`} type="button" variant="ghost" size="sm" onClick={onReset}>
 							<RotateCcw className="mr-1 h-3 w-3" />
-							{t("sheet.reset")}
+							Reset
 						</Button>
 					)}
 					{(maxLines === undefined || lines.length < maxLines) && (
 						<Button data-testid={`${testId}-add-btn`} variant="outline" size="sm" type="button" onClick={addLine}>
 							<Plus className="mr-1 h-3 w-3" />
-							{t("sheet.addBudgetButton")}
+							Add Budget
 						</Button>
 					)}
 				</div>
 			</div>
 
 			{lines.length === 0 && (
-				<div className="text-muted-foreground rounded-md border border-dashed p-3 text-center text-sm">{t("sheet.noBudgetLimits")}</div>
+				<div className="text-muted-foreground rounded-md border border-dashed p-3 text-center text-sm">No budget limits configured.</div>
 			)}
 
 			{lines.map((line, index) => {
@@ -123,7 +121,7 @@ export default function MultiBudgetLines({
 									id={`${testId}-${index}`}
 									dataTestId={`${testId}-amount-${index}`}
 									labelClassName="font-normal"
-									label={t("sheet.maximumSpend")}
+									label="Maximum Spend (USD)"
 									value={line.max_limit}
 									selectValue={line.reset_duration}
 									onChangeNumber={(value) => updateMaxLimit(index, value)}
@@ -133,7 +131,7 @@ export default function MultiBudgetLines({
 							</div>
 							<Button
 								data-testid={`${testId}-remove-${index}`}
-								aria-label={t("budget.removeNumber", { ns: "common", number: index + 1 })}
+								aria-label={`Remove budget ${index + 1}`}
 								variant="ghost"
 								size="icon"
 								type="button"
@@ -155,9 +153,7 @@ export default function MultiBudgetLines({
 							</div>
 						)}
 						{isDuplicate && (
-							<p className="text-destructive pl-0.5 text-xs">
-								{t("ui.multibudgets.duplicateResetPeriodEachBudgetLineMustUseA", { ns: "common" })}
-							</p>
+							<p className="text-destructive pl-0.5 text-xs">Duplicate reset period; each budget line must use a different interval.</p>
 						)}
 					</div>
 				);

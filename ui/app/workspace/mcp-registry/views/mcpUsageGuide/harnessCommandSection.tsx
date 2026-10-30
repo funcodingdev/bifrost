@@ -2,28 +2,23 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { Check, Copy, Terminal } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import type { HarnessCommandSectionProps } from "./types";
 
 export function HarnessCommandSection({
 	canCopyCommand,
 	command,
 	controls,
-	copySuccessMessage,
+	copySuccessMessage = "Command copied",
 	deeplink,
-	deeplinkLabel,
+	deeplinkLabel = "Install",
 	emptyMessage,
 	harnessName,
-	label,
+	label = "Command",
 	logoSrc,
 	registrationLabel,
 }: HarnessCommandSectionProps) {
-	const { t } = useTranslation("mcp");
-	const resolvedLabel = label ?? t("common.command");
-	const resolvedDeeplinkLabel = deeplinkLabel ?? t("common.install");
-	const resolvedCopySuccess = copySuccessMessage ?? t("common.commandCopied");
-	const { copy, copied } = useCopyToClipboard({ successMessage: resolvedCopySuccess });
-	const copyLabel = resolvedLabel.toLowerCase();
+	const { copy, copied } = useCopyToClipboard({ successMessage: copySuccessMessage });
+	const copyLabel = label.toLowerCase();
 	const canUseDeeplink = canCopyCommand && !!deeplink;
 
 	return (
@@ -31,7 +26,7 @@ export function HarnessCommandSection({
 			{/* ── Header row: label + action buttons ─────────────────── */}
 			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 				<div className="flex items-center gap-2 text-sm font-medium">
-					<span>{resolvedLabel}</span>
+					<span>{label}</span>
 				</div>
 
 				<div className="flex items-center gap-2">
@@ -43,9 +38,9 @@ export function HarnessCommandSection({
 							<TooltipTrigger asChild>
 								{canUseDeeplink ? (
 									<Button type="button" variant="secondary" size="sm" asChild data-testid="mcp-usage-guide-deeplink">
-										<a href={deeplink} aria-label={resolvedDeeplinkLabel}>
+										<a href={deeplink} aria-label={deeplinkLabel}>
 											{logoSrc && <img src={logoSrc} alt="" aria-hidden="true" className="size-4 rounded-[2px]" />}
-											<span>{resolvedDeeplinkLabel}</span>
+											<span>{deeplinkLabel}</span>
 										</a>
 									</Button>
 								) : (
@@ -54,15 +49,15 @@ export function HarnessCommandSection({
 										variant="secondary"
 										size="sm"
 										disabled
-										aria-label={resolvedDeeplinkLabel}
+										aria-label={deeplinkLabel}
 										data-testid="mcp-usage-guide-deeplink"
 									>
 										{logoSrc && <img src={logoSrc} alt="" aria-hidden="true" className="size-4 rounded-[2px]" />}
-										<span>{resolvedDeeplinkLabel}</span>
+										<span>{deeplinkLabel}</span>
 									</Button>
 								)}
 							</TooltipTrigger>
-							<TooltipContent>{canUseDeeplink ? resolvedDeeplinkLabel : t("usageGuide.finishSelections")}</TooltipContent>
+							<TooltipContent>{canUseDeeplink ? deeplinkLabel : "Finish the selections first"}</TooltipContent>
 						</Tooltip>
 					)}
 
@@ -75,22 +70,14 @@ export function HarnessCommandSection({
 								size="sm"
 								disabled={!canCopyCommand}
 								onClick={() => void copy(command)}
-								aria-label={
-									copied ? t("usageGuide.copiedLabel", { label: resolvedLabel }) : t("usageGuide.copyLabel", { label: copyLabel })
-								}
+								aria-label={copied ? `${label} copied` : `Copy ${copyLabel}`}
 								data-testid="mcp-usage-guide-copy-command"
 							>
 								{copied ? <Check className="size-4 text-green-600" /> : <Copy className="size-4" />}
-								<span>{copied ? t("common.copied") : t("common.copy")}</span>
+								<span>{copied ? "Copied" : "Copy"}</span>
 							</Button>
 						</TooltipTrigger>
-						<TooltipContent>
-							{canCopyCommand
-								? copied
-									? t("common.copied")
-									: t("usageGuide.copyLabel", { label: copyLabel })
-								: t("usageGuide.finishSelections")}
-						</TooltipContent>
+						<TooltipContent>{canCopyCommand ? (copied ? "Copied" : `Copy ${copyLabel}`) : "Finish the selections first"}</TooltipContent>
 					</Tooltip>
 				</div>
 			</div>

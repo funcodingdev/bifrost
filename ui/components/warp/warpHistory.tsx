@@ -14,7 +14,6 @@ import { ScrollArea } from "@/components/ui/scrollArea";
 import { useDeleteWarpConversationMutation, useListWarpConversationsQuery } from "@/lib/store/apis/warpApi";
 import { RbacOperation, RbacResource, useRbac } from "@enterprise/lib";
 import type { WarpConversation } from "@/lib/types/warp";
-import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { Loader2, Trash2 } from "lucide-react";
@@ -30,7 +29,6 @@ interface WarpHistoryProps {
 
 /** Refetched on mount: threads are created by the chat stream, which RTK never sees. */
 export default function WarpHistory({ activeConversationId, onOpen, onDeleted }: WarpHistoryProps) {
-	const { t } = useTranslation("shell");
 	const { data: conversations, isLoading, isError } = useListWarpConversationsQuery({ limit: 50 }, { refetchOnMountOrArgChange: true });
 	const [deleteConversation] = useDeleteWarpConversationMutation();
 	const canDelete = useRbac(RbacResource.WarpSession, RbacOperation.Delete);
@@ -42,7 +40,7 @@ export default function WarpHistory({ activeConversationId, onOpen, onDeleted }:
 		try {
 			await onOpen(conversation);
 		} catch {
-			toast.error(t("warp.history.openFailed"));
+			toast.error("Could not open that conversation.");
 		} finally {
 			setOpeningId(null);
 		}
@@ -57,7 +55,7 @@ export default function WarpHistory({ activeConversationId, onOpen, onDeleted }:
 			await deleteConversation(conversation.id).unwrap();
 			onDeleted?.(conversation.id);
 		} catch {
-			toast.error(t("warp.history.deleteFailed"));
+			toast.error("Could not delete that conversation.");
 		} finally {
 			setDeletingId(null);
 		}
@@ -66,21 +64,21 @@ export default function WarpHistory({ activeConversationId, onOpen, onDeleted }:
 	if (isLoading) {
 		return (
 			<div className="text-muted-foreground flex items-center justify-center gap-2 p-6 text-xs" data-testid="warp-history-loading">
-				<Loader2 className="size-3.5 animate-spin" /> {t("warp.history.loading")}
+				<Loader2 className="size-3.5 animate-spin" /> Loading history
 			</div>
 		);
 	}
 	if (isError) {
 		return (
 			<p className="text-destructive p-6 text-center text-xs" data-testid="warp-history-error">
-				{t("warp.history.loadFailed")}
+				Could not load history.
 			</p>
 		);
 	}
 	if (!conversations || conversations.length === 0) {
 		return (
 			<p className="text-muted-foreground p-6 text-center text-xs" data-testid="warp-history-empty">
-				{t("warp.history.empty")}
+				No saved conversations yet.
 			</p>
 		);
 	}
@@ -108,7 +106,7 @@ export default function WarpHistory({ activeConversationId, onOpen, onDeleted }:
 									isActive && "bg-accent/60",
 								)}
 							>
-								<p className="truncate text-sm">{conversation.title || t("warp.history.untitled")}</p>
+								<p className="truncate text-sm">{conversation.title || "Untitled"}</p>
 								<p className="text-muted-foreground flex flex-wrap items-center gap-x-1.5 text-[11px] tabular-nums">
 									<span className="whitespace-nowrap">
 										{formatDistanceToNow(new Date(conversation.updated_at), {
@@ -116,9 +114,7 @@ export default function WarpHistory({ activeConversationId, onOpen, onDeleted }:
 										})}
 									</span>
 									<span aria-hidden>·</span>
-									<span className="whitespace-nowrap">
-										{conversation.message_count} {t("ui.warpHistory.messages", { ns: "common" })}
-									</span>
+									<span className="whitespace-nowrap">{conversation.message_count} messages</span>
 									{cost && (
 										<>
 											<span aria-hidden>·</span>
@@ -135,7 +131,7 @@ export default function WarpHistory({ activeConversationId, onOpen, onDeleted }:
 									type="button"
 									variant="ghost"
 									size="icon"
-									aria-label={t("warp.history.deleteAria")}
+									aria-label="Delete conversation"
 									data-testid={`warp-history-delete-${conversation.id}`}
 									disabled={deletingId !== null || openingId !== null}
 									onClick={() => setPendingDelete(conversation)}
@@ -153,14 +149,14 @@ export default function WarpHistory({ activeConversationId, onOpen, onDeleted }:
 			<AlertDialog open={!!pendingDelete} onOpenChange={(open) => !open && setPendingDelete(null)}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>{t("warp.history.deleteTitle")}</AlertDialogTitle>
+						<AlertDialogTitle>Delete this conversation?</AlertDialogTitle>
 						<AlertDialogDescription>
-							{pendingDelete ? t("warp.history.deleteDescription", { title: pendingDelete.title }) : ""}
+							{pendingDelete ? `"${pendingDelete.title}" and its messages are removed permanently. This cannot be undone.` : ""}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel data-testid="warp-history-delete-cancel" onClick={() => setPendingDelete(null)}>
-							{t("warp.history.cancel")}
+							Cancel
 						</AlertDialogCancel>
 						<AlertDialogAction
 							data-testid="warp-history-delete-confirm"
@@ -170,7 +166,7 @@ export default function WarpHistory({ activeConversationId, onOpen, onDeleted }:
 								if (conversation) void remove(conversation);
 							}}
 						>
-							{t("warp.history.delete")}
+							Delete
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

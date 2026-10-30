@@ -12,7 +12,6 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alertDialog";
-import { useTranslation } from "react-i18next";
 
 interface RevokeGrantDialogProps {
 	open: boolean;
@@ -21,20 +20,21 @@ interface RevokeGrantDialogProps {
 }
 
 export default function RevokeGrantDialog({ open, onOpenChange, onConfirm }: RevokeGrantDialogProps) {
-	const { t } = useTranslation("mcp");
-	const { t: tCommon } = useTranslation("common");
-
 	return (
 		<AlertDialog open={open} onOpenChange={onOpenChange}>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>{t("oauthGrants.revokeTitle")}</AlertDialogTitle>
-					<AlertDialogDescription>{t("oauthGrants.revokeDescription")}</AlertDialogDescription>
+					<AlertDialogTitle>Revoke this OAuth grant?</AlertDialogTitle>
+					<AlertDialogDescription>
+						The refresh token for this grant stops rotating right away, so the MCP client can no longer renew its access. Its current access
+						token is a short-lived JWT that keeps working on the <code className="bg-muted rounded px-1 py-0.5 text-xs">/mcp</code> endpoint
+						until it expires (default 10 minutes), after which the client is fully cut off and must reconnect via the OAuth consent flow.
+					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel data-testid="oauth-grants-revoke-cancel-btn">{tCommon("cancel")}</AlertDialogCancel>
+					<AlertDialogCancel data-testid="oauth-grants-revoke-cancel-btn">Cancel</AlertDialogCancel>
 					<AlertDialogAction data-testid="oauth-grants-revoke-confirm-btn" onClick={onConfirm}>
-						{t("common.revoke")}
+						Revoke
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

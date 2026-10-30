@@ -1,6 +1,3 @@
-import { dateFnsLocale } from "@/lib/i18n/dateLocale";
-import { getLocale as getUILocale } from "@/lib/i18n";
-import { useTranslation } from "react-i18next";
 import { FilterSidebarTrigger } from "@/components/filters/filterSidebarTrigger";
 import { FilterSection, SearchableCheckboxList, useAutoFocusOnOpen } from "@/components/filters/primitives";
 import FullPageLoader from "@/components/fullPageLoader";
@@ -55,8 +52,7 @@ function InteractiveValue({
 	onFilter: () => void;
 	className?: string;
 }) {
-	const { t: tCopy } = useTranslation();
-	const { copy } = useCopyToClipboard({ successMessage: tCopy("common.copied", { ns: "mcp" }) });
+	const { copy } = useCopyToClipboard({ successMessage: "Copied" });
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>
@@ -68,14 +64,14 @@ function InteractiveValue({
 						copy(value);
 					}}
 					className={`focus-visible:ring-ring block max-w-full min-w-0 cursor-pointer truncate text-left underline-offset-2 transition hover:underline focus-visible:ring-2 focus-visible:outline-none ${className ?? ""}`}
-					aria-label={tCopy("accessibility.filterBy", { ns: "common", label: label })}
+					aria-label={`Filter by ${label}`}
 				>
 					{value}
 				</button>
 			</TooltipTrigger>
 			<TooltipContent className="max-w-[480px] break-all">
 				<div className="font-mono text-[11px]">{value}</div>
-				<div>{tCopy("ui.page.clickToFilterRightClickToCopy", { ns: "agents" })}</div>
+				<div>Click to filter · Right-click to copy</div>
 			</TooltipContent>
 		</Tooltip>
 	);
@@ -94,7 +90,6 @@ function TextFilterInput({
 	testId: string;
 	resetKey: number;
 }) {
-	const { t: tCopy } = useTranslation();
 	const [localValue, setLocalValue] = useState(value);
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -117,7 +112,7 @@ function TextFilterInput({
 						if (timeoutRef.current) clearTimeout(timeoutRef.current);
 						timeoutRef.current = setTimeout(() => onChange(next.trim()), 500);
 					}}
-					placeholder={tCopy("ui.page.containsValue", { ns: "agents" })}
+					placeholder="Contains value"
 					className="h-8 pl-8 font-mono text-xs"
 					data-testid={testId}
 				/>
@@ -137,7 +132,6 @@ function PushConfigFilterSidebar({
 	onChange: (filters: PushConfigFilters) => void;
 	onTextChange: (key: "taskID" | "configID" | "callbackURL", value: string) => void;
 }) {
-	const { t: tCopy } = useTranslation();
 	const isMobile = useIsMobile();
 	const [collapsed, setCollapsed] = useState(false);
 	const [resetKey, setResetKey] = useState(0);
@@ -172,7 +166,7 @@ function PushConfigFilterSidebar({
 	return (
 		<div className="bg-card fixed inset-y-2 left-2 z-40 flex h-auto w-[calc(100vw-1rem)] max-w-72 shrink-0 flex-col rounded-md border shadow-xl md:static md:h-full md:w-64 md:max-w-none md:shadow-none">
 			<div className="flex h-11 items-center justify-between border-b pr-2 pl-5">
-				<span className="text-sm font-semibold">{tCopy("filters.filters", { ns: "governance" })}</span>
+				<span className="text-sm font-semibold">Filters</span>
 				<div className="flex items-center gap-1">
 					{activeFilterCount > 0 ? (
 						<Button
@@ -184,27 +178,20 @@ function PushConfigFilterSidebar({
 								onChange(EMPTY_FILTERS);
 							}}
 						>
-							<RotateCcw className="size-3" /> {tCopy("plugins.reset", { ns: "governance" })}
+							<RotateCcw className="size-3" /> Reset
 						</Button>
 					) : null}
-					<Button
-						variant="ghost"
-						size="icon"
-						className="size-7"
-						onClick={toggleCollapsed}
-						title={tCopy("filters.hideFilters", { ns: "governance" })}
-						aria-label={tCopy("filters.hideFilters", { ns: "governance" })}
-					>
+					<Button variant="ghost" size="icon" className="size-7" onClick={toggleCollapsed} title="Hide filters" aria-label="Hide filters">
 						<PanelLeftClose className="size-4" />
 					</Button>
 				</div>
 			</div>
 			<ScrollArea className="flex flex-1 overflow-y-auto p-2 pb-0" viewportClassName="no-table">
 				<div className="flex grow flex-col gap-1">
-					<FilterSection title={tCopy("ui.page.agent", { ns: "agents" })} defaultOpen onOpenChange={setAgentFilterOpen}>
+					<FilterSection title="Agent" defaultOpen onOpenChange={setAgentFilterOpen}>
 						<SearchableCheckboxList
 							inputRef={agentSearchInputRef}
-							placeholder={tCopy("ui.page.searchAgents", { ns: "agents" })}
+							placeholder="Search agents"
 							items={agentNames.map((name) => ({ key: name, label: name }))}
 							isSelected={(name) => filters.agentNames.includes(name)}
 							onToggle={(name) =>
@@ -219,23 +206,23 @@ function PushConfigFilterSidebar({
 							normalizeTestIdKey
 						/>
 					</FilterSection>
-					<FilterSection title={tCopy("ui.page.identifiers", { ns: "agents" })} defaultOpen={Boolean(filters.taskID || filters.configID)}>
+					<FilterSection title="Identifiers" defaultOpen={Boolean(filters.taskID || filters.configID)}>
 						<TextFilterInput
-							label={tCopy("ui.page.taskID", { ns: "agents" })}
+							label="Task ID"
 							value={filters.taskID}
 							onChange={(taskID) => onTextChange("taskID", taskID)}
 							testId="push-config-task-id-filter"
 							resetKey={resetKey}
 						/>
 						<TextFilterInput
-							label={tCopy("ui.page.configID", { ns: "agents" })}
+							label="Config ID"
 							value={filters.configID}
 							onChange={(configID) => onTextChange("configID", configID)}
 							testId="push-config-config-id-filter"
 							resetKey={resetKey}
 						/>
 					</FilterSection>
-					<FilterSection title={tCopy("ui.page.callbackURL", { ns: "agents" })} defaultOpen={Boolean(filters.callbackURL)}>
+					<FilterSection title="Callback URL" defaultOpen={Boolean(filters.callbackURL)}>
 						<TextFilterInput
 							label="URL"
 							value={filters.callbackURL}
@@ -251,7 +238,6 @@ function PushConfigFilterSidebar({
 }
 
 export default function PushConfigsPage() {
-	const { t: tCopy } = useTranslation();
 	const hasDeleteAccess = useRbac(RbacResource.AgentGateway, RbacOperation.Delete);
 	const [urlState, setUrlState] = useQueryStates(
 		{
@@ -334,8 +320,8 @@ export default function PushConfigsPage() {
 				<div className="bg-card h-full w-full overflow-hidden rounded-md border">
 					<div className="flex h-full flex-col p-4">
 						<div className="mb-4 flex items-center">
-							<PageTitle title={tCopy("ui.page.pushConfigurations", { ns: "agents" })}>
-								{tCopy("ui.page.viewCallbackConfigurationsRegisteredThroughA2AAndRemoveStale", { ns: "agents" })}
+							<PageTitle title="Push Configurations">
+								View callback configurations registered through A2A and remove stale entries.
 							</PageTitle>
 						</div>
 						{error ? <div className="text-destructive mb-3 text-sm">{getErrorMessage(error)}</div> : null}
@@ -344,12 +330,12 @@ export default function PushConfigsPage() {
 								<Table containerClassName="h-full overflow-auto" className="w-full min-w-[1140px] table-fixed">
 									<TableHeader className="bg-muted sticky top-0 z-20">
 										<TableRow>
-											<TableHead className="w-[180px] font-semibold">{tCopy("ui.page.agent", { ns: "agents" })}</TableHead>
-											<TableHead className="w-[140px] font-semibold">{tCopy("ui.page.tenant", { ns: "agents" })}</TableHead>
-											<TableHead className="w-[220px] font-semibold">{tCopy("ui.page.taskID", { ns: "agents" })}</TableHead>
-											<TableHead className="w-[220px] font-semibold">{tCopy("ui.page.configID", { ns: "agents" })}</TableHead>
-											<TableHead className="w-[320px] font-semibold">{tCopy("ui.page.callbackURL", { ns: "agents" })}</TableHead>
-											<TableHead className="w-[150px] font-semibold">{tCopy("skillsRepo.updated", { ns: "config" })}</TableHead>
+											<TableHead className="w-[180px] font-semibold">Agent</TableHead>
+											<TableHead className="w-[140px] font-semibold">Tenant</TableHead>
+											<TableHead className="w-[220px] font-semibold">Task ID</TableHead>
+											<TableHead className="w-[220px] font-semibold">Config ID</TableHead>
+											<TableHead className="w-[320px] font-semibold">Callback URL</TableHead>
+											<TableHead className="w-[150px] font-semibold">Updated</TableHead>
 											{hasDeleteAccess ? <TableHead className="w-14" /> : null}
 										</TableRow>
 									</TableHeader>
@@ -357,9 +343,7 @@ export default function PushConfigsPage() {
 										{configs.length === 0 ? (
 											<TableRow>
 												<TableCell colSpan={hasDeleteAccess ? 7 : 6} className="text-muted-foreground h-24 text-center text-sm">
-													{hasFilters
-														? tCopy("ui.page.noPushConfigurationsMatchTheseFilters", { ns: "agents" })
-														: tCopy("ui.page.noPushConfigurationsStored", { ns: "agents" })}
+													{hasFilters ? "No push configurations match these filters." : "No push configurations stored."}
 												</TableCell>
 											</TableRow>
 										) : (
@@ -371,7 +355,7 @@ export default function PushConfigsPage() {
 													<TableCell>
 														<InteractiveValue
 															value={config.agent_name}
-															label={tCopy("ui.page.agent", { ns: "agents" })}
+															label="Agent"
 															onFilter={() => updateFilters({ ...filters, agentNames: [config.agent_name] })}
 															className="font-medium"
 														/>
@@ -382,7 +366,7 @@ export default function PushConfigsPage() {
 													<TableCell>
 														<InteractiveValue
 															value={config.task_id}
-															label={tCopy("ui.page.taskID", { ns: "agents" })}
+															label="Task ID"
 															onFilter={() => updateFilters({ ...filters, taskID: config.task_id })}
 															className="font-mono text-xs"
 														/>
@@ -390,7 +374,7 @@ export default function PushConfigsPage() {
 													<TableCell>
 														<InteractiveValue
 															value={config.config_id}
-															label={tCopy("ui.page.configID", { ns: "agents" })}
+															label="Config ID"
 															onFilter={() => updateFilters({ ...filters, configID: config.config_id })}
 															className="font-mono text-xs"
 														/>
@@ -398,20 +382,20 @@ export default function PushConfigsPage() {
 													<TableCell>
 														<InteractiveValue
 															value={config.url}
-															label={tCopy("ui.page.callbackURL", { ns: "agents" })}
+															label="Callback URL"
 															onFilter={() => updateFilters({ ...filters, callbackURL: config.url })}
 															className="text-muted-foreground font-mono text-sm"
 														/>
 													</TableCell>
 													<TableCell className="text-muted-foreground text-sm">
-														{formatDistanceToNow(new Date(config.updated_at), { addSuffix: true, locale: dateFnsLocale(getUILocale()) })}
+														{formatDistanceToNow(new Date(config.updated_at), { addSuffix: true })}
 													</TableCell>
 													{hasDeleteAccess ? (
 														<TableCell>
 															<Button
 																variant="ghost"
 																size="icon"
-																aria-label={tCopy("ui.page.deletePushConfiguration", { ns: "agents" })}
+																aria-label="Delete push configuration"
 																onClick={() => setDeleteTarget(config)}
 															>
 																<Trash2 className="h-4 w-4" />
@@ -427,12 +411,7 @@ export default function PushConfigsPage() {
 							{totalCount > 0 ? (
 								<div className="flex shrink-0 items-center justify-between text-xs" data-testid="pagination">
 									<div className="text-muted-foreground">
-										{tCopy("pagination.entries", {
-											ns: "common",
-											from: offset + 1,
-											to: Math.min(offset + PAGE_SIZE, totalCount),
-											total: totalCount,
-										})}
+										{offset + 1}-{Math.min(offset + PAGE_SIZE, totalCount)} of {totalCount} entries
 									</div>
 									<div className="flex items-center gap-2">
 										<Button
@@ -440,23 +419,19 @@ export default function PushConfigsPage() {
 											size="sm"
 											onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
 											disabled={offset === 0}
-											aria-label={tCopy("skillsRepo.previousPage", { ns: "config" })}
+											aria-label="Previous page"
 										>
 											<ChevronLeft className="size-3" />
 										</Button>
 										<span>
-											{tCopy("pagination.page", {
-												ns: "common",
-												page: Math.floor(offset / PAGE_SIZE) + 1,
-												total: Math.ceil(totalCount / PAGE_SIZE),
-											})}
+											Page {Math.floor(offset / PAGE_SIZE) + 1} of {Math.ceil(totalCount / PAGE_SIZE)}
 										</span>
 										<Button
 											variant="ghost"
 											size="sm"
 											onClick={() => setOffset(offset + PAGE_SIZE)}
 											disabled={offset + PAGE_SIZE >= totalCount}
-											aria-label={tCopy("skillsRepo.nextPage", { ns: "config" })}
+											aria-label="Next page"
 										>
 											<ChevronRight className="size-3" />
 										</Button>
@@ -470,13 +445,14 @@ export default function PushConfigsPage() {
 			<AlertDialog open={deleteTarget !== null} onOpenChange={(open) => !open && setDeleteTarget(null)}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>{tCopy("ui.page.deleteThisPushConfiguration", { ns: "agents" })}</AlertDialogTitle>
+						<AlertDialogTitle>Delete this push configuration?</AlertDialogTitle>
 						<AlertDialogDescription>
-							{tCopy("ui.page.bifrostWillStopAcceptingAndDeliveringPushNotificationsFor", { ns: "agents" })}
+							Bifrost will stop accepting and delivering push notifications for this callback. The upstream agent must register it again to
+							restore delivery.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>{tCopy("cancel", { ns: "common" })}</AlertDialogCancel>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
 						<AlertDialogAction
 							disabled={isDeleting}
 							onClick={async (event) => {
@@ -484,14 +460,14 @@ export default function PushConfigsPage() {
 								if (!deleteTarget) return;
 								try {
 									await deletePushConfig(deleteTarget).unwrap();
-									toast.success(tCopy("ui.a2aPayloadView.pushConfigurationDeleted", { ns: "agents" }));
+									toast.success("Push configuration deleted");
 									setDeleteTarget(null);
 								} catch (deleteError) {
 									toast.error(getErrorMessage(deleteError));
 								}
 							}}
 						>
-							{tCopy("delete", { ns: "common" })}
+							Delete
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

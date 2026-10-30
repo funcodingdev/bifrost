@@ -1,18 +1,18 @@
 import FullPageLoader from "@/components/fullPageLoader";
+import { LoadErrorView } from "@/components/loadErrorView";
 import { useDebouncedValue } from "@/hooks/useDebounce";
 import { getErrorMessage, useGetModelConfigsQuery } from "@/lib/store";
 import { getModelLimitScopeFilterOptions } from "@/lib/registries/modelLimitScopes";
+import { showLoadError } from "@/lib/utils/loadError";
 import { RbacOperation, RbacResource, useRbac } from "@enterprise/lib";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
 import ModelLimitsTable from "./modelLimitsTable";
 
 const POLLING_INTERVAL = 5000;
 const PAGE_SIZE = 25;
 
 export default function ModelLimitsView() {
-	const { t } = useTranslation("models");
 	const hasGovernanceAccess = useRbac(RbacResource.Governance, RbacOperation.View);
 
 	const [search, setSearch] = useState("");
@@ -35,6 +35,7 @@ export default function ModelLimitsView() {
 		data: modelConfigsData,
 		error: modelConfigsError,
 		isLoading: isModelConfigsLoading,
+		refetch: refetchModelConfigs,
 	} = useGetModelConfigsQuery(
 		{
 			limit: PAGE_SIZE,
@@ -65,9 +66,9 @@ export default function ModelLimitsView() {
 	// Handle query errors
 	useEffect(() => {
 		if (modelConfigsError) {
-			toast.error(t("modelLimits.failedLoadConfigs", { message: getErrorMessage(modelConfigsError) }));
+			toast.error(`Failed to load model configs: ${getErrorMessage(modelConfigsError)}`);
 		}
-	}, [modelConfigsError, t]);
+	}, [modelConfigsError]);
 
 	// The table chrome renders "Loading limits..." while the first request is in
 	// flight, then collapses to the full-page empty state once it resolves to zero
@@ -75,6 +76,17 @@ export default function ModelLimitsView() {
 	// Subsequent filter/page fetches keep the table so the chrome doesn't jump.
 	if (isModelConfigsLoading && !hasLoadedOnceRef.current) {
 		return <FullPageLoader />;
+	}
+
+	if (showLoadError(modelConfigsError, modelConfigsData)) {
+		return (
+			<LoadErrorView
+				entity="model limits"
+				error={modelConfigsError}
+				onRetry={() => void refetchModelConfigs()}
+				testId="model-limits-load-error"
+			/>
+		);
 	}
 
 	return (

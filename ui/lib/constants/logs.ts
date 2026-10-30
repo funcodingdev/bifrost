@@ -1,10 +1,10 @@
-import type { TFunction } from "i18next";
 // Known provider names array - centralized definition
 export const KnownProvidersNames = [
 	"anthropic",
 	"azure",
 	"bedrock",
 	"bedrock_mantle",
+	"sagemaker",
 	"cerebras",
 	"cohere",
 	"deepseek",
@@ -31,6 +31,8 @@ export const KnownProvidersNames = [
 	"fireworks",
 	"sarvam",
 	"wafer",
+	"minimax",
+	"byteplus",
 	"databricks",
 	"cloudflare",
 	"github-copilot",
@@ -46,8 +48,7 @@ export const ProviderNames: readonly ProviderName[] = KnownProvidersNames;
 // "Add Provider" picker and the first-party-integration nudge so users cannot configure
 // them from the UI. Everything else (types, schemas, icons, labels) still resolves, so a
 // provider configured via config.json continues to render correctly.
-// TODO: remove "github-copilot" once the integration has been tested and released.
-export const HiddenProviders: ReadonlySet<ProviderName> = new Set<ProviderName>(["github-copilot"]);
+export const HiddenProviders: ReadonlySet<ProviderName> = new Set<ProviderName>([]);
 
 // Known providers that users can add from the UI.
 export const VisibleProviderNames: readonly ProviderName[] = KnownProvidersNames.filter((name) => !HiddenProviders.has(name));
@@ -72,6 +73,8 @@ export const EmbeddingSupportedProviders: readonly ProviderName[] = [
 	"vllm",
 	"databricks",
 	"cloudflare",
+	"byteplus",
+	"github-copilot",
 ] as const;
 
 export const Statuses = ["success", "error", "processing", "cancelled"] as const;
@@ -156,6 +159,7 @@ export const ProviderLabels: Record<ProviderName, string> = {
 	azure: "Azure",
 	bedrock: "AWS Bedrock",
 	bedrock_mantle: "AWS Bedrock Mantle",
+	sagemaker: "AWS SageMaker",
 	cohere: "Cohere",
 	deepseek: "DeepSeek",
 	vertex: "Vertex AI",
@@ -181,6 +185,8 @@ export const ProviderLabels: Record<ProviderName, string> = {
 	fireworks: "Fireworks AI",
 	sarvam: "Sarvam AI",
 	wafer: "Wafer",
+	minimax: "MiniMax",
+	byteplus: "BytePlus",
 	databricks: "Databricks",
 	cloudflare: "Cloudflare",
 	"github-copilot": "GitHub Copilot",
@@ -378,11 +384,6 @@ export const RequestTypeLabels = {
 	live_sideband: "Live Sideband",
 } as const;
 
-export function getRequestTypeLabel(type: string, t: TFunction): string {
-	const label = RequestTypeLabels[type as keyof typeof RequestTypeLabels];
-	return label ? t(`requestTypes.${type.replaceAll(".", "_")}`, { ns: "observability", defaultValue: label }) : type;
-}
-
 export const RequestTypeColors = {
 	"chat.completion": "bg-blue-100 text-blue-800",
 	response: "bg-teal-100 text-teal-800",
@@ -487,11 +488,6 @@ export const RoutingEngineUsedLabels = {
 	"session-affinity": "Session",
 	core: "Core",
 } as const;
-
-export function getRoutingEngineLabel(engine: string, t: TFunction): string {
-	const label = RoutingEngineUsedLabels[engine as keyof typeof RoutingEngineUsedLabels];
-	return label ? t(`routingEngineLabels.${engine.replaceAll("-", "_")}`, { ns: "observability", defaultValue: label }) : engine;
-}
 
 export const RoutingEngineUsedColors = {
 	"routing-rule": "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",

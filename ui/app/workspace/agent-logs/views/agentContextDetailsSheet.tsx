@@ -1,5 +1,3 @@
-import i18nReview from "@/lib/i18n";
-import { useTranslation } from "react-i18next";
 import { InteractiveValue } from "./interactiveValue";
 import { formatLatency } from "@/app/workspace/dashboard/utils/chartUtils";
 import { Button } from "@/components/ui/button";
@@ -196,7 +194,6 @@ function buildSessionContent(log: AgentLogOperation): SessionContent[] {
 
 // ConversationFailedResponse renders a failed task as the Agent's response turn when no status message was recorded.
 function ConversationFailedResponse({ state }: { state: string }) {
-	const { t: tCopy } = useTranslation();
 	return (
 		<div className="flex gap-3">
 			<div className="flex flex-col items-center pt-1.5">
@@ -205,19 +202,16 @@ function ConversationFailedResponse({ state }: { state: string }) {
 			</div>
 			<div className="min-w-0 flex-1">
 				<div className="mb-1.5 flex min-w-0 items-center gap-2">
-					<span className="text-xs font-semibold">{tCopy("ui.agentContextDetailsSheet.agentResponse", { ns: "agents" })}</span>
+					<span className="text-xs font-semibold">Agent response</span>
 					<TaskStateBadge state={state} />
 				</div>
-				<div className="bg-card text-muted-foreground rounded-sm border p-3 text-sm leading-5">
-					{tCopy("ui.agentContextDetailsSheet.theAgentDidNotReturnAResponse", { ns: "agents" })}
-				</div>
+				<div className="bg-card text-muted-foreground rounded-sm border p-3 text-sm leading-5">The agent did not return a response.</div>
 			</div>
 		</div>
 	);
 }
 
 function ConversationError({ error, timestamp }: { error: unknown; timestamp?: string }) {
-	const { t: tCopy } = useTranslation();
 	return (
 		<div className="flex gap-3">
 			<div className="flex flex-col items-center pt-1.5">
@@ -226,7 +220,7 @@ function ConversationError({ error, timestamp }: { error: unknown; timestamp?: s
 			</div>
 			<div className="min-w-0 flex-1">
 				<div className="mb-1.5 flex min-w-0 items-center gap-2">
-					<span className="text-xs font-semibold">{tCopy("error", { ns: "common" })}</span>
+					<span className="text-xs font-semibold">Error</span>
 					{timestamp ? <span className="text-muted-foreground ml-auto font-mono text-[10px]">{timestamp}</span> : null}
 				</div>
 				<A2APayloadView errorDetails={error} showSectionTitles={false} />
@@ -236,7 +230,6 @@ function ConversationError({ error, timestamp }: { error: unknown; timestamp?: s
 }
 
 export function A2AConversationHistory({ responseBody }: { responseBody?: string }) {
-	const { t: tCopy } = useTranslation();
 	const response = parseProtocolBody(responseBody);
 	const history = Array.isArray(response?.history) ? response.history : [];
 	if (history.length === 0) return null;
@@ -244,12 +237,9 @@ export function A2AConversationHistory({ responseBody }: { responseBody?: string
 	return (
 		<details className="group rounded-sm border">
 			<summary className="hover:bg-muted/30 flex cursor-pointer items-center justify-between px-3 py-2 text-sm transition">
-				<span className="font-medium">{tCopy("ui.agentContextDetailsSheet.conversationHistory", { ns: "agents" })}</span>
+				<span className="font-medium">Conversation history</span>
 				<span className="text-muted-foreground text-xs">
-					{history.length}{" "}
-					{history.length === 1
-						? tCopy("ui.agentContextDetailsSheet.message", { ns: "agents" })
-						: tCopy("ui.agentContextDetailsSheet.messages", { ns: "agents" })}
+					{history.length} {history.length === 1 ? "message" : "messages"}
 				</span>
 			</summary>
 			<div className="border-t p-3">
@@ -289,11 +279,7 @@ const PROTOCOL_ACTIVITY_DEFINITIONS: Record<string, ProtocolActivityDefinition> 
 	CreateTaskPushNotificationConfig: { label: "Push notifications configured" },
 	GetTaskPushNotificationConfig: { label: "Push configuration fetched" },
 	ListTaskPushNotificationConfigs: { label: "Push configurations listed" },
-	DeleteTaskPushNotificationConfig: {
-		get label() {
-			return i18nReview.t("ui.a2aPayloadView.pushConfigurationDeleted", { ns: "agents" });
-		},
-	},
+	DeleteTaskPushNotificationConfig: { label: "Push configuration deleted" },
 	push_notification: { label: "Task update received", showsTaskState: true },
 	push_delivery: { label: "Push notification forwarded" },
 	GetAgentCard: { label: "Public Agent Card fetched" },
@@ -335,7 +321,6 @@ function latestTaskState(log: AgentLogOperation) {
 }
 
 function ProtocolActivity({ log, showTimestamp }: { log: AgentLogOperation; showTimestamp: boolean }) {
-	const { t: tCopy } = useTranslation();
 	const definition = protocolActivityDefinition(log.operation);
 	const taskState = definition.showsTaskState ? latestTaskState(log) : undefined;
 	const timestamp = new Date(log.timestamp);
@@ -348,7 +333,7 @@ function ProtocolActivity({ log, showTimestamp }: { log: AgentLogOperation; show
 			</div>
 			<div className="min-w-0 flex-1 pb-5">
 				<div className="mb-1.5 flex min-w-0 items-center gap-2">
-					<span className="text-xs font-semibold">{tCopy("webhooks.details.event", { ns: "governance" })}</span>
+					<span className="text-xs font-semibold">Event</span>
 					{showTimestamp ? (
 						<span className="text-muted-foreground ml-auto shrink-0 font-mono text-[10px]">
 							{isValid(timestamp) ? format(timestamp, "MMM d, HH:mm:ss") : log.timestamp}
@@ -357,16 +342,10 @@ function ProtocolActivity({ log, showTimestamp }: { log: AgentLogOperation; show
 				</div>
 				<div className="rounded-sm border border-sky-200 bg-sky-50/60 p-3 dark:border-sky-900 dark:bg-sky-950/30">
 					<div className="flex flex-wrap items-center gap-2">
-						<span className="text-sm font-medium">
-							{tCopy(`activity.${log.operation}`, { ns: "agents", defaultValue: definition.label })}
-						</span>
+						<span className="text-sm font-medium">{definition.label}</span>
 						{taskState ? <TaskStateBadge state={taskState} /> : null}
-						{log.status === "error" ? (
-							<span className="text-destructive text-xs">{tCopy("webhooks.outcomes.failedLabel", { ns: "governance" })}</span>
-						) : null}
-						{log.status === "processing" ? (
-							<span className="text-muted-foreground text-xs">{tCopy("warp.toolStatus.inProgress", { ns: "shell" })}</span>
-						) : null}
+						{log.status === "error" ? <span className="text-destructive text-xs">Failed</span> : null}
+						{log.status === "processing" ? <span className="text-muted-foreground text-xs">In progress</span> : null}
 					</div>
 				</div>
 			</div>
@@ -391,7 +370,6 @@ export function A2AOperationConversation({
 	showTimestamp?: boolean;
 	allowPushConversation?: boolean;
 }) {
-	const { t: tCopy } = useTranslation();
 	const timestamp = new Date(log.timestamp);
 	const conversationOperation =
 		isA2AConversationOperation(log.operation) || (allowPushConversation && isA2APushConversationOperation(log.operation));
@@ -431,7 +409,7 @@ export function A2AOperationConversation({
 			) : null}
 			{messages.length === 0 && !hasError && !hasFailedTaskState && log.status === "processing" ? (
 				<div className="text-muted-foreground flex items-center justify-between gap-3 px-5 text-sm">
-					<span>{tCopy("ui.agentContextDetailsSheet.waitingForAResponse", { ns: "agents" })}</span>
+					<span>Waiting for a response.</span>
 					{renderedTimestamp ? <span className="font-mono text-[10px]">{renderedTimestamp}</span> : null}
 				</div>
 			) : null}
@@ -440,7 +418,6 @@ export function A2AOperationConversation({
 }
 
 function Operation({ log, current, onClick }: { log: AgentLogOperation; current: boolean; onClick: () => void }) {
-	const { t: tCopy } = useTranslation();
 	const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
 		if (event.target !== event.currentTarget || (event.key !== "Enter" && event.key !== " ")) return;
 		event.preventDefault();
@@ -460,7 +437,7 @@ function Operation({ log, current, onClick }: { log: AgentLogOperation; current:
 		>
 			{current ? (
 				<span className="bg-background pointer-events-none absolute -top-1.5 left-3 z-10 rounded-full border border-sky-400/45 px-1.5 py-0 text-[9px] leading-tight font-semibold tracking-wide text-sky-600 uppercase dark:text-sky-300">
-					{tCopy("ui.agentContextDetailsSheet.current", { ns: "agents" })}
+					Current
 				</span>
 			) : null}
 
@@ -479,7 +456,6 @@ export function AgentContextDetailsSheet({
 	onLogClick,
 	onFilterContext,
 }: AgentContextDetailsSheetProps) {
-	const { t: tCopy } = useTranslation();
 	const [triggerGetLogs] = useLazyGetAgentLogOperationsQuery();
 	const [logs, setLogs] = useState<AgentLogOperation[]>([]);
 	const [loading, setLoading] = useState(false);
@@ -515,9 +491,7 @@ export function AgentContextDetailsSheet({
 				});
 				if (seq !== requestSeq.current) return;
 				if (result.error) {
-					toast.error(tCopy("ui.agentContextDetailsSheet.failedToLoadContext", { ns: "agents" }), {
-						description: getErrorMessage(result.error),
-					});
+					toast.error("Failed to load context", { description: getErrorMessage(result.error) });
 					return;
 				}
 				if (result.data) {
@@ -537,7 +511,7 @@ export function AgentContextDetailsSheet({
 				if (seq === requestSeq.current) setLoading(false);
 			}
 		},
-		[contextId, currentLogId, filters, positionedSelection, positioningKey, sortOrder, triggerGetLogs, tCopy],
+		[contextId, currentLogId, filters, positionedSelection, positioningKey, sortOrder, triggerGetLogs],
 	);
 
 	useEffect(() => {
@@ -562,21 +536,21 @@ export function AgentContextDetailsSheet({
 	const totalPages = Math.max(1, Math.ceil(totalCount / CONTEXT_PAGE_SIZE));
 
 	const statsSummary = [
-		{ label: tCopy("ui.page.operations", { ns: "agents" }), value: stats?.total_entries ?? 0 },
-		{ label: tCopy("ui.agentContextDetailsSheet.successful", { ns: "agents" }), value: stats?.success_count ?? 0 },
-		{ label: tCopy("webhooks.outcomes.failedLabel", { ns: "governance" }), value: stats?.error_count ?? 0 },
-		{ label: tCopy("ui.agentContextDetailsSheet.avgDuration", { ns: "agents" }), value: formatLatency(stats?.average_latency ?? 0) },
+		{ label: "Operations", value: stats?.total_entries ?? 0 },
+		{ label: "Successful", value: stats?.success_count ?? 0 },
+		{ label: "Failed", value: stats?.error_count ?? 0 },
+		{ label: "Avg duration", value: formatLatency(stats?.average_latency ?? 0) },
 	] as const;
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
 			<SheetContent className="flex w-full flex-col gap-4 overflow-x-hidden overflow-y-auto p-4 pb-0 sm:max-w-[60%] md:p-8 md:pb-0">
 				<SheetHeader className="flex min-w-0 flex-col items-start px-0" headerClassName="bg-card sticky -top-4 z-20 mb-0 py-4 md:-top-8">
-					<SheetTitle>{tCopy("ui.agentContextDetailsSheet.agentSession", { ns: "agents" })}</SheetTitle>
+					<SheetTitle>Agent session</SheetTitle>
 					{contextId && (
 						<InteractiveValue
 							value={contextId}
-							label={tCopy("sessions.filter.session", { ns: "mcp" })}
+							label="Session"
 							filter={{ context_id: contextId }}
 							onFilter={() => onFilterContext(contextId)}
 							className="text-muted-foreground block font-mono text-xs"
@@ -599,9 +573,7 @@ export function AgentContextDetailsSheet({
 							className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs transition-colors"
 							onClick={() => setSortOrder((order) => (order === "asc" ? "desc" : "asc"))}
 						>
-							{sortOrder === "asc"
-								? tCopy("logs.session.earliestFirst", { ns: "observability" })
-								: tCopy("logs.session.latestFirst", { ns: "observability" })}
+							{sortOrder === "asc" ? "Earliest first" : "Latest first"}
 							{sortOrder === "asc" ? <ArrowUp className="size-3" /> : <ArrowDown className="size-3" />}
 						</button>
 					</div>
@@ -616,11 +588,11 @@ export function AgentContextDetailsSheet({
 					{llmCount > 0 || mcpCount > 0 ? (
 						<TabsList className="bg-muted/60 h-10 w-fit">
 							<TabsTrigger value="operations" className="px-3">
-								{tCopy("ui.page.operations", { ns: "agents" })}
+								Operations
 							</TabsTrigger>
 							{llmCount > 0 ? (
 								<TabsTrigger value="llm-logs" className="px-3">
-									{tCopy("nav.llmLogs", { ns: "shell" })}{" "}
+									LLM Logs{" "}
 									<span className="bg-background text-muted-foreground ml-1.5 rounded-sm border px-2 py-0.5 text-[10px] tabular-nums">
 										{llmCount}
 									</span>
@@ -628,7 +600,7 @@ export function AgentContextDetailsSheet({
 							) : null}
 							{mcpCount > 0 ? (
 								<TabsTrigger value="mcp-logs" className="px-3">
-									{tCopy("nav.mcpLogs", { ns: "shell" })}{" "}
+									MCP Logs{" "}
 									<span className="bg-background text-muted-foreground ml-1.5 rounded-sm border px-2 py-0.5 text-[10px] tabular-nums">
 										{mcpCount}
 									</span>
@@ -640,7 +612,7 @@ export function AgentContextDetailsSheet({
 						<div className="pr-1">
 							{loading && logs.length === 0 ? (
 								<div className="flex h-32 items-center justify-center gap-2 text-sm">
-									<Loader2 className="size-4 animate-spin" /> {tCopy("ui.agentContextDetailsSheet.loadingContext", { ns: "agents" })}
+									<Loader2 className="size-4 animate-spin" /> Loading context...
 								</div>
 							) : logs.length ? (
 								<div className="space-y-1">
@@ -650,7 +622,7 @@ export function AgentContextDetailsSheet({
 								</div>
 							) : (
 								<div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-									{tCopy("ui.agentContextDetailsSheet.noOperationsFoundForThisSession", { ns: "agents" })}
+									No operations found for this session.
 								</div>
 							)}
 						</div>
@@ -658,12 +630,8 @@ export function AgentContextDetailsSheet({
 						{totalCount > CONTEXT_PAGE_SIZE ? (
 							<div className="bg-card sticky bottom-0 z-10 flex items-center justify-between py-3 text-xs" data-testid="pagination">
 								<div className="text-muted-foreground flex items-center gap-2">
-									{tCopy("pagination.entries", {
-										ns: "common",
-										from: (page * CONTEXT_PAGE_SIZE + 1).toLocaleString(),
-										to: Math.min((page + 1) * CONTEXT_PAGE_SIZE, totalCount).toLocaleString(),
-										total: totalCount.toLocaleString(),
-									})}
+									{(page * CONTEXT_PAGE_SIZE + 1).toLocaleString()}-{Math.min((page + 1) * CONTEXT_PAGE_SIZE, totalCount).toLocaleString()}{" "}
+									of {totalCount.toLocaleString()} entries
 								</div>
 								<div className="flex items-center gap-2">
 									<Button
@@ -671,19 +639,21 @@ export function AgentContextDetailsSheet({
 										size="sm"
 										onClick={() => setPage((current) => Math.max(0, current - 1))}
 										disabled={loading || page === 0}
-										aria-label={tCopy("skillsRepo.previousPage", { ns: "config" })}
+										aria-label="Previous page"
 									>
 										<ChevronLeft className="size-3" />
 									</Button>
 									<div className="flex items-center gap-1">
-										{tCopy("pagination.page", { ns: "common", page: page + 1, total: totalPages })}
+										<span>Page</span>
+										<span>{page + 1}</span>
+										<span>of {totalPages}</span>
 									</div>
 									<Button
 										variant="ghost"
 										size="sm"
 										onClick={() => setPage((current) => Math.min(totalPages - 1, current + 1))}
 										disabled={loading || page >= totalPages - 1}
-										aria-label={tCopy("skillsRepo.nextPage", { ns: "config" })}
+										aria-label="Next page"
 									>
 										<ChevronRight className="size-3" />
 									</Button>

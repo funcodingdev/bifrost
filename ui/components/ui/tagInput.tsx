@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -30,7 +29,6 @@ const TAG_CLASSES = "bg-accent dark:bg-card flex max-w-full shrink items-center 
 
 export const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
 	({ className, value, onValueChange, listHeight, submitOnComma = true, readOnly, ...props }, ref) => {
-		const { t: tReview } = useTranslation();
 		const [inputValue, setInputValue] = React.useState("");
 
 		const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,7 +68,7 @@ export const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
 				{tag}
 				{!readOnly && (
 					<button
-						aria-label={tReview("accessibility.removeNamed", { ns: "common", name: tag })}
+						aria-label={`Remove ${tag}`}
 						type="button"
 						className="ring-offset-background focus:ring-ring shrink-0 cursor-pointer rounded-sm outline-none focus:ring-2 focus:ring-offset-2"
 						onClick={() => removeTag(tag)}

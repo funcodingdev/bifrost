@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { AgentCardPreview } from "@/components/agents/agentCardPreview";
 import { mapAgentCard } from "@/lib/utils/agentCard";
 import { InteractiveValue, type FilterTarget } from "./interactiveValue";
@@ -27,12 +26,11 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 const TaskFilterContext = createContext<((filters: FilterTarget) => void) | undefined>(undefined);
 
 function TaskIdValue({ value }: { value: string }) {
-	const { t: tCopy } = useTranslation();
 	const onFilter = useContext(TaskFilterContext);
 	return (
 		<InteractiveValue
 			value={value}
-			label={tCopy("ui.a2aPayloadView.task", { ns: "agents" })}
+			label="Task"
 			filter={{ task_id: value }}
 			onFilter={onFilter}
 			testId="agent-log-response-task-id"
@@ -146,11 +144,10 @@ function Disclosure({ summary, meta, children }: { summary: string; meta?: strin
 }
 
 function UnclaimedFields({ source, claimed }: { source: Record<string, unknown>; claimed: string[] }) {
-	const { t: tCopy } = useTranslation();
 	const rest = unclaimedFields(source, claimed);
 	if (!rest) return null;
 	return (
-		<Disclosure summary={tCopy("payload.otherFields", { ns: "agents" })} meta={Object.keys(rest).join(", ")}>
+		<Disclosure summary="Other fields" meta={Object.keys(rest).join(", ")}>
 			<JsonBlock code={prettyPrint(rest)} maxHeight={280} />
 		</Disclosure>
 	);
@@ -158,7 +155,6 @@ function UnclaimedFields({ source, claimed }: { source: Record<string, unknown>;
 
 /** Plain text that wraps, clamped to a preview until expanded. */
 function CollapsibleText({ text, preview = 8 }: { text: string; preview?: number }) {
-	const { t: tCopy } = useTranslation();
 	const [open, setOpen] = useState(false);
 	const lines = text.split("\n");
 	const hasMore = lines.length > preview;
@@ -172,9 +168,7 @@ function CollapsibleText({ text, preview = 8 }: { text: string; preview?: number
 					onClick={() => setOpen((value) => !value)}
 					className="text-primary mt-1.5 inline-flex items-center gap-1 text-[11.5px] font-medium hover:underline"
 				>
-					{open
-						? tCopy("logs.detail.showLess", { ns: "observability" })
-						: tCopy("payload.moreLines", { ns: "agents", count: lines.length - preview })}
+					{open ? "Show less" : `Show ${lines.length - preview} more lines`}
 					<ChevronDown className={cn("h-3 w-3 transition-transform", open && "rotate-180")} />
 				</button>
 			)}
@@ -236,7 +230,6 @@ function rendersMediaPreview(source: string, mediaType?: string) {
 }
 
 function FilePartView({ source, mediaType, filename }: { source: string; mediaType?: string; filename?: string }) {
-	const { t: tCopy } = useTranslation();
 	const safeSource = safeMediaSource(source);
 	const type = (mediaType ?? "application/octet-stream").toLowerCase();
 	const label = filename ?? "File";
@@ -267,7 +260,7 @@ function FilePartView({ source, mediaType, filename }: { source: string; mediaTy
 					className="text-primary inline-flex shrink-0 items-center gap-1 hover:underline"
 				>
 					{source.startsWith("data:") ? <Download className="size-3.5" /> : <ExternalLink className="size-3.5" />}
-					{source.startsWith("data:") ? tCopy("skillsRepo.download", { ns: "config" }) : tCopy("ui.a2aPayloadView.view", { ns: "agents" })}
+					{source.startsWith("data:") ? "Download" : "View"}
 				</a>
 			) : (
 				<FileText className="text-muted-foreground size-4 shrink-0" />
@@ -322,9 +315,7 @@ function PartView({ part }: { part: unknown }) {
 }
 
 export function A2APartsView({ parts, showMetadata = true }: { parts: unknown[]; showMetadata?: boolean }) {
-	const { t: tCopy } = useTranslation();
-	if (parts.length === 0)
-		return <div className="text-muted-foreground text-[12.5px]">{tCopy("ui.a2aPayloadView.noContent", { ns: "agents" })}</div>;
+	if (parts.length === 0) return <div className="text-muted-foreground text-[12.5px]">No content.</div>;
 	return (
 		<div className="space-y-2">
 			{parts.map((part, index) => {
@@ -337,7 +328,7 @@ export function A2APartsView({ parts, showMetadata = true }: { parts: unknown[];
 							<details className="group/part mt-2">
 								<summary className="text-muted-foreground hover:text-foreground inline-flex cursor-pointer list-none items-center gap-1.5 text-[11px] [&::-webkit-details-marker]:hidden">
 									<ChevronDown className="size-3 transition-transform group-open/part:rotate-180" />
-									{tCopy("ui.a2aPayloadView.partDetails", { ns: "agents" })}
+									Part details
 								</summary>
 								<div className="mt-2">
 									<OperationParametersView params={details} />
@@ -375,8 +366,7 @@ function looksLikeMessage(value: Record<string, unknown>): boolean {
 
 /** One message rendered on a timeline rail, mirroring the LLM logs conversation. */
 function MessageRow({ message, last = false }: { message: Record<string, unknown>; last?: boolean }) {
-	const { t: tCopy } = useTranslation();
-	const { copy } = useCopyToClipboard({ successMessage: tCopy("common.copied", { ns: "mcp" }) });
+	const { copy } = useCopyToClipboard({ successMessage: "Copied" });
 	const role = asString(message.role);
 	const user = isUserRole(role);
 	const parts = asArray(message.parts) ?? [];
@@ -395,14 +385,14 @@ function MessageRow({ message, last = false }: { message: Record<string, unknown
 							<TooltipTrigger asChild>
 								<button
 									type="button"
-									aria-label={tCopy("ui.a2aPayloadView.copyMessageID", { ns: "agents" })}
+									aria-label="Copy message ID"
 									className="text-foreground hover:text-primary cursor-pointer text-[11.5px] font-semibold capitalize"
 									onClick={() => copy(messageId)}
 								>
 									{messageRoleLabel(role)}
 								</button>
 							</TooltipTrigger>
-							<TooltipContent>{tCopy("ui.a2aPayloadView.copyMessageID", { ns: "agents" })}</TooltipContent>
+							<TooltipContent>Copy message ID</TooltipContent>
 						</Tooltip>
 					) : (
 						<span className="text-foreground text-[11.5px] font-semibold capitalize">{messageRoleLabel(role)}</span>
@@ -432,7 +422,6 @@ function MessageRow({ message, last = false }: { message: Record<string, unknown
 const ARTIFACT_CLAIMED = ["artifactId", "name", "description", "parts"];
 
 function ArtifactView({ artifact }: { artifact: unknown }) {
-	const { t: tReview } = useTranslation();
 	const record = asRecord(artifact);
 	if (!record) return <JsonBlock code={prettyPrint(artifact)} maxHeight={200} />;
 
@@ -443,9 +432,7 @@ function ArtifactView({ artifact }: { artifact: unknown }) {
 	return (
 		<div className="rounded-sm border">
 			<div className="flex items-center justify-between gap-3 border-b px-3 py-2">
-				<span className="text-foreground truncate text-[12.5px] font-medium">
-					{name ?? artifactId ?? tReview("ui.a2aPayloadView.artifact", { ns: "agents" })}
-				</span>
+				<span className="text-foreground truncate text-[12.5px] font-medium">{name ?? artifactId ?? "Artifact"}</span>
 				{name && artifactId && <span className="text-muted-foreground shrink-0 font-mono text-[10.5px]">{artifactId}</span>}
 			</div>
 			<div className="space-y-2 p-3">
@@ -462,7 +449,6 @@ function ArtifactView({ artifact }: { artifact: unknown }) {
 // ---------------------------------------------------------------------------
 
 function PushConfigView({ config, inList = false }: { config: Record<string, unknown>; inList?: boolean }) {
-	const { t: tCopy } = useTranslation();
 	const url = asString(config.url);
 	const id = asString(config.id);
 	const authentication = asRecord(config.authentication);
@@ -476,9 +462,7 @@ function PushConfigView({ config, inList = false }: { config: Record<string, unk
 			>
 				<Webhook className="text-muted-foreground size-4 shrink-0" />
 				<div className="min-w-0 flex-1 space-y-1">
-					<TruncatedLabel className="block font-mono text-xs">
-						{url ?? tCopy("ui.a2aPayloadView.noCallbackURLProvided", { ns: "agents" })}
-					</TruncatedLabel>
+					<TruncatedLabel className="block font-mono text-xs">{url ?? "No callback URL provided"}</TruncatedLabel>
 					{id && <TruncatedLabel className="text-muted-foreground block font-mono text-[11px]">{id}</TruncatedLabel>}
 				</div>
 				<ChevronDown className="text-muted-foreground size-4 shrink-0 transition-transform group-open/push:rotate-180" />
@@ -487,16 +471,14 @@ function PushConfigView({ config, inList = false }: { config: Record<string, unk
 				<OperationParametersView params={{ configurationId: id, taskId: config.taskId, token: config.token }} />
 				{(schemes.length > 0 || credentials) && (
 					<div className="space-y-2">
-						<SubLabel>{tCopy("registry.sheet.tabAuthentication", { ns: "mcp" })}</SubLabel>
+						<SubLabel>Authentication</SubLabel>
 						<div className="flex flex-wrap items-center gap-1.5">
 							{schemes.map((scheme) => (
 								<Badge key={scheme} variant="outline" className="rounded-sm font-normal">
 									{scheme}
 								</Badge>
 							))}
-							{credentials && (
-								<span className="text-muted-foreground text-xs">{tCopy("ui.a2aPayloadView.credentialsProvided", { ns: "agents" })}</span>
-							)}
+							{credentials && <span className="text-muted-foreground text-xs">Credentials provided</span>}
 						</div>
 					</div>
 				)}
@@ -525,7 +507,6 @@ function ConfigurationView({ configuration }: { configuration: Record<string, un
 // ---------------------------------------------------------------------------
 
 function ErrorView({ error }: { error: Record<string, unknown> }) {
-	const { t: tCopy } = useTranslation();
 	// Both JSON-RPC (`{code, message, data}`) and BifrostError (`{error: {...}}`)
 	// shapes reach this view.
 	const inner = asRecord(error.error) ?? error;
@@ -545,7 +526,7 @@ function ErrorView({ error }: { error: Record<string, unknown> }) {
 		<div className="border-destructive/50 rounded-sm border">
 			<div className="border-destructive/50 text-destructive flex items-center gap-2 border-b px-3 py-2">
 				<AlertCircle className="h-3.5 w-3.5 shrink-0" />
-				<span className="text-[12.5px] font-semibold">{tCopy("error", { ns: "common" })}</span>
+				<span className="text-[12.5px] font-semibold">Error</span>
 				{code !== undefined && code !== null && code !== "" && (
 					<Badge variant="outline" className="border-destructive/40 text-destructive rounded-sm px-1.5 py-0 font-mono text-[11px]">
 						{String(code)}
@@ -553,9 +534,7 @@ function ErrorView({ error }: { error: Record<string, unknown> }) {
 				)}
 			</div>
 			<div className="space-y-3 p-3">
-				<div className="text-[13px] leading-relaxed break-words whitespace-pre-wrap">
-					{message ?? tCopy("ui.a2aPayloadView.noErrorMessageRecorded", { ns: "agents" })}
-				</div>
+				<div className="text-[13px] leading-relaxed break-words whitespace-pre-wrap">{message ?? "No error message recorded."}</div>
 				<UnclaimedFields source={rest} claimed={[]} />
 			</div>
 		</div>
@@ -612,7 +591,6 @@ function TaskView({ task }: { task: Record<string, unknown> }) {
 // ---------------------------------------------------------------------------
 
 function StatusUpdateView({ update }: { update: Record<string, unknown> }) {
-	const { t: tCopy } = useTranslation();
 	const status = asRecord(update.status);
 	const state = asString(status?.state);
 	const timestamp = formatTimestamp(status?.timestamp);
@@ -625,14 +603,14 @@ function StatusUpdateView({ update }: { update: Record<string, unknown> }) {
 				{state ? <TaskStateBadge state={state} /> : null}
 				{final && (
 					<Badge variant="outline" className="text-muted-foreground rounded-sm px-1.5 py-0 text-[11px] font-normal">
-						{tCopy("ui.a2aPayloadView.final", { ns: "agents" })}
+						final
 					</Badge>
 				)}
 				{timestamp && <span className="text-muted-foreground font-mono text-[11px] tabular-nums">{timestamp}</span>}
 			</div>
 			{statusMessage && (
 				<section className="space-y-2">
-					<SubLabel>{tCopy("ui.a2aPayloadView.statusMessage", { ns: "agents" })}</SubLabel>
+					<SubLabel>Status message</SubLabel>
 					<A2APartsView parts={asArray(statusMessage.parts) ?? []} />
 					<UnclaimedFields source={statusMessage} claimed={MESSAGE_CLAIMED} />
 				</section>
@@ -678,8 +656,7 @@ function AgentCardView({ card }: { card: Record<string, unknown> }) {
 }
 
 function ParameterValue({ value }: { value: unknown }) {
-	const { t: tCopy } = useTranslation();
-	if (typeof value === "boolean") return <span>{value ? tCopy("yes", { ns: "common" }) : tCopy("no", { ns: "common" })}</span>;
+	if (typeof value === "boolean") return <span>{value ? "Yes" : "No"}</span>;
 	if (typeof value === "string" || typeof value === "number") return <span className="font-mono break-all">{String(value)}</span>;
 	if (Array.isArray(value) && value.every((item) => typeof item === "string" || typeof item === "number")) {
 		return (
@@ -728,7 +705,6 @@ function OperationParametersView({ params }: { params: Record<string, unknown> }
 // ArtifactMetadata collects fields not already shown in the artifact body.
 // File cards show names and media types, while media previews need them here.
 function ArtifactMetadata({ artifact, parts }: { artifact: Record<string, unknown>; parts: unknown[] }) {
-	const { t: tCopy } = useTranslation();
 	const fields = unclaimedFields(artifact, ["artifactId", "name", "description", "parts"]);
 	if (fields) {
 		for (const key of Object.keys(fields)) if (fields[key] === "") delete fields[key];
@@ -760,16 +736,13 @@ function ArtifactMetadata({ artifact, parts }: { artifact: Record<string, unknow
 		<details className="group/metadata mt-2" data-testid="agent-artifact-metadata">
 			<summary className="text-muted-foreground hover:text-foreground inline-flex cursor-pointer list-none items-center gap-1.5 text-[11px] [&::-webkit-details-marker]:hidden">
 				<ChevronDown className="size-3 transition-transform group-open/metadata:rotate-180" />
-				{tCopy("skillsRepo.metadata", { ns: "config" })}
+				Metadata
 			</summary>
 			<div className="mt-2 space-y-3">
 				{fields && Object.keys(fields).length > 0 && <OperationParametersView params={fields} />}
 				{partFields.map(({ index, fields }) => (
 					<div key={index} className="overflow-hidden rounded-sm border">
-						<div className="bg-muted/30 text-muted-foreground border-b px-3 py-2 text-[11px] font-medium">
-							{tCopy("ui.a2aPayloadView.part", { ns: "agents" }) + " "}
-							{index + 1}
-						</div>
+						<div className="bg-muted/30 text-muted-foreground border-b px-3 py-2 text-[11px] font-medium">Part {index + 1}</div>
 						<div className="py-2.5 [&>dl>div]:px-3">
 							<OperationParametersView params={fields} />
 						</div>
@@ -800,8 +773,7 @@ export function A2AConversationMessage({
 	context?: string;
 	last?: boolean;
 }) {
-	const { t: tCopy } = useTranslation();
-	const { copy } = useCopyToClipboard({ successMessage: tCopy("common.copied", { ns: "mcp" }) });
+	const { copy } = useCopyToClipboard({ successMessage: "Copied" });
 	const idLabel = item.kind === "artifact" ? "artifact" : "message";
 	const user = item.role === "user";
 	const label = user ? "You" : item.kind === "artifact" ? "Artifact" : item.kind === "status" ? "Agent update" : "Agent response";
@@ -819,7 +791,7 @@ export function A2AConversationMessage({
 								<button
 									type="button"
 									data-testid="agent-conversation-copy-id"
-									aria-label={tCopy("accessibility.copyId", { ns: "common", label: idLabel })}
+									aria-label={`Copy ${idLabel} ID`}
 									className="hover:text-primary cursor-pointer text-xs font-semibold transition-colors"
 									onClick={() => {
 										if (item.id) copy(item.id);
@@ -828,10 +800,7 @@ export function A2AConversationMessage({
 									{label}
 								</button>
 							</TooltipTrigger>
-							<TooltipContent>
-								{tCopy("common.copy", { ns: "mcp" }) + " "}
-								{idLabel} ID
-							</TooltipContent>
+							<TooltipContent>Copy {idLabel} ID</TooltipContent>
 						</Tooltip>
 					) : (
 						<span className="text-xs font-semibold">{label}</span>
@@ -869,7 +838,6 @@ export function A2AConversationMessage({
 // TaskConversation renders the returned task's history, final update and artifacts
 // using the same timeline as the operation conversation view.
 function TaskConversation({ task }: { task: Record<string, unknown> }) {
-	const { t: tCopy } = useTranslation();
 	const history = asArray(task.history) ?? [];
 	const status = asRecord(task.status);
 	const statusMessage = asRecord(status?.message);
@@ -879,7 +847,7 @@ function TaskConversation({ task }: { task: Record<string, unknown> }) {
 	return (
 		<div>
 			<div className="mb-3">
-				<Disclosure summary={tCopy("payload.taskDetails", { ns: "agents" })} meta={formatTimestamp(status?.timestamp)}>
+				<Disclosure summary="Task details" meta={formatTimestamp(status?.timestamp)}>
 					<OperationParametersView
 						params={{
 							id: task.id,
@@ -947,16 +915,13 @@ function TaskConversation({ task }: { task: Record<string, unknown> }) {
 				);
 			})}
 			{history.length === 0 && !statusMessage && artifacts.length === 0 && (
-				<div className="text-muted-foreground py-3 text-sm">
-					{tCopy("ui.a2aPayloadView.noMessagesOrArtifactsInThisResponse", { ns: "agents" })}
-				</div>
+				<div className="text-muted-foreground py-3 text-sm">No messages or artifacts in this response.</div>
 			)}
 		</div>
 	);
 }
 
 function TaskCollectionView({ response }: { response: Record<string, unknown> }) {
-	const { t: tCopy } = useTranslation();
 	const tasks = asArray(response.tasks) ?? [];
 	const nextPageToken = asString(response.nextPageToken);
 
@@ -965,14 +930,12 @@ function TaskCollectionView({ response }: { response: Record<string, unknown> })
 			<div className="overflow-hidden rounded-sm border">
 				<div className="bg-muted/20 flex items-center justify-between gap-3 border-b px-3 py-2.5">
 					<div className="flex items-center gap-2">
-						<span className="text-sm font-medium">{tCopy("ui.a2aPayloadView.tasks", { ns: "agents" })}</span>
+						<span className="text-sm font-medium">Tasks</span>
 						<Badge variant="secondary" className="rounded-sm px-1.5 text-[11px] font-normal tabular-nums">
 							{tasks.length}
 						</Badge>
 					</div>
-					{nextPageToken && (
-						<span className="text-muted-foreground text-xs">{tCopy("ui.a2aPayloadView.moreTasksAvailable", { ns: "agents" })}</span>
-					)}
+					{nextPageToken && <span className="text-muted-foreground text-xs">More tasks available</span>}
 				</div>
 				{tasks.length > 0 ? (
 					<div className="divide-y">
@@ -1005,12 +968,10 @@ function TaskCollectionView({ response }: { response: Record<string, unknown> })
 						})}
 					</div>
 				) : (
-					<div className="text-muted-foreground py-6 text-center text-sm">
-						{tCopy("ui.a2aPayloadView.noTasksReturned", { ns: "agents" })}
-					</div>
+					<div className="text-muted-foreground py-6 text-center text-sm">No tasks returned.</div>
 				)}
 			</div>
-			<Disclosure summary={tCopy("payload.responseDetails", { ns: "agents" })}>
+			<Disclosure summary="Response details">
 				<OperationParametersView params={{ totalSize: response.totalSize, pageSize: response.pageSize, nextPageToken }} />
 			</Disclosure>
 			<UnclaimedFields source={response} claimed={["tasks", "totalSize", "pageSize", "nextPageToken"]} />
@@ -1019,13 +980,12 @@ function TaskCollectionView({ response }: { response: Record<string, unknown> })
 }
 
 function PushConfigCollectionView({ response }: { response: Record<string, unknown> }) {
-	const { t: tCopy } = useTranslation();
 	const configs = asArray(response.configs) ?? [];
 	return (
 		<div className="space-y-4">
 			<div className="overflow-hidden rounded-sm border">
 				<div className="bg-muted/20 flex items-center gap-2 border-b px-3 py-2.5">
-					<span className="text-sm font-medium">{tCopy("ui.a2aPayloadView.pushConfigurations", { ns: "agents" })}</span>
+					<span className="text-sm font-medium">Push configurations</span>
 					<Badge variant="secondary" className="rounded-sm px-1.5 text-[11px] font-normal tabular-nums">
 						{configs.length}
 					</Badge>
@@ -1044,9 +1004,7 @@ function PushConfigCollectionView({ response }: { response: Record<string, unkno
 						})}
 					</div>
 				) : (
-					<div className="text-muted-foreground py-6 text-center text-sm">
-						{tCopy("ui.a2aPayloadView.noNotificationDestinationsConfigured", { ns: "agents" })}
-					</div>
+					<div className="text-muted-foreground py-6 text-center text-sm">No notification destinations configured.</div>
 				)}
 			</div>
 			<UnclaimedFields source={response} claimed={["configs"]} />
@@ -1055,10 +1013,9 @@ function PushConfigCollectionView({ response }: { response: Record<string, unkno
 }
 
 function EmptyResultView() {
-	const { t: tCopy } = useTranslation();
 	return (
 		<div className="text-muted-foreground rounded-sm border border-dashed p-5 text-center text-sm">
-			{tCopy("ui.a2aPayloadView.theOperationCompletedWithoutAResponseBody", { ns: "agents" })}
+			The operation completed without a response body.
 		</div>
 	);
 }
@@ -1197,7 +1154,6 @@ function PushRelaySummary({
 	status?: string;
 	value: unknown;
 }) {
-	const { t: tCopy } = useTranslation();
 	const root = asRecord(value);
 	const update = asRecord(root?.statusUpdate) ?? asRecord(root?.artifactUpdate) ?? root;
 	const isDelivery = operation === "push_delivery";
@@ -1208,9 +1164,7 @@ function PushRelaySummary({
 		<div className="space-y-4">
 			<div className="flex flex-wrap items-center gap-2">
 				<span className="text-sm font-medium">
-					{isDelivery
-						? tCopy("ui.a2aPayloadView.updateForwardedToTheClientCallback", { ns: "agents" })
-						: tCopy("ui.a2aPayloadView.updateReceivedFromTheAgent", { ns: "agents" })}
+					{isDelivery ? "Update forwarded to the client callback" : "Update received from the agent"}
 				</span>
 				{(succeeded || failed) && (
 					<Badge
@@ -1220,11 +1174,7 @@ function PushRelaySummary({
 							succeeded ? "border-emerald-500/30 text-emerald-700 dark:text-emerald-400" : "border-destructive/40 text-destructive",
 						)}
 					>
-						{succeeded
-							? isDelivery
-								? tCopy("ui.a2aPayloadView.delivered", { ns: "agents" })
-								: tCopy("ui.a2aPayloadView.accepted", { ns: "agents" })
-							: tCopy("webhooks.outcomes.failedLabel", { ns: "governance" })}
+						{succeeded ? (isDelivery ? "Delivered" : "Accepted") : "Failed"}
 					</Badge>
 				)}
 			</div>
@@ -1243,7 +1193,6 @@ export function A2APayloadView({
 	errorDetails,
 	showSectionTitles = true,
 }: A2APayloadViewProps) {
-	const { t: tCopy } = useTranslation();
 	const errorRecord = asRecord(errorDetails);
 	const sections: ReactNode[] = [];
 	const isPushConfigOperation = [
@@ -1271,7 +1220,7 @@ export function A2APayloadView({
 		);
 		sections.push(
 			compactSections ? (
-				<Disclosure key="request" summary={tCopy("payload.requestParameters", { ns: "agents" })}>
+				<Disclosure key="request" summary="Request parameters">
 					{requestContent}
 				</Disclosure>
 			) : (
@@ -1293,9 +1242,7 @@ export function A2APayloadView({
 				{showSectionTitles && !hasOwnHeader && <BlockHeader title={payloadSectionTitle(operation, "response")} />}
 				<div className={showSectionTitles && !hasOwnHeader ? "mt-3" : undefined}>
 					{operation === "DeleteTaskPushNotificationConfig" && parsed && response !== null && Object.keys(response).length === 0 ? (
-						<div className="bg-muted/20 rounded-sm border px-3 py-3 text-sm">
-							{tCopy("ui.a2aPayloadView.pushConfigurationDeleted", { ns: "agents" })}
-						</div>
+						<div className="bg-muted/20 rounded-sm border px-3 py-3 text-sm">Push configuration deleted</div>
 					) : parsed ? (
 						<PayloadBody value={value} />
 					) : (
@@ -1312,7 +1259,7 @@ export function A2APayloadView({
 	if (errorDetails !== undefined && errorDetails !== null) {
 		sections.push(
 			<div key="error" className="space-y-3">
-				{showSectionTitles && <BlockHeader title={tCopy("mcpLogs.errorDetails", { ns: "observability" })} />}
+				{showSectionTitles && <BlockHeader title="Error Details" />}
 				{errorRecord ? <ErrorView error={errorRecord} /> : <JsonBlock code={prettyPrint(errorDetails)} />}
 			</div>,
 		);
@@ -1320,9 +1267,7 @@ export function A2APayloadView({
 
 	if (sections.length === 0) {
 		return (
-			<div className="text-muted-foreground rounded-sm border border-dashed p-5 text-center text-sm">
-				{tCopy("ui.a2aPayloadView.noProtocolBodyWasRecorded", { ns: "agents" })}
-			</div>
+			<div className="text-muted-foreground rounded-sm border border-dashed p-5 text-center text-sm">No protocol body was recorded.</div>
 		);
 	}
 

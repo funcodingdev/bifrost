@@ -1,4 +1,3 @@
-import i18nReview from "@/lib/i18n";
 import { SecretVar } from "./schemas";
 
 // Wire shapes for the /api/webhooks admin API.
@@ -6,24 +5,8 @@ import { SecretVar } from "./schemas";
 export type WebhookEvent = "async_job.completed" | "async_job.failed";
 
 export const WEBHOOK_EVENTS: { value: WebhookEvent; label: string; description: string }[] = [
-	{
-		value: "async_job.completed",
-		get label() {
-			return i18nReview.t("webhooks.events.async_job.completed.label", { ns: "governance" });
-		},
-		get description() {
-			return i18nReview.t("webhooks.events.async_job.completed.description", { ns: "governance" });
-		},
-	},
-	{
-		value: "async_job.failed",
-		get label() {
-			return i18nReview.t("webhooks.events.async_job.failed.label", { ns: "governance" });
-		},
-		get description() {
-			return i18nReview.t("webhooks.events.async_job.failed.description", { ns: "governance" });
-		},
-	},
+	{ value: "async_job.completed", label: "Async job completed", description: "An async inference job finished successfully." },
+	{ value: "async_job.failed", label: "Async job failed", description: "An async inference job reached a terminal failure." },
 ];
 
 export interface WebhookEndpoint {
@@ -137,57 +120,17 @@ export interface RedeliverWebhookResponse {
 export type WebhookDeliveryStatusClass = "2xx" | "4xx" | "5xx" | "none";
 
 export const WEBHOOK_DELIVERY_OUTCOMES: { value: WebhookDeliveryOutcome; label: string }[] = [
-	{
-		value: "delivered",
-		get label() {
-			return i18nReview.t("webhooks.outcomes.deliveredLabel", { ns: "governance" });
-		},
-	},
-	{
-		value: "retryable_failure",
-		get label() {
-			return i18nReview.t("webhooks.outcomes.retryingLabel", { ns: "governance" });
-		},
-	},
-	{
-		value: "permanent_failure",
-		get label() {
-			return i18nReview.t("webhooks.outcomes.failedLabel", { ns: "governance" });
-		},
-	},
-	{
-		value: "exhausted",
-		get label() {
-			return i18nReview.t("webhooks.outcomes.exhaustedLabel", { ns: "governance" });
-		},
-	},
+	{ value: "delivered", label: "Delivered" },
+	{ value: "retryable_failure", label: "Retrying" },
+	{ value: "permanent_failure", label: "Failed" },
+	{ value: "exhausted", label: "Retries exhausted" },
 ];
 
 export const WEBHOOK_DELIVERY_STATUS_CLASSES: { value: WebhookDeliveryStatusClass; label: string }[] = [
-	{
-		value: "2xx",
-		get label() {
-			return i18nReview.t("webhooks.statusClass.2xx", { ns: "governance" });
-		},
-	},
-	{
-		value: "4xx",
-		get label() {
-			return i18nReview.t("webhooks.statusClass.4xx", { ns: "governance" });
-		},
-	},
-	{
-		value: "5xx",
-		get label() {
-			return i18nReview.t("webhooks.statusClass.5xx", { ns: "governance" });
-		},
-	},
-	{
-		value: "none",
-		get label() {
-			return i18nReview.t("webhooks.statusClass.none", { ns: "governance" });
-		},
-	},
+	{ value: "2xx", label: "2xx success" },
+	{ value: "4xx", label: "4xx client error" },
+	{ value: "5xx", label: "5xx server error" },
+	{ value: "none", label: "No response" },
 ];
 
 /**

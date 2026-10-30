@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import FullPageLoader from "@/components/fullPageLoader";
 import { useColumnConfig } from "@/components/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -28,7 +27,7 @@ import { AgentFilterSidebar } from "./views/agentFilterSidebar";
 import { AgentHeaderView } from "./views/agentHeaderView";
 import { AgentLogDetailSheet } from "./views/agentLogDetailsSheet";
 import { AgentLogsDataTable } from "./views/agentLogsTable";
-import { getAgentColumnLabels, createAgentColumns } from "./views/columns";
+import { AGENT_COLUMN_LABELS, createAgentColumns } from "./views/columns";
 import { AgentEmptyState } from "./views/emptyState";
 
 // Filters carried in the URL, matching the backend's query parameter names.
@@ -58,7 +57,6 @@ const PROBE_ARGS = {
 };
 
 export default function AgentLogsPage() {
-	const { t: tCopy } = useTranslation();
 	const [error, setError] = useState<string | null>(null);
 	const didWidenPeriod = useRef(false);
 	const hasDeleteAccess = useRbac(RbacResource.AgentLogs, RbacOperation.Delete);
@@ -252,31 +250,31 @@ export default function AgentLogsPage() {
 	const statCards = useMemo(
 		() => [
 			{
-				title: tCopy("ui.page.operations", { ns: "agents" }),
+				title: "Operations",
 				value: <NumberFlow value={statsData?.total_entries ?? 0} format={COMPACT_NUMBER_FORMAT} />,
 				icon: <Hash className="size-4" />,
 			},
 			{
-				title: tCopy("dashboard.rankings.successRate", { ns: "observability" }),
+				title: "Success Rate",
 				value: (
 					<NumberFlow value={statsData?.success_rate ?? 0} format={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }} suffix="%" />
 				),
 				icon: <CheckCircle className="size-4" />,
 			},
 			{
-				title: tCopy("ui.page.failedOperations", { ns: "agents" }),
+				title: "Failed Operations",
 				value: <NumberFlow value={statsData?.error_count ?? 0} format={COMPACT_NUMBER_FORMAT} />,
 				icon: <XCircle className="size-4" />,
 			},
 			{
-				title: tCopy("ui.page.avgDuration", { ns: "agents" }),
+				title: "Avg Duration",
 				value: (
 					<NumberFlow value={statsData?.average_latency ?? 0} format={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }} suffix="ms" />
 				),
 				icon: <Clock className="size-4" />,
 			},
 		],
-		[statsData, tCopy],
+		[statsData],
 	);
 
 	// Derive data directly from RTK
@@ -332,6 +330,7 @@ export default function AgentLogsPage() {
 		},
 		[filters, loadingSessionIds, triggerGetSessionMembers],
 	);
+
 
 	const handleToggleSession = useCallback(
 		(log: AgentLogSummary) => {
@@ -537,9 +536,8 @@ export default function AgentLogsPage() {
 							onToggle: handleToggleSession,
 						}
 					: undefined,
-				tCopy,
 			),
-		[hasDeleteAccess, handleDelete, grouped, expandedSessionIds, loadingSessionIds, handleToggleSession, tCopy],
+		[hasDeleteAccess, handleDelete, grouped, expandedSessionIds, loadingSessionIds, handleToggleSession],
 	);
 
 	const columnIds = useMemo(
@@ -683,7 +681,7 @@ export default function AgentLogsPage() {
 								onRefresh={refreshAllData}
 								loading={logsIsFetching}
 								columnEntries={columnEntries}
-								columnLabels={getAgentColumnLabels(tCopy)}
+								columnLabels={AGENT_COLUMN_LABELS}
 								onToggleColumnVisibility={toggleColumnVisibility}
 								onResetColumns={resetColumns}
 							/>

@@ -11,7 +11,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Info } from "lucide-react";
 import { useEffect } from "react";
 import { useForm, type Resolver } from "react-hook-form";
-import { Trans, useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { buildProviderUpdatePayload } from "../views/utils";
 
@@ -20,7 +19,6 @@ interface DebuggingFormFragmentProps {
 }
 
 export function DebuggingFormFragment({ provider }: DebuggingFormFragmentProps) {
-	const { t } = useTranslation("models");
 	const dispatch = useAppDispatch();
 	const hasUpdateProviderAccess = useRbac(RbacResource.ModelProvider, RbacOperation.Update);
 	const [updateProvider, { isLoading: isUpdatingProvider }] = useUpdateProviderMutation();
@@ -60,11 +58,11 @@ export function DebuggingFormFragment({ provider }: DebuggingFormFragmentProps) 
 		updateProvider(updatedProvider)
 			.unwrap()
 			.then(() => {
-				toast.success(t("providers.debuggingUpdated"));
+				toast.success("Debugging configuration updated successfully");
 				form.reset(data);
 			})
 			.catch((err) => {
-				toast.error(t("providers.failedUpdateDebugging"), {
+				toast.error("Failed to update debugging configuration", {
 					description: getErrorMessage(err),
 				});
 			});
@@ -83,24 +81,21 @@ export function DebuggingFormFragment({ provider }: DebuggingFormFragmentProps) 
 								<div className="flex items-center justify-between space-x-2">
 									<div className="space-y-0.5">
 										<div className="flex items-center gap-1.5">
-											<FormLabel>{t("providers.debugging.sendBackRawRequest")}</FormLabel>
+											<FormLabel>Send Back Raw Request</FormLabel>
 											<TooltipProvider>
 												<Tooltip>
 													<TooltipTrigger asChild data-testid="provider-debugging-send-back-raw-request-tooltip-trigger">
 														<Info className="text-muted-foreground h-3 w-3 cursor-pointer" />
 													</TooltipTrigger>
 													<TooltipContent>
-														<Trans
-															t={t}
-															i18nKey="providers.debugging.sendBackRawRequestHint"
-															values={{ value: String(!sendBackRawRequest) }}
-															components={{ code: <code /> }}
-														/>
+														Override per-request with header: <code>x-bf-send-back-raw-request: {String(!sendBackRawRequest)}</code>
 													</TooltipContent>
 												</Tooltip>
 											</TooltipProvider>
 										</div>
-										<p className="text-muted-foreground text-xs">{t("providers.debugging.sendBackRawRequestHelp")}</p>
+										<p className="text-muted-foreground text-xs">
+											Include the raw provider request alongside the parsed request in the API response.
+										</p>
 									</div>
 									<FormControl>
 										<Switch
@@ -128,24 +123,21 @@ export function DebuggingFormFragment({ provider }: DebuggingFormFragmentProps) 
 								<div className="flex items-center justify-between space-x-2">
 									<div className="space-y-0.5">
 										<div className="flex items-center gap-1.5">
-											<FormLabel>{t("providers.debugging.sendBackRawResponse")}</FormLabel>
+											<FormLabel>Send Back Raw Response</FormLabel>
 											<TooltipProvider>
 												<Tooltip>
 													<TooltipTrigger asChild data-testid="provider-debugging-send-back-raw-response-tooltip-trigger">
 														<Info className="text-muted-foreground h-3 w-3 cursor-pointer" />
 													</TooltipTrigger>
 													<TooltipContent>
-														<Trans
-															t={t}
-															i18nKey="providers.debugging.sendBackRawResponseHint"
-															values={{ value: String(!sendBackRawResponse) }}
-															components={{ code: <code /> }}
-														/>
+														Override per-request with header: <code>x-bf-send-back-raw-response: {String(!sendBackRawResponse)}</code>
 													</TooltipContent>
 												</Tooltip>
 											</TooltipProvider>
 										</div>
-										<p className="text-muted-foreground text-xs">{t("providers.debugging.sendBackRawResponseHelp")}</p>
+										<p className="text-muted-foreground text-xs">
+											Include the raw provider response alongside the parsed response in the API response.
+										</p>
 									</div>
 									<FormControl>
 										<Switch
@@ -173,24 +165,20 @@ export function DebuggingFormFragment({ provider }: DebuggingFormFragmentProps) 
 								<div className="flex items-center justify-between space-x-2">
 									<div className="space-y-0.5">
 										<div className="flex items-center gap-1.5">
-											<FormLabel>{t("providers.debugging.storeRaw")}</FormLabel>
+											<FormLabel>Store Raw Request/Response</FormLabel>
 											<TooltipProvider>
 												<Tooltip>
 													<TooltipTrigger asChild data-testid="provider-debugging-store-raw-request-response-tooltip-trigger">
 														<Info className="text-muted-foreground h-3 w-3 cursor-pointer" />
 													</TooltipTrigger>
 													<TooltipContent>
-														<Trans
-															t={t}
-															i18nKey="providers.debugging.storeRawHint"
-															values={{ value: String(!storeRawRequestResponse) }}
-															components={{ code: <code /> }}
-														/>
+														Override per-request with header:{" "}
+														<code>x-bf-store-raw-request-response: {String(!storeRawRequestResponse)}</code>
 													</TooltipContent>
 												</Tooltip>
 											</TooltipProvider>
 										</div>
-										<p className="text-muted-foreground text-xs">{t("providers.debugging.storeRawHelp")}</p>
+										<p className="text-muted-foreground text-xs">Persist raw request and response payloads in log records.</p>
 									</div>
 									<FormControl>
 										<Switch
@@ -217,7 +205,7 @@ export function DebuggingFormFragment({ provider }: DebuggingFormFragmentProps) 
 						disabled={!form.formState.isDirty || !hasUpdateProviderAccess || isUpdatingProvider}
 						isLoading={isUpdatingProvider}
 					>
-						{t("providers.saveDebuggingConfig")}
+						Save Debugging Configuration
 					</Button>
 				</div>
 			</form>

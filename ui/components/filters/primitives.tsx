@@ -6,7 +6,6 @@ import { TruncatedLabel } from "@/components/ui/truncatedLabel";
 import { cn } from "@/lib/utils";
 import { ChevronDown, LoaderCircle, Plus, Search } from "lucide-react";
 import { Ref, useEffect, useRef, useState } from "react";
-import { Trans, useTranslation } from "react-i18next";
 
 // Building blocks shared by the filter sidebars (logs, MCP logs, webhook
 // deliveries). Lifted verbatim out of mcpFilterSidebar.tsx, where they had been
@@ -114,7 +113,7 @@ export function SearchableCheckboxList({
 	items,
 	isSelected,
 	onToggle,
-	placeholder,
+	placeholder = "Search...",
 	inputRef,
 	testIdPrefix,
 	normalizeTestIdKey = false,
@@ -136,8 +135,6 @@ export function SearchableCheckboxList({
 	onSearch?: (query: string) => void;
 	fetching?: boolean;
 }) {
-	const { t } = useTranslation("governance");
-	const resolvedPlaceholder = placeholder ?? t("filters.search");
 	const [query, setQuery] = useState("");
 	const normalized = query.trim().toLowerCase();
 	const filtered = normalized ? items.filter((item) => item.label.toLowerCase().includes(normalized)) : items;
@@ -177,7 +174,7 @@ export function SearchableCheckboxList({
 							commitCustom();
 						}
 					}}
-					placeholder={resolvedPlaceholder}
+					placeholder={placeholder}
 					className="h-8 border-0 pl-8 text-xs"
 					data-testid={testIdPrefix ? `${testIdPrefix}-search` : undefined}
 				/>
@@ -203,7 +200,7 @@ export function SearchableCheckboxList({
 				/>
 			))}
 			{filtered.length === 0 && !showAddCustom && (
-				<div className="text-muted-foreground flex h-9 items-center px-3 text-xs">{t("filters.noResults")}</div>
+				<div className="text-muted-foreground flex h-9 items-center px-3 text-xs">No results</div>
 			)}
 			{showAddCustom && (
 				<button
@@ -214,12 +211,7 @@ export function SearchableCheckboxList({
 				>
 					<Plus className="text-muted-foreground size-3.5 shrink-0" />
 					<span className="truncate">
-						<Trans
-							t={t}
-							i18nKey="filters.useValue"
-							values={{ value: trimmed }}
-							components={{ medium0: <span className="font-medium" /> }}
-						/>
+						Use <span className="font-medium">&quot;{trimmed}&quot;</span>
 					</span>
 				</button>
 			)}

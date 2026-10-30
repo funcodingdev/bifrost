@@ -1,7 +1,4 @@
 "use client";
-import { useTranslation } from "react-i18next";
-import { formatMigrationMessage } from "@/lib/utils/databricksMigration";
-import i18n from "@/lib/i18n";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -65,7 +62,6 @@ const wrapError = (err: unknown): Error =>
 	});
 
 export default function CloudflareMigrationDialog({ show, provider, onDeferred, onMigrated }: Props) {
-	const { t: tCopy } = useTranslation();
 	const dispatch = useAppDispatch();
 	const providerFormIsDirty = useAppSelector((state) => state.provider.isDirty);
 	const canCreate = useRbac(RbacResource.ModelProvider, RbacOperation.Create);
@@ -170,28 +166,30 @@ export default function CloudflareMigrationDialog({ show, provider, onDeferred, 
 						<RenderProviderIcon provider={CLOUDFLARE_PROVIDER as ProviderIconType} size="sm" className="h-5 w-5 shrink-0" />
 						{stage === "finished" && result
 							? result.ok
-								? tCopy("providers.databricksMigration.complete", { ns: "models" })
-								: tCopy("providers.databricksMigration.failed", { ns: "models" })
-							: tCopy("ui.cloudflareMigrationDialog.cloudflareIsNowAFirstPartyProvider", { ns: "models" })}
+								? "Migration complete"
+								: "Migration failed"
+							: "Cloudflare is now a first-party provider"}
 					</AlertDialogTitle>
 					<AlertDialogDescription asChild>
 						<div className="space-y-2">
 							{(stage === "intro" || stage === "loading") && (
 								<>
 									<p>
-										<span className="text-foreground font-medium">{provider.name}</span>{" "}
-										{tCopy("ui.cloudflareMigrationDialog.isACustomProviderPointingAtCloudflareWorkersAI", { ns: "models" })}
+										<span className="text-foreground font-medium">{provider.name}</span> is a custom provider pointing at Cloudflare Workers
+										AI. Bifrost now supports Cloudflare natively, and the name &quot;cloudflare&quot; belongs to the official provider, so
+										this custom provider can no longer be edited. Your existing configuration needs to be migrated to the official provider.
 									</p>
-									<p>{tCopy("ui.cloudflareMigrationDialog.theProviderIsConvertedInPlaceSoItsKeys", { ns: "models" })}</p>
+									<p>
+										The provider is converted in place, so its keys, virtual key access, budgets and limits are kept, and nothing is
+										deleted. Nothing changes until you confirm, and you will see what will change before the migration runs.
+									</p>
 								</>
 							)}
 							{stage === "preview" && (
-								<p>{tCopy("ui.cloudflareMigrationDialog.reviewWhatWillChangeKeysKeepTheirStoredTokens", { ns: "models" })}</p>
+								<p>Review what will change. Keys keep their stored tokens; anything that could not be read must be entered below.</p>
 							)}
-							{stage === "running" && <p>{tCopy("providers.databricksMigration.runningHint", { ns: "models" })}</p>}
-							{stage === "finished" && result && (
-								<p>{formatMigrationMessage(result.message, (key, values) => i18n.t(key, { ns: "models", ...values }))}</p>
-							)}
+							{stage === "running" && <p>Migrating. Keep this window open until it finishes.</p>}
+							{stage === "finished" && result && <p>{result.message}</p>}
 						</div>
 					</AlertDialogDescription>
 				</AlertDialogHeader>
@@ -199,7 +197,7 @@ export default function CloudflareMigrationDialog({ show, provider, onDeferred, 
 				{loadError && (
 					<Alert variant="destructive">
 						<AlertTriangle className="h-4 w-4" />
-						<AlertTitle>{tCopy("providers.databricksMigration.loadErrorTitle", { ns: "models" })}</AlertTitle>
+						<AlertTitle>Could not read the custom provider</AlertTitle>
 						<AlertDescription>{loadError}</AlertDescription>
 					</Alert>
 				)}
@@ -218,7 +216,7 @@ export default function CloudflareMigrationDialog({ show, provider, onDeferred, 
 					{(stage === "intro" || stage === "loading") && (
 						<>
 							<AlertDialogCancel onClick={onDeferred} disabled={stage === "loading"} data-testid="cloudflare-migration-not-now">
-								{tCopy("providers.databricksMigration.notNow", { ns: "models" })}
+								Not now
 							</AlertDialogCancel>
 							<DisabledTooltip reason={migrateDisabledReason}>
 								<Button
@@ -227,7 +225,7 @@ export default function CloudflareMigrationDialog({ show, provider, onDeferred, 
 									data-testid="cloudflare-migration-start"
 								>
 									{stage === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
-									{tCopy("ui.cloudflareMigrationDialog.letSMigrate", { ns: "models" })}
+									Let&apos;s migrate
 								</Button>
 							</DisabledTooltip>
 						</>
@@ -235,14 +233,14 @@ export default function CloudflareMigrationDialog({ show, provider, onDeferred, 
 					{stage === "preview" && (
 						<>
 							<Button variant="ghost" onClick={() => setStage("intro")}>
-								{tCopy("back", { ns: "common" })}
+								Back
 							</Button>
-							<AlertDialogCancel onClick={onDeferred}>{tCopy("providers.databricksMigration.notNow", { ns: "models" })}</AlertDialogCancel>
+							<AlertDialogCancel onClick={onDeferred}>Not now</AlertDialogCancel>
 							<DisabledTooltip
 								reason={migrateDisabledReason ?? (plan && planNeedsInput(plan) ? "Fill in the missing values above." : undefined)}
 							>
 								<Button onClick={runMigration} disabled={!canMigrate} data-testid="cloudflare-migration-confirm">
-									{tCopy("providers.databricksMigration.migrate", { ns: "models" })}
+									Migrate
 								</Button>
 							</DisabledTooltip>
 						</>
@@ -251,12 +249,12 @@ export default function CloudflareMigrationDialog({ show, provider, onDeferred, 
 						<>
 							{!result.ok && (
 								<AlertDialogCancel onClick={onDeferred} data-testid="cloudflare-migration-close">
-									{tCopy("close", { ns: "common" })}
+									Close
 								</AlertDialogCancel>
 							)}
 							{result.ok && (
 								<AlertDialogAction onClick={onMigrated} data-testid="cloudflare-migration-done">
-									{tCopy("ui.cloudflareMigrationDialog.goToCloudflare", { ns: "models" })}
+									Go to Cloudflare
 								</AlertDialogAction>
 							)}
 						</>
@@ -286,7 +284,6 @@ interface PreviewProps {
 }
 
 function MigrationPreview({ plan, onAccountIdChange, onHeaderTokenChange }: PreviewProps) {
-	const { t: tCopy } = useTranslation();
 	const net = plan.providerSettings.network_config;
 	const perf = plan.providerSettings.concurrency_and_buffer_size;
 	const otherHeaders = Object.keys(net.extra_headers ?? {});
@@ -294,9 +291,9 @@ function MigrationPreview({ plan, onAccountIdChange, onHeaderTokenChange }: Prev
 	return (
 		<div className="space-y-4 text-sm" data-testid="cloudflare-migration-preview">
 			<section className="space-y-2">
-				<SectionTitle>{tCopy("ui.cloudflareMigrationDialog.account", { ns: "models" })}</SectionTitle>
+				<SectionTitle>Account</SectionTitle>
 				<div className="space-y-1">
-					<Label htmlFor="cloudflare-migration-account-id">{tCopy("ui.cloudflareMigrationDialog.accountID", { ns: "models" })}</Label>
+					<Label htmlFor="cloudflare-migration-account-id">Account ID</Label>
 					<Input
 						id="cloudflare-migration-account-id"
 						data-testid="cloudflare-migration-account-id"
@@ -304,35 +301,21 @@ function MigrationPreview({ plan, onAccountIdChange, onHeaderTokenChange }: Prev
 						placeholder="023e105f4ecef8ad9ca31a8372d0c353"
 						onChange={(e) => onAccountIdChange(e.target.value)}
 					/>
-					<p className="text-muted-foreground text-xs">
-						{tCopy("ui.cloudflareMigrationDialog.readFromTheCustomProviderSBaseURL", { ns: "models" })}
-					</p>
+					<p className="text-muted-foreground text-xs">Read from the custom provider&apos;s base URL.</p>
 				</div>
 			</section>
 
 			<section className="space-y-2">
-				<SectionTitle>
-					{plan.headerToken
-						? tCopy("providers.databricksMigration.authentication", { ns: "models" })
-						: tCopy("providers.migration.keyCount", { ns: "models", count: plan.keys.length })}
-				</SectionTitle>
+				<SectionTitle>{plan.headerToken ? "Authentication" : `Keys (${plan.keys.length})`}</SectionTitle>
 				<div className="divide-y rounded-md border">
 					{plan.keys.map((key) => (
 						<div key={key.id} className="space-y-1 p-3" data-testid={`cloudflare-migration-key-${key.id}`}>
 							<span className="font-medium">{key.name}</span>
 							<div className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-xs">
-								<span>
-									{tCopy("ui.cloudflareMigrationDialog.models", { ns: "models" }) + " "}
-									{!key.models?.length || key.models.includes("*")
-										? tCopy("providers.databricksMigration.modelsAll", { ns: "models" })
-										: key.models.join(", ")}
-								</span>
-								<span>
-									{tCopy("ui.cloudflareMigrationDialog.aliases", { ns: "models" }) + " "}
-									{Object.keys(key.aliases ?? {}).length}
-								</span>
-								<span>{tCopy("ui.cloudflareMigrationDialog.tokenKept", { ns: "models" })}</span>
-								{!key.enabled && <span>{tCopy("providers.databricksMigration.disabled", { ns: "models" })}</span>}
+								<span>Models: {!key.models?.length || key.models.includes("*") ? "all" : key.models.join(", ")}</span>
+								<span>Aliases: {Object.keys(key.aliases ?? {}).length}</span>
+								<span>Token: kept</span>
+								{!key.enabled && <span>Disabled</span>}
 							</div>
 						</div>
 					))}
@@ -341,27 +324,26 @@ function MigrationPreview({ plan, onAccountIdChange, onHeaderTokenChange }: Prev
 							<div className="flex flex-wrap items-center gap-2">
 								<span className="font-medium">{plan.headerToken.name}</span>
 								<Badge variant="outline" className="text-muted-foreground">
-									{tCopy("providers.databricksMigration.fromAuthHeader", { ns: "models" })}
+									from Authorization header
 								</Badge>
 							</div>
 							{/* needsValue is fixed when the plan is built, so the input stays up while the token is typed. */}
 							{!plan.headerToken.needsValue ? (
 								<div className="text-xs">
-									<span className="text-muted-foreground">{tCopy("ui.cloudflareMigrationDialog.aPIToken", { ns: "models" }) + " "}</span>
+									<span className="text-muted-foreground">API token: </span>
 									<code className="bg-muted rounded px-1 py-0.5 font-mono">{maskSecret(plan.headerToken.value)}</code>
 								</div>
 							) : (
 								<div className="space-y-1">
 									<Label htmlFor="cloudflare-migration-token">
-										{tCopy("ui.cloudflareMigrationDialog.aPIToken2", { ns: "models" }) + " "}
-										<span className="text-destructive">*</span>
+										API token <span className="text-destructive">*</span>
 									</Label>
 									<SecretVarInput
 										id="cloudflare-migration-token"
 										data-testid="cloudflare-migration-token"
 										value={plan.headerToken.value ?? { value: "", ref: "" }}
 										onChange={onHeaderTokenChange}
-										placeholder={tCopy("ui.cloudflareMigrationDialog.aPITokenOrEnvCLOUDFLAREAPITOKEN", { ns: "models" })}
+										placeholder="API token or env.CLOUDFLARE_API_TOKEN"
 									/>
 								</div>
 							)}
@@ -371,30 +353,18 @@ function MigrationPreview({ plan, onAccountIdChange, onHeaderTokenChange }: Prev
 			</section>
 
 			<section className="space-y-2">
-				<SectionTitle>{tCopy("providers.databricksMigration.providerSettings", { ns: "models" })}</SectionTitle>
+				<SectionTitle>Provider settings</SectionTitle>
 				<dl className="text-muted-foreground grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-3">
+					<Stat label="Timeout" value={`${net.default_request_timeout_in_seconds}s`} />
+					<Stat label="Retries" value={String(net.max_retries)} />
+					<Stat label="Backoff" value={`${net.retry_backoff_initial}ms → ${net.retry_backoff_max}ms`} />
+					<Stat label="Concurrency" value={String(perf.concurrency)} />
+					<Stat label="Buffer size" value={String(perf.buffer_size)} />
+					<Stat label="Proxy" value={plan.providerSettings.proxy_config?.type ?? "none"} />
+					<Stat label="Extra headers" value={otherHeaders.length > 0 ? otherHeaders.join(", ") : "none"} />
+					<Stat label="Private network" value={net.allow_private_network ? "allowed" : "blocked"} />
 					<Stat
-						label={tCopy("providers.databricksMigration.timeout", { ns: "models" })}
-						value={`${net.default_request_timeout_in_seconds}s`}
-					/>
-					<Stat label={tCopy("providers.databricksMigration.retries", { ns: "models" })} value={String(net.max_retries)} />
-					<Stat
-						label={tCopy("providers.databricksMigration.backoff", { ns: "models" })}
-						value={`${net.retry_backoff_initial}ms → ${net.retry_backoff_max}ms`}
-					/>
-					<Stat label={tCopy("providers.databricksMigration.concurrency", { ns: "models" })} value={String(perf.concurrency)} />
-					<Stat label={tCopy("providers.databricksMigration.bufferSize", { ns: "models" })} value={String(perf.buffer_size)} />
-					<Stat label={tCopy("providers.proxy", { ns: "models" })} value={plan.providerSettings.proxy_config?.type ?? "none"} />
-					<Stat
-						label={tCopy("providers.databricksMigration.extraHeaders", { ns: "models" })}
-						value={otherHeaders.length > 0 ? otherHeaders.join(", ") : "none"}
-					/>
-					<Stat
-						label={tCopy("providers.databricksMigration.privateNetwork", { ns: "models" })}
-						value={net.allow_private_network ? "allowed" : "blocked"}
-					/>
-					<Stat
-						label={tCopy("providers.databricksMigration.rawReqRes", { ns: "models" })}
+						label="Raw request/response"
 						value={plan.providerSettings.send_back_raw_request || plan.providerSettings.send_back_raw_response ? "on" : "off"}
 					/>
 				</dl>
@@ -403,13 +373,11 @@ function MigrationPreview({ plan, onAccountIdChange, onHeaderTokenChange }: Prev
 			{plan.warnings.length > 0 && (
 				<Alert data-testid="cloudflare-migration-warnings">
 					<AlertTriangle className="h-4 w-4" />
-					<AlertTitle>{tCopy("providers.databricksMigration.beforeContinue", { ns: "models" })}</AlertTitle>
+					<AlertTitle>Before you continue</AlertTitle>
 					<AlertDescription>
 						<ul className="list-disc space-y-1 pl-4">
 							{plan.warnings.map((warning) => (
-								<li key={formatMigrationMessage(warning, (key, values) => i18n.t(key, { ns: "models", ...values }))}>
-									{formatMigrationMessage(warning, (key, values) => i18n.t(key, { ns: "models", ...values }))}
-								</li>
+								<li key={warning}>{warning}</li>
 							))}
 						</ul>
 					</AlertDescription>
@@ -426,14 +394,12 @@ function MigrationProgress({ steps }: { steps: MigrationStep[] }) {
 				<li key={step.id} className="flex items-start gap-2" data-testid={`cloudflare-migration-step-${step.id}`} data-status={step.status}>
 					<StepIcon status={step.status} />
 					<div className="min-w-0 flex-1">
-						<div className={step.status === "pending" ? "text-muted-foreground" : ""}>
-							{formatMigrationMessage(step.label, (key, values) => i18n.t(key, { ns: "models", ...values }))}
-						</div>
+						<div className={step.status === "pending" ? "text-muted-foreground" : ""}>{step.label}</div>
 						{step.detail && (
 							<div
 								className={`mt-0.5 text-xs whitespace-pre-line ${step.status === "failed" ? "text-destructive" : "text-muted-foreground"}`}
 							>
-								{formatMigrationMessage(step.detail, (key, values) => i18n.t(key, { ns: "models", ...values }))}
+								{step.detail}
 							</div>
 						)}
 					</div>

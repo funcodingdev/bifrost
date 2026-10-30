@@ -8,11 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { IS_ENTERPRISE } from "@/lib/constants/config";
 import { getErrorMessage, useCreateMCPLibraryEntryMutation } from "@/lib/store";
 import type { CreateMCPLibraryEntryRequest, MCPAuthType, MCPConnectionType } from "@/lib/types/mcp";
+import { RbacOperation, RbacResource, useRbac } from "@enterprise/lib";
 import { useGetSCIMProvidersQuery } from "@enterprise/lib/store/apis/scimApi";
 import { Info } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
 	authKindOf,
@@ -77,14 +77,13 @@ function parseList(text: string): string[] {
  * are supplied per install, by whoever installs the entry.
  */
 export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerSheetProps) {
-	const { t } = useTranslation("mcp");
-	const { t: tc } = useTranslation("common");
 	const [createEntry, { isLoading }] = useCreateMCPLibraryEntryMutation();
 
 	// Token exchange is backed by the deployment's identity-provider
 	// integration, so the option only renders when one is enabled, same gate
 	// as the create-server sheet.
-	const { data: scimProviders } = useGetSCIMProvidersQuery(undefined, { skip: !IS_ENTERPRISE });
+	const hasUserProvisioningAccess = useRbac(RbacResource.UserProvisioning, RbacOperation.View);
+	const { data: scimProviders } = useGetSCIMProvidersQuery(undefined, { skip: !IS_ENTERPRISE || !hasUserProvisioningAccess });
 	const idpConfigured = !!scimProviders?.find((p) => (p as { enabled?: boolean }).enabled);
 
 	const methods = useForm<MCPLibraryAddServerFormData>({ defaultValues: DEFAULTS });
@@ -151,7 +150,7 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 
 		try {
 			await createEntry(payload).unwrap();
-			toast.success(t("library.add.addedToast"));
+			toast.success("Server added to the library.");
 			onClose();
 		} catch (error) {
 			toast.error(getErrorMessage(error));
@@ -162,8 +161,10 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 		<Sheet open={open} onOpenChange={(sheetOpen) => !sheetOpen && onClose()}>
 			<SheetContent className="flex w-full flex-col gap-4 overflow-x-hidden p-0 pt-4">
 				<SheetHeader className="flex flex-col items-start px-0 py-4" headerClassName="mb-0 sticky px-4 md:px-8 -top-4 bg-card z-10">
-					<SheetTitle>{t("library.add.title")}</SheetTitle>
-					<SheetDescription>{t("library.add.description")}</SheetDescription>
+					<SheetTitle>Publish Server to Library</SheetTitle>
+					<SheetDescription>
+						Add a reusable server listing that members can discover and install. Nothing connects to Bifrost until someone installs it.
+					</SheetDescription>
 				</SheetHeader>
 
 				<Form {...methods}>
@@ -172,26 +173,30 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 							<div className="rounded-lg border border-blue-200 bg-blue-50 p-3" data-testid="mcp-add-listing-notice">
 								<div className="flex items-start gap-2">
 									<Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-700" />
-									<p className="text-xs text-blue-900">{t("library.add.notice")}</p>
+									<p className="text-xs text-blue-900">
+										This listing stays in your organization&apos;s library. It is not published to the global Bifrost MCP catalog. It is
+										also a catalog entry, not a live MCP connection: credentials are never stored on the listing, each person who installs
+										it supplies their own.
+									</p>
 								</div>
 							</div>
 
 							{/* Listing details */}
 							<div className="space-y-4">
-								<SectionHeader title={t("library.add.listingDetails")} description={t("library.add.listingDetailsDesc")} />
+								<SectionHeader title="Listing Details" description="How this server appears to members browsing the library." />
 								<div className="space-y-4 rounded-md border p-4">
 									<FormField
 										control={control}
 										name="name"
 										rules={{
-											required: t("library.add.nameRequired"),
-											validate: (v) => v.trim().length > 0 || t("library.add.nameRequired"),
+											required: "Name is required",
+											validate: (v) => v.trim().length > 0 || "Name is required",
 										}}
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>{t("common.name")}</FormLabel>
+												<FormLabel>Name</FormLabel>
 												<FormControl>
-													<Input {...field} placeholder={t("library.add.namePlaceholder")} data-testid="mcp-add-name-input" />
+													<Input {...field} placeholder="My Internal Server" data-testid="mcp-add-name-input" />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -202,13 +207,9 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 										name="description"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>{t("library.add.descriptionLabel")}</FormLabel>
+												<FormLabel>Description</FormLabel>
 												<FormControl>
-													<Textarea
-														{...field}
-														placeholder={t("library.add.descriptionPlaceholder")}
-														data-testid="mcp-add-description-input"
-													/>
+													<Textarea {...field} placeholder="What this server does..." data-testid="mcp-add-description-input" />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -221,14 +222,14 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 
 							{/* Connection */}
 							<div className="space-y-4">
-								<SectionHeader title={t("library.add.connection")} description={t("library.add.connectionDesc")} />
+								<SectionHeader title="Connection" description="How Bifrost will reach this server once a member installs the listing." />
 								<div className="space-y-4 rounded-md border p-4">
 									<FormField
 										control={control}
 										name="connection_type"
 										render={({ field }) => (
 											<FormItem className="w-full">
-												<FormLabel>{t("registry.columns.connectionType")}</FormLabel>
+												<FormLabel>Connection Type</FormLabel>
 												<Select
 													value={field.value}
 													onValueChange={(value: MCPConnectionType) => {
@@ -244,9 +245,9 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 														</SelectTrigger>
 													</FormControl>
 													<SelectContent>
-														<SelectItem value="http">{t("registry.form.httpStreamable")}</SelectItem>
-														<SelectItem value="sse">{t("registry.form.sseLabel")}</SelectItem>
-														<SelectItem value="stdio">{t("registry.form.stdioLabel")}</SelectItem>
+														<SelectItem value="http">HTTP (Streamable)</SelectItem>
+														<SelectItem value="sse">Server-Sent Events (SSE)</SelectItem>
+														<SelectItem value="stdio">STDIO</SelectItem>
 													</SelectContent>
 												</Select>
 												<FormMessage />
@@ -259,13 +260,13 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 											control={control}
 											name="connection_url"
 											rules={{
-												validate: (v) => isStdio || v.trim().length > 0 || t("registry.form.connectionUrlRequired"),
+												validate: (v) => isStdio || v.trim().length > 0 || "Connection URL is required",
 											}}
 											render={({ field }) => (
 												<FormItem>
-													<FormLabel>{t("registry.form.connectionUrl")}</FormLabel>
+													<FormLabel>Connection URL</FormLabel>
 													<FormControl>
-														<Input {...field} placeholder={t("library.add.urlPlaceholder")} data-testid="mcp-add-url-input" />
+														<Input {...field} placeholder="https://my-server.internal/mcp" data-testid="mcp-add-url-input" />
 													</FormControl>
 													<FormMessage />
 												</FormItem>
@@ -280,13 +281,13 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 												control={control}
 												name="command"
 												rules={{
-													validate: (v) => !isStdio || v.trim().length > 0 || t("library.add.commandRequiredStdio"),
+													validate: (v) => !isStdio || v.trim().length > 0 || "Command is required for stdio",
 												}}
 												render={({ field }) => (
 													<FormItem>
-														<FormLabel>{t("common.command")}</FormLabel>
+														<FormLabel>Command</FormLabel>
 														<FormControl>
-															<Input {...field} placeholder={t("library.add.commandPlaceholder")} data-testid="mcp-add-command-input" />
+															<Input {...field} placeholder="npx" data-testid="mcp-add-command-input" />
 														</FormControl>
 														<FormMessage />
 													</FormItem>
@@ -297,9 +298,9 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 												name="args"
 												render={({ field }) => (
 													<FormItem>
-														<FormLabel>{t("registry.form.argsComma")}</FormLabel>
+														<FormLabel>Arguments (comma-separated)</FormLabel>
 														<FormControl>
-															<Input {...field} placeholder={t("library.add.argsPlaceholder")} data-testid="mcp-add-args-input" />
+															<Input {...field} placeholder="-y, my-package" data-testid="mcp-add-args-input" />
 														</FormControl>
 														<FormMessage />
 													</FormItem>
@@ -310,11 +311,11 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 												name="envs"
 												render={({ field }) => (
 													<FormItem>
-														<FormLabel>{t("library.add.envNames")}</FormLabel>
+														<FormLabel>Environment Variable Names (comma-separated)</FormLabel>
 														<FormControl>
-															<Input {...field} placeholder={t("library.add.envNamesPlaceholder")} data-testid="mcp-add-envs-input" />
+															<Input {...field} placeholder="API_KEY, DB_URL" data-testid="mcp-add-envs-input" />
 														</FormControl>
-														<p className="text-muted-foreground text-xs">{t("library.add.namesOnly")}</p>
+														<p className="text-muted-foreground text-xs">Names only; whoever installs the listing supplies the values.</p>
 														<FormMessage />
 													</FormItem>
 												)}
@@ -330,10 +331,13 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 
 									{/* Authentication */}
 									<div className="space-y-4">
-										<SectionHeader title={t("library.add.authentication")} description={t("library.add.authenticationDesc")} />
+										<SectionHeader
+											title="Authentication"
+											description="The scheme this server expects. It prefills the install form; no secrets are stored on the listing."
+										/>
 										<div className="space-y-4 rounded-md border p-4">
 											<FormItem className="w-full">
-												<FormLabel>{t("registry.form.authenticationType")}</FormLabel>
+												<FormLabel>Authentication Type</FormLabel>
 												<Select value={authKind} onValueChange={(value: MCPAuthKind) => applyAuthKind(value)}>
 													<FormControl>
 														<SelectTrigger className="w-full" data-testid="mcp-add-auth-type">
@@ -341,11 +345,11 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 														</SelectTrigger>
 													</FormControl>
 													<SelectContent>
-														<SelectItem value="none">{t("registry.filter.none")}</SelectItem>
-														<SelectItem value="headers">{t("registry.filter.headers")}</SelectItem>
-														<SelectItem value="oauth">{t("registry.form.oauth20")}</SelectItem>
+														<SelectItem value="none">None</SelectItem>
+														<SelectItem value="headers">Headers</SelectItem>
+														<SelectItem value="oauth">OAuth 2.0</SelectItem>
 														{IS_ENTERPRISE && idpConfigured && (
-															<SelectItem value="token_exchange">{t("registry.form.tokenExchangeObo")}</SelectItem>
+															<SelectItem value="token_exchange">Token Exchange (On-Behalf-Of)</SelectItem>
 														)}
 													</SelectContent>
 												</Select>
@@ -353,7 +357,7 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 
 											{authKind !== "none" && authKind !== "token_exchange" && (
 												<FormItem className="w-full">
-													<FormLabel>{t("registry.columns.authScope")}</FormLabel>
+													<FormLabel>Auth Scope</FormLabel>
 													<Select value={authScope} onValueChange={(value: MCPAuthScope) => applyAuthScope(value)}>
 														<FormControl>
 															<SelectTrigger className="w-full" data-testid="mcp-add-auth-scope">
@@ -361,8 +365,8 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 															</SelectTrigger>
 														</FormControl>
 														<SelectContent>
-															<SelectItem value="shared">{t("registry.form.shared")}</SelectItem>
-															<SelectItem value="per_user">{t("registry.form.perUser")}</SelectItem>
+															<SelectItem value="shared">Shared</SelectItem>
+															<SelectItem value="per_user">Per-User</SelectItem>
 														</SelectContent>
 													</Select>
 												</FormItem>
@@ -374,15 +378,11 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 													name="required_header_keys"
 													render={({ field }) => (
 														<FormItem>
-															<FormLabel>{t("library.add.requiredHeaderNames")}</FormLabel>
+															<FormLabel>Required Header Names (comma-separated)</FormLabel>
 															<FormControl>
-																<Input
-																	{...field}
-																	placeholder={t("library.add.headerNamesPlaceholder")}
-																	data-testid="mcp-add-header-keys-input"
-																/>
+																<Input {...field} placeholder="X-Api-Key, X-Tenant-ID" data-testid="mcp-add-header-keys-input" />
 															</FormControl>
-															<p className="text-muted-foreground text-xs">{t("library.add.namesOnly")}</p>
+															<p className="text-muted-foreground text-xs">Names only; whoever installs the listing supplies the values.</p>
 															<FormMessage />
 														</FormItem>
 													)}
@@ -397,7 +397,7 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 
 							{/* Catalog metadata */}
 							<div className="space-y-4">
-								<SectionHeader title={t("library.add.discovery")} description={t("library.add.discoveryDesc")} />
+								<SectionHeader title="Discovery" description="Optional metadata used to browse, filter, and attribute this listing." />
 								<div className="space-y-4 rounded-md border p-4">
 									<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 										<FormField
@@ -405,9 +405,9 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 											name="category"
 											render={({ field }) => (
 												<FormItem>
-													<FormLabel>{t("library.filter.category")}</FormLabel>
+													<FormLabel>Category</FormLabel>
 													<FormControl>
-														<Input {...field} placeholder={t("library.add.categoryPlaceholder")} data-testid="mcp-add-category-input" />
+														<Input {...field} placeholder="e.g. Database" data-testid="mcp-add-category-input" />
 													</FormControl>
 													<FormMessage />
 												</FormItem>
@@ -418,9 +418,9 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 											name="publisher"
 											render={({ field }) => (
 												<FormItem>
-													<FormLabel>{t("library.add.publisher")}</FormLabel>
+													<FormLabel>Publisher</FormLabel>
 													<FormControl>
-														<Input {...field} placeholder={t("library.add.publisherPlaceholder")} data-testid="mcp-add-publisher-input" />
+														<Input {...field} placeholder="e.g. Platform Team" data-testid="mcp-add-publisher-input" />
 													</FormControl>
 													<FormMessage />
 												</FormItem>
@@ -432,9 +432,9 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 										name="tags"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>{t("library.add.tagsComma")}</FormLabel>
+												<FormLabel>Tags (comma-separated)</FormLabel>
 												<FormControl>
-													<Input {...field} placeholder={t("library.add.tagsPlaceholder")} data-testid="mcp-add-tags-input" />
+													<Input {...field} placeholder="internal, database" data-testid="mcp-add-tags-input" />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -446,9 +446,9 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 											name="icon_url"
 											render={({ field }) => (
 												<FormItem>
-													<FormLabel>{t("library.add.iconUrl")}</FormLabel>
+													<FormLabel>Icon URL</FormLabel>
 													<FormControl>
-														<Input {...field} placeholder={t("library.add.urlGenericPlaceholder")} data-testid="mcp-add-icon-input" />
+														<Input {...field} placeholder="https://..." data-testid="mcp-add-icon-input" />
 													</FormControl>
 													<FormMessage />
 												</FormItem>
@@ -459,9 +459,9 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 											name="docs_url"
 											render={({ field }) => (
 												<FormItem>
-													<FormLabel>{t("library.add.docsUrl")}</FormLabel>
+													<FormLabel>Docs URL</FormLabel>
 													<FormControl>
-														<Input {...field} placeholder={t("library.add.urlGenericPlaceholder")} data-testid="mcp-add-docs-input" />
+														<Input {...field} placeholder="https://..." data-testid="mcp-add-docs-input" />
 													</FormControl>
 													<FormMessage />
 												</FormItem>
@@ -474,10 +474,10 @@ export function MCPLibraryAddServerSheet({ open, onClose }: MCPLibraryAddServerS
 
 						<div className="bg-card sticky bottom-0 z-10 flex justify-end gap-2 border-t px-4 py-4 md:px-8">
 							<Button type="button" variant="outline" onClick={onClose} disabled={isLoading} data-testid="mcp-add-cancel-btn">
-								{tc("cancel")}
+								Cancel
 							</Button>
 							<Button type="submit" disabled={isLoading} isLoading={isLoading} data-testid="mcp-add-submit-btn">
-								{t("library.addToLibrary")}
+								Add to Library
 							</Button>
 						</div>
 					</form>

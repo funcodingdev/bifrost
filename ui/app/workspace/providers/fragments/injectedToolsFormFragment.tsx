@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { MCPClientSelector } from "@/components/entitySelectors/mcpClientSelector";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -84,7 +83,6 @@ interface InjectedToolRowProps {
 }
 
 function InjectedToolRow({ form, index, lockPickers, onRemove }: InjectedToolRowProps) {
-	const { t: tCopy } = useTranslation();
 	const testId = `provider-tools-row-${index}`;
 	const name = form.watch(`tools.${index}.name`);
 	const clientId = form.watch(`tools.${index}.mcp_client_id`);
@@ -134,13 +132,13 @@ function InjectedToolRow({ form, index, lockPickers, onRemove }: InjectedToolRow
 									placeholder="web_search"
 									className="h-8 font-mono text-xs"
 									disabled={lockPickers}
-									aria-label={tCopy("ui.injectedToolsFormFragment.toolNameTheModelSees", { ns: "models" })}
+									aria-label="Tool name the model sees"
 									data-testid={`${testId}-name`}
 								/>
 							</FormControl>
 							{replacesNativeWebSearch(name) && (
 								<Badge variant="secondary" className="text-xs" data-testid={`${testId}-replaces-web-search`}>
-									{tCopy("ui.injectedToolsFormFragment.replacesNativeWebSearch", { ns: "models" })}
+									Replaces native web search
 								</Badge>
 							)}
 							<FormMessage />
@@ -173,25 +171,19 @@ function InjectedToolRow({ form, index, lockPickers, onRemove }: InjectedToolRow
 							</FormControl>
 							{savedClientStatus === "loading" && (
 								<p className="text-muted-foreground text-xs" data-testid={`${testId}-client-loading`}>
-									{tCopy("ui.injectedToolsFormFragment.loadingSavedMCPServer", { ns: "models" })}
-									{clientName}
-									{tCopy("ui.injectedToolsFormFragment.undefined", { ns: "models" })}
+									Loading saved MCP server &quot;{clientName}&quot;...
 								</p>
 							)}
 							{savedClientStatus === "missing" && (
 								<p className="text-destructive text-xs" data-testid={`${testId}-client-missing`}>
-									{tCopy("ui.injectedToolsFormFragment.theSavedMCPServer", { ns: "models" })}
-									{clientName}
-									{tCopy("ui.injectedToolsFormFragment.noLongerExistsPickAnotherOne", { ns: "models" })}
+									The saved MCP server &quot;{clientName}&quot; no longer exists. Pick another one.
 								</p>
 							)}
 							{savedClientStatus === "error" && (
 								<div className="text-destructive flex items-center gap-2 text-xs" data-testid={`${testId}-client-error`}>
-									{tCopy("ui.injectedToolsFormFragment.couldNotLoadTheSavedMCPServer", { ns: "models" })}
-									{clientName}
-									{tCopy("ui.injectedToolsFormFragment.undefined2", { ns: "models" })}
+									Could not load the saved MCP server &quot;{clientName}&quot;.
 									<Button type="button" variant="outline" size="sm" onClick={savedClient.retry} data-testid={`${testId}-client-retry`}>
-										{tCopy("modelCatalog.retry", { ns: "models" })}
+										Retry
 									</Button>
 								</div>
 							)}
@@ -231,7 +223,7 @@ function InjectedToolRow({ form, index, lockPickers, onRemove }: InjectedToolRow
 							</Select>
 							{menuState === "error" && (
 								<div className="text-destructive flex items-center gap-2 text-xs" data-testid={`${testId}-tool-error`}>
-									{tCopy("ui.injectedToolsFormFragment.couldNotLoadThisServerSTools", { ns: "models" })}
+									Could not load this server&apos;s tools.
 									<Button
 										type="button"
 										variant="outline"
@@ -239,7 +231,7 @@ function InjectedToolRow({ form, index, lockPickers, onRemove }: InjectedToolRow
 										onClick={() => toolsQuery.refetch()}
 										data-testid={`${testId}-tool-retry`}
 									>
-										{tCopy("modelCatalog.retry", { ns: "models" })}
+										Retry
 									</Button>
 								</div>
 							)}
@@ -256,11 +248,7 @@ function InjectedToolRow({ form, index, lockPickers, onRemove }: InjectedToolRow
 					className="h-8 w-8"
 					disabled={lockPickers}
 					onClick={onRemove}
-					aria-label={
-						name
-							? tCopy("providers.tools.removeNamed", { ns: "models", name: name })
-							: tCopy("ui.injectedToolsFormFragment.removeTool", { ns: "models" })
-					}
+					aria-label={name ? `Remove tool ${name}` : "Remove tool"}
 					data-testid={`${testId}-remove-btn`}
 				>
 					<Trash2 className="h-3.5 w-3.5" />
@@ -271,7 +259,6 @@ function InjectedToolRow({ form, index, lockPickers, onRemove }: InjectedToolRow
 }
 
 export function InjectedToolsFormFragment({ provider }: InjectedToolsFormFragmentProps) {
-	const { t: tCopy } = useTranslation();
 	const dispatch = useAppDispatch();
 	const hasUpdateProviderAccess = useRbac(RbacResource.ModelProvider, RbacOperation.Update);
 	const [updateProvider, { isLoading: isUpdatingProvider }] = useUpdateProviderMutation();
@@ -306,7 +293,7 @@ export function InjectedToolsFormFragment({ provider }: InjectedToolsFormFragmen
 				form.reset(data);
 			})
 			.catch((err) => {
-				toast.error(tCopy("ui.injectedToolsFormFragment.failedToUpdateTools", { ns: "models" }), { description: getErrorMessage(err) });
+				toast.error("Failed to update tools", { description: getErrorMessage(err) });
 			});
 	};
 
@@ -314,20 +301,20 @@ export function InjectedToolsFormFragment({ provider }: InjectedToolsFormFragmen
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(save)} className="space-y-4 px-4 md:px-6" data-testid="provider-config-tools-content">
 				<p className="text-muted-foreground text-xs">
-					{tCopy("ui.injectedToolsFormFragment.mCPToolsAddedToEveryChatAndResponsesRequest", { ns: "models" }) + " "}
-					<code className="font-mono">web_search</code>{" "}
-					{tCopy("ui.injectedToolsFormFragment.alsoReplacesNativeWebSearch", { ns: "models" })}
+					MCP tools added to every chat and responses request to this provider. Bifrost runs them itself when the model calls them and
+					returns only the final answer. The model sees each tool under its name. A name that matches a tool the client sends replaces that
+					tool, and the name <code className="font-mono">web_search</code> also replaces native web search.
 				</p>
 				{fields.length > 0 ? (
 					<div className="overflow-x-auto rounded-md border">
 						<table className="w-full text-sm" data-testid="provider-tools-table">
 							<thead>
 								<tr className="border-b">
-									<th className="px-3 py-2 text-left font-medium">{tCopy("providers.name", { ns: "models" })}</th>
-									<th className="px-3 py-2 text-left font-medium">{tCopy("entities.mcpServer", { ns: "common" })}</th>
-									<th className="px-3 py-2 text-left font-medium">{tCopy("promptRepo.roleTool", { ns: "config" })}</th>
+									<th className="px-3 py-2 text-left font-medium">Name</th>
+									<th className="px-3 py-2 text-left font-medium">MCP server</th>
+									<th className="px-3 py-2 text-left font-medium">Tool</th>
 									<th className="w-10 px-1 py-2">
-										<span className="sr-only">{tCopy("plugins.remove", { ns: "governance" })}</span>
+										<span className="sr-only">Remove</span>
 									</th>
 								</tr>
 							</thead>
@@ -343,7 +330,7 @@ export function InjectedToolsFormFragment({ provider }: InjectedToolsFormFragmen
 						className="text-muted-foreground rounded-md border border-dashed px-3 py-6 text-center text-xs"
 						data-testid="provider-tools-empty"
 					>
-						{tCopy("ui.injectedToolsFormFragment.noToolsAreInjectedForThisProvider", { ns: "models" })}
+						No tools are injected for this provider.
 					</p>
 				)}
 
@@ -357,7 +344,7 @@ export function InjectedToolsFormFragment({ provider }: InjectedToolsFormFragmen
 						data-testid="provider-tools-add-btn"
 					>
 						<Plus className="mr-1 h-3.5 w-3.5" />
-						{tCopy("ui.injectedToolsFormFragment.addTool", { ns: "models" })}
+						Add tool
 					</Button>
 					<Button
 						type="submit"
@@ -365,7 +352,7 @@ export function InjectedToolsFormFragment({ provider }: InjectedToolsFormFragmen
 						disabled={!form.formState.isDirty || !form.formState.isValid || !hasUpdateProviderAccess || isUpdatingProvider}
 						isLoading={isUpdatingProvider}
 					>
-						{tCopy("ui.injectedToolsFormFragment.saveTools", { ns: "models" })}
+						Save Tools
 					</Button>
 				</div>
 			</form>

@@ -1,5 +1,3 @@
-import i18nReview from "@/lib/i18n";
-import { useTranslation } from "react-i18next";
 import BlockHeader from "@/app/workspace/logs/views/blockHeader";
 import type { OverheadBucket } from "@/lib/types/logs";
 import { cn } from "@/lib/utils";
@@ -35,72 +33,17 @@ const OVERHEAD_SERIALIZATION_PHASES = new Set(["request-unmarshal", "request-mar
 
 // Top-level categories shown in the stacked bar + legend. Each has a distinct colour.
 const OVERHEAD_CATEGORY_META: Record<string, { label: string; colorClass: string }> = {
-	serialization: {
-		get label() {
-			return i18nReview.t("ui.overheadBreakdown.serialization", { ns: "observability" });
-		},
-		colorClass: "bg-indigo-500/70",
-	},
-	conversion: {
-		get label() {
-			return i18nReview.t("ui.overheadBreakdown.conversion", { ns: "observability" });
-		},
-		colorClass: "bg-fuchsia-500/70",
-	},
-	plugins: {
-		get label() {
-			return i18nReview.t("connectors.plugins", { ns: "observability" });
-		},
-		colorClass: "bg-blue-500/70",
-	},
-	middleware: {
-		get label() {
-			return i18nReview.t("ui.overheadBreakdown.middleware", { ns: "observability" });
-		},
-		colorClass: "bg-cyan-500/70",
-	},
-	routing: {
-		get label() {
-			return i18nReview.t("ui.overheadBreakdown.keySelection", { ns: "observability" });
-		},
-		colorClass: "bg-amber-500/70",
-	},
-	processing: {
-		get label() {
-			return i18nReview.t("logs.statuses.processing", { ns: "observability" });
-		},
-		colorClass: "bg-teal-500/70",
-	},
-	protocol_sdk: {
-		get label() {
-			return i18nReview.t("ui.overheadBreakdown.protocolLibrary", { ns: "observability" });
-		},
-		colorClass: "bg-orange-500/70",
-	},
-	networking: {
-		get label() {
-			return i18nReview.t("ui.overheadBreakdown.networking", { ns: "observability" });
-		},
-		colorClass: "bg-emerald-500/70",
-	},
-	streaming: {
-		get label() {
-			return i18nReview.t("ui.overheadBreakdown.clientDelivery", { ns: "observability" });
-		},
-		colorClass: "bg-red-500/70",
-	},
-	miscellaneous: {
-		get label() {
-			return i18nReview.t("ui.overheadBreakdown.miscellaneous", { ns: "observability" });
-		},
-		colorClass: "bg-slate-500/70",
-	},
-	other: {
-		get label() {
-			return i18nReview.t("labels.other", { ns: "observability" });
-		},
-		colorClass: "bg-muted-foreground/50",
-	},
+	serialization: { label: "Serialization", colorClass: "bg-indigo-500/70" },
+	conversion: { label: "Conversion", colorClass: "bg-fuchsia-500/70" },
+	plugins: { label: "Plugins", colorClass: "bg-blue-500/70" },
+	middleware: { label: "Middleware", colorClass: "bg-cyan-500/70" },
+	routing: { label: "Key selection", colorClass: "bg-amber-500/70" },
+	processing: { label: "Processing", colorClass: "bg-teal-500/70" },
+	protocol_sdk: { label: "Protocol library", colorClass: "bg-orange-500/70" },
+	networking: { label: "Networking", colorClass: "bg-emerald-500/70" },
+	streaming: { label: "Client delivery", colorClass: "bg-red-500/70" },
+	miscellaneous: { label: "Miscellaneous", colorClass: "bg-slate-500/70" },
+	other: { label: "Other", colorClass: "bg-muted-foreground/50" },
 };
 
 // Friendly drill-down labels for each raw bucket name (the technical span names the
@@ -108,85 +51,37 @@ const OVERHEAD_CATEGORY_META: Record<string, { label: string; colorClass: string
 // prefix stripped.
 const OVERHEAD_LABELS: Record<string, string> = {
 	// Serialization (JSON parse / encode)
-	get "request-unmarshal"() {
-		return i18nReview.t("ui.overheadBreakdown.requestParse", { ns: "observability" });
-	},
-	get "request-marshal"() {
-		return i18nReview.t("ui.overheadBreakdown.requestEncode", { ns: "observability" });
-	},
-	get "response-parse"() {
-		return i18nReview.t("ui.overheadBreakdown.responseParse", { ns: "observability" });
-	},
-	get "response-marshal"() {
-		return i18nReview.t("ui.overheadBreakdown.responseEncode", { ns: "observability" });
-	},
+	"request-unmarshal": "Request parse",
+	"request-marshal": "Request encode",
+	"response-parse": "Response parse",
+	"response-marshal": "Response encode",
 	// Conversion (API schema translation)
-	get convertor() {
-		return i18nReview.t("ui.overheadBreakdown.schemaConversion", { ns: "observability" });
-	},
-	get "convertor.stream-in"() {
-		return i18nReview.t("ui.overheadBreakdown.streamConvertInbound", { ns: "observability" });
-	},
-	get "convertor.stream-out"() {
-		return i18nReview.t("ui.overheadBreakdown.streamConvertOutbound", { ns: "observability" });
-	},
+	convertor: "Schema conversion",
+	"convertor.stream-in": "Stream convert (inbound)",
+	"convertor.stream-out": "Stream convert (outbound)",
 	// Middleware (auth / access control)
 	"middleware.apikeys": "API",
 	"middleware.scim": "SCIM",
-	get "middleware.auth"() {
-		return i18nReview.t("ui.overheadBreakdown.auth", { ns: "observability" });
-	},
+	"middleware.auth": "Auth",
 	// Routing
-	get "key-pool"() {
-		return i18nReview.t("ui.overheadBreakdown.keyPool", { ns: "observability" });
-	},
-	get "key.selection"() {
-		return i18nReview.t("ui.overheadBreakdown.keySelection", { ns: "observability" });
-	},
+	"key-pool": "Key pool",
+	"key.selection": "Key selection",
 	// Processing (internal request pipeline)
-	get "handle-setup"() {
-		return i18nReview.t("ui.overheadBreakdown.requestSetup", { ns: "observability" });
-	},
-	get "pipeline-pre"() {
-		return i18nReview.t("ui.overheadBreakdown.preHooks", { ns: "observability" });
-	},
-	get "pipeline-post"() {
-		return i18nReview.t("ui.overheadBreakdown.postHooks", { ns: "observability" });
-	},
-	get "worker-setup"() {
-		return i18nReview.t("ui.overheadBreakdown.workerSetup", { ns: "observability" });
-	},
-	get "worker-handoff"() {
-		return i18nReview.t("ui.overheadBreakdown.workerHandoff", { ns: "observability" });
-	},
-	get "queue-wait"() {
-		return i18nReview.t("ui.overheadBreakdown.queueWait", { ns: "observability" });
-	},
-	get "attribute-population"() {
-		return i18nReview.t("ui.overheadBreakdown.attributePopulation", { ns: "observability" });
-	},
-	get miscellaneous() {
-		return i18nReview.t("ui.overheadBreakdown.uncapturedGlue", { ns: "observability" });
-	},
+	"handle-setup": "Request setup",
+	"pipeline-pre": "Pre-hooks",
+	"pipeline-post": "Post-hooks",
+	"worker-setup": "Worker setup",
+	"worker-handoff": "Worker handoff",
+	"queue-wait": "Queue wait",
+	"attribute-population": "Attribute population",
+	miscellaneous: "Uncaptured glue",
 	// Networking (client<->gateway<->provider handling)
-	get "provider-internal"() {
-		return i18nReview.t("ui.overheadBreakdown.providerProcessing", { ns: "observability" });
-	},
-	get "transport-context"() {
-		return i18nReview.t("ui.overheadBreakdown.requestContextBuilding", { ns: "observability" });
-	},
-	get "transport-response-headers"() {
-		return i18nReview.t("ui.overheadBreakdown.responseHeaders", { ns: "observability" });
-	},
-	get "response-finalize"() {
-		return i18nReview.t("ui.overheadBreakdown.responseRead", { ns: "observability" });
-	},
-	get "request-sign"() {
-		return i18nReview.t("ui.overheadBreakdown.requestSigning", { ns: "observability" });
-	},
-	get "credentials-fetch"() {
-		return i18nReview.t("ui.overheadBreakdown.credentialFetch", { ns: "observability" });
-	},
+	"provider-internal": "Provider processing",
+	"transport-context": "Request context building",
+	"transport-response-headers": "Response headers",
+	"response-finalize": "Response read",
+	"request-sign": "Request signing",
+	"credentials-fetch": "Credential fetch",
 	// Streaming relay
 	"stream-backpressure": "Client backpressure",
 	"stream-client-write": "Client write",
@@ -352,7 +247,6 @@ function buildOverheadCategories(buckets: OverheadBucket[]): OverheadCategory[] 
 // overhead number. "View details" expands every category into its individual members
 // so a specific phase or plugin can be inspected.
 export function OverheadBreakdown({ buckets, overheadMs }: { buckets: OverheadBucket[]; overheadMs?: number }) {
-	const { t: tCopy } = useTranslation();
 	const [showDetails, setShowDetails] = useState(false);
 	if (!buckets || buckets.length === 0) return null;
 
@@ -371,7 +265,7 @@ export function OverheadBreakdown({ buckets, overheadMs }: { buckets: OverheadBu
 	return (
 		<div className="space-y-3">
 			<div className="flex items-center justify-between gap-2">
-				<BlockHeader title={tCopy("logs.detail.overheadBreakdown", { ns: "observability" })} />
+				<BlockHeader title="Overhead Breakdown" />
 				<div className="font-mono text-xs tabular-nums">{formatMicros(overheadUs ?? sumUs)}</div>
 			</div>
 
@@ -402,7 +296,7 @@ export function OverheadBreakdown({ buckets, overheadMs }: { buckets: OverheadBu
 					onClick={() => setShowDetails((v) => !v)}
 					className="text-muted-foreground hover:text-foreground flex items-center gap-1 font-mono text-[11px] transition"
 				>
-					{tCopy("logs.detail.viewDetails", { ns: "observability" })}
+					View details
 					<ChevronDown className={cn("h-3 w-3 transition-transform", showDetails ? "rotate-180" : "rotate-0")} />
 				</button>
 			) : null}
@@ -434,11 +328,8 @@ export function OverheadBreakdown({ buckets, overheadMs }: { buckets: OverheadBu
 
 			{overCounted ? (
 				<div className="text-muted-foreground text-[11px]">
-					{tCopy("ui.overheadBreakdown.measuredSpans", { ns: "observability" })}
-					{formatMicros(sumUs)}
-					{tCopy("ui.overheadBreakdown.exceedTheComputedOverhead", { ns: "observability" })}
-					{formatMicros(overheadUs!)}
-					{tCopy("ui.overheadBreakdown.theUpstreamAccumulatorMayBeOverCounting", { ns: "observability" })}
+					Measured spans ({formatMicros(sumUs)}) exceed the computed overhead ({formatMicros(overheadUs!)}); the upstream accumulator may be
+					over-counting.
 				</div>
 			) : null}
 		</div>

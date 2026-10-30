@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { ExternalLink, X } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { AsyncMultiSelect } from "./asyncMultiselect";
@@ -46,7 +45,6 @@ export function MCPServerSelector({
 	className,
 	registryPath = "/workspace/mcp-registry",
 }: MCPServerSelectorProps) {
-	const { t: tCopy } = useTranslation();
 	// Create options from MCP clients using meta for complex data
 	const allServerOptions = useMemo((): Option<ServerOptionMeta>[] => {
 		return mcpClients.map((client) => ({
@@ -152,7 +150,7 @@ export function MCPServerSelector({
 				closeMenuOnSelect={true}
 				hideSelectedOptions={true}
 				controlShouldRenderValue={false}
-				noOptionsMessage={() => tCopy("ui.mcpServerSelector.noMCPServersFound", { ns: "common" })}
+				noOptionsMessage={() => "No MCP servers found"}
 				views={{
 					option: (props) => {
 						// Access data as Option<ServerOptionMeta> since that's the actual runtime type
@@ -176,9 +174,7 @@ export function MCPServerSelector({
 										</Badge>
 									)}
 								</div>
-								<span className="text-content-tertiary text-xs">
-									{data.meta?.toolCount} {tCopy("ui.mcpServerSelector.tools", { ns: "common" })}
-								</span>
+								<span className="text-content-tertiary text-xs">{data.meta?.toolCount} tools</span>
 							</div>
 						);
 					},
@@ -202,9 +198,7 @@ export function MCPServerSelector({
 										{server.state}
 									</Badge>
 								)}
-								<span className="text-muted-foreground text-xs">
-									{server.toolCount} {tCopy("ui.mcpServerSelector.tools", { ns: "common" })}
-								</span>
+								<span className="text-muted-foreground text-xs">{server.toolCount} tools</span>
 							</div>
 							<div className="flex items-center gap-1">
 								<Button type="button" variant="ghost" size="sm" className="h-8 w-8 p-0" asChild>
@@ -212,7 +206,7 @@ export function MCPServerSelector({
 										href={`${registryPath}?server=${server.clientId}`}
 										target="_blank"
 										rel="noopener noreferrer"
-										title={tCopy("ui.mcpServerSelector.openServerDetailsInNewTab", { ns: "common" })}
+										title="Open server details in new tab"
 									>
 										<ExternalLink className="h-4 w-4" />
 									</a>
@@ -236,7 +230,7 @@ export function MCPServerSelector({
 			{/* Empty state */}
 			{selectedServersWithInfo.length === 0 && (
 				<div className="text-muted-foreground rounded-md border border-dashed p-4 text-center text-sm">
-					{tCopy("ui.mcpServerSelector.noServersSelectedUseTheSearchAboveToAdd", { ns: "common" })}
+					No servers selected. Use the search above to add MCP servers.
 				</div>
 			)}
 		</div>

@@ -1,11 +1,9 @@
-import { useTranslation } from "react-i18next";
 import { TRIAL_EXPIRY } from "@/lib/constants/config";
 import { cn } from "@/lib/utils";
 import { differenceInDays } from "date-fns";
 import { AlertTriangle } from "lucide-react";
 
 export default function TrialExpiryBanner() {
-	const { t: tCopy } = useTranslation();
 	if (!TRIAL_EXPIRY) return null;
 
 	const daysRemaining = differenceInDays(TRIAL_EXPIRY, new Date());
@@ -28,22 +26,19 @@ export default function TrialExpiryBanner() {
 			<AlertTriangle className="h-3.5 w-3.5" strokeWidth={2} />
 			{expired ? (
 				<span>
-					{tCopy("ui.trialExpiryBanner.yourBifrostEnterpriseTrialHasExpired", { ns: "common" })}{" "}
+					Your Bifrost Enterprise Trial has expired.{" "}
 					<a href={supportHref} className="font-semibold underline underline-offset-2">
-						{tCopy("ui.trialExpiryBanner.contactUs", { ns: "common" })}
+						Contact us
 					</a>{" "}
-					{tCopy("ui.trialExpiryBanner.ifYouNeedAnyAssistance", { ns: "common" })}
+					if you need any assistance.
 				</span>
 			) : (
 				<span>
-					{tCopy("ui.trialExpiryBanner.yourBifrostEnterpriseTrialExpiresIn", { ns: "common" }) + " "}
-					{daysRemaining}{" "}
-					{daysRemaining === 1 ? tCopy("ui.trialExpiryBanner.day", { ns: "common" }) : tCopy("ui.trialExpiryBanner.days", { ns: "common" })}
-					.{" "}
+					Your Bifrost Enterprise Trial expires in {daysRemaining} {daysRemaining === 1 ? "day" : "days"}.{" "}
 					<a href={supportHref} className="font-semibold underline underline-offset-2">
-						{tCopy("ui.trialExpiryBanner.contactUs", { ns: "common" })}
+						Contact us
 					</a>{" "}
-					{tCopy("ui.trialExpiryBanner.ifYouNeedAnyAssistance", { ns: "common" })}
+					if you need any assistance.
 				</span>
 			)}
 		</div>

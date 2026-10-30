@@ -12,7 +12,6 @@ import { Label } from "@/components/ui/label";
 import type { DBKey, VirtualKey } from "@/lib/types/governance";
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 
 export function ApiKeySelectorView({
 	providerKeys,
@@ -36,21 +35,17 @@ export function ApiKeySelectorView({
 	onSearchChange?: (search: string) => void;
 	isSearching?: boolean;
 }) {
-	const { t } = useTranslation("config");
 	const [query, setQuery] = useState("");
 
 	// Provider keys are already in memory, so they filter here. Virtual keys
 	// arrive from the server pre-narrowed by the same query.
 	const apiKeyOptions = useMemo(() => {
 		if (requireVirtualKey) return [];
-		const opts = [
-			{ label: t("promptRepo.autoDefault"), value: "__auto__" },
-			...providerKeys.map((k) => ({ label: k.name, value: k.key_id })),
-		];
+		const opts = [{ label: "Auto (default)", value: "__auto__" }, ...providerKeys.map((k) => ({ label: k.name, value: k.key_id }))];
 		if (!query) return opts;
 		const q = query.toLowerCase();
 		return opts.filter((o) => o.label.toLowerCase().includes(q));
-	}, [providerKeys, requireVirtualKey, query, t]);
+	}, [providerKeys, requireVirtualKey, query]);
 
 	const virtualKeyOptions = useMemo(() => virtualKeys.map((vk) => ({ label: vk.name, value: vk.value })), [virtualKeys]);
 
@@ -73,7 +68,7 @@ export function ApiKeySelectorView({
 	const getLabel = useCallback(
 		(val: string | null) => {
 			if (!val) return "";
-			if (val === "__auto__") return requireVirtualKey ? "" : t("promptRepo.autoDefault");
+			if (val === "__auto__") return requireVirtualKey ? "" : "Auto (default)";
 			const providerKey = providerKeys.find((k) => k.key_id === val);
 			if (providerKey) return providerKey.name;
 			const virtualKey = virtualKeys.find((vk) => vk.value === val);
@@ -81,7 +76,7 @@ export function ApiKeySelectorView({
 			// Never fall back to `val` — for a virtual key that is the secret itself.
 			return labelCacheRef.current.get(val) ?? "";
 		},
-		[providerKeys, virtualKeys, requireVirtualKey, t],
+		[providerKeys, virtualKeys, requireVirtualKey],
 	);
 
 	const hasResults = apiKeyOptions.length > 0 || virtualKeyOptions.length > 0;
@@ -89,7 +84,7 @@ export function ApiKeySelectorView({
 	return (
 		<div className="flex flex-col gap-2">
 			<Label className="text-muted-foreground text-xs font-medium uppercase">
-				{requireVirtualKey ? t("promptRepo.virtualKey") : t("promptRepo.virtualKeyOrApiKey")}
+				{requireVirtualKey ? "Virtual key" : "Virtual key / API Key"}
 			</Label>
 			<Combobox
 				value={value}
@@ -102,7 +97,7 @@ export function ApiKeySelectorView({
 				itemToStringLabel={getLabel}
 			>
 				<ComboboxInput
-					placeholder={placeholder ?? (requireVirtualKey ? t("promptRepo.selectVirtualKey") : t("promptRepo.selectApiKey"))}
+					placeholder={placeholder ?? (requireVirtualKey ? "Select virtual key" : "Select API key")}
 					showClear={Boolean(value) && value !== "__auto__"}
 					showTrigger
 					disabled={disabled}
@@ -112,7 +107,7 @@ export function ApiKeySelectorView({
 					<ComboboxList>
 						{apiKeyOptions.length > 0 && (
 							<ComboboxGroup>
-								<ComboboxLabel>{t("promptRepo.apiKeys")}</ComboboxLabel>
+								<ComboboxLabel>API Keys</ComboboxLabel>
 								{apiKeyOptions.map((o) => (
 									<ComboboxItem key={o.value} value={o.value}>
 										{o.label}
@@ -123,7 +118,7 @@ export function ApiKeySelectorView({
 						{apiKeyOptions.length > 0 && virtualKeyOptions.length > 0 && <ComboboxSeparator />}
 						{virtualKeyOptions.length > 0 && (
 							<ComboboxGroup>
-								<ComboboxLabel>{t("promptRepo.virtualKeys")}</ComboboxLabel>
+								<ComboboxLabel>Virtual Keys</ComboboxLabel>
 								{virtualKeyOptions.map((o) => (
 									<ComboboxItem key={o.value} value={o.value}>
 										{o.label}
@@ -134,12 +129,10 @@ export function ApiKeySelectorView({
 						{isSearching && !hasResults && (
 							<div className="text-muted-foreground flex items-center justify-center gap-2 py-6 text-sm">
 								<Loader2 className="size-4 animate-spin" />
-								{t("promptRepo.searchingDots")}
+								Searching...
 							</div>
 						)}
-						{!isSearching && !hasResults && (
-							<div className="text-muted-foreground py-6 text-center text-sm">{t("promptRepo.noResultsFoundDot")}</div>
-						)}
+						{!isSearching && !hasResults && <div className="text-muted-foreground py-6 text-center text-sm">No results found.</div>}
 					</ComboboxList>
 				</ComboboxContent>
 			</Combobox>

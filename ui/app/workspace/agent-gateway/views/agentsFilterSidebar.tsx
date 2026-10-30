@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { FilterSidebarTrigger } from "@/components/filters/filterSidebarTrigger";
 import { CheckboxFilterItem, FilterSection, SearchableCheckboxList, useAutoFocusOnOpen } from "@/components/filters/primitives";
 import { Button } from "@/components/ui/button";
@@ -34,16 +33,16 @@ interface FilterOption {
 }
 
 const STATUS_OPTIONS: FilterOption[] = [
-	{ value: "true", label: "filters.enabled" },
-	{ value: "false", label: "filters.disabled" },
+	{ value: "true", label: "Enabled" },
+	{ value: "false", label: "Disabled" },
 ];
 
 // Upstream auth is derived from which credentials a registration carries:
 // discovery_auth is sent when fetching the card, runtime_auth on proxied calls.
 const UPSTREAM_AUTH_OPTIONS: FilterOption[] = [
-	{ value: "discovery", label: "filters.discovery" },
-	{ value: "runtime", label: "filters.runtime" },
-	{ value: "none", label: "filters.none" },
+	{ value: "discovery", label: "Discovery" },
+	{ value: "runtime", label: "Runtime" },
+	{ value: "none", label: "None" },
 ];
 
 // Reserved key for the pinned "Allowed by default" row, namespaced so it can
@@ -56,15 +55,6 @@ interface SidebarProps {
 }
 
 export function AgentsFilterSidebar({ filters, onFiltersChange }: SidebarProps) {
-	const { t: tCopy } = useTranslation();
-	const statusOptions = useMemo(
-		() => STATUS_OPTIONS.map((option) => ({ ...option, label: tCopy(option.label, { ns: "agents" }) })),
-		[tCopy],
-	);
-	const authOptions = useMemo(
-		() => UPSTREAM_AUTH_OPTIONS.map((option) => ({ ...option, label: tCopy(option.label, { ns: "agents" }) })),
-		[tCopy],
-	);
 	const isMobile = useIsMobile();
 	const [collapsed, setCollapsed] = useState(false);
 
@@ -89,22 +79,24 @@ export function AgentsFilterSidebar({ filters, onFiltersChange }: SidebarProps) 
 	}, []);
 
 	const activeFilterCount = useMemo(
-		() => filters.status.length + filters.upstream_auth.length + filters.virtual_keys.length + (filters.only_allowed_by_default ? 1 : 0),
+		() =>
+			filters.status.length +
+			filters.upstream_auth.length +
+			filters.virtual_keys.length +
+			(filters.only_allowed_by_default ? 1 : 0),
 		[filters],
 	);
 
 	const handleReset = useCallback(() => onFiltersChange(EMPTY_AGENT_FILTERS), [onFiltersChange]);
 
 	if (collapsed) {
-		return (
-			<FilterSidebarTrigger activeFilterCount={activeFilterCount} onClick={toggleCollapsed} testId="agentsFilterSidebar-toggle-show" />
-		);
+		return <FilterSidebarTrigger activeFilterCount={activeFilterCount} onClick={toggleCollapsed} testId="agentsFilterSidebar-toggle-show" />;
 	}
 
 	return (
 		<div className="bg-card fixed inset-y-2 left-2 z-40 flex h-auto w-[calc(100vw-1rem)] max-w-72 shrink-0 flex-col rounded-md border shadow-xl md:static md:h-full md:w-64 md:max-w-none md:rounded-md md:shadow-none">
 			<div className="flex h-11 items-center justify-between border-b pr-2 pl-5">
-				<span className="text-sm font-semibold">{tCopy("filters.filters", { ns: "governance" })}</span>
+				<span className="text-sm font-semibold">Filters</span>
 				<div className="flex items-center gap-1">
 					{activeFilterCount > 0 && (
 						<Button
@@ -115,7 +107,7 @@ export function AgentsFilterSidebar({ filters, onFiltersChange }: SidebarProps) 
 							data-testid="agentsFilterSidebar-reset-button"
 						>
 							<RotateCcw className="size-3" />
-							{tCopy("plugins.reset", { ns: "governance" })}
+							Reset
 						</Button>
 					)}
 					<Button
@@ -123,8 +115,8 @@ export function AgentsFilterSidebar({ filters, onFiltersChange }: SidebarProps) 
 						size="icon"
 						className="size-7"
 						onClick={toggleCollapsed}
-						title={tCopy("filters.hideFilters", { ns: "governance" })}
-						aria-label={tCopy("filters.hideFilters", { ns: "governance" })}
+						title="Hide filters"
+						aria-label="Hide filters"
 						data-testid="agentsFilterSidebar-toggle-hide"
 					>
 						<PanelLeftClose className="size-4" />
@@ -135,16 +127,16 @@ export function AgentsFilterSidebar({ filters, onFiltersChange }: SidebarProps) 
 			<ScrollArea className="flex flex-1 overflow-y-auto p-2 pb-0" viewportClassName="no-table">
 				<div className="flex grow flex-col gap-1">
 					<CheckboxFilterSection
-						title={tCopy("webhooks.details.status", { ns: "governance" })}
-						options={statusOptions}
+						title="Status"
+						options={STATUS_OPTIONS}
 						selected={filters.status}
 						defaultOpen
 						onChange={(status) => onFiltersChange({ ...filters, status })}
 						testIdPrefix="agents-filter-status"
 					/>
 					<CheckboxFilterSection
-						title={tCopy("ui.agentsFilterSidebar.upstreamAuth", { ns: "agents" })}
-						options={authOptions}
+						title="Upstream Auth"
+						options={UPSTREAM_AUTH_OPTIONS}
 						selected={filters.upstream_auth}
 						onChange={(upstream_auth) => onFiltersChange({ ...filters, upstream_auth })}
 						testIdPrefix="agents-filter-upstream-auth"
@@ -199,7 +191,6 @@ function CheckboxFilterSection({
 // together — an agent matches if it is allowed by default or granted one of the
 // selected keys.
 function VKAccessFilterSection({ filters, onFiltersChange }: SidebarProps) {
-	const { t: tCopy } = useTranslation();
 	const hasActive = filters.only_allowed_by_default || filters.virtual_keys.length > 0;
 	const [opened, setOpened] = useState(hasActive);
 	const [searchQuery, setSearchQuery] = useState("");
@@ -224,21 +215,16 @@ function VKAccessFilterSection({ filters, onFiltersChange }: SidebarProps) {
 	};
 
 	return (
-		<FilterSection
-			title={tCopy("registry.columns.vkAccess", { ns: "mcp" })}
-			defaultOpen={hasActive}
-			onOpenChange={setOpened}
-			testId="agents-filter-vk-access-toggle"
-		>
+		<FilterSection title="Access" defaultOpen={hasActive} onOpenChange={setOpened} testId="agents-filter-vk-access-toggle">
 			<CheckboxFilterItem
-				label={tCopy("registry.filter.allowedByDefault", { ns: "mcp" })}
+				label="Allowed by default"
 				checked={filters.only_allowed_by_default}
 				onCheckedChange={() => toggle(ALLOWED_BY_DEFAULT_KEY)}
 				testId={`agents-filter-vk-checkbox-${ALLOWED_BY_DEFAULT_KEY}`}
 			/>
 			<SearchableCheckboxList
 				inputRef={searchInputRef}
-				placeholder={tCopy("filters.searchVirtualKeys", { ns: "governance" })}
+				placeholder="Search virtual keys"
 				items={virtualKeys.map((vk) => ({ key: vk.id, label: vk.name }))}
 				isSelected={isSelected}
 				onToggle={toggle}

@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { attemptSequence, DeliveryGroup } from "@/app/workspace/webhooks/views/deliveries.utils";
 import {
 	buildPinStyle,
@@ -66,7 +65,6 @@ export function DeliveriesTable({
 	onTogglePin,
 	onReorderColumns,
 }: DeliveriesTableProps) {
-	const { t: tCopy } = useTranslation();
 	// The expand chevron and the actions button are structural, not user-configurable.
 	const fixedColumnIds = useMemo(() => new Set<string>(["expand", "actions"]), []);
 
@@ -181,7 +179,7 @@ export function DeliveriesTable({
 										{polling ? (
 											<>
 												<RefreshCw className="h-4 w-4 animate-spin" />
-												{tCopy("ui.deliveriesTable.waitingForNewDeliveries", { ns: "governance" })}
+												Waiting for new deliveries...
 											</>
 										) : (
 											<Button
@@ -192,7 +190,7 @@ export function DeliveriesTable({
 												data-testid="webhook-deliveries-table-refresh-btn"
 											>
 												<RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-												{tCopy("labels.refresh", { ns: "observability" })}
+												Refresh
 											</Button>
 										)}
 									</div>
@@ -244,7 +242,7 @@ export function DeliveriesTable({
 							) : !shouldShowEmptyState({ rowCount: table.getRowModel().rows.length, loading, error }) ? null : (
 								<TableRow>
 									<TableCell colSpan={visibleColumnCount} className="h-24 text-center">
-										{tCopy("ui.deliveriesTable.noDeliveriesFoundTryAdjustingYourFiltersAndOrTime", { ns: "governance" })}
+										No deliveries found. Try adjusting your filters and/or time range.
 									</TableCell>
 								</TableRow>
 							)}
@@ -254,17 +252,12 @@ export function DeliveriesTable({
 
 				<div className="flex items-center justify-between text-xs" data-testid="pagination">
 					<div className="text-muted-foreground flex items-center gap-2">
-						{tCopy("pagination.entries", {
-							ns: "common",
-							from: startItemDisplay.toLocaleString(),
-							to: endItemDisplay.toLocaleString(),
-							total: totalItems.toLocaleString(),
-						})}
+						{startItemDisplay.toLocaleString()}-{endItemDisplay.toLocaleString()} of {totalItems.toLocaleString()} deliveries
 					</div>
 
 					<div className="flex items-center gap-2">
 						<div className="flex items-center gap-1.5">
-							<span className="text-muted-foreground">{tCopy("logs.rowsPerPage", { ns: "observability" })}</span>
+							<span className="text-muted-foreground">Rows per page</span>
 							<ComboboxSelect
 								options={pageSizeOptions}
 								value={String(pageSizePref)}
@@ -272,7 +265,7 @@ export function DeliveriesTable({
 								disableSearch
 								hideClear
 								className="h-7 w-fit gap-1 text-xs"
-								aria-label={tCopy("logs.rowsPerPage", { ns: "observability" })}
+								aria-label="Rows per page"
 								data-testid="page-size-select"
 							/>
 						</div>
@@ -282,13 +275,15 @@ export function DeliveriesTable({
 							onClick={() => goToPage(currentPage - 1)}
 							disabled={currentPage <= 1}
 							data-testid="prev-page"
-							aria-label={tCopy("webhooks.pagination.previousPage", { ns: "governance" })}
+							aria-label="Previous page"
 						>
 							<ChevronLeft className="size-3" />
 						</Button>
 
 						<div className="flex items-center gap-1">
-							{tCopy("pagination.page", { ns: "common", page: currentPage, total: totalPages })}
+							<span>Page</span>
+							<span>{currentPage}</span>
+							<span>of {totalPages}</span>
 						</div>
 
 						<Button
@@ -297,7 +292,7 @@ export function DeliveriesTable({
 							onClick={() => goToPage(currentPage + 1)}
 							disabled={totalPages === 0 || currentPage >= totalPages}
 							data-testid="next-page"
-							aria-label={tCopy("webhooks.pagination.nextPage", { ns: "governance" })}
+							aria-label="Next page"
 						>
 							<ChevronRight className="size-3" />
 						</Button>

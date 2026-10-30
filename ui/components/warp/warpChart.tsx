@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { getModelColor } from "@/app/workspace/dashboard/utils/chartUtils";
 import type { ReactNode } from "react";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -12,7 +11,6 @@ export default function WarpChart({
 	spec: WarpChartSpec;
 	renderLink: (href: string, children: ReactNode) => ReactNode;
 }) {
-	const { t: tCopy } = useTranslation();
 	const data = spec.points.map((point) => ({ name: formatWarpChartX(spec, point), value: point.y }));
 	const color = getModelColor(0);
 	const formatValue = (value: number) => formatWarpChartValue(spec.unit, value);
@@ -27,7 +25,7 @@ export default function WarpChart({
 			</figcaption>
 			{data.length === 0 ? (
 				<div className="text-muted-foreground py-6 text-center text-xs" data-testid="warp-chart-empty">
-					{tCopy("ui.warpChart.noDataInThisWindow", { ns: "common" })}
+					No data in this window.
 				</div>
 			) : (
 				<div className="h-[200px] w-full">

@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { CodeEditor } from "@/components/ui/codeEditor";
@@ -24,18 +23,11 @@ interface CodeBlockProps {
 }
 
 function CodeBlock({ code }: CodeBlockProps) {
-	const { t: tCopy } = useTranslation();
 	const { copy } = useCopyToClipboard();
 
 	return (
 		<div className="relative">
-			<Button
-				variant="ghost"
-				size="icon"
-				className="absolute top-4 right-4 z-10"
-				onClick={() => copy(code)}
-				aria-label={tCopy("ui.emptyState.copyRequest", { ns: "agents" })}
-			>
+			<Button variant="ghost" size="icon" className="absolute top-4 right-4 z-10" onClick={() => copy(code)} aria-label="Copy request">
 				<Copy className="size-4" />
 			</Button>
 			<CodeEditor className="w-full" code={code} lang="shell" readonly height={300} fontSize={14} options={EDITOR_OPTIONS} />
@@ -48,7 +40,6 @@ interface AgentEmptyStateProps {
 }
 
 export function AgentEmptyState({ error }: AgentEmptyStateProps) {
-	const { t: tCopy } = useTranslation();
 	const examples = useMemo(() => {
 		const baseUrl = getExampleBaseUrl();
 		const headers = `-H "Content-Type: application/json" \\
@@ -86,7 +77,7 @@ export function AgentEmptyState({ error }: AgentEmptyStateProps) {
 				<Alert>
 					<AlertTriangle className="h-4 w-4" />
 					<AlertDescription>
-						{isUnexpectedError ? tCopy("logs.empty.logStoreNotConfigured", { ns: "observability" }) : error}
+						{isUnexpectedError ? "Looks like you haven't configured the log store in your config file." : error}
 					</AlertDescription>
 				</Alert>
 			)}
@@ -94,14 +85,12 @@ export function AgentEmptyState({ error }: AgentEmptyStateProps) {
 			<div className="w-full space-y-6 p-4">
 				<div className="flex items-center gap-4">
 					<div>
-						<h3 className="text-lg font-semibold">{tCopy("ui.emptyState.sendYourFirstAgentRequest", { ns: "agents" })}</h3>
-						<p className="text-muted-foreground text-sm">
-							{tCopy("ui.emptyState.routeAnAgentRequestThroughBifrostToStartCollecting", { ns: "agents" })}
-						</p>
+						<h3 className="text-lg font-semibold">Send your first agent request</h3>
+						<p className="text-muted-foreground text-sm">Route an agent request through Bifrost to start collecting Agent Logs.</p>
 					</div>
 					<Button asChild variant="outline" className="ml-auto">
 						<Link to="/workspace/agent-gateway">
-							{tCopy("ui.emptyState.openAgentGateway", { ns: "agents" })}
+							Open Agent Gateway
 							<ArrowRight className="size-4" />
 						</Link>
 					</Button>
@@ -113,40 +102,33 @@ export function AgentEmptyState({ error }: AgentEmptyStateProps) {
 						<TabsTrigger value="http">HTTP+JSON</TabsTrigger>
 					</TabsList>
 					<TabsContent value="jsonrpc" className="px-4">
-						<p className="text-muted-foreground mb-3 text-sm">
-							{tCopy("ui.emptyState.sendAStrictA2AV1SendMessageRequestOverJSONRPC", { ns: "agents" })}
-						</p>
+						<p className="text-muted-foreground mb-3 text-sm">Send a strict A2A v1 SendMessage request over JSON-RPC.</p>
 						<CodeBlock code={examples.jsonrpc} />
 					</TabsContent>
 					<TabsContent value="http" className="px-4">
-						<p className="text-muted-foreground mb-3 text-sm">
-							{tCopy("ui.emptyState.sendTheSameMessageThroughTheA2AHTTPJSONBinding", { ns: "agents" })}
-						</p>
+						<p className="text-muted-foreground mb-3 text-sm">Send the same message through the A2A HTTP+JSON binding.</p>
 						<CodeBlock code={examples.http} />
 					</TabsContent>
 				</Tabs>
 
 				<div className="bg-muted/50 rounded-lg border p-4">
-					<h4 className="mb-2 text-sm font-semibold">{tCopy("ui.emptyState.beforeYouSendARequest", { ns: "agents" })}</h4>
+					<h4 className="mb-2 text-sm font-semibold">Before you send a request</h4>
 					<ol className="text-muted-foreground space-y-2 text-sm">
 						<li className="flex items-start gap-2">
 							<span className="text-primary">1.</span>
-							<span>{tCopy("ui.emptyState.registerAndEnableTheUpstreamAgentInAgentGateway", { ns: "agents" })}</span>
+							<span>Register and enable the upstream agent in Agent Gateway.</span>
 						</li>
 						<li className="flex items-start gap-2">
 							<span className="text-primary">2.</span>
 							<span>
-								{tCopy("ui.emptyState.replace", { ns: "agents" }) + " "}
-								<code className="bg-muted rounded px-1">&lt;agent-name&gt;</code>{" "}
-								{tCopy("ui.emptyState.withItsRegisteredName", { ns: "agents" })}
+								Replace <code className="bg-muted rounded px-1">&lt;agent-name&gt;</code> with its registered name.
 							</span>
 						</li>
 						<li className="flex items-start gap-2">
 							<span className="text-primary">3.</span>
 							<span>
-								{tCopy("ui.emptyState.useAVirtualKeyThatCanAccessTheAgent", { ns: "agents" }) + " "}
-								<code className="bg-muted rounded px-1">x-bf-vk</code>{" "}
-								{tCopy("ui.emptyState.headerWhenAuthenticationIsDisabled", { ns: "agents" })}
+								Use a virtual key that can access the agent, or remove the <code className="bg-muted rounded px-1">x-bf-vk</code> header
+								when authentication is disabled.
 							</span>
 						</li>
 					</ol>

@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -64,7 +63,6 @@ export function OpenAPIPreviewPanel({
 	toolsError,
 	disabled,
 }: OpenAPIPreviewPanelProps) {
-	const { t: tCopy } = useTranslation();
 	const [search, setSearch] = useState("");
 	const rows = useMemo(() => mergePreviewRows(preview.tools, preview.unsupported), [preview]);
 	const supported = useMemo(() => supportedToolNames(preview), [preview]);
@@ -97,14 +95,13 @@ export function OpenAPIPreviewPanel({
 			<div className="bg-muted/40 rounded-md border px-3 py-2 text-sm" data-testid="openapi-preview-summary">
 				<div className="flex flex-wrap items-center gap-2">
 					<span className="font-medium" data-testid="openapi-preview-title">
-						{preview.title || tCopy("ui.openApiPreviewPanel.untitledAPI", { ns: "mcp" })}
+						{preview.title || "Untitled API"}
 					</span>
 					<span className="text-muted-foreground text-xs" data-testid="openapi-preview-version">
 						{preview.version ? `v${preview.version} · ` : ""}OpenAPI {preview.openapi_version}
 					</span>
 					<Badge variant="outline" className="ml-auto font-mono text-[10px]">
-						{preview.tool_count} {tCopy("ui.openApiPreviewPanel.tool", { ns: "mcp" })}
-						{preview.tool_count === 1 ? "" : "s"}
+						{preview.tool_count} tool{preview.tool_count === 1 ? "" : "s"}
 					</Badge>
 				</div>
 				{preview.description && <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">{preview.description}</p>}
@@ -122,7 +119,7 @@ export function OpenAPIPreviewPanel({
 
 			{/* Base URL */}
 			<div className="space-y-2">
-				<Label htmlFor="openapi-base-url">{tCopy("warp.baseUrl", { ns: "config" })}</Label>
+				<Label htmlFor="openapi-base-url">Base URL</Label>
 				{servers.length > 0 && (
 					<Select
 						value={baseUrlChoice === "custom" ? "__custom__" : baseUrl}
@@ -137,7 +134,7 @@ export function OpenAPIPreviewPanel({
 						}}
 					>
 						<SelectTrigger className="w-full" data-testid="openapi-base-url-select">
-							<SelectValue placeholder={tCopy("ui.openApiPreviewPanel.selectTheUpstreamServer", { ns: "mcp" })} />
+							<SelectValue placeholder="Select the upstream server" />
 						</SelectTrigger>
 						<SelectContent>
 							{servers.map((server, index) => (
@@ -146,7 +143,7 @@ export function OpenAPIPreviewPanel({
 								</SelectItem>
 							))}
 							<SelectItem value="__custom__" data-testid="openapi-base-url-option-custom">
-								{tCopy("ui.openApiPreviewPanel.custom", { ns: "mcp" })}
+								Custom…
 							</SelectItem>
 						</SelectContent>
 					</Select>
@@ -169,11 +166,11 @@ export function OpenAPIPreviewPanel({
 				{servers.length === 0 &&
 					(preview.operation_servers ? (
 						<p className="text-muted-foreground text-xs" data-testid="openapi-operation-servers-note">
-							{tCopy("ui.openApiPreviewPanel.everyOperationDeclaresItsOwnServerSoCallsGo", { ns: "mcp" })}
+							Every operation declares its own server, so calls go there. Set a base URL only to override them all.
 						</p>
 					) : (
 						<p className="text-muted-foreground text-xs">
-							{tCopy("ui.openApiPreviewPanel.theDocumentDeclaresNoAbsoluteServerURLSoThe", { ns: "mcp" })}
+							The document declares no absolute server URL, so the upstream must be given here.
 						</p>
 					))}
 				{baseUrlError && (
@@ -186,16 +183,16 @@ export function OpenAPIPreviewPanel({
 			{/* Security */}
 			<div className="space-y-3">
 				<SectionHeader
-					title={tCopy("ui.openApiPreviewPanel.aPIAuthentication", { ns: "mcp" })}
+					title="API authentication"
 					description={
 						perUserHeaders
-							? tCopy("ui.openApiPreviewPanel.eachCallerSuppliesTheseThroughThePerUserHeaderNamed", { ns: "mcp" })
-							: tCopy("ui.openApiPreviewPanel.credentialsForTheSecuritySchemesTheDocumentDeclaresThey", { ns: "mcp" })
+							? "Each caller supplies these through the per-user header named for each scheme, forwarded to the API as is. Schemes sent in the query or a cookie keep a stored value."
+							: "Credentials for the security schemes the document declares. They are stored encrypted and applied to every call; env.VAR references are supported."
 					}
 				/>
 				{schemeInputs.length === 0 ? (
 					<p className="text-muted-foreground text-xs" data-testid="openapi-security-empty">
-						{tCopy("ui.openApiPreviewPanel.thisDocumentDeclaresNoSecuritySchemesAddStaticHeaders", { ns: "mcp" })}
+						This document declares no security schemes. Add static headers below if the API still needs a credential.
 					</p>
 				) : (
 					<div className="space-y-3 rounded-md border p-3">
@@ -205,7 +202,7 @@ export function OpenAPIPreviewPanel({
 									<Label className="text-xs font-medium">{label}</Label>
 									{!scheme.supported && (
 										<Badge variant="outline" className="text-[10px]">
-											{tCopy("ui.openApiPreviewPanel.unsupported", { ns: "mcp" })}
+											unsupported
 										</Badge>
 									)}
 								</div>
@@ -214,7 +211,7 @@ export function OpenAPIPreviewPanel({
 								) : perUserHeaders && defaultSchemeHeader(scheme) !== null ? (
 									<div className="space-y-1">
 										<Input
-											aria-label={tCopy("openapi.userHeader", { ns: "mcp", name: scheme.name })}
+											aria-label={`${scheme.name} per-user header`}
 											placeholder={defaultSchemeHeader(scheme) ?? ""}
 											disabled={disabled}
 											value={
@@ -227,11 +224,8 @@ export function OpenAPIPreviewPanel({
 										/>
 										<p className="text-muted-foreground text-xs">
 											{scheme.type === "http"
-												? tCopy("openapi.userCredentialHelp", {
-														ns: "mcp",
-														example: scheme.scheme === "basic" ? "Basic <base64>" : "Bearer <token>",
-													})
-												: tCopy("ui.openApiPreviewPanel.headerEachCallerSuppliesForwardedAsIsItIs", { ns: "mcp" })}
+												? `Header each caller supplies, forwarded as is; its value is the full credential, e.g. "${scheme.scheme === "basic" ? "Basic <base64>" : "Bearer <token>"}". It is added to Required Headers.`
+												: "Header each caller supplies, forwarded as is. It is added to Required Headers."}
 										</p>
 									</div>
 								) : (
@@ -257,14 +251,13 @@ export function OpenAPIPreviewPanel({
 			<div className="space-y-3">
 				<div className="flex items-start justify-between gap-4">
 					<SectionHeader
-						title={tCopy("openapi.operationsCount", { ns: "mcp", supported: supported.length, total: rows.length })}
-						description={tCopy("ui.openApiPreviewPanel.tickedOperationsBecomeToolsOfThisServerUnsupportedOnes", { ns: "mcp" })}
+						title={`Operations (${supported.length} of ${rows.length} supported)`}
+						description="Ticked operations become tools of this server. Unsupported ones are listed with the reason."
 					/>
 					{supported.length > 0 && (
 						<div className="flex items-center gap-2 pt-1">
 							<span className="text-muted-foreground text-xs" data-testid="openapi-tools-selected-count">
-								{selectedCount} {tCopy("ui.page.of", { ns: "mcp" }) + " "}
-								{supported.length} {tCopy("ui.openApiPreviewPanel.selected", { ns: "mcp" })}
+								{selectedCount} of {supported.length} selected
 							</span>
 							<TriStateCheckbox
 								allIds={supported}
@@ -279,18 +272,14 @@ export function OpenAPIPreviewPanel({
 				</div>
 				{rows.length > SEARCH_THRESHOLD && (
 					<Input
-						placeholder={tCopy("ui.openApiPreviewPanel.searchOperations", { ns: "mcp" })}
+						placeholder="Search operations…"
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
 						data-testid="openapi-tools-search"
 					/>
 				)}
 				<div className="divide-y rounded-md border">
-					{visibleRows.length === 0 && (
-						<p className="text-muted-foreground px-3 py-2 text-xs">
-							{tCopy("ui.openApiPreviewPanel.noOperationMatchesTheSearch", { ns: "mcp" })}
-						</p>
-					)}
+					{visibleRows.length === 0 && <p className="text-muted-foreground px-3 py-2 text-xs">No operation matches the search.</p>}
 					{visibleRows.map((row) => (
 						<div
 							key={row.key}
@@ -315,7 +304,7 @@ export function OpenAPIPreviewPanel({
 									<span className="text-sm font-medium">{row.name}</span>
 									{row.deprecated && (
 										<Badge variant="secondary" className="text-[10px]">
-											{tCopy("ui.openApiPreviewPanel.deprecated", { ns: "mcp" })}
+											deprecated
 										</Badge>
 									)}
 									{!row.supported && row.skipReason && (

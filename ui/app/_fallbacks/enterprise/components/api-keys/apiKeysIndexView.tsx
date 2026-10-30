@@ -5,11 +5,9 @@ import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { Link } from "@tanstack/react-router";
 import { Copy, InfoIcon, KeyRound } from "lucide-react";
 import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
 import ContactUsView from "../views/contactUsView";
 
 export default function APIKeysView() {
-	const { t } = useTranslation("config");
 	const { data: bifrostConfig, isLoading } = useGetCoreConfigQuery({ fromDB: true });
 	const isAuthConfigure = useMemo(() => {
 		return bifrostConfig?.auth_config?.is_enabled;
@@ -34,7 +32,7 @@ curl --location 'http://localhost:8080/v1/chat/completions'
 	const { copy: copyToClipboard } = useCopyToClipboard();
 
 	if (isLoading) {
-		return <div>{t("apiKeys.loading")}</div>;
+		return <div>Loading...</div>;
 	}
 	if (!isAuthConfigure) {
 		return (
@@ -42,13 +40,13 @@ curl --location 'http://localhost:8080/v1/chat/completions'
 				<InfoIcon className="text-muted h-4 w-4" />
 				<AlertDescription>
 					<p className="text-md text-muted-foreground">
-						{t("apiKeys.needSecurity")}{" "}
+						To generate API keys, you need to set up admin username and password first.{" "}
 						<Link to="/workspace/config/security" className="text-md text-primary underline">
-							{t("apiKeys.configureSecurity")}
+							Configure Security Settings
 						</Link>
 						.<br />
 						<br />
-						{t("apiKeys.needSecurityAfter")}
+						Once generated you will need to use this API key for all API calls to the Bifrost admin APIs and UI.
 					</p>
 				</AlertDescription>
 			</Alert>
@@ -65,17 +63,14 @@ curl --location 'http://localhost:8080/v1/chat/completions'
 					<p className="text-md text-muted-foreground">
 						{isInferenceAuthDisabled ? (
 							<>
-								{t("ui.apiKeysIndexView.authenticationIsCurrently", { ns: "common" }) + " "}
-								<strong>{t("ui.apiKeysIndexView.disabledForInferenceAPICalls", { ns: "common" })}</strong>
-								{t("ui.apiKeysIndexView.youCanMakeInferenceRequestsWithoutAuthenticationDashboard", { ns: "common" })}{" "}
-								<code className="bg-muted rounded px-1 py-0.5 text-sm">username:password</code>{" "}
-								{t("ui.apiKeysIndexView.formatWithBase64Encoding", { ns: "common" })}
+								Authentication is currently <strong>disabled for inference API calls</strong>. You can make inference requests without
+								authentication. Dashboard and admin API calls still require Basic auth with your admin credentials encoded in the standard{" "}
+								<code className="bg-muted rounded px-1 py-0.5 text-sm">username:password</code> format with base64 encoding.
 							</>
 						) : (
 							<>
-								{t("ui.apiKeysIndexView.useBasicAuthWithYourAdminCredentialsWhenMaking", { ns: "common" })}{" "}
-								<code className="bg-muted rounded px-1 py-0.5 text-sm">username:password</code>{" "}
-								{t("ui.apiKeysIndexView.formatWithBase64Encoding", { ns: "common" })}
+								Use Basic auth with your admin credentials when making API calls to Bifrost. Encode your credentials in the standard{" "}
+								<code className="bg-muted rounded px-1 py-0.5 text-sm">username:password</code> format with base64 encoding.
 							</>
 						)}
 					</p>
@@ -83,7 +78,7 @@ curl --location 'http://localhost:8080/v1/chat/completions'
 						<>
 							<br />
 							<p className="text-md text-muted-foreground">
-								<strong>{t("apiKeys.example")}</strong>
+								<strong>Example:</strong>
 							</p>
 
 							<div className="relative mt-2 w-full min-w-0 overflow-x-auto">
@@ -100,8 +95,8 @@ curl --location 'http://localhost:8080/v1/chat/completions'
 			<ContactUsView
 				className="mt-4 rounded-md border px-3 py-8"
 				icon={<KeyRound size={48} />}
-				title={t("enterprise.apiKeysTitle")}
-				description={t("enterprise.apiKeysDescription")}
+				title="Scope Based API Keys"
+				description="Need granular access control with scope-based API keys? Enterprise customers can create multiple API keys with specific permissions for different services, teams, or environments."
 				readmeLink="https://docs.getbifrost.io/enterprise/api-keys"
 			/>
 		</div>

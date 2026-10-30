@@ -1,5 +1,4 @@
 import { Radio } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import ContactUsView from "../../views/contactUsView";
 
 interface EnableToggleProps {
@@ -15,8 +14,6 @@ interface PubSubConnectorViewProps {
 }
 
 export default function PubSubConnectorView(_props: PubSubConnectorViewProps) {
-	const { t } = useTranslation("governance");
-
 	return (
 		<div className="space-y-6">
 			<div className="space-y-4">
@@ -25,7 +22,8 @@ export default function PubSubConnectorView(_props: PubSubConnectorViewProps) {
 						align="middle"
 						className="mx-auto w-full max-w-lg"
 						icon={<Radio className="h-[5.5rem] w-[5.5rem]" strokeWidth={1} />}
-						title={t("connectorsUnlock.pubsub")}
+						title="Unlock Google Cloud Pub/Sub trace streaming"
+						description="This feature is a part of the Bifrost enterprise license. We would love to know more about your use case and how we can help you."
 						readmeLink="https://docs.getbifrost.ai/enterprise/pubsub-connector"
 						testIdPrefix="pubsub-connector"
 					/>

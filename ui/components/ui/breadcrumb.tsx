@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { ChevronRight, MoreHorizontal } from "lucide-react";
@@ -6,8 +5,7 @@ import { ChevronRight, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 function Breadcrumb({ ...props }: React.ComponentProps<"nav">) {
-	const { t: tCopy } = useTranslation();
-	return <nav aria-label={tCopy("ui.breadcrumb.breadcrumb", { ns: "common" })} data-slot="breadcrumb" {...props} />;
+	return <nav aria-label="breadcrumb" data-slot="breadcrumb" {...props} />;
 }
 
 function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
@@ -58,7 +56,6 @@ function BreadcrumbSeparator({ children, className, ...props }: React.ComponentP
 }
 
 function BreadcrumbEllipsis({ className, ...props }: React.ComponentProps<"span">) {
-	const { t: tCopy } = useTranslation();
 	return (
 		<span
 			data-slot="breadcrumb-ellipsis"
@@ -68,7 +65,7 @@ function BreadcrumbEllipsis({ className, ...props }: React.ComponentProps<"span"
 			{...props}
 		>
 			<MoreHorizontal className="size-4" />
-			<span className="sr-only">{tCopy("ui.breadcrumb.more", { ns: "common" })}</span>
+			<span className="sr-only">More</span>
 		</span>
 	);
 }

@@ -1,5 +1,3 @@
-import i18nReview from "@/lib/i18n";
-import { useTranslation } from "react-i18next";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { DecisionModelSelector, DecisionProviderSelector } from "@/components/ui/decisionModelSelector";
@@ -57,15 +55,9 @@ const PHRASE_LIST_HEIGHT = 300;
 const DECISION_LIST_HEIGHT = 140;
 
 const DECISION_TIER_LABELS: Record<DecisionTier, string> = {
-	get SIMPLE() {
-		return i18nReview.t("routing.complexityUi.tierSimple", { ns: "models" });
-	},
-	get MEDIUM() {
-		return i18nReview.t("routing.complexityUi.tierMedium", { ns: "models" });
-	},
-	get COMPLEX() {
-		return i18nReview.t("routing.complexityUi.tierComplex", { ns: "models" });
-	},
+	SIMPLE: "Simple",
+	MEDIUM: "Medium",
+	COMPLEX: "Complex",
 };
 
 function testIdPart(value: string) {
@@ -80,12 +72,14 @@ interface PhraseTierGridProps {
 // PhraseTierGrid is the semantic classifier's work surface: one editable list
 // of reference phrases per tier.
 export function PhraseTierGrid({ control, errors }: PhraseTierGridProps) {
-	const { t: tCopy } = useTranslation();
 	return (
 		<div className="space-y-3">
 			<Alert variant="info" data-testid="complexity-router-phrase-defaults-callout">
 				<Info className="h-4 w-4" />
-				<AlertDescription>{tCopy("routing.complexityUi.phraseDefaultsCallout", { ns: "models" })}</AlertDescription>
+				<AlertDescription>
+					The added reference phrases are examples to help you get started. We recommend auditing, refining and adding your own reference
+					phrases.
+				</AlertDescription>
 			</Alert>
 
 			{/* Root-level phrase issues such as cross-tier duplicates have no single
@@ -116,10 +110,7 @@ export function PhraseTierGrid({ control, errors }: PhraseTierGridProps) {
 										<div className="flex items-center justify-between">
 											<span className="text-xs font-medium">{label}</span>
 											<span className="text-muted-foreground font-mono text-[11px] tabular-nums">
-												{field.value.length}{" "}
-												{field.value.length === 1
-													? tCopy("ui.sections.phrase", { ns: "models" })
-													: tCopy("ui.sections.phrases", { ns: "models" })}
+												{field.value.length} {field.value.length === 1 ? "phrase" : "phrases"}
 											</span>
 										</div>
 										<p className="text-muted-foreground grow text-xs leading-relaxed">{description}</p>
@@ -129,7 +120,7 @@ export function PhraseTierGrid({ control, errors }: PhraseTierGridProps) {
 											onValueChange={field.onChange}
 											listHeight={PHRASE_LIST_HEIGHT}
 											submitOnComma={false}
-											placeholder={tCopy("routing.complexityUi.phrasePlaceholder", { ns: "models" })}
+											placeholder="Type a reference phrase and press Enter"
 											aria-invalid={fieldError ? true : undefined}
 											aria-describedby={fieldError ? errorId : undefined}
 											className={cn(fieldError && "border-destructive")}
@@ -167,12 +158,11 @@ interface LLMPromptSectionProps {
 // rather than in the sheet with the fallback's other settings, and only shows
 // while the llm fallback is on, because that is the only time it runs.
 export function LLMPromptSection({ control, error, canUpdate, defaultPrompt, livePrompt, onEdit, onReset }: LLMPromptSectionProps) {
-	const { t: tCopy } = useTranslation();
 	return (
 		<div className="space-y-3">
 			<SectionHeading
-				title={tCopy("routing.complexityUi.fallbackPromptTitle", { ns: "models" })}
-				description={tCopy("routing.complexityUi.fallbackPromptDescription", { ns: "models" })}
+				title="Fallback Classification Prompt"
+				description="Customize the classification model's system prompt; a default is provided when no phrase matches."
 				aside={
 					<Button
 						type="button"
@@ -183,7 +173,7 @@ export function LLMPromptSection({ control, error, canUpdate, defaultPrompt, liv
 						data-testid="complexity-router-llm-prompt-reset-button"
 					>
 						<RotateCcw className="h-3.5 w-3.5" />
-						{tCopy("routing.complexityUi.resetToDefault", { ns: "models" })}
+						Reset to default
 					</Button>
 				}
 			/>
@@ -212,7 +202,8 @@ export function LLMPromptSection({ control, error, canUpdate, defaultPrompt, liv
 				<p className="text-destructive text-xs">{error.message}</p>
 			) : (
 				<p className="text-muted-foreground text-xs leading-relaxed">
-					{tCopy("routing.complexityUi.fallbackPromptHelp", { ns: "models" })}{" "}
+					Leave blank to use default guidance. Bifrost always appends a fixed response-format section (the tier names and the JSON answer
+					contract), so edits here refine what the tiers mean but cannot break routing.{" "}
 					<span className="font-mono tabular-nums">
 						{livePrompt.length}/{MAX_LLM_PROMPT_CHARACTERS}
 					</span>
@@ -231,13 +222,13 @@ interface SessionRoutingCardProps {
 // SessionRoutingCard toggles session-aware routing, which works the same on
 // top of either classifier.
 export function SessionRoutingCard({ control, errors, canUpdate }: SessionRoutingCardProps) {
-	const { t: tCopy } = useTranslation();
 	return (
 		<div className="bg-card flex items-center justify-between gap-6 rounded-sm border p-4">
 			<div className="space-y-1">
-				<FieldLabel htmlFor="complexity-router-session-enabled">{tCopy("routing.complexityUi.sessionTitle", { ns: "models" })}</FieldLabel>
+				<FieldLabel htmlFor="complexity-router-session-enabled">Session-aware routing</FieldLabel>
 				<p className="text-muted-foreground max-w-3xl text-xs leading-relaxed">
-					{tCopy("routing.complexityUi.sessionHelp", { ns: "models" })}
+					Keep each session at its highest complexity tier for 24 hours of inactivity. Harder turns can move up; easier turns stay put to
+					reduce model changes. Requests without a session ID route independently.
 				</p>
 				{errors?.enabled && (
 					<p id="complexity-router-session-enabled-error" className="text-destructive text-xs">
@@ -285,7 +276,6 @@ interface DecisionFieldsProps {
 // both places render this. The provider and model controls are the shared
 // decision-model pickers, which decide what each provider offers.
 export function DecisionFields({ control, register, setValue, errors, canUpdate, providers, providerKeyIds }: DecisionFieldsProps) {
-	const { t: tCopy } = useTranslation();
 	const providerName = useWatch({ control, name: "decision.provider" });
 	const model = useWatch({ control, name: "decision.model" });
 	// Stable, since the model picker selects a self-hosted provider's first listed model from an effect.
@@ -300,7 +290,7 @@ export function DecisionFields({ control, register, setValue, errors, canUpdate,
 		<div className="grid gap-4 sm:grid-cols-2" data-testid="complexity-router-decision-fields">
 			<div className="space-y-2">
 				<FieldLabel htmlFor="decision-provider" tooltip="The provider that runs the decision model.">
-					{tCopy("modelCatalog.provider", { ns: "models" })}
+					Provider
 				</FieldLabel>
 				<Controller
 					control={control}
@@ -321,9 +311,9 @@ export function DecisionFields({ control, register, setValue, errors, canUpdate,
 				/>
 				{!providers.some(isDecisionProvider) && (
 					<p className="text-muted-foreground text-xs" data-testid="complexity-router-decision-no-provider">
-						{tCopy("ui.sections.noProviderServesDecisionModelsYet", { ns: "models" })}{" "}
+						No provider serves decision models yet.{" "}
 						<Link to="/workspace/providers" className="text-primary underline-offset-2 hover:underline">
-							{tCopy("ui.sections.addOne", { ns: "models" })}
+							Add one
 						</Link>
 						.
 					</p>
@@ -332,7 +322,7 @@ export function DecisionFields({ control, register, setValue, errors, canUpdate,
 			</div>
 			<div className="space-y-2">
 				<FieldLabel htmlFor="decision-model" tooltip="The model the provider runs for each classification.">
-					{tCopy("providers.colModel", { ns: "models" })}
+					Model
 				</FieldLabel>
 				<Controller
 					control={control}
@@ -351,16 +341,10 @@ export function DecisionFields({ control, register, setValue, errors, canUpdate,
 						/>
 					)}
 				/>
-				{servesClef && (
-					<p className="text-muted-foreground text-xs">{tCopy("ui.sections.setByThisProviderSCloudflareURL", { ns: "models" })}</p>
-				)}
+				{servesClef && <p className="text-muted-foreground text-xs">Set by this provider&rsquo;s Cloudflare URL.</p>}
 				{LAYA_MODELS.includes(model) && (
 					<p className="text-muted-foreground text-xs">
-						{tCopy("ui.sections.layaReads512TokensPerRequest", { ns: "models" })}
-						{model === "english"
-							? tCopy("ui.sections.useMultilingualFor1024", { ns: "models" })
-							: tCopy("ui.sections.keepTierGuidanceShort", { ns: "models" })}
-						).
+						Laya reads 512 tokens per request ({model === "english" ? "use multilingual for 1,024" : "keep tier guidance short"}).
 					</p>
 				)}
 				{errors?.model && <p className="text-destructive text-xs">{errors.model.message}</p>}
@@ -368,9 +352,15 @@ export function DecisionFields({ control, register, setValue, errors, canUpdate,
 			<div className="space-y-2">
 				<FieldLabel
 					htmlFor="decision-previous-message-count"
-					tooltip={<>{tCopy("routing.complexityUi.previousMessagesHelp", { ns: "models" })}</>}
+					tooltip={
+						<>
+							User messages sent to the decision model in addition to the current request, oldest to newest. Widening this lets a short
+							follow-up like &ldquo;and make it faster&rdquo; inherit earlier intent, but sends more input tokens per request. Assistant
+							replies are never sent. Defaults to 1.
+						</>
+					}
 				>
-					{tCopy("routing.complexityUi.maxMessagesSend", { ns: "models" })}
+					Max messages to send
 				</FieldLabel>
 				<Input
 					id="decision-previous-message-count"
@@ -391,7 +381,7 @@ export function DecisionFields({ control, register, setValue, errors, canUpdate,
 					htmlFor="decision-timeout"
 					tooltip="Maximum wait for the decision model's API call. If the limit is exceeded, we skip and fall back to the original request model. Typesafe Jev typically responds in about 600 - 800 ms."
 				>
-					{tCopy("routing.complexityUi.classificationTimeout", { ns: "models" })}
+					Classification timeout (ms)
 				</FieldLabel>
 				<Controller
 					control={control}
@@ -437,22 +427,14 @@ const DECISION_LIST_FIELDS: Array<{
 }> = [
 	{
 		field: "signals",
-		get label() {
-			return i18nReview.t("ui.sections.signals", { ns: "models" });
-		},
-		get placeholder() {
-			return i18nReview.t("ui.sections.typeASignalAndPressEnter", { ns: "models" });
-		},
+		label: "Signals",
+		placeholder: "Type a signal and press Enter",
 		tooltip: "What makes a request belong in this tier: the knowledge, reasoning, or kind of work it needs.",
 	},
 	{
 		field: "examples",
-		get label() {
-			return i18nReview.t("ui.sections.examples", { ns: "models" });
-		},
-		get placeholder() {
-			return i18nReview.t("ui.sections.typeAnExampleAndPressEnter", { ns: "models" });
-		},
+		label: "Examples",
+		placeholder: "Type an example and press Enter",
 		tooltip: "Sample requests that belong in this tier, showing what the signals look like in practice. Write them as concrete tasks.",
 	},
 ];
@@ -477,7 +459,6 @@ interface DecisionDefinitionFieldProps {
 // semantic cards' tier descriptions, and turns into a textarea only while it
 // is being edited. An invalid definition stays open so its error is visible.
 function DecisionDefinitionField({ tier, control, error, canUpdate, edited, onReset }: DecisionDefinitionFieldProps) {
-	const { t: tCopy } = useTranslation();
 	const [editing, setEditing] = useState(false);
 	const open = editing || Boolean(error);
 	const id = `decision-${tier.toLowerCase()}-definition`;
@@ -500,7 +481,7 @@ function DecisionDefinitionField({ tier, control, error, canUpdate, edited, onRe
 											variant="ghost"
 											size="icon"
 											className="size-6"
-											aria-label={tCopy("routing.complexityUi.editDefinition", { ns: "models", tier: DECISION_TIER_LABELS[tier] })}
+											aria-label={`Edit ${tier.toLowerCase()} definition`}
 											onClick={() => setEditing(true)}
 											data-testid={`complexity-router-decision-${tier.toLowerCase()}-definition-edit-button`}
 										>
@@ -508,9 +489,8 @@ function DecisionDefinitionField({ tier, control, error, canUpdate, edited, onRe
 										</Button>
 									</TooltipTrigger>
 									<TooltipContent className="max-w-xs leading-relaxed">
-										{tCopy("ui.sections.describeWhatMakesARequest", { ns: "models" }) + " "}
-										{DECISION_TIER_LABELS[tier]}
-										{tCopy("ui.sections.theDecisionModelUsesThisToDecideWhich", { ns: "models" })}
+										Describe what makes a request {DECISION_TIER_LABELS[tier]}. The decision model uses this to decide which requests belong
+										in this tier.
 									</TooltipContent>
 								</Tooltip>
 							)}
@@ -522,7 +502,7 @@ function DecisionDefinitionField({ tier, control, error, canUpdate, edited, onRe
 											variant="ghost"
 											size="icon"
 											className="size-6"
-											aria-label={tCopy("routing.complexityUi.resetDefinition", { ns: "models", tier: DECISION_TIER_LABELS[tier] })}
+											aria-label={`Reset ${tier.toLowerCase()} definition to default`}
 											onClick={onReset}
 											disabled={!canUpdate}
 											data-testid={`complexity-router-decision-${tier.toLowerCase()}-definition-reset-button`}
@@ -530,9 +510,7 @@ function DecisionDefinitionField({ tier, control, error, canUpdate, edited, onRe
 											<RotateCcw className="size-3" />
 										</Button>
 									</TooltipTrigger>
-									<TooltipContent className="max-w-xs leading-relaxed">
-										{tCopy("ui.sections.resetToTheDefaultDefinition", { ns: "models" })}
-									</TooltipContent>
+									<TooltipContent className="max-w-xs leading-relaxed">Reset to the default definition</TooltipContent>
 								</Tooltip>
 							)}
 						</div>
@@ -599,7 +577,6 @@ export function DecisionGuidanceSection({
 	defaultsLoading,
 	variant,
 }: DecisionGuidanceSectionProps) {
-	const { t: tCopy } = useTranslation();
 	const criteria = useWatch({ control, name: "decision.criteria" });
 	const [fallbackOpen, setFallbackOpen] = useState(false);
 
@@ -673,7 +650,7 @@ export function DecisionGuidanceSection({
 													<div className="flex h-6 items-center justify-between">
 														<div className="flex items-center gap-1.5">
 															<span className="text-muted-foreground text-xs">{label}</span>
-															<InfoTip label={tCopy("aboutField", { ns: "common", field: label.toLowerCase() })}>{tooltip}</InfoTip>
+															<InfoTip label={`About ${label.toLowerCase()}`}>{tooltip}</InfoTip>
 														</div>
 														<div className="flex items-center gap-1">
 															<span
@@ -688,11 +665,7 @@ export function DecisionGuidanceSection({
 																	variant="ghost"
 																	size="icon"
 																	className="size-6"
-																	aria-label={tCopy("routing.complexityUi.resetList", {
-																		ns: "models",
-																		tier: DECISION_TIER_LABELS[tier],
-																		list: label,
-																	})}
+																	aria-label={`Reset ${tier.toLowerCase()} ${listField} to default`}
 																	onClick={() => resetList(tier, listField)}
 																	disabled={!canUpdate}
 																	data-testid={`complexity-router-decision-${tier.toLowerCase()}-${listField}-reset-button`}
@@ -708,11 +681,7 @@ export function DecisionGuidanceSection({
 														onValueChange={field.onChange}
 														listHeight={DECISION_LIST_HEIGHT}
 														submitOnComma={false}
-														placeholder={
-															atLimit
-																? tCopy("routing.complexityUi.listLimit", { ns: "models", limit: MAX_DECISION_CRITERIA_ITEMS })
-																: placeholder
-														}
+														placeholder={atLimit ? `Limit of ${MAX_DECISION_CRITERIA_ITEMS} reached` : placeholder}
 														readOnly={!canUpdate}
 														disabled={!canUpdate || atLimit}
 														aria-label={`${DECISION_TIER_LABELS[tier]} ${label.toLowerCase()}`}
@@ -742,12 +711,13 @@ export function DecisionGuidanceSection({
 					{defaultsLoading ? (
 						<>
 							<LoaderCircle className="size-3.5 animate-spin" />
-							{tCopy("ui.sections.loadingTheDefaultGuidance", { ns: "models" })}
+							Loading the default guidance…
 						</>
 					) : (
 						<>
 							<TriangleAlert className="size-3.5" />
-							{tCopy("ui.sections.thisGatewayDidNotReturnItsDefaultGuidanceSo", { ns: "models" })}
+							This gateway did not return its default guidance, so it cannot be edited here. The decision model keeps using the saved or
+							shipped guidance.
 						</>
 					)}
 				</div>
@@ -786,10 +756,8 @@ export function DecisionGuidanceSection({
 					>
 						<ChevronRight className={cn("text-muted-foreground mt-0.5 size-4 shrink-0 transition-transform", open && "rotate-90")} />
 						<span className="space-y-1">
-							<span className="block text-sm font-semibold">{tCopy("ui.sections.fallbackTierGuidance", { ns: "models" })}</span>
-							<span className="text-muted-foreground block text-xs">
-								{tCopy("ui.sections.usedByTheDecisionModelWhenNoReferencePhrase", { ns: "models" })}
-							</span>
+							<span className="block text-sm font-semibold">Fallback Tier Guidance</span>
+							<span className="text-muted-foreground block text-xs">Used by the decision model when no reference phrase matches.</span>
 						</span>
 					</button>
 				</CollapsibleTrigger>
@@ -803,7 +771,7 @@ export function DecisionGuidanceSection({
 						data-testid="complexity-router-decision-guidance-reset-button"
 					>
 						<RotateCcw className="h-3.5 w-3.5" />
-						{tCopy("ui.sections.resetAll", { ns: "models" })}
+						Reset all
 					</Button>
 				)}
 			</div>
@@ -861,21 +829,15 @@ const CLASSIFIER_OPTIONS: {
 }[] = [
 	{
 		value: "decision",
-		get title() {
-			return i18nReview.t("ui.page.decisionModel", { ns: "models" });
-		},
-		get description() {
-			return i18nReview.t("ui.sections.aDecisionModelJudgesTheComplexityOfEachRequest", { ns: "models" });
-		},
+		title: "Decision model",
+		description:
+			"A decision model judges the complexity of each request and picks the tier whose definition, signals, and examples fit it best. Use Typesafe Jev, OpenAI's decision models, Cloudflare Clef, or another provider that serves decision models. No phrases to write or maintain.",
 	},
 	{
 		value: "semantic",
-		get title() {
-			return i18nReview.t("ui.sections.semantic", { ns: "models" });
-		},
-		get description() {
-			return i18nReview.t("ui.sections.matchesEachRequestAgainstReferencePhrasesYouWriteFor", { ns: "models" });
-		},
+		title: "Semantic",
+		description:
+			"Matches each request against reference phrases you write for each tier, through an embedding model you choose. You decide exactly what each tier means.",
 	},
 ];
 
@@ -883,9 +845,8 @@ const CLASSIFIER_OPTIONS: {
 // option is an explained card rather than an entry in a dropdown. Anything a
 // choice still needs is reported once, below the cards, after it is picked.
 export function ClassifierChoice({ value, onChange }: { value: Classifier | undefined; onChange: (value: Classifier) => void }) {
-	const { t: tCopy } = useTranslation();
 	return (
-		<div role="radiogroup" aria-label={tCopy("ui.page.classifier", { ns: "models" })} className="grid gap-3 sm:grid-cols-2">
+		<div role="radiogroup" aria-label="Classifier" className="grid gap-3 sm:grid-cols-2">
 			{CLASSIFIER_OPTIONS.map((option) => {
 				const selected = option.value === value;
 				return (
@@ -928,12 +889,8 @@ interface StepRailProps {
 // nav, and is narrower still: two short labels need little width, and every
 // pixel it gives back goes to the phrase lists.
 export function StepRail({ steps, currentIndex, onSelect }: StepRailProps) {
-	const { t: tCopy } = useTranslation();
 	return (
-		<nav
-			className="flex w-full shrink-0 gap-1 overflow-x-auto md:block md:w-44"
-			aria-label={tCopy("ui.sections.complexityRouterSteps", { ns: "models" })}
-		>
+		<nav className="flex w-full shrink-0 gap-1 overflow-x-auto md:block md:w-44" aria-label="Complexity Router steps">
 			{steps.map((step, index) => {
 				const current = index === currentIndex;
 				return (

@@ -1,5 +1,3 @@
-import localeMessages from "@/lib/i18n";
-import type { TFunction } from "i18next";
 import PageTitle from "@/components/pageTitle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +22,6 @@ import { cn } from "@/lib/utils";
 import { RbacOperation, RbacResource, useRbac } from "@enterprise/lib/contexts/rbacContext";
 import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Trans, useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 // The local cache plugin runs in one of two modes. Direct-only is purely
@@ -89,8 +86,10 @@ const buildPayload = (config: EditorCacheConfig, mode: CacheMode): CacheConfig =
 		cache_by_model: config.cache_by_model,
 		cache_by_provider: config.cache_by_provider,
 		disable_identity_scoping: config.disable_identity_scoping ?? false,
-		vector_store_namespace: config.vector_store_namespace?.trim() || undefined,
-		default_cache_key: config.default_cache_key?.trim() || undefined,
+		// Sent as "" (not undefined) when blank so the server-side merge clears
+		// a previously saved value instead of keeping it.
+		vector_store_namespace: config.vector_store_namespace?.trim() ?? "",
+		default_cache_key: config.default_cache_key?.trim() ?? "",
 	};
 	if (mode === "direct") {
 		return { ...base, provider: "", embedding_model: "", dimension: 1 } as CacheConfig;
@@ -103,29 +102,28 @@ const buildPayload = (config: EditorCacheConfig, mode: CacheMode): CacheConfig =
 	} as CacheConfig;
 };
 
-const validateForSave = (config: EditorCacheConfig, mode: CacheMode, t: TFunction<"config">): string | null => {
+const validateForSave = (config: EditorCacheConfig, mode: CacheMode): string | null => {
 	if (mode === "semantic") {
-		if (!config.provider) return t("caching.validation.provider");
-		if (!config.embedding_model?.trim()) return t("caching.validation.model");
+		if (!config.provider) return "Pick an embedding provider for semantic mode, or switch to Direct only.";
+		if (!config.embedding_model?.trim()) return "Pick an embedding model for semantic mode.";
 		if (!config.dimension || config.dimension <= 1) {
-			return t("caching.validation.dimension");
+			return "Semantic mode requires the embedding model's real dimension (must be > 1).";
 		}
 	}
-	if (config.ttl !== undefined && config.ttl < 0) return t("caching.validation.ttl");
+	if (config.ttl !== undefined && config.ttl < 0) return "TTL must be non-negative.";
 	if (config.threshold !== undefined && (config.threshold < 0 || config.threshold > 1)) {
-		return t("caching.validation.threshold");
+		return "Similarity threshold must be between 0 and 1.";
 	}
 	if (
 		config.conversation_history_threshold !== undefined &&
 		(config.conversation_history_threshold < 1 || config.conversation_history_threshold > 50)
 	) {
-		return t("caching.validation.conversationThreshold");
+		return "Conversation history threshold must be between 1 and 50.";
 	}
 	return null;
 };
 
 export default function CachingView() {
-	const { t } = useTranslation("config");
 	const { data: bifrostConfig, isLoading: configLoading, error: configError } = useGetCoreConfigQuery({ fromDB: true });
 	const isVectorStoreEnabled = bifrostConfig?.is_cache_connected ?? false;
 
@@ -163,12 +161,12 @@ export default function CachingView() {
 
 	useEffect(() => {
 		if (providersError) {
-			toast.error(t("caching.providersLoadFailed", { error: getErrorMessage(providersError) }));
+			toast.error(`Failed to load providers: ${getErrorMessage(providersError as any)}`);
 		}
-	}, [providersError, t]);
+	}, [providersError]);
 
 	// Surface validation problems inline rather than only on Save click.
-	const validationError = useMemo(() => validateForSave(cacheConfig, mode, t), [cacheConfig, mode, t]);
+	const validationError = useMemo(() => validateForSave(cacheConfig, mode), [cacheConfig, mode]);
 
 	// Only show the dimension/namespace heads-up when the user has actually
 	// touched a structural field. Showing it permanently in semantic mode
@@ -222,7 +220,7 @@ export default function CachingView() {
 				// No plugin row + user toggling off ⇒ nothing to disable.
 				// Bail before the success toast so we don't lie about the state.
 				if (!checked) return;
-				const err = validateForSave(cacheConfig, mode, t);
+				const err = validateForSave(cacheConfig, mode);
 				if (err) {
 					toast.error(err);
 					return;
@@ -235,16 +233,14 @@ export default function CachingView() {
 					path: "",
 				}).unwrap();
 			}
-			toast.success(checked ? t("caching.toastEnabled") : t("caching.toastDisabled"));
+			toast.success(checked ? "Local cache enabled" : "Local cache disabled");
 		} catch (error) {
-			toast.error(
-				t("caching.toastToggleFailed", { action: checked ? t("caching.enable") : t("caching.disable"), error: getErrorMessage(error) }),
-			);
+			toast.error(`Failed to ${checked ? "enable" : "disable"} local cache: ${getErrorMessage(error)}`);
 		}
 	};
 
 	const handleSave = async () => {
-		const err = validateForSave(cacheConfig, mode, t);
+		const err = validateForSave(cacheConfig, mode);
 		if (err) {
 			toast.error(err);
 			return;
@@ -266,9 +262,9 @@ export default function CachingView() {
 			setCacheConfig(editor);
 			setServerCacheConfig(editor);
 			setMode(inferMode(editor));
-			toast.success(t("caching.toastUpdated"));
+			toast.success("Cache configuration updated");
 		} catch (error) {
-			toast.error(t("caching.toastUpdateFailed", { error: getErrorMessage(error) }));
+			toast.error(`Failed to update cache configuration: ${getErrorMessage(error)}`);
 		}
 	};
 
@@ -277,12 +273,22 @@ export default function CachingView() {
 
 	return (
 		<div className="mx-auto w-full max-w-4xl space-y-6">
-			<PageTitle title={t("caching.title")}>{t("caching.description")}</PageTitle>
+			<PageTitle title="Local Cache">
+				Cache responses locally with two complementary lookup paths: <b>direct</b> hash matching for exact replays, and <b>semantic</b>{" "}
+				similarity search for related content. Send the <b>x-bf-cache-key</b> header to scope cached responses to a tenant or feature.{" "}
+				{!isVectorStoreEnabled && (
+					<span className="text-destructive font-medium">
+						Requires a vector store to be configured and enabled in <code>config.json</code>.
+					</span>
+				)}
+			</PageTitle>
 
 			{configError !== undefined && (
 				<div className="border-destructive/50 bg-destructive/10 rounded-sm border p-4">
-					<p className="text-destructive text-sm font-medium">{t("caching.failedToLoad")}</p>
-					<p className="text-muted-foreground mt-1 text-sm">{getErrorMessage(configError) || t("caching.unexpectedError")}</p>
+					<p className="text-destructive text-sm font-medium">Failed to load configuration</p>
+					<p className="text-muted-foreground mt-1 text-sm">
+						{getErrorMessage(configError) || "An unexpected error occurred. Please try again."}
+					</p>
 				</div>
 			)}
 
@@ -300,9 +306,12 @@ export default function CachingView() {
 					<div className="flex items-center justify-between space-x-2">
 						<div className="space-y-0.5">
 							<label htmlFor="enable-caching" className="text-sm font-medium">
-								{t("caching.enableCaching")}
+								Enable Caching
 							</label>
-							<p className="text-muted-foreground text-sm">{t("caching.enableHelp")}</p>
+							<p className="text-muted-foreground text-sm">
+								Loads (or unloads) the plugin without a server restart. Configuration changes you make below mutate the live plugin in
+								place, no redeploy needed.{" "}
+							</p>
 						</div>
 						<Tooltip>
 							<TooltipTrigger asChild>
@@ -317,7 +326,7 @@ export default function CachingView() {
 									/>
 								</span>
 							</TooltipTrigger>
-							{!hasSettingsUpdateAccess && <TooltipContent>{localeMessages.t("proxy.noPermission", { ns: "config" })}</TooltipContent>}
+							{!hasSettingsUpdateAccess && <TooltipContent>You don't have permission to update settings</TooltipContent>}
 						</Tooltip>
 					</div>
 
@@ -330,25 +339,40 @@ export default function CachingView() {
 							<div className={cn("space-y-4", !cachingActive && "pointer-events-none opacity-50")} aria-disabled={!cachingActive}>
 								{/* Mode picker. Direct-only is first-class. */}
 								<div className="space-y-2">
-									<Label className="text-sm font-medium">{t("caching.cacheMode")}</Label>
+									<Label className="text-sm font-medium">Cache Mode</Label>
 									<Tabs value={mode} onValueChange={(v) => setMode(v as CacheMode)}>
 										<TabsList className="flex w-full justify-start">
 											{/* Panels live outside <Tabs>, so drop the dangling aria-controls Radix would add. */}
 											<TabsTrigger value="direct" data-testid="caching-mode-direct-tab" aria-controls={undefined}>
-												{t("caching.directOnly")}
+												Direct only
 											</TabsTrigger>
 											<TabsTrigger
 												value="semantic"
 												data-testid="caching-mode-semantic-tab"
 												aria-controls={undefined}
 												disabled={embeddingProviders.length === 0}
-												title={embeddingProviders.length === 0 ? t("caching.semanticProviderRequired") : undefined}
+												title={
+													embeddingProviders.length === 0 ? "Configure an embedding-capable provider to enable semantic mode." : undefined
+												}
 											>
-												{t("caching.directSemantic")}
+												Direct + Semantic
 											</TabsTrigger>
 										</TabsList>
 									</Tabs>
-									<p className="text-muted-foreground text-xs">{mode === "direct" ? t("caching.directHelp") : t("caching.semanticHelp")}</p>
+									<p className="text-muted-foreground text-xs">
+										{mode === "direct" ? (
+											<>
+												Direct-only mode hashes each request and replays an exact match. No embeddings, no provider needed. Cheapest path,
+												perfect for stable prompts.
+											</>
+										) : (
+											<>
+												Direct + semantic mode adds vector similarity search on top of direct hash matching. Requires an embedding-capable
+												provider and the model&apos;s real dimension. Direct hits are still served first; semantic search runs only when the
+												direct lookup misses.
+											</>
+										)}
+									</p>
 								</div>
 
 								{validationError && (
@@ -362,19 +386,19 @@ export default function CachingView() {
 									<>
 										{hasStructuralChange && (
 											<div className="rounded-sm border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
-												<Trans
-													t={t}
-													i18nKey="caching.structuralChangeHelp"
-													components={{ b0: <b />, em1: <em />, b2: <b />, b3: <b />, b4: <b />, b5: <b />, em6: <em /> }}
-												/>
+												<b>Heads up:</b> a vector store namespace can only hold vectors of <em>one</em> dimension. Whenever you change the
+												embedding <b>provider</b>, <b>model</b>, or <b>dimension</b>, make sure the <b>dimension</b> still matches what the
+												model produces, otherwise writes to the existing namespace will fail and reads will silently miss. The namespace is{" "}
+												<em>not</em> recreated automatically; either use a fresh namespace or drop the existing class/index in your vector
+												store before saving.
 											</div>
 										)}
 
 										<div className="space-y-4">
-											<h3 className="text-sm font-medium">{t("caching.embeddingProviderModel")}</h3>
+											<h3 className="text-sm font-medium">Embedding Provider &amp; Model</h3>
 											<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 												<div className="space-y-2">
-													<Label htmlFor="provider">{t("caching.configuredProviders")}</Label>
+													<Label htmlFor="provider">Configured Providers</Label>
 													<ProviderSelector
 														inputId="provider"
 														data-testid="caching-provider-select"
@@ -389,7 +413,7 @@ export default function CachingView() {
 													/>
 												</div>
 												<div className="space-y-2">
-													<Label htmlFor="embedding_model">{t("caching.embeddingModelRequired")}</Label>
+													<Label htmlFor="embedding_model">Embedding Model*</Label>
 													<ModelSelector
 														inputId="embedding_model"
 														data-testid="caching-embedding-model-select"
@@ -397,14 +421,17 @@ export default function CachingView() {
 														value={cacheConfig.embedding_model ?? ""}
 														onChange={(model) => updateLocal({ embedding_model: model })}
 														allowCustomModel
-														placeholder={cacheConfig.provider ? t("caching.searchEmbeddingModel") : t("caching.selectProviderFirst")}
+														placeholder={cacheConfig.provider ? "Search or type an embedding model..." : "Select a provider first"}
 														disabled={!cacheConfig.provider}
 													/>
 												</div>
 											</div>
-											<p className="text-muted-foreground text-xs">{t("caching.inheritedKeysHelp")}</p>
+											<p className="text-muted-foreground text-xs">
+												API keys are inherited from the embedding provider&apos;s main configuration, you don&apos;t need to add them again
+												here.
+											</p>
 											<div className="space-y-2">
-												<Label htmlFor="dimension">{t("caching.dimension")}</Label>
+												<Label htmlFor="dimension">Dimension</Label>
 												<Input
 													id="dimension"
 													data-testid="caching-dimension-input"
@@ -424,11 +451,9 @@ export default function CachingView() {
 													}}
 												/>
 												<p className="text-muted-foreground text-xs">
-													<Trans
-														t={t}
-														i18nKey="caching.dimensionHelp"
-														components={{ code0: <code />, code1: <code />, code2: <code />, code3: <code />, code4: <code /> }}
-													/>
+													Vector size produced by the embedding model. Must match the model exactly (e.g. <code>1536</code> for OpenAI{" "}
+													<code>text-embedding-3-small</code>, <code>3072</code> for <code>text-embedding-3-large</code>, <code>768</code>{" "}
+													for many Cohere/Voyage models).
 												</p>
 											</div>
 										</div>
@@ -437,10 +462,10 @@ export default function CachingView() {
 
 								{/* Cache settings shared across modes. */}
 								<div className="space-y-4">
-									<h3 className="text-sm font-medium">{t("caching.cacheSettings")}</h3>
+									<h3 className="text-sm font-medium">Cache Settings</h3>
 									<div className={cn("grid gap-4", mode === "semantic" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1")}>
 										<div className="space-y-2">
-											<Label htmlFor="ttl">{t("caching.ttl")}</Label>
+											<Label htmlFor="ttl">TTL (seconds)</Label>
 											<Input
 												id="ttl"
 												data-testid="caching-ttl-input"
@@ -460,12 +485,12 @@ export default function CachingView() {
 												}}
 											/>
 											<p className="text-muted-foreground text-xs">
-												<Trans t={t} i18nKey="caching.ttlHelp" components={{ b0: <b /> }} />
+												How long cached entries live before they expire. Override per-request via the <b>x-bf-cache-ttl</b> header.
 											</p>
 										</div>
 										{mode === "semantic" && (
 											<div className="space-y-2">
-												<Label htmlFor="threshold">{t("caching.similarityThreshold")}</Label>
+												<Label htmlFor="threshold">Similarity Threshold</Label>
 												<Input
 													id="threshold"
 													data-testid="caching-threshold-input"
@@ -487,7 +512,7 @@ export default function CachingView() {
 													}}
 												/>
 												<p className="text-muted-foreground text-xs">
-													<Trans t={t} i18nKey="caching.thresholdHelp" components={{ b0: <b /> }} />
+													Minimum cosine similarity for a semantic hit. Override per-request via <b>x-bf-cache-threshold</b>.
 												</p>
 											</div>
 										)}
@@ -496,34 +521,37 @@ export default function CachingView() {
 
 								{/* Storage & Cache Key. */}
 								<div className="space-y-4">
-									<h3 className="text-sm font-medium">{t("caching.storageCacheKey")}</h3>
+									<h3 className="text-sm font-medium">Storage &amp; Cache Key</h3>
 									<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 										<div className="space-y-2">
-											<Label htmlFor="vector_store_namespace">{t("caching.vectorStoreNamespace")}</Label>
+											<Label htmlFor="vector_store_namespace">Vector Store Namespace</Label>
 											<Input
 												id="vector_store_namespace"
 												data-testid="caching-vector-store-namespace-input"
 												type="text"
-												placeholder="BifrostLocalCachePlugin"
+												placeholder="BifrostSemanticCachePlugin"
 												value={cacheConfig.vector_store_namespace ?? ""}
 												onChange={(e) => updateLocal({ vector_store_namespace: e.target.value })}
 											/>
 											<p className="text-muted-foreground text-xs">
-												<Trans t={t} i18nKey="caching.namespaceHelp" components={{ code0: <code /> }} />
+												Bucket/index name where cache entries live. Leave blank to use the default (<code>BifrostSemanticCachePlugin</code>).
+												Changing this points the plugin at a different (possibly empty) bucket. Old entries are not deleted, they just stop
+												being queried.
 											</p>
 										</div>
 										<div className="space-y-2">
-											<Label htmlFor="default_cache_key">{t("caching.defaultCacheKey")}</Label>
+											<Label htmlFor="default_cache_key">Default Cache Key</Label>
 											<Input
 												id="default_cache_key"
 												data-testid="caching-default-cache-key-input"
 												type="text"
-												placeholder={t("caching.noDefaultCacheKey")}
+												placeholder="(none)"
 												value={cacheConfig.default_cache_key ?? ""}
 												onChange={(e) => updateLocal({ default_cache_key: e.target.value })}
 											/>
 											<p className="text-muted-foreground text-xs">
-												<Trans t={t} i18nKey="caching.defaultKeyHelp" components={{ b0: <b />, b1: <b /> }} />
+												Fallback partition key used when a request doesn&apos;t set <b>x-bf-cache-key</b>. Cache keys isolate entries: same
+												key ↔ shared cache pool. Leave blank to <b>disable caching</b> for any request that doesn&apos;t send the header.
 											</p>
 										</div>
 									</div>
@@ -531,10 +559,10 @@ export default function CachingView() {
 
 								{/* Conversation Settings. */}
 								<div className="space-y-4">
-									<h3 className="text-sm font-medium">{t("caching.conversationSettings")}</h3>
+									<h3 className="text-sm font-medium">Conversation Settings</h3>
 									<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 										<div className="space-y-2">
-											<Label htmlFor="conversation_history_threshold">{t("caching.conversationHistoryThreshold")}</Label>
+											<Label htmlFor="conversation_history_threshold">Conversation History Threshold</Label>
 											<Input
 												id="conversation_history_threshold"
 												data-testid="caching-conversation-history-threshold-input"
@@ -559,17 +587,20 @@ export default function CachingView() {
 													}
 												}}
 											/>
-											<p className="text-muted-foreground text-xs">{t("caching.conversationThresholdHelp")}</p>
+											<p className="text-muted-foreground text-xs">
+												Skip caching for conversations with more than this many messages. Long histories rarely match exactly and inflate
+												the cache without paying off.
+											</p>
 										</div>
 									</div>
 									<div className="space-y-2">
 										<div className="flex h-fit items-center justify-between space-x-2 rounded-sm border p-3">
 											<div className="space-y-0.5">
-												<Label className="text-sm font-medium">{t("caching.excludeSystemPrompt")}</Label>
-												<p className="text-muted-foreground text-xs">{t("caching.excludeSystemPromptHelp")}</p>
+												<Label className="text-sm font-medium">Exclude System Prompt</Label>
+												<p className="text-muted-foreground text-xs">Strip system messages from the cache key.</p>
 											</div>
 											<Switch
-												aria-label={t("ui.cachingView.excludeSystemPrompt", { ns: "config" })}
+												aria-label="Exclude system prompt"
 												data-testid="caching-exclude-system-prompt-switch"
 												checked={cacheConfig.exclude_system_prompt || false}
 												onCheckedChange={(checked) => updateLocal({ exclude_system_prompt: checked })}
@@ -581,15 +612,17 @@ export default function CachingView() {
 
 								{/* Cache Behavior applies to both modes. */}
 								<div className="space-y-4">
-									<h3 className="text-sm font-medium">{t("caching.cacheKeyComposition")}</h3>
+									<h3 className="text-sm font-medium">Cache Key Composition</h3>
 									<div className="space-y-3">
 										<div className="flex items-center justify-between space-x-2 rounded-sm border p-3">
 											<div className="space-y-0.5">
-												<Label className="text-sm font-medium">{t("caching.cacheByModel")}</Label>
-												<p className="text-muted-foreground text-xs">{t("caching.cacheByModelHelp")}</p>
+												<Label className="text-sm font-medium">Cache by Model</Label>
+												<p className="text-muted-foreground text-xs">
+													Include model name in the cache key. Different models won&apos;t share cached responses.
+												</p>
 											</div>
 											<Switch
-												aria-label={t("ui.cachingView.cacheByModel", { ns: "config" })}
+												aria-label="Cache by model"
 												data-testid="caching-cache-by-model-switch"
 												checked={cacheConfig.cache_by_model}
 												onCheckedChange={(checked) => updateLocal({ cache_by_model: checked })}
@@ -598,11 +631,13 @@ export default function CachingView() {
 										</div>
 										<div className="flex items-center justify-between space-x-2 rounded-sm border p-3">
 											<div className="space-y-0.5">
-												<Label className="text-sm font-medium">{t("caching.cacheByProvider")}</Label>
-												<p className="text-muted-foreground text-xs">{t("caching.cacheByProviderHelp")}</p>
+												<Label className="text-sm font-medium">Cache by Provider</Label>
+												<p className="text-muted-foreground text-xs">
+													Include provider name in the cache key. Different providers won&apos;t share cached responses.
+												</p>
 											</div>
 											<Switch
-												aria-label={t("ui.cachingView.cacheByProvider", { ns: "config" })}
+												aria-label="Cache by provider"
 												data-testid="caching-cache-by-provider-switch"
 												checked={cacheConfig.cache_by_provider}
 												onCheckedChange={(checked) => updateLocal({ cache_by_provider: checked })}
@@ -611,13 +646,14 @@ export default function CachingView() {
 										</div>
 										<div className="flex items-center justify-between space-x-2 rounded-sm border p-3">
 											<div className="space-y-0.5">
-												<Label className="text-sm font-medium">{t("ui.cachingView.scopeCacheByIdentity", { ns: "config" })}</Label>
+												<Label className="text-sm font-medium">Scope Cache by Identity</Label>
 												<p className="text-muted-foreground text-xs">
-													{t("ui.cachingView.serveACachedResponseOnlyToTheVirtualKey", { ns: "config" })}
+													Serve a cached response only to the virtual key and user that wrote it. Turn off to share entries across
+													identities that send the same cache key.
 												</p>
 											</div>
 											<Switch
-												aria-label={t("ui.cachingView.scopeCacheByIdentity2", { ns: "config" })}
+												aria-label="Scope cache by identity"
 												data-testid="caching-identity-scoping-switch"
 												checked={!cacheConfig.disable_identity_scoping}
 												onCheckedChange={(checked) => updateLocal({ disable_identity_scoping: !checked })}
@@ -628,22 +664,22 @@ export default function CachingView() {
 								</div>
 
 								<div className="space-y-2">
-									<Label className="text-sm font-medium">{t("caching.perRequestOverrides")}</Label>
+									<Label className="text-sm font-medium">Per-request overrides</Label>
 									<ul className="text-muted-foreground list-inside list-disc text-xs">
 										<li>
-											<Trans t={t} i18nKey="caching.overrides.key" components={{ b0: <b /> }} />
+											<b>x-bf-cache-key</b>: scope this request to a specific cache partition.
 										</li>
 										<li>
-											<Trans t={t} i18nKey="caching.overrides.ttl" components={{ b0: <b /> }} />
+											<b>x-bf-cache-ttl</b>: override TTL for just this request.
 										</li>
 										<li>
-											<Trans t={t} i18nKey="caching.overrides.threshold" components={{ b0: <b /> }} />
+											<b>x-bf-cache-threshold</b>: override the semantic similarity threshold.
 										</li>
 										<li>
-											<Trans t={t} i18nKey="caching.overrides.type" components={{ b0: <b />, code1: <code />, code2: <code /> }} />
+											<b>x-bf-cache-type</b>: send <code>direct</code> or <code>semantic</code> to limit lookup to one path.
 										</li>
 										<li>
-											<Trans t={t} i18nKey="caching.overrides.noStore" components={{ b0: <b />, code1: <code /> }} />
+											<b>x-bf-cache-no-store</b>: <code>true</code> to skip writing the response (still serves cached hits).
 										</li>
 									</ul>
 								</div>
@@ -658,11 +694,11 @@ export default function CachingView() {
 												onClick={handleSave}
 												disabled={!hasUnsavedConfigChanges || isSaving || Boolean(validationError) || !hasSettingsUpdateAccess}
 											>
-												{isSaving ? t("saving") : t("saveChanges")}
+												{isSaving ? "Saving..." : "Save Changes"}
 											</Button>
 										</span>
 									</TooltipTrigger>
-									{!hasSettingsUpdateAccess && <TooltipContent>{t("proxy.noPermission")}</TooltipContent>}
+									{!hasSettingsUpdateAccess && <TooltipContent>You don't have permission to update settings</TooltipContent>}
 								</Tooltip>
 							</div>
 						</>

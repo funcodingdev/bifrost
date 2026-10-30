@@ -1,33 +1,32 @@
 import { addMilliseconds } from "date-fns";
-import type { TFunction } from "i18next";
 
 import type { MCPToolLogEntry } from "@/lib/types/logs";
 
 // Policy approval confirms permission, never successful execution.
-export function getMCPLogPresentation(log: MCPToolLogEntry, t?: TFunction) {
+export function getMCPLogPresentation(log: MCPToolLogEntry) {
 	const policy = log.metadata?.inspection_phase === "pre_execution";
 	const approved = policy && log.decision === "allow";
 	const blocked = policy && log.decision === "deny";
 	const label = approved
-		? (t?.("mcpLogs.presentation.policyApproved") ?? "Policy approved")
+		? "Policy approved"
 		: blocked
-			? (t?.("mcpLogs.presentation.policyBlocked") ?? "Policy blocked")
+			? "Policy blocked"
 			: log.status === "unknown"
-				? (t?.("mcpLogs.presentation.observed") ?? "Observed")
+				? "Observed"
 				: log.status === "success"
-					? (t?.("mcpLogs.presentation.succeeded") ?? "Succeeded")
+					? "Succeeded"
 					: log.status === "error"
-						? (t?.("mcpLogs.presentation.failed") ?? "Failed")
+						? "Failed"
 						: log.status === "cancelled"
-							? (t?.("mcpLogs.presentation.cancelled") ?? "Cancelled")
-							: (t?.("mcpLogs.presentation.processing") ?? "Processing");
+							? "Cancelled"
+							: "Processing";
 	const description = approved
-		? (t?.("mcpLogs.presentation.approvedDescription") ?? "Allowed before execution. No execution result is recorded in this entry.")
+		? "Allowed before execution. No execution result is recorded in this entry."
 		: blocked
-			? (t?.("mcpLogs.presentation.blockedDescription") ?? "Blocked before execution.")
+			? "Blocked before execution."
 			: log.status === "unknown"
-				? (t?.("mcpLogs.presentation.observedDescription") ?? "Tool activity was captured, but its execution outcome is not known.")
-				: (t?.("mcpLogs.presentation.executionDescription") ?? "Recorded tool execution outcome.");
+				? "Tool activity was captured, but its execution outcome is not known."
+				: "Recorded tool execution outcome.";
 	const rawDuration = log.metadata?.inspection_duration_ms;
 	const duration = rawDuration == null || (typeof rawDuration === "string" && rawDuration.trim() === "") ? undefined : Number(rawDuration);
 	const inspectionDuration = duration != null && Number.isFinite(duration) && duration >= 0 ? duration : undefined;
@@ -38,10 +37,10 @@ export function getMCPLogPresentation(log: MCPToolLogEntry, t?: TFunction) {
 			? observed
 			: undefined;
 	const durationLabel = policy
-		? (t?.("mcpLogs.policyCheck") ?? "Policy check")
+		? "Policy check"
 		: log.latency == null && observedDuration != null
-			? (t?.("mcpLogs.observedRoundTrip") ?? "Observed round trip")
-			: (t?.("mcpLogs.executionTime") ?? "Execution time");
+			? "Observed round trip"
+			: "Execution time";
 	return { policy, approved, label, description, inspectionDuration, observedDuration, durationLabel };
 }
 
@@ -94,6 +93,17 @@ export function getMCPArgumentPreview(log: MCPToolLogEntry): string | undefined 
 	for (const key of ["command", "cmd", "file_path", "path", "query", "code", "url"]) {
 		const value = values[key];
 		if (typeof value === "string" && value.trim()) return value.trim().replace(/\s+/g, " ").slice(0, 160);
+	}
+	return undefined;
+}
+
+// getMCPReadKind names the kind of read a row records, or undefined for a tool call.
+export function getMCPReadKind(log: Pick<MCPToolLogEntry, "method">): "Prompt" | "Resource" | undefined {
+	switch (log.method) {
+		case "prompts/get":
+			return "Prompt";
+		case "resources/read":
+			return "Resource";
 	}
 	return undefined;
 }

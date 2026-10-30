@@ -1,4 +1,3 @@
-import localeMessages from "@/lib/i18n";
 import PageTitle from "@/components/pageTitle";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +28,6 @@ import { RbacOperation, RbacResource, useRbac } from "@enterprise/lib";
 import { Link } from "@tanstack/react-router";
 import { AlertTriangle, ArrowRight, CheckCircle2, Database, Info, Loader2, Plus, Trash2, TriangleAlert } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
 	embeddingSpaceChanged,
@@ -45,6 +43,7 @@ import {
 	type WarpEmbeddingFields,
 	type WarpModelRow,
 } from "./warpConfig.utils";
+import WarpTopicsSection from "./warpTopicsSection";
 import {
 	isFiniteNumber,
 	retainedWarpBackfillForSpace,
@@ -73,6 +72,10 @@ const DEFAULT_EMBEDDING_DIMENSION = 1536;
 const DEFAULT_VECTOR_NAMESPACE = "BifrostWarpLogs";
 const DEFAULT_SEARCH_THRESHOLD = 0.5;
 const DEFAULT_SEARCH_LIMIT = 10;
+// Mirrors schemas.WarpDefaultTopicDiscoveryMinRequests and its bounds.
+const DEFAULT_TOPIC_DISCOVERY_MIN_REQUESTS = 100;
+const MIN_TOPIC_DISCOVERY_MIN_REQUESTS = 10;
+const MAX_TOPIC_DISCOVERY_MIN_REQUESTS = 20000;
 const DEFAULT_BACKFILL_PERIOD = "7d";
 
 /** "xhigh" -> "Xhigh". Good enough for a Select item; these are short, plain words. */
@@ -101,6 +104,7 @@ interface WarpFormState {
 	namespace: string;
 	threshold: number;
 	searchLimit: number;
+	discoveryMinRequests: number;
 }
 
 const EMPTY_FORM: WarpFormState = {
@@ -119,6 +123,7 @@ const EMPTY_FORM: WarpFormState = {
 	namespace: DEFAULT_VECTOR_NAMESPACE,
 	threshold: DEFAULT_SEARCH_THRESHOLD,
 	searchLimit: DEFAULT_SEARCH_LIMIT,
+	discoveryMinRequests: DEFAULT_TOPIC_DISCOVERY_MIN_REQUESTS,
 };
 
 /**
@@ -135,7 +140,6 @@ const EMPTY_FORM: WarpFormState = {
  * between the value and the control.
  */
 export default function WarpView() {
-	const { t } = useTranslation("config");
 	const hasWarpUpdateAccess = useRbac(RbacResource.Warp, RbacOperation.Update);
 	const { data: config, isLoading: isLoadingConfig, isError: isConfigError } = useGetWarpConfigQuery();
 	const {
@@ -348,6 +352,7 @@ export default function WarpView() {
 			namespace: config.log_vector_store_namespace || DEFAULT_VECTOR_NAMESPACE,
 			threshold: config.semantic_search_threshold || DEFAULT_SEARCH_THRESHOLD,
 			searchLimit: config.semantic_search_limit || DEFAULT_SEARCH_LIMIT,
+			discoveryMinRequests: config.topic_discovery_min_requests || DEFAULT_TOPIC_DISCOVERY_MIN_REQUESTS,
 		});
 	}, [config]);
 
@@ -401,7 +406,8 @@ export default function WarpView() {
 			form.embeddingDimension !== (config.embedding_dimension || DEFAULT_EMBEDDING_DIMENSION) ||
 			form.namespace !== (config.log_vector_store_namespace || DEFAULT_VECTOR_NAMESPACE) ||
 			form.threshold !== (config.semantic_search_threshold || DEFAULT_SEARCH_THRESHOLD) ||
-			form.searchLimit !== (config.semantic_search_limit || DEFAULT_SEARCH_LIMIT));
+			form.searchLimit !== (config.semantic_search_limit || DEFAULT_SEARCH_LIMIT) ||
+			form.discoveryMinRequests !== (config.topic_discovery_min_requests || DEFAULT_TOPIC_DISCOVERY_MIN_REQUESTS));
 
 	// The server enforces the same rules; checking here only saves a round trip.
 	const defaultModel = form.models[0];
@@ -420,6 +426,10 @@ export default function WarpView() {
 	const retentionError = validateWarpRetentionDays(form.historyRetentionDays);
 	const retentionInvalid = retentionError !== true;
 	const temperatureInvalid = form.temperature === "" || form.temperature < WARP_MIN_TEMPERATURE || form.temperature > WARP_MAX_TEMPERATURE;
+	const discoveryInvalid =
+		!Number.isInteger(form.discoveryMinRequests) ||
+		form.discoveryMinRequests < MIN_TOPIC_DISCOVERY_MIN_REQUESTS ||
+		form.discoveryMinRequests > MAX_TOPIC_DISCOVERY_MIN_REQUESTS;
 	const embeddingFields: WarpEmbeddingFields = form;
 	const embeddingValidation = validateWarpEmbedding(embeddingFields, form.enabled, config?.vector_store_connected ?? false);
 	const savedEmbeddingFields: WarpEmbeddingFields = {
@@ -451,6 +461,7 @@ export default function WarpView() {
 		timeoutInvalid ||
 		retentionInvalid ||
 		temperatureInvalid ||
+		discoveryInvalid ||
 		!!embeddingValidation ||
 		needsNewNamespace;
 
@@ -477,10 +488,11 @@ export default function WarpView() {
 			log_vector_store_namespace: form.namespace.trim(),
 			semantic_search_threshold: form.threshold,
 			semantic_search_limit: form.searchLimit,
+			topic_discovery_min_requests: form.discoveryMinRequests,
 		};
 		try {
 			await updateWarpConfig(payload).unwrap();
-			toast.success(t("warp.saved"));
+			toast.success("Warp configuration saved.");
 		} catch (error) {
 			toast.error(getErrorMessage(error));
 		}
@@ -488,7 +500,7 @@ export default function WarpView() {
 
 	const onStartBackfill = async (restart = false) => {
 		if (!backfillStart || !backfillEnd || backfillStart >= backfillEnd) {
-			toast.error(t("warp.badRange"));
+			toast.error("Choose a valid backfill time range.");
 			return;
 		}
 		// Resuming a checkpoint only works if the request's window matches the
@@ -515,7 +527,7 @@ export default function WarpView() {
 			// between this response and the first poll has already gone terminal.
 			activeBackfillSpaceKey.current = savedSpaceKey;
 			setActiveBackfillID(status.id ?? null);
-			toast.success(restart ? t("warp.backfillRestarted") : t("warp.backfillStarted"));
+			toast.success(restart ? "Warp embedding backfill restarted from the beginning." : "Warp embedding backfill started.");
 		} catch (error) {
 			toast.error(getErrorMessage(error));
 		}
@@ -524,7 +536,7 @@ export default function WarpView() {
 	const onCancelBackfill = async () => {
 		try {
 			await cancelWarpBackfill(activeBackfillID ? { id: activeBackfillID } : undefined).unwrap();
-			toast.success(t("warp.cancelRequested"));
+			toast.success("Backfill cancellation requested.");
 		} catch (error) {
 			toast.error(getErrorMessage(error));
 		}
@@ -533,16 +545,19 @@ export default function WarpView() {
 	return (
 		<div className="mx-auto w-full max-w-4xl space-y-4" data-testid="warp-config-view">
 			<form onSubmit={onSubmit} className="space-y-4">
-				<PageTitle title={localeMessages.t("nav.warp", { ns: "shell" })}>{t("warp.pageDescription")}</PageTitle>
+				<PageTitle title="Warp">
+					Warp answers questions about your Bifrost data in natural language. It runs on its own model, configured here and kept separate
+					from the providers Bifrost serves to your traffic.
+				</PageTitle>
 
 				{isLoadingConfig ? (
-					<p className="text-muted-foreground text-sm">{t("warp.loadingConfig")}</p>
+					<p className="text-muted-foreground text-sm">Loading Warp configuration...</p>
 				) : isConfigError ? (
 					// Without this branch a failed fetch falls through to the empty
 					// form, which reads as "Warp is switched off" rather than "we
 					// could not load it" - and Save stays disabled with no reason given.
 					<p className="text-destructive text-sm" role="alert">
-						{t("warp.loadFailed")}
+						Unable to load Warp configuration. Reload the page to try again.
 					</p>
 				) : (
 					<div className="space-y-4">
@@ -553,10 +568,13 @@ export default function WarpView() {
 									    whether to turn Warp on for everyone, so it is the moment the
 									    maturity signal actually informs a decision. */}
 									<div className="flex items-center gap-2">
-										<Label htmlFor="warp-enabled">{t("warp.enable")}</Label>
-										<Badge variant="secondary">{t("ui.warpView.aLPHA", { ns: "config" })}</Badge>
+										<Label htmlFor="warp-enabled">Enable Warp</Label>
+										<Badge variant="secondary">ALPHA</Badge>
 									</div>
-									<p className="text-muted-foreground text-sm">{t("warp.enableHelp")}</p>
+									<p className="text-muted-foreground text-sm">
+										Adds the Warp panel to the dashboard. Warp reads logs, metrics and usage data on behalf of whoever asks, scoped to what
+										that person can already see. It is early, so check its numbers against the dashboard before acting on them.
+									</p>
 								</div>
 								<Switch
 									id="warp-enabled"
@@ -572,19 +590,19 @@ export default function WarpView() {
 							    admitting why. Say it here, next to the switch that causes it. */}
 							{!form.enabled && !!defaultModel?.provider && !!defaultModel?.model && (
 								<p className="text-muted-foreground text-xs" data-testid="warp-disabled-hint">
-									{t("warp.disabledHint")}
+									Everything below is filled in, but Warp stays hidden until this is on.
 								</p>
 							)}
 							{!config?.vector_store_connected && (
 								<p className="text-destructive flex items-center gap-1.5 text-xs" data-testid="warp-vector-store-required">
-									<AlertTriangle className="h-3.5 w-3.5" /> {t("warp.vectorRequired")}
+									<AlertTriangle className="h-3.5 w-3.5" /> Connect a vector store in Settings before enabling Warp.
 								</p>
 							)}
 						</div>
 
 						<WarpSection
-							title={localeMessages.t("modelAccess.modelsTab", { ns: "common" })}
-							description={t("ui.warpView.theModelsWarpReasonsWithAndWritesAnswersFrom", { ns: "config" })}
+							title="Models"
+							description="The models Warp reasons with and writes answers from. The default answers unless someone picks another in the Warp panel. A capable model pays for itself here."
 						>
 							{/* A successful empty list is its own situation, distinct from
 							    loading and from a failed query. Without this the selector is
@@ -595,10 +613,10 @@ export default function WarpView() {
 								<Alert variant="warning" data-testid="warp-no-providers">
 									<TriangleAlert className="h-4 w-4" />
 									<AlertDescription className="gap-2">
-										<span>{t("warp.noProvider")}</span>
+										<span>No provider is configured yet. Warp needs one to run its model on.</span>
 										<Button asChild variant="outline" size="sm" data-testid="warp-add-provider-link">
 											<Link to="/workspace/providers">
-												{t("warp.addProvider")}
+												Add a provider
 												<ArrowRight className="size-3.5" />
 											</Link>
 										</Button>
@@ -608,14 +626,12 @@ export default function WarpView() {
 							{/* An empty dropdown reads as "this deployment has no providers",
 							    which is a different and much more alarming statement than
 							    "the list has not arrived yet". */}
-							{isProvidersLoading && (
-								<p className="text-muted-foreground text-xs">{localeMessages.t("warp.loadingProviders", { ns: "config" })}</p>
-							)}
+							{isProvidersLoading && <p className="text-muted-foreground text-xs">Loading providers...</p>}
 							{isProvidersError && (
 								<p className="text-destructive flex items-center gap-2 text-xs" role="alert">
-									{localeMessages.t("warp.providersLoadFailed", { ns: "config" })}
+									Could not load providers.
 									<button type="button" onClick={() => refetchProviders()} className="underline" data-testid="warp-providers-retry">
-										{localeMessages.t("promptRepo.retry", { ns: "config" })}
+										Retry
 									</button>
 								</p>
 							)}
@@ -649,26 +665,26 @@ export default function WarpView() {
 									data-testid="warp-add-model-btn"
 								>
 									<Plus className="size-3.5" />
-									{t("ui.warpView.addModel", { ns: "config" })}
+									Add model
 								</Button>
 								{form.models.length > WARP_MAX_ADDITIONAL_MODELS && (
 									<p className="text-muted-foreground text-xs">
-										{t("ui.warpView.warpOffersItsDefaultAndUpTo", { ns: "config" }) + " "}
-										{WARP_MAX_ADDITIONAL_MODELS} {t("ui.warpView.moreModels", { ns: "config" })}
+										Warp offers its default and up to {WARP_MAX_ADDITIONAL_MODELS} more models.
 									</p>
 								)}
 							</div>
 						</WarpSection>
 
-						<WarpSection title={t("warp.behaviorAndLimits")} description={t("warp.behaviorHelp")}>
+						<WarpSection
+							title="Behavior and limits"
+							description="How Warp samples, how far it may go per question, and how long chats are kept."
+						>
 							<div className="grid gap-x-6 gap-y-5 md:grid-cols-2">
 								<WarpField
-									label={t("warp.temperature")}
+									label="Temperature"
 									htmlFor="warp-temperature"
-									hint={t("warp.temperatureHelp", { min: WARP_MIN_TEMPERATURE, max: WARP_MAX_TEMPERATURE })}
-									error={
-										temperatureInvalid ? t("warp.temperatureError", { min: WARP_MIN_TEMPERATURE, max: WARP_MAX_TEMPERATURE }) : undefined
-									}
+									hint={`${WARP_MIN_TEMPERATURE} to ${WARP_MAX_TEMPERATURE}. Lower gives more consistent answers, which suits a tool that reports numbers.`}
+									error={temperatureInvalid ? `Must be between ${WARP_MIN_TEMPERATURE} and ${WARP_MAX_TEMPERATURE}` : undefined}
 								>
 									<Input
 										id="warp-temperature"
@@ -688,7 +704,7 @@ export default function WarpView() {
 								</WarpField>
 
 								<WarpField
-									label={t("warp.reasoningEffort")}
+									label="Reasoning effort"
 									htmlFor="warp-reasoning-effort"
 									hint="Only for reasoning models, and sent to every model listed above. Some providers reject an effort sent to a model without reasoning."
 								>
@@ -701,7 +717,7 @@ export default function WarpView() {
 											<SelectValue />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value={WARP_REASONING_UNSET}>{t("warp.providerDefault")}</SelectItem>
+											<SelectItem value={WARP_REASONING_UNSET}>Provider default</SelectItem>
 											{WARP_REASONING_EFFORTS.map((effort) => (
 												<SelectItem key={effort} value={effort}>
 													{capitalize(effort)}
@@ -714,9 +730,9 @@ export default function WarpView() {
 
 							<div className="grid gap-x-6 gap-y-5 md:grid-cols-3">
 								<WarpField
-									label={t("warp.maxIterations")}
+									label="Max iterations"
 									htmlFor="warp-max-iterations"
-									hint={t("warp.maxIterationsHelp")}
+									hint="Query-and-reconsider rounds per answer. Each one is billed."
 									error={iterationsInvalid ? iterationsError : undefined}
 								>
 									<Input
@@ -731,10 +747,10 @@ export default function WarpView() {
 								</WarpField>
 
 								<WarpField
-									label={t("warp.requestTimeout")}
+									label="Request timeout (seconds)"
 									htmlFor="warp-request-timeout"
-									hint={t("warp.requestTimeoutHelp")}
-									error={timeoutInvalid ? t("warp.timeoutError") : undefined}
+									hint="Bound on one model call. Raise it for slow self-hosted models."
+									error={timeoutInvalid ? "Must be at least 1 second" : undefined}
 								>
 									<Input
 										id="warp-request-timeout"
@@ -748,9 +764,9 @@ export default function WarpView() {
 								</WarpField>
 
 								<WarpField
-									label={t("warp.historyRetention")}
+									label="Chat history retention (days)"
 									htmlFor="warp-history-retention"
-									hint={t("warp.historyRetentionHelp", { days: DEFAULT_HISTORY_RETENTION_DAYS })}
+									hint={`Days after the last message. 0 uses the default of ${DEFAULT_HISTORY_RETENTION_DAYS}. Separate from log retention.`}
 									error={retentionInvalid ? retentionError : undefined}
 								>
 									<Input
@@ -765,12 +781,16 @@ export default function WarpView() {
 								</WarpField>
 							</div>
 
-							<WarpField label={t("warp.additionalInstructions")} htmlFor="warp-system-prompt-suffix" hint={t("warp.additionalHelp")}>
+							<WarpField
+								label="Additional instructions"
+								htmlFor="warp-system-prompt-suffix"
+								hint="Appended to Warp's built-in prompt, never replacing it. Useful for local naming conventions or team structure."
+							>
 								<AutoSizeTextarea
 									id="warp-system-prompt-suffix"
 									minRows={3}
 									maxRows={12}
-									placeholder={t("warp.additionalPlaceholder")}
+									placeholder="Costs are in USD. Team IDs map to squads in Notion."
 									data-testid="warp-system-prompt-suffix-input"
 									value={form.systemPromptSuffix}
 									onChange={(event) => update("systemPromptSuffix", event.target.value)}
@@ -780,8 +800,8 @@ export default function WarpView() {
 						</WarpSection>
 
 						<WarpSection
-							title={t("warp.conversationSearch")}
-							description={t("warp.conversationSearchHelp")}
+							title="Conversation search"
+							description="Warp embeds completed conversations into your vector store and uses them to find logs by meaning. Only vectors and operational metadata are stored there; conversation text stays in the log store."
 							action={
 								<Badge variant={config?.vector_store_connected ? "secondary" : "destructive"} data-testid="warp-vector-store-status">
 									{config?.vector_store_connected ? (
@@ -789,17 +809,17 @@ export default function WarpView() {
 									) : (
 										<Database className="mr-1 h-3.5 w-3.5" />
 									)}
-									{config?.vector_store_connected ? t("warp.vectorConnected") : t("warp.vectorDisconnected")}
+									{config?.vector_store_connected ? "Vector store connected" : "Vector store disconnected"}
 								</Badge>
 							}
 						>
 							<div className="grid gap-x-6 gap-y-5 md:grid-cols-2">
-								<WarpField label={t("warp.embeddingProvider")} htmlFor="warp-embedding-provider">
+								<WarpField label="Embedding provider" htmlFor="warp-embedding-provider">
 									<ProviderSelector
 										inputId="warp-embedding-provider"
 										data-testid="warp-embedding-provider-select"
 										filter={supportsWarpEmbedding}
-										placeholder={t("warp.selectEmbeddingProvider")}
+										placeholder="Select embedding provider"
 										value={form.embeddingProvider}
 										onChange={(value: string) =>
 											setForm((current) =>
@@ -818,12 +838,13 @@ export default function WarpView() {
 									    list has not arrived". */}
 									{!isProvidersLoading && !isProvidersError && embeddingProviders.length === 0 && (
 										<p className="text-muted-foreground text-xs" data-testid="warp-no-embedding-providers">
-											{t("warp.noEmbeddingProviders")}
+											None of the configured providers support embeddings. Add one that does - OpenAI, Azure OpenAI, Bedrock, Vertex or
+											Cohere - before enabling Warp.
 										</p>
 									)}
 								</WarpField>
 
-								<WarpField label={t("warp.embeddingModel")} htmlFor="warp-embedding-model">
+								<WarpField label="Embedding model" htmlFor="warp-embedding-model">
 									<ModelSelector
 										inputId="warp-embedding-model"
 										data-testid="warp-embedding-model-select"
@@ -838,12 +859,12 @@ export default function WarpView() {
 										keys={embeddingModelKeys}
 										value={form.embeddingModel}
 										onChange={(model) => update("embeddingModel", model)}
-										placeholder={form.embeddingProvider ? t("warp.searchEmbeddingModel") : t("warp.selectProviderFirst")}
+										placeholder={form.embeddingProvider ? "Search or type an embedding model..." : "Select a provider first"}
 										disabled={!form.embeddingProvider || !hasWarpUpdateAccess}
 									/>
 								</WarpField>
 
-								<WarpField label={t("warp.embeddingApiKey")} htmlFor="warp-embedding-api-key">
+								<WarpField label="Embedding API key" htmlFor="warp-embedding-api-key">
 									<Select
 										value={form.embeddingAPIKeyID || WARP_ANY_KEY}
 										onValueChange={(value) => {
@@ -862,10 +883,10 @@ export default function WarpView() {
 										disabled={!form.embeddingProvider || isEmbeddingKeysLoading || isEmbeddingKeysError || !hasWarpUpdateAccess}
 									>
 										<SelectTrigger className="w-full" id="warp-embedding-api-key" data-testid="warp-embedding-api-key-select">
-											<SelectValue placeholder={t("warp.anyKey")} />
+											<SelectValue placeholder="Any key" />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value={WARP_ANY_KEY}>{t("warp.anyKey")}</SelectItem>
+											<SelectItem value={WARP_ANY_KEY}>Any key</SelectItem>
 											{form.embeddingAPIKeyID && !embeddingProviderKeys.some((key) => key.id === form.embeddingAPIKeyID) && (
 												<SelectItem value={form.embeddingAPIKeyID}>{form.embeddingAPIKeyID}</SelectItem>
 											)}
@@ -876,25 +897,23 @@ export default function WarpView() {
 											))}
 										</SelectContent>
 									</Select>
-									{form.embeddingProvider && isEmbeddingKeysLoading && (
-										<p className="text-muted-foreground text-xs">{t("warp.loadingKeys")}</p>
-									)}
+									{form.embeddingProvider && isEmbeddingKeysLoading && <p className="text-muted-foreground text-xs">Loading keys...</p>}
 									{form.embeddingProvider && isEmbeddingKeysError && (
 										<p className="text-destructive flex items-center gap-2 text-xs" role="alert">
-											{t("warp.keysLoadFailed")}{" "}
+											Could not load this provider&apos;s keys.
 											<button
 												type="button"
 												onClick={() => refetchEmbeddingKeys()}
 												className="underline"
 												data-testid="warp-embedding-keys-retry"
 											>
-												{t("warp.retry")}
+												Retry
 											</button>
 										</p>
 									)}
 								</WarpField>
 
-								<WarpField label={t("warp.embeddingDimension")} htmlFor="warp-embedding-dimension">
+								<WarpField label="Embedding dimension" htmlFor="warp-embedding-dimension">
 									<Input
 										id="warp-embedding-dimension"
 										type="number"
@@ -908,7 +927,11 @@ export default function WarpView() {
 							</div>
 
 							<div className="grid gap-x-6 gap-y-5 md:grid-cols-3">
-								<WarpField label={t("warp.namespace")} htmlFor="warp-vector-namespace" hint={t("warp.namespaceHelp")}>
+								<WarpField
+									label="Log embedding namespace"
+									htmlFor="warp-vector-namespace"
+									hint="Change it whenever the provider, model or dimension changes."
+								>
 									<Input
 										id="warp-vector-namespace"
 										data-testid="warp-vector-namespace-input"
@@ -919,7 +942,7 @@ export default function WarpView() {
 								</WarpField>
 
 								<WarpField
-									label={t("warp.similarity")}
+									label="Similarity threshold"
 									htmlFor="warp-search-threshold"
 									hint="0.01 to 1, where 0.5 is unrelated and 1 is identical. Higher returns fewer, closer matches."
 								>
@@ -936,7 +959,7 @@ export default function WarpView() {
 									/>
 								</WarpField>
 
-								<WarpField label={t("warp.maxMatches")} htmlFor="warp-search-limit" hint={t("warp.maxMatchesHint")}>
+								<WarpField label="Maximum matches" htmlFor="warp-search-limit" hint="1 to 25 conversations per search.">
 									<Input
 										id="warp-search-limit"
 										type="number"
@@ -952,7 +975,8 @@ export default function WarpView() {
 
 							{needsNewNamespace && (
 								<p className="text-destructive flex items-center gap-1.5 text-sm" data-testid="warp-namespace-change-warning">
-									<AlertTriangle className="h-4 w-4" /> {t("warp.namespaceChanged")}
+									<AlertTriangle className="h-4 w-4" /> Provider, model, or dimension changed. Choose a new namespace so incompatible
+									vectors cannot mix.
 								</p>
 							)}
 							{embeddingValidation && (
@@ -963,8 +987,11 @@ export default function WarpView() {
 
 							<div className="@container/backfill -mx-4 space-y-3 border-t px-4 pt-4" data-testid="warp-backfill-section">
 								<div className="space-y-0.5">
-									<h4 className="text-sm font-medium">{t("warp.backfill")}</h4>
-									<p className="text-muted-foreground text-xs">{t("warp.backfillHelp")}</p>
+									<h4 className="text-sm font-medium">Backfill embeddings</h4>
+									<p className="text-muted-foreground text-xs">
+										Index completed conversations from an existing log window. Runs in the background, can be cancelled, and resumes safely
+										across batches.
+									</p>
 								</div>
 
 								<div className="flex flex-col gap-2 @2xl/backfill:flex-row @2xl/backfill:items-center">
@@ -1006,7 +1033,7 @@ export default function WarpView() {
 												disabled={isCancellingBackfill || !hasWarpUpdateAccess}
 												data-testid="warp-backfill-cancel-btn"
 											>
-												{isCancellingBackfill && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} {t("warp.cancelBackfill")}
+												{isCancellingBackfill && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Cancel backfill
 											</Button>
 										) : (
 											<>
@@ -1029,7 +1056,7 @@ export default function WarpView() {
 														}
 														data-testid="warp-backfill-restart-btn"
 													>
-														{t("warp.startFresh")}
+														Start fresh instead
 													</Button>
 												)}
 												<Button
@@ -1052,24 +1079,26 @@ export default function WarpView() {
 													data-testid="warp-backfill-start-btn"
 												>
 													{isStartingBackfill && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-													{canResumeBackfill
-														? t("warp.resumeBackfill", { scanned: backfillStatus.scanned, total: backfillStatus.total })
-														: t("warp.startBackfill")}
+													{canResumeBackfill ? `Resume backfill (${backfillStatus.scanned}/${backfillStatus.total})` : "Start backfill"}
 												</Button>
 											</>
 										)}
 									</div>
 								</div>
 
-								{hasChanges && <p className="text-muted-foreground text-xs">{t("warp.saveBeforeBackfill")}</p>}
-								{!hasChanges && backfillWindowAlreadyDone && <p className="text-muted-foreground text-xs">{t("warp.windowAlreadyDone")}</p>}
+								{hasChanges && <p className="text-muted-foreground text-xs">Save configuration changes before starting a backfill.</p>}
+								{!hasChanges && backfillWindowAlreadyDone && (
+									<p className="text-muted-foreground text-xs">
+										This window is already fully indexed. Change the dates to backfill a different range.
+									</p>
+								)}
 
 								{shownBackfill?.id && (
 									<div className="bg-muted/40 space-y-2 rounded-sm p-3 text-sm" data-testid="warp-backfill-status">
 										<div className="flex items-center justify-between gap-3">
 											<span className="font-medium capitalize">{shownBackfill.status}</span>
 											<span className="text-muted-foreground">
-												{t("warp.scanned", { scanned: shownBackfill.scanned, total: shownBackfill.total })}
+												{shownBackfill.scanned} / {shownBackfill.total} scanned
 											</span>
 										</div>
 										<div className="bg-border h-2 overflow-hidden rounded-full">
@@ -1082,35 +1111,62 @@ export default function WarpView() {
 										</div>
 										<div className="text-muted-foreground flex items-center justify-between gap-3 text-xs">
 											<span>
-												{t("warp.backfillCounts", {
-													indexed: shownBackfill.indexed,
-													skipped: shownBackfill.skipped,
-													failed: shownBackfill.failed,
-												})}
+												{shownBackfill.indexed} indexed · {shownBackfill.skipped} skipped · {shownBackfill.failed} failed
 											</span>
 											{backfillSpend && <span data-testid="warp-backfill-spend">{backfillSpend}</span>}
 										</div>
 										{shownBackfill.message && <p className="text-muted-foreground text-xs">{shownBackfill.message}</p>}
-										{shownBackfill.last_error && (
-											<p className="text-destructive text-xs">{t("warp.latestError", { error: shownBackfill.last_error })}</p>
-										)}
+										{shownBackfill.last_error && <p className="text-destructive text-xs">Latest error: {shownBackfill.last_error}</p>}
 									</div>
 								)}
 
 								{isBackfillStatusError && (
 									<p className="text-destructive flex items-center gap-2 text-xs" role="alert" data-testid="warp-backfill-status-error">
-										{t("warp.backfillStatusFailed")}{" "}
+										Could not read backfill status, so a running job may not be shown.
 										<button
 											type="button"
 											onClick={() => refetchBackfillStatus()}
 											className="underline"
 											data-testid="warp-backfill-status-retry"
 										>
-											{t("warp.retry")}
+											Retry
 										</button>
 									</p>
 								)}
 							</div>
+
+							<WarpTopicsSection
+								hasSettingsUpdateAccess={hasWarpUpdateAccess}
+								configured={!!config?.configured}
+								vectorStoreConnected={!!config?.vector_store_connected}
+								hasChanges={hasChanges}
+								discoveryField={
+									<WarpField
+										label="New topic threshold"
+										htmlFor="warp-topic-discovery-min-requests"
+										className="max-w-xs"
+										hint={`How many requests that matched no topic have to be waiting before Warp groups them into new topics, checked hourly. Lower finds new subjects sooner from fewer examples; higher waits for clearer patterns. ${MIN_TOPIC_DISCOVERY_MIN_REQUESTS} to ${MAX_TOPIC_DISCOVERY_MIN_REQUESTS}.`}
+										error={
+											discoveryInvalid
+												? `Must be a whole number from ${MIN_TOPIC_DISCOVERY_MIN_REQUESTS} to ${MAX_TOPIC_DISCOVERY_MIN_REQUESTS}`
+												: undefined
+										}
+									>
+										<Input
+											id="warp-topic-discovery-min-requests"
+											type="number"
+											min={MIN_TOPIC_DISCOVERY_MIN_REQUESTS}
+											max={MAX_TOPIC_DISCOVERY_MIN_REQUESTS}
+											step={1}
+											data-testid="warp-topic-discovery-min-requests-input"
+											className={discoveryInvalid ? "border-destructive" : ""}
+											value={form.discoveryMinRequests}
+											onChange={(event) => update("discoveryMinRequests", Number(event.target.value))}
+											disabled={!hasWarpUpdateAccess}
+										/>
+									</WarpField>
+								}
+							/>
 						</WarpSection>
 					</div>
 				)}
@@ -1118,11 +1174,11 @@ export default function WarpView() {
 				<div className="bg-card sticky bottom-0 z-10 flex justify-end gap-3 border-t py-3">
 					{missingRequired && (
 						<p className="text-muted-foreground self-center text-xs" data-testid="warp-missing-required">
-							{t("warp.chooseProviderModel")}
+							Choose a provider and model to enable Warp.
 						</p>
 					)}
 					<Button type="submit" disabled={!hasChanges || isSaving || invalid || !hasWarpUpdateAccess} data-testid="warp-save-btn">
-						{isSaving ? t("warp.saving") : t("warp.saveChanges")}
+						{isSaving ? "Saving..." : "Save Changes"}
 					</Button>
 				</div>
 			</form>
@@ -1144,7 +1200,6 @@ interface WarpModelRowFieldsProps {
 
 /** One provider, model and key. Each row loads its own provider's keys, so the list can mix providers. */
 function WarpModelRowFields({ row, index, disabled, error, onChange, onMakeDefault, onRemove }: WarpModelRowFieldsProps) {
-	const { t: tCopy } = useTranslation();
 	const isDefault = index === 0;
 	// The default row keeps the ids it had as the page's only model.
 	const suffix = isDefault ? "" : `-${index}`;
@@ -1175,9 +1230,7 @@ function WarpModelRowFields({ row, index, disabled, error, onChange, onMakeDefau
 	return (
 		<div className="space-y-3 py-4 first:pt-0 last:pb-0" data-testid={`warp-model-row${suffix}`}>
 			<div className="flex min-h-7 items-center justify-between gap-3">
-				<h4 className="text-sm font-medium">
-					{isDefault ? tCopy("ui.warpView.defaultModel", { ns: "config" }) : tCopy("warp.modelNumber", { ns: "config", number: index + 1 })}
-				</h4>
+				<h4 className="text-sm font-medium">{isDefault ? "Default model" : `Model ${index + 1}`}</h4>
 				{!isDefault && (
 					<div className="flex items-center gap-1">
 						<Button
@@ -1189,7 +1242,7 @@ function WarpModelRowFields({ row, index, disabled, error, onChange, onMakeDefau
 							disabled={disabled || !row.provider || !row.model}
 							data-testid={`warp-model-make-default-btn${suffix}`}
 						>
-							{tCopy("ui.warpView.makeDefault", { ns: "config" })}
+							Make default
 						</Button>
 						<Button
 							type="button"
@@ -1198,7 +1251,7 @@ function WarpModelRowFields({ row, index, disabled, error, onChange, onMakeDefau
 							className="size-7"
 							onClick={onRemove}
 							disabled={disabled}
-							aria-label={tCopy("warp.removeModel", { ns: "config", number: index + 1 })}
+							aria-label={`Remove model ${index + 1}`}
 							data-testid={`warp-model-remove-btn${suffix}`}
 						>
 							<Trash2 className="size-3.5" />
@@ -1208,11 +1261,7 @@ function WarpModelRowFields({ row, index, disabled, error, onChange, onMakeDefau
 			</div>
 
 			<div className="grid gap-x-6 gap-y-5 md:grid-cols-3">
-				<WarpField
-					label={localeMessages.t("promptRepo.provider", { ns: "config" })}
-					htmlFor={`warp-provider${suffix}`}
-					hint={localeMessages.t("warp.providerHelp", { ns: "config" })}
-				>
+				<WarpField label="Provider" htmlFor={`warp-provider${suffix}`} hint="Only providers already configured in Bifrost are listed.">
 					<ProviderSelector
 						inputId={`warp-provider${suffix}`}
 						data-testid={`warp-provider-select${suffix}`}
@@ -1228,7 +1277,7 @@ function WarpModelRowFields({ row, index, disabled, error, onChange, onMakeDefau
 					/>
 				</WarpField>
 
-				<WarpField label={localeMessages.t("promptRepo.model", { ns: "config" })} htmlFor={`warp-model${suffix}`}>
+				<WarpField label="Model" htmlFor={`warp-model${suffix}`}>
 					<ModelSelector
 						inputId={`warp-model${suffix}`}
 						data-testid={`warp-model-select${suffix}`}
@@ -1243,19 +1292,15 @@ function WarpModelRowFields({ row, index, disabled, error, onChange, onMakeDefau
 						value={row.model}
 						unfiltered
 						onChange={(model) => onChange({ model })}
-						placeholder={
-							row.provider
-								? localeMessages.t("warp.searchOrTypeModel", { ns: "config" })
-								: localeMessages.t("caching.selectProviderFirst", { ns: "config" })
-						}
+						placeholder={row.provider ? "Search or type a model..." : "Select a provider first"}
 						disabled={!row.provider || disabled}
 					/>
 				</WarpField>
 
 				<WarpField
-					label={localeMessages.t("warp.apiKey", { ns: "config" })}
+					label="API key"
 					htmlFor={`warp-api-key-id${suffix}`}
-					hint={localeMessages.t("warp.apiKeyHelp", { ns: "config" })}
+					hint="Any key load-balances across the provider's pool. Pin one to isolate Warp's traffic."
 				>
 					<Select
 						value={row.apiKeyID || WARP_ANY_KEY}
@@ -1279,19 +1324,13 @@ function WarpModelRowFields({ row, index, disabled, error, onChange, onMakeDefau
 						disabled={!row.provider || isKeysLoading || isKeysError || disabled}
 					>
 						<SelectTrigger className="w-full" id={`warp-api-key-id${suffix}`} data-testid={`warp-api-key-select${suffix}`}>
-							<SelectValue
-								placeholder={
-									row.provider
-										? localeMessages.t("warp.anyKey", { ns: "config" })
-										: localeMessages.t("caching.selectProviderFirst", { ns: "config" })
-								}
-							/>
+							<SelectValue placeholder={row.provider ? "Any key" : "Select a provider first"} />
 						</SelectTrigger>
 						<SelectContent>
 							{/* Radix forbids an empty-string SelectItem value, so the unpinned
 							    default needs a sentinel, mapped back to "" before it leaves.
 							    Listing it first makes it the obvious default. */}
-							<SelectItem value={WARP_ANY_KEY}>{localeMessages.t("warp.anyKey", { ns: "config" })}</SelectItem>
+							<SelectItem value={WARP_ANY_KEY}>Any key</SelectItem>
 							{/* A pinned key missing from the fetched set still has to show,
 							    or it silently reads as Any key here while staying pinned on
 							    the server. */}
@@ -1310,16 +1349,14 @@ function WarpModelRowFields({ row, index, disabled, error, onChange, onMakeDefau
 					    after it failed - both of those also produce an empty list.
 					    Kept inline, not in the tooltip: it describes current state. */}
 					{row.provider && !isKeysLoading && !isKeysError && providerKeys.length === 0 && (
-						<p className="text-muted-foreground text-xs">{localeMessages.t("warp.noKeys", { ns: "config" })}</p>
+						<p className="text-muted-foreground text-xs">This provider has no keys configured, which is fine if it needs none.</p>
 					)}
-					{row.provider && isKeysLoading && (
-						<p className="text-muted-foreground text-xs">{localeMessages.t("warp.loadingKeys", { ns: "config" })}</p>
-					)}
+					{row.provider && isKeysLoading && <p className="text-muted-foreground text-xs">Loading keys...</p>}
 					{row.provider && isKeysError && (
 						<p className="text-destructive flex items-center gap-2 text-xs" role="alert">
-							{tCopy("ui.warpView.couldNotLoadThisProviderSKeys", { ns: "config" })}
+							Could not load this provider&apos;s keys.
 							<button type="button" onClick={() => refetchKeys()} className="underline" data-testid={`warp-keys-retry${suffix}`}>
-								{localeMessages.t("promptRepo.retry", { ns: "config" })}
+								Retry
 							</button>
 						</p>
 					)}
@@ -1370,7 +1407,6 @@ interface WarpFieldProps {
 }
 
 function WarpField({ label, htmlFor, hint, error, className, children }: WarpFieldProps) {
-	const { t: tReview } = useTranslation();
 	return (
 		<div className={cn("flex min-w-0 flex-col gap-1.5", className)}>
 			<div className="flex items-center gap-1.5">
@@ -1381,7 +1417,7 @@ function WarpField({ label, htmlFor, hint, error, className, children }: WarpFie
 							<button
 								type="button"
 								className="text-muted-foreground hover:text-foreground inline-flex"
-								aria-label={tReview("aboutField", { ns: "common", field: label })}
+								aria-label={`About ${label}`}
 								data-testid={`${htmlFor}-info`}
 							>
 								<Info className="size-3.5" />

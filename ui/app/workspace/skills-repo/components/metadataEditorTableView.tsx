@@ -1,7 +1,6 @@
 "use client";
 
 import { HeadersTable } from "@/components/ui/headersTable";
-import { useTranslation } from "react-i18next";
 
 // ---------- MetadataTableEditor ----------
 
@@ -14,7 +13,6 @@ export function MetadataTableEditor({
 	onChange: (json: string) => void;
 	error?: string;
 }) {
-	const { t } = useTranslation("config");
 	// Parse JSON string into key-value pairs for the table
 	let parsedValue: Record<string, string> = {};
 	if (metadataJson.trim()) {
@@ -42,13 +40,7 @@ export function MetadataTableEditor({
 
 	return (
 		<div className="flex flex-col gap-2">
-			<HeadersTable
-				label=""
-				value={parsedValue}
-				onChange={handleChange}
-				keyPlaceholder={t("skillsRepo.metadataKeyPlaceholder")}
-				valuePlaceholder={t("skillsRepo.metadataValuePlaceholder")}
-			/>
+			<HeadersTable label="" value={parsedValue} onChange={handleChange} keyPlaceholder="Metadata key" valuePlaceholder="Metadata value" />
 			{error && (
 				<p className="text-destructive mt-1 text-xs" role="alert">
 					{error}

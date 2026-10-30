@@ -4,7 +4,6 @@ import { toOptionalSecretVarPayload } from "@/lib/utils/secretVarForm";
 import { useMemo } from "react";
 import { toast } from "sonner";
 import { PrometheusFormFragment } from "../../fragments/prometheusFormFragment";
-import { useTranslation } from "react-i18next";
 
 interface PushGatewayConfig {
 	enabled?: boolean;
@@ -31,7 +30,6 @@ interface PrometheusViewProps {
 }
 
 export default function PrometheusView({ onDelete, isDeleting }: PrometheusViewProps) {
-	const { t } = useTranslation("observability");
 	const selectedPlugin = useAppSelector((state) => state.plugin.selectedPlugin);
 	const currentConfig = useMemo(() => {
 		const telemetryConfig = (selectedPlugin?.config as TelemetryConfig) ?? {};
@@ -83,10 +81,10 @@ export default function PrometheusView({ onDelete, isDeleting }: PrometheusViewP
 				.unwrap()
 				.then(() => {
 					resolve();
-					toast.success(t("connectors.toast.prometheusUpdated"));
+					toast.success("Prometheus configuration updated successfully");
 				})
 				.catch((err) => {
-					toast.error(t("connectors.toast.prometheusFailed"), {
+					toast.error("Failed to update Prometheus configuration", {
 						description: getErrorMessage(err),
 					});
 					reject(err);
@@ -98,9 +96,9 @@ export default function PrometheusView({ onDelete, isDeleting }: PrometheusViewP
 		<div className="flex w-full flex-col gap-4">
 			<div className="flex w-full flex-col gap-3">
 				<div className="text-muted-foreground mb-2 text-xs font-normal">
-					{t("ui.prometheusView.exposeBifrostMetricsForPrometheusToScrapeFromThe", { ns: "observability" }) + " "}
-					<code>/metrics</code> {t("ui.prometheusView.endpointOrPushThemToAPrometheusPushGateway", { ns: "observability" })}
-				</div>
+					Expose Bifrost metrics for Prometheus to scrape from the <code>/metrics</code> endpoint, or push them to a Prometheus Push
+          Gateway.
+        </div>
 				<PrometheusFormFragment
 					onSave={handlePrometheusConfigSave}
 					currentConfig={currentConfig}

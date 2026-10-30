@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 // Reusable form for the MCP per-user-headers flow.
 //
 // Two callers exercise this:
@@ -78,7 +77,6 @@ export default function HeadersForm({
 	onCancel,
 	cancelLabel = "Cancel",
 }: HeadersFormProps) {
-	const { t: tCopy } = useTranslation();
 	const [values, setValues] = useState<Record<string, string>>(() => buildInitialValues(requiredKeys, initialValues));
 	const [reveal, setReveal] = useState<Record<string, boolean>>({});
 
@@ -121,14 +119,17 @@ export default function HeadersForm({
 			{adminHeaderKeys && adminHeaderKeys.length > 0 && (
 				<div className="border-muted-foreground/20 bg-muted/40 rounded-md border p-3">
 					<div className="flex items-center gap-1.5">
-						<p className="text-muted-foreground text-xs font-medium">{tCopy("ui.headersForm.staticAdminHeaders", { ns: "common" })}</p>
+						<p className="text-muted-foreground text-xs font-medium">Static admin headers</p>
 						<TooltipProvider>
 							<Tooltip>
 								<TooltipTrigger asChild>
 									<Info className="text-muted-foreground size-3" />
 								</TooltipTrigger>
 								<TooltipContent className="max-w-xs">
-									<p>{tCopy("ui.headersForm.theseHeadersAreSetByTheAdminOnThe", { ns: "common" })}</p>
+									<p>
+										These headers are set by the admin on the MCP client and accompany every request alongside your submitted values. You
+										can&apos;t edit them here.
+									</p>
 								</TooltipContent>
 							</Tooltip>
 						</TooltipProvider>
@@ -145,7 +146,7 @@ export default function HeadersForm({
 
 			<div className="space-y-3">
 				{requiredKeys.length === 0 ? (
-					<p className="text-muted-foreground text-sm">{tCopy("ui.headersForm.noHeaderKeysHaveBeenDeclaredOnThisMCP", { ns: "common" })}</p>
+					<p className="text-muted-foreground text-sm">No header keys have been declared on this MCP client.</p>
 				) : (
 					requiredKeys.map((key) => {
 						const isRevealed = reveal[key] === true;
@@ -156,9 +157,7 @@ export default function HeadersForm({
 									<Label htmlFor={`${testIdPrefix}-${key}`} className="font-mono text-xs">
 										{key}
 									</Label>
-									{wasSubmitted && (
-										<span className="text-muted-foreground text-xs">{tCopy("ui.headersForm.previouslySubmitted", { ns: "common" })}</span>
-									)}
+									{wasSubmitted && <span className="text-muted-foreground text-xs">Previously submitted</span>}
 								</div>
 								<div className="relative">
 									<Input
@@ -167,11 +166,7 @@ export default function HeadersForm({
 										autoComplete="off"
 										value={values[key] ?? ""}
 										onChange={(e) => handleChange(key, e.target.value)}
-										placeholder={
-											wasSubmitted
-												? tCopy("ui.headersForm.enterNewValueToOverwrite", { ns: "common" })
-												: tCopy("headers.namedValue", { ns: "common", name: key })
-										}
+										placeholder={wasSubmitted ? "•••••• (enter new value to overwrite)" : `Value for ${key}`}
 										disabled={busy}
 										data-testid={`${testIdPrefix}-input-${key}`}
 									/>
@@ -179,9 +174,7 @@ export default function HeadersForm({
 										type="button"
 										onClick={() => setReveal((r) => ({ ...r, [key]: !r[key] }))}
 										className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
-										aria-label={
-											isRevealed ? tCopy("ui.headersForm.hideValue", { ns: "common" }) : tCopy("ui.headersForm.showValue", { ns: "common" })
-										}
+										aria-label={isRevealed ? "Hide value" : "Show value"}
 										data-testid={`${testIdPrefix}-reveal-${key}`}
 									>
 										{isRevealed ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}

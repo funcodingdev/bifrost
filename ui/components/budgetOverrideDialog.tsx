@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -22,7 +21,6 @@ interface BudgetOverrideDialogProps {
 
 /** Lets an operator add, replace, or remove the additive override on one persisted budget. */
 export function BudgetOverrideDialog({ budget, onSave, onRemove, disabled, calendarAligned }: BudgetOverrideDialogProps) {
-	const { t: tCopy } = useTranslation();
 	const active = hasActiveBudgetOverride(budget);
 	const [open, setOpen] = useState(false);
 	const [amount, setAmount] = useState("");
@@ -72,7 +70,7 @@ export function BudgetOverrideDialog({ budget, onSave, onRemove, disabled, calen
 		setError(null);
 		try {
 			await onRemove();
-			toast.success(tCopy("ui.budgetOverrideDialog.budgetOverrideRemoved", { ns: "governance" }));
+			toast.success("Budget override removed");
 			setOpen(false);
 		} catch (mutationError) {
 			setError(getErrorMessage(mutationError));
@@ -93,30 +91,21 @@ export function BudgetOverrideDialog({ budget, onSave, onRemove, disabled, calen
 					data-testid={`budget-override-open-${budget.id}`}
 				>
 					{active ? <Pencil className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
-					{active
-						? tCopy("ui.budgetOverrideDialog.editOverride", { ns: "governance" })
-						: tCopy("ui.budgetOverrideDialog.addOverride", { ns: "governance" })}
+					{active ? "Edit override" : "Add override"}
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="rounded-sm sm:max-w-md" data-testid={`budget-override-dialog-${budget.id}`}>
 				<form onSubmit={handleSubmit}>
 					<DialogHeader>
-						<DialogTitle>
-							{active
-								? tCopy("ui.budgetOverrideDialog.editBudgetOverride", { ns: "governance" })
-								: tCopy("ui.budgetOverrideDialog.addBudgetOverride", { ns: "governance" })}
-						</DialogTitle>
+						<DialogTitle>{active ? "Edit budget override" : "Add budget override"}</DialogTitle>
 						<DialogDescription>
-							{tCopy("ui.budgetOverrideDialog.temporarilyAddSpendingCapacityWithoutChangingTheBase", { ns: "governance" }) + " "}
-							{formatCurrency(budget.max_limit)} {tCopy("ui.budgetOverrideDialog.budget", { ns: "governance" })}
+							Temporarily add spending capacity without changing the base {formatCurrency(budget.max_limit)} budget.
 						</DialogDescription>
 					</DialogHeader>
 
 					<div className="space-y-4 py-5">
 						<div className="space-y-2">
-							<Label htmlFor={`budget-override-amount-${budget.id}`}>
-								{tCopy("ui.budgetOverrideDialog.additionalBudget", { ns: "governance" })}
-							</Label>
+							<Label htmlFor={`budget-override-amount-${budget.id}`}>Additional budget</Label>
 							<div className="relative">
 								<span
 									className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm"
@@ -140,23 +129,21 @@ export function BudgetOverrideDialog({ budget, onSave, onRemove, disabled, calen
 						</div>
 
 						<div className="space-y-2">
-							<Label>{tCopy("logs.session.duration", { ns: "observability" })}</Label>
+							<Label>Duration</Label>
 							<Select value={mode} onValueChange={(value) => setMode(value as "cycles" | "forever")} disabled={isSaving}>
 								<SelectTrigger className="w-full rounded-sm" data-testid="budget-override-mode">
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent className="rounded-sm">
-									<SelectItem value="cycles">{tCopy("ui.budgetOverrideDialog.forANumberOfResetCycles", { ns: "governance" })}</SelectItem>
-									<SelectItem value="forever">{tCopy("ui.budgetOverrideDialog.untilRemoved", { ns: "governance" })}</SelectItem>
+									<SelectItem value="cycles">For a number of reset cycles</SelectItem>
+									<SelectItem value="forever">Until removed</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
 
 						{mode === "cycles" ? (
 							<div className="space-y-2">
-								<Label htmlFor={`budget-override-cycles-${budget.id}`}>
-									{tCopy("ui.budgetOverrideDialog.resetCycles", { ns: "governance" })}
-								</Label>
+								<Label htmlFor={`budget-override-cycles-${budget.id}`}>Reset cycles</Label>
 								<Input
 									id={`budget-override-cycles-${budget.id}`}
 									type="number"
@@ -168,13 +155,10 @@ export function BudgetOverrideDialog({ budget, onSave, onRemove, disabled, calen
 									disabled={isSaving}
 									data-testid="budget-override-cycles"
 								/>
-								<p className="text-muted-foreground text-xs">
-									{tCopy("ui.budgetOverrideDialog.theCurrentResetCycleCountsAsTheFirstCycle", { ns: "governance" })}
-								</p>
+								<p className="text-muted-foreground text-xs">The current reset cycle counts as the first cycle.</p>
 								{validUntil ? (
 									<p className="text-muted-foreground text-xs">
-										{tCopy("ui.budgetOverrideDialog.validUntil", { ns: "governance" }) + " "}
-										<span className="text-foreground font-medium">{validUntil.toLocaleString()}</span>
+										Valid until <span className="text-foreground font-medium">{validUntil.toLocaleString()}</span>
 									</p>
 								) : null}
 							</div>
@@ -182,8 +166,7 @@ export function BudgetOverrideDialog({ budget, onSave, onRemove, disabled, calen
 
 						{active ? (
 							<div className="bg-muted/50 rounded-sm px-3 py-2 text-xs">
-								{tCopy("ui.budgetOverrideDialog.currentEffectiveLimit", { ns: "governance" }) + " "}
-								<span className="font-medium">{formatCurrency(getEffectiveBudgetLimit(budget))}</span>
+								Current effective limit: <span className="font-medium">{formatCurrency(getEffectiveBudgetLimit(budget))}</span>
 							</div>
 						) : null}
 
@@ -204,15 +187,13 @@ export function BudgetOverrideDialog({ budget, onSave, onRemove, disabled, calen
 								disabled={isSaving}
 								data-testid="budget-override-remove"
 							>
-								{tCopy("ui.budgetOverrideDialog.removeOverride", { ns: "governance" })}
+								Remove override
 							</Button>
 						) : (
 							<span />
 						)}
 						<Button type="submit" className="rounded-sm" isLoading={isSaving} data-testid="budget-override-save">
-							{active
-								? tCopy("ui.budgetOverrideDialog.updateOverride", { ns: "governance" })
-								: tCopy("ui.budgetOverrideDialog.addOverride", { ns: "governance" })}
+							{active ? "Update override" : "Add override"}
 						</Button>
 					</DialogFooter>
 				</form>

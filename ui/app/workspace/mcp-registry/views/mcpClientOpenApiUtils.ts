@@ -1,4 +1,3 @@
-import i18nReview from "@/lib/i18n";
 import type {
 	MCPOpenAPIConfig,
 	MCPOpenAPICredential,
@@ -159,13 +158,7 @@ export function securitySchemeToInputs(scheme: MCPOpenAPISecurityScheme): OpenAP
 		return {
 			scheme,
 			label: `${scheme.name} · ${scheme.param_name ?? "API key"} (${where})`,
-			fields: [
-				{
-					field: "value",
-					label: i18nReview.t("ui.mcpClientOpenApiUtils.apiKey", { ns: "mcp" }),
-					placeholder: `Value or env.${toEnvName(scheme.name)}`,
-				},
-			],
+			fields: [{ field: "value", label: "API key", placeholder: `Value or env.${toEnvName(scheme.name)}` }],
 			helper: scheme.description,
 		};
 	}
@@ -174,14 +167,10 @@ export function securitySchemeToInputs(scheme: MCPOpenAPISecurityScheme): OpenAP
 			scheme,
 			label: `${scheme.name} · Basic authentication`,
 			fields: [
-				{
-					field: "username",
-					label: i18nReview.t("ui.mcpClientOpenApiUtils.username", { ns: "mcp" }),
-					placeholder: i18nReview.t("ui.mcpClientOpenApiUtils.username", { ns: "mcp" }),
-				},
+				{ field: "username", label: "Username", placeholder: "Username" },
 				{
 					field: "password",
-					label: i18nReview.t("ui.mcpClientOpenApiUtils.password", { ns: "mcp" }),
+					label: "Password",
 					placeholder: `Password or env.${toEnvName(scheme.name)}_PASSWORD`,
 				},
 			],
@@ -194,7 +183,7 @@ export function securitySchemeToInputs(scheme: MCPOpenAPISecurityScheme): OpenAP
 		fields: [
 			{
 				field: "value",
-				label: i18nReview.t("ui.mcpClientOpenApiUtils.bearerToken", { ns: "mcp" }),
+				label: "Bearer token",
 				placeholder: `Token or env.${toEnvName(scheme.name)}`,
 			},
 		],
@@ -489,7 +478,7 @@ export function openAPIParseControls(state: {
 	isParsing: boolean;
 }): { autoParse: boolean; showButton: boolean; showPending: boolean; buttonLabel: string } {
 	if (state.mode === "url") {
-		return { autoParse: false, showButton: !state.isCurrent || state.hasError, showPending: false, buttonLabel: "Fetch spec" };
+		return { autoParse: false, showButton: !state.isCurrent || state.hasError, showPending: false, buttonLabel: "Fetch" };
 	}
 	return {
 		autoParse: true,

@@ -1,4 +1,3 @@
-import i18n from "@/lib/i18n";
 import type { MCPCodeModeLimits } from "@/lib/types/config";
 
 // Server-side bounds, mirrored from core/schemas MCPCodeModeLimits.Validate.
@@ -8,72 +7,39 @@ const MAX_NESTING_DEPTH = 1000;
 export const CODE_MODE_LIMIT_FIELDS: { key: keyof MCPCodeModeLimits; label: string; description: string; defaultValue: number }[] = [
 	{
 		key: "max_source_bytes",
-		get label() {
-			return i18n.t("mcpSettings.codeLimits.max_source_bytes.label", { ns: "config" });
-		},
-		get description() {
-			return i18n.t("mcpSettings.codeLimits.max_source_bytes.description", { ns: "config" });
-		},
+		label: "Max Source Size (bytes)",
+		description: "Largest code a single execution may submit.",
 		defaultValue: 65536,
 	},
 	{
 		key: "max_steps",
-		get label() {
-			return i18n.t("mcpSettings.codeLimits.max_steps.label", { ns: "config" });
-		},
-		get description() {
-			return i18n.t("mcpSettings.codeLimits.max_steps.description", { ns: "config" });
-		},
+		label: "Max Computation Steps",
+		description: "Interpreter steps per execution, including work inside builtins.",
 		defaultValue: 1000000,
 	},
 	{
 		key: "max_memory_bytes",
-		get label() {
-			return i18n.t("mcpSettings.codeLimits.max_memory_bytes.label", { ns: "config" });
-		},
-		get description() {
-			return i18n.t("mcpSettings.codeLimits.max_memory_bytes.description", { ns: "config" });
-		},
+		label: "Max Memory (bytes)",
+		description: "Estimated allocation budget per execution. Every concurrent execution gets its own budget.",
 		defaultValue: 67108864,
 	},
 	{
 		key: "max_log_bytes",
-		get label() {
-			return i18n.t("mcpSettings.codeLimits.max_log_bytes.label", { ns: "config" });
-		},
-		get description() {
-			return i18n.t("mcpSettings.codeLimits.max_log_bytes.description", { ns: "config" });
-		},
+		label: "Max Log Output (bytes)",
+		description: "Print and tool log output per execution, including newlines.",
 		defaultValue: 65536,
 	},
-	{
-		key: "max_tool_calls",
-		get label() {
-			return i18n.t("mcpSettings.codeLimits.max_tool_calls.label", { ns: "config" });
-		},
-		get description() {
-			return i18n.t("mcpSettings.codeLimits.max_tool_calls.description", { ns: "config" });
-		},
-		defaultValue: 64,
-	},
+	{ key: "max_tool_calls", label: "Max Tool Calls", description: "Nested MCP tool calls per execution.", defaultValue: 64 },
 	{
 		key: "max_value_bytes",
-		get label() {
-			return i18n.t("mcpSettings.codeLimits.max_value_bytes.label", { ns: "config" });
-		},
-		get description() {
-			return i18n.t("mcpSettings.codeLimits.max_value_bytes.description", { ns: "config", minimum: MIN_VALUE_BYTES });
-		},
+		label: "Max Value Size (bytes)",
+		description: `Size budget for each tool payload and converted result. Must be at least ${MIN_VALUE_BYTES}.`,
 		defaultValue: 1048576,
 	},
 	{
 		key: "max_nesting_depth",
-		get label() {
-			return i18n.t("mcpSettings.codeLimits.max_nesting_depth.label", { ns: "config" });
-		},
-		get description() {
-			return i18n.t("mcpSettings.codeLimits.max_nesting_depth.description", { ns: "config", maximum: MAX_NESTING_DEPTH });
-		},
+		label: "Max Nesting Depth",
+		description: `Nesting depth of values crossing the tool boundary. At most ${MAX_NESTING_DEPTH}.`,
 		defaultValue: 64,
 	},
 ];
@@ -94,12 +60,10 @@ export function parseCodeModeLimitInput(value: string): number | undefined {
 export function validateCodeModeLimits(limits: MCPCodeModeLimits | undefined): string | null {
 	if (!limits) return null;
 	for (const { key, label } of CODE_MODE_LIMIT_FIELDS) {
-		if ((limits[key] ?? 0) < 0) return i18n.t("mcpSettings.codeLimits.nonNegative", { ns: "config", field: label });
+		if ((limits[key] ?? 0) < 0) return `${label} must not be negative.`;
 	}
 	const valueBytes = limits.max_value_bytes ?? 0;
-	if (valueBytes !== 0 && valueBytes < MIN_VALUE_BYTES)
-		return i18n.t("mcpSettings.codeLimits.minimumValue", { ns: "config", minimum: MIN_VALUE_BYTES });
-	if ((limits.max_nesting_depth ?? 0) > MAX_NESTING_DEPTH)
-		return i18n.t("mcpSettings.codeLimits.maximumDepth", { ns: "config", maximum: MAX_NESTING_DEPTH });
+	if (valueBytes !== 0 && valueBytes < MIN_VALUE_BYTES) return `Max value size must be at least ${MIN_VALUE_BYTES} bytes.`;
+	if ((limits.max_nesting_depth ?? 0) > MAX_NESTING_DEPTH) return `Max nesting depth must be at most ${MAX_NESTING_DEPTH}.`;
 	return null;
 }

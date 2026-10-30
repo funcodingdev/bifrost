@@ -10,7 +10,6 @@ import {
 import { getErrorMessage, useDeletePluginMutation } from "@/lib/store";
 import { Plugin } from "@/lib/types/plugins";
 import { AlertDialogTitle } from "@radix-ui/react-alert-dialog";
-import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 interface Props {
@@ -21,8 +20,6 @@ interface Props {
 }
 
 export default function ConfirmDeletePluginDialog({ show, onCancel, onDelete, plugin }: Props) {
-	const { t } = useTranslation("governance");
-	const { t: tCommon } = useTranslation("common");
 	const [deletePlugin, { isLoading: isDeletingPlugin }] = useDeletePluginMutation();
 
 	const onDeleteHandler = () => {
@@ -32,7 +29,7 @@ export default function ConfirmDeletePluginDialog({ show, onCancel, onDelete, pl
 				onDelete();
 			})
 			.catch((err) => {
-				toast.error(t("plugins.deleteFailed"), {
+				toast.error("Failed to delete plugin", {
 					description: getErrorMessage(err),
 				});
 			});
@@ -42,13 +39,15 @@ export default function ConfirmDeletePluginDialog({ show, onCancel, onDelete, pl
 		<AlertDialog open={show}>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>{t("plugins.deletePlugin")}</AlertDialogTitle>
-					<AlertDialogDescription>{t("plugins.deleteDescription", { name: plugin.name })}</AlertDialogDescription>
+					<AlertDialogTitle>Delete Plugin</AlertDialogTitle>
+					<AlertDialogDescription>
+						Are you sure you want to delete the plugin "{plugin.name}"? This action cannot be undone.
+					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel onClick={onCancel}>{tCommon("cancel")}</AlertDialogCancel>
+					<AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
 					<AlertDialogAction onClick={onDeleteHandler} disabled={isDeletingPlugin}>
-						{isDeletingPlugin ? t("plugins.deleting") : tCommon("delete")}
+						{isDeletingPlugin ? "Deleting..." : "Delete"}
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

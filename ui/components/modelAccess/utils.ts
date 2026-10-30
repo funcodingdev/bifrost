@@ -1,4 +1,3 @@
-import i18n from "@/lib/i18n";
 import { validateRegexPattern } from "@/lib/utils/celConverterRouting";
 
 /**
@@ -54,13 +53,13 @@ export function splitModelAccess(list: readonly string[] | undefined | null): { 
 export function validateModelRegex(pattern: string): string | null {
 	const trimmed = pattern.trim();
 	if (trimmed === "") {
-		return i18n.t("modelAccess.patternEmpty");
+		return "Pattern cannot be empty";
 	}
 	if (trimmed === MODEL_WILDCARD) {
-		return i18n.t("modelAccess.patternWildcard");
+		return 'Use the model list to allow all models; "*" is not a pattern';
 	}
 	if (NAMED_BACKREF.test(trimmed)) {
-		return i18n.t("modelAccess.patternNamedBackref");
+		return "RE2 incompatible: named backreferences (\\k<name>) are not supported";
 	}
 	// Go accepts (?P<name>...) and names that start with a digit, JavaScript neither; the name is irrelevant to the syntax check.
 	return validateRegexPattern(trimmed.replace(NAMED_GROUP, "("));
@@ -106,13 +105,11 @@ export function removePattern(list: readonly string[], pattern: string): string[
 export function summarizeModelAccess(list: readonly string[] | undefined | null, mode: ModelAccessMode): string {
 	const { models, patterns } = splitModelAccess(list);
 	const names = models.filter((e) => !isWildcardEntry(e));
-	if (isWildcardList(models))
-		return mode === "allow" ? i18n.t("modelAccess.allModelsSentence") : i18n.t("modelAccess.allModelsBlockedSentence");
-	if (names.length === 0 && patterns.length === 0)
-		return mode === "allow" ? i18n.t("modelAccess.denyAll") : i18n.t("modelAccess.noBlockedModels");
+	if (isWildcardList(models)) return mode === "allow" ? "All models" : "All models blocked";
+	if (names.length === 0 && patterns.length === 0) return mode === "allow" ? "Deny all" : "No blocked models";
 	const parts: string[] = [];
-	if (names.length > 0) parts.push(i18n.t("modelAccess.modelCount", { count: names.length }));
-	if (patterns.length > 0) parts.push(i18n.t("modelAccess.patternCount", { count: patterns.length }));
+	if (names.length > 0) parts.push(`${names.length} model${names.length > 1 ? "s" : ""}`);
+	if (patterns.length > 0) parts.push(`${patterns.length} pattern${patterns.length > 1 ? "s" : ""}`);
 	return parts.join(", ");
 }
 
@@ -134,9 +131,7 @@ export function summarizeGrantModelAccess(
 /** Placeholder for the picker control, mirroring the wording each surface used before. */
 export function modelAccessPlaceholder(list: readonly string[] | undefined | null, mode: ModelAccessMode): string {
 	const { models, patterns } = splitModelAccess(list);
-	if (models.includes(MODEL_WILDCARD))
-		return mode === "allow" ? i18n.t("modelAccess.allModelsAllowed") : i18n.t("modelAccess.allModelsBlockedSentence");
-	if (models.length === 0 && patterns.length === 0)
-		return mode === "allow" ? i18n.t("modelAccess.noModelsDenyAll") : i18n.t("modelAccess.noBlockedModels");
-	return mode === "allow" ? i18n.t("modelAccess.addModel") : i18n.t("modelAccess.searchModels");
+	if (models.includes(MODEL_WILDCARD)) return mode === "allow" ? "All models allowed" : "All models blocked";
+	if (models.length === 0 && patterns.length === 0) return mode === "allow" ? "No models (deny all)" : "No blocked models";
+	return mode === "allow" ? "Add model…" : "Search models...";
 }

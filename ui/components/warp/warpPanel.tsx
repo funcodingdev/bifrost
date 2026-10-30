@@ -1,4 +1,3 @@
-import localeMessages from "@/lib/i18n";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { WarpIcon } from "@/components/ui/icons";
@@ -17,7 +16,6 @@ import type { WarpConversation } from "@/lib/types/warp";
 import { cn } from "@/lib/utils";
 import { RbacOperation, RbacResource, useRbac } from "@enterprise/lib";
 import { Link } from "@tanstack/react-router";
-import { useTranslation } from "react-i18next";
 import { ArrowDown, Clock, Database, History, Loader2, SquarePen, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
@@ -29,8 +27,6 @@ const STARTERS = [
 ];
 
 export default function WarpPanel() {
-	const { t } = useTranslation("shell");
-	const starters = [t("warp.starters.spend"), t("warp.starters.latency"), t("warp.starters.users"), t("warp.starters.failed")];
 	// Node in state, not a ref: the controls mount after the loading branch, so a [] effect would miss them.
 	const [controlsNode, setControlsNode] = useState<HTMLDivElement | null>(null);
 	const [controlsHeight, setControlsHeight] = useState(112);
@@ -192,18 +188,18 @@ export default function WarpPanel() {
 				<div className="flex min-w-0 items-center gap-2">
 					{/* -mt-0.5 corrects the glyph's optical centre, which sits below its box centre. */}
 					<WarpIcon className="text-muted-foreground -mt-0.5 size-5 shrink-0" />
-					<h2 className="truncate text-sm font-semibold">{localeMessages.t("nav.warp", { ns: "shell" })}</h2>
+					<h2 className="truncate text-sm font-semibold">Warp</h2>
 					<Badge variant="secondary" className="shrink-0 text-[10px] font-normal">
-						{t("warp.panel.preview")}
+						Preview
 					</Badge>
 					{indexChip && <WarpIndexChip status={indexChip} />}
 					{indexStatusUnavailable && (
 						<span
 							className="text-muted-foreground border-border rounded-full border px-2 py-0.5 text-[11px]"
 							data-testid="warp-index-status-unavailable"
-							title={t("warp.panel.indexStatusTitle")}
+							title="Warp could not read its index status. Semantic search may or may not be available."
 						>
-							{t("ui.warpPanel.indexStatusUnavailable", { ns: "common" })}
+							Index status unavailable
 						</span>
 					)}
 				</div>
@@ -211,7 +207,7 @@ export default function WarpPanel() {
 					{isConfigured && (
 						<button
 							type="button"
-							aria-label={showHistory ? t("warp.panel.backToChat") : t("warp.panel.chatHistory")}
+							aria-label={showHistory ? "Back to chat" : "Chat history"}
 							aria-pressed={showHistory}
 							data-testid="warp-history-btn"
 							onClick={() => {
@@ -229,7 +225,7 @@ export default function WarpPanel() {
 					{warp.turns.length > 0 && (
 						<button
 							type="button"
-							aria-label={t("warp.panel.newChat")}
+							aria-label="New chat"
 							data-testid="warp-new-chat-btn"
 							onClick={() => {
 								abandonStoredLoad();
@@ -246,7 +242,7 @@ export default function WarpPanel() {
 					<button
 						ref={closeRef}
 						type="button"
-						aria-label={t("warp.panel.close")}
+						aria-label="Close Warp"
 						data-testid="warp-close-btn"
 						onClick={warp.close}
 						className="text-muted-foreground hover:bg-accent hover:text-accent-foreground flex size-7 cursor-pointer items-center justify-center rounded-md transition-colors"
@@ -261,12 +257,12 @@ export default function WarpPanel() {
 			{isConfigLoading || (isConfigFetching && !isConfigured) ? (
 				// An undefined config reads as unconfigured, so without this the setup prompt flashes on open.
 				<div className="flex min-h-0 flex-1 items-center justify-center px-6" data-testid="warp-config-loading">
-					<p className="text-muted-foreground text-xs">{t("warp.panel.loading")}</p>
+					<p className="text-muted-foreground text-xs">Loading Warp...</p>
 				</div>
 			) : isConfigError ? (
 				<div className="flex min-h-0 flex-1 items-center justify-center px-6 text-center" data-testid="warp-config-error">
 					<p className="text-destructive text-xs" role="alert">
-						{t("warp.panel.loadFailed")}
+						Could not load Warp&apos;s configuration. Reload the page to try again.
 					</p>
 				</div>
 			) : isConfigured && showHistory ? (
@@ -289,20 +285,19 @@ export default function WarpPanel() {
 					<span className="bg-muted text-muted-foreground flex size-9 items-center justify-center rounded-full">
 						<WarpIcon className="size-5" />
 					</span>
-					<p className="text-sm font-medium">{isDisabledButComplete ? t("warp.panel.turnedOff") : t("warp.panel.notSetUp")}</p>
+					<p className="text-sm font-medium">{isDisabledButComplete ? "Warp is turned off" : "Warp isn't set up yet"}</p>
 					{canConfigure ? (
 						<>
 							<p className="text-muted-foreground text-xs">
-								{isDisabledButComplete ? t("warp.panel.enableHint") : t("warp.panel.chooseModel")}
+								{isDisabledButComplete ? "Switch Enable Warp on to start asking questions." : "Choose a model for Warp to run on."}
 							</p>
 							<Button asChild size="sm" className="mt-1" data-testid="warp-configure-link">
-								<Link to="/workspace/config/warp">{isDisabledButComplete ? t("warp.panel.openSettings") : t("warp.panel.configure")}</Link>
+								<Link to="/workspace/config/warp">{isDisabledButComplete ? "Open Warp settings" : "Configure Warp"}</Link>
 							</Button>
 						</>
 					) : (
 						<p className="text-muted-foreground text-xs" data-testid="warp-ask-admin">
-							{t("ui.warpPanel.askAnAdministratorTo", { ns: "common" }) + " "}
-							{isDisabledButComplete ? t("ui.warpPanel.turnWarpOn", { ns: "common" }) : t("ui.warpPanel.setWarpUp", { ns: "common" })}.
+							Ask an administrator to {isDisabledButComplete ? "turn Warp on" : "set Warp up"}.
 						</p>
 					)}
 				</div>
@@ -315,9 +310,9 @@ export default function WarpPanel() {
 							<div className="min-w-0 space-y-5 p-4" style={{ paddingBottom: controlsHeight + 16 }} ref={contentRef}>
 								{warp.turns.length === 0 && !isStreaming ? (
 									<div className="space-y-3 pt-6" data-testid="warp-empty-state">
-										<p className="text-sm font-medium">{t("warp.panel.emptyTitle")}</p>
+										<p className="text-sm font-medium">Ask about your Bifrost data</p>
 										<div className="space-y-1.5">
-											{starters.map((starter) => (
+											{STARTERS.map((starter) => (
 												<button
 													key={starter}
 													type="button"
@@ -337,7 +332,7 @@ export default function WarpPanel() {
 									<div className="space-y-2">
 										{error && (
 											<Button type="button" size="sm" variant="outline" data-testid="warp-resume-queue" onClick={resumeQueue}>
-												{t("warp.panel.resumeQueue")}
+												Resume queued messages
 											</Button>
 										)}
 										{/* Drawn as the message it will become, dimmed until it sends, with a status line under it like a chat app's. */}
@@ -349,20 +344,16 @@ export default function WarpPanel() {
 													</div>
 													<div className="text-muted-foreground flex items-center justify-end gap-1.5 text-[11px]">
 														<Clock aria-hidden="true" className="size-3 shrink-0" />
-														<span>
-															{index === 0 && isStreaming
-																? t("ui.warpPanel.sendsWhenThisAnswerFinishes", { ns: "common" })
-																: localeMessages.t("warp.panel.queued", { ns: "shell" })}
-														</span>
+														<span>{index === 0 && isStreaming ? "Sends when this answer finishes" : "Queued"}</span>
 														<span aria-hidden="true">·</span>
 														<button
 															type="button"
-															aria-label={t("warp.panel.removeQueued")}
+															aria-label="Remove queued message"
 															data-testid="warp-queued-remove"
 															onClick={() => setQueue((current) => current.filter((queued) => queued.id !== item.id))}
 															className="hover:text-foreground cursor-pointer rounded-sm px-1 py-0.5 transition-colors"
 														>
-															{localeMessages.t("plugins.remove", { ns: "governance" })}
+															Remove
 														</button>
 													</div>
 												</li>
@@ -379,7 +370,7 @@ export default function WarpPanel() {
 							size="icon"
 							variant="secondary"
 							onClick={scrollToBottom}
-							aria-label={t("warp.panel.jumpToLatest")}
+							aria-label="Jump to latest"
 							aria-hidden={isPinned}
 							data-testid="warp-jump-to-latest"
 							// Measured offset: a pending question makes the controls taller than any fixed value.

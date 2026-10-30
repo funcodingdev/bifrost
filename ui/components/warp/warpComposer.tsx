@@ -13,7 +13,6 @@ import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
 import { ArrowUp, ChevronDown, Settings2, Square } from "lucide-react";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import TextareaAutosize from "react-textarea-autosize";
 import { hasProviderIcon, warpModelKey, warpModelLabel } from "./warpComposer.utils";
 
@@ -49,7 +48,6 @@ export default function WarpComposer({
 	onQueue,
 	onStop,
 }: WarpComposerProps) {
-	const { t } = useTranslation("shell");
 	const [value, setValue] = useState("");
 	const [highlighted, setHighlighted] = useState(0);
 
@@ -138,7 +136,9 @@ export default function WarpComposer({
 							submit();
 						}
 					}}
-					placeholder={isStreaming && onQueue ? t("warp.composer.followUp") : t("warp.composer.placeholder")}
+					placeholder={
+						isStreaming && onQueue ? "Ask a follow-up, it is sent when this answer finishes..." : "Ask about your Bifrost data..."
+					}
 					disabled={disabled}
 					minRows={1}
 					maxRows={8}
@@ -151,8 +151,8 @@ export default function WarpComposer({
 						{canConfigure && (
 							<Link
 								to="/workspace/config/warp"
-								aria-label={t("ui.warpComposer.warpSettings", { ns: "common" })}
-								title={t("ui.warpComposer.warpSettings", { ns: "common" })}
+								aria-label="Warp settings"
+								title="Warp settings"
 								className="text-muted-foreground hover:text-foreground hover:bg-accent flex size-5 shrink-0 items-center justify-center rounded transition-colors"
 								data-testid="warp-composer-settings"
 							>
@@ -166,7 +166,7 @@ export default function WarpComposer({
 							size="icon"
 							variant="secondary"
 							onClick={onStop}
-							aria-label={t("warp.composer.stop")}
+							aria-label="Stop"
 							data-testid="warp-stop-btn"
 							className="size-7 shrink-0 rounded-full"
 						>
@@ -178,7 +178,7 @@ export default function WarpComposer({
 							size="icon"
 							onClick={submit}
 							disabled={!value.trim() || disabled}
-							aria-label={t("warp.composer.send")}
+							aria-label="Send"
 							data-testid="warp-send-btn"
 							className="size-7 shrink-0 rounded-full"
 						>
@@ -216,7 +216,6 @@ interface WarpModelSwitcherProps {
  * handful of configured provider and model pairs, not a model from the catalog.
  */
 function WarpModelSwitcher({ models, selectedModel, onSelectModel }: WarpModelSwitcherProps) {
-	const { t: tCopy } = useTranslation();
 	if (!selectedModel) return null;
 	const chipClassName = "text-muted-foreground flex min-w-0 items-center gap-1.5 rounded px-1 py-0.5 text-xs";
 	if (models.length < 2) {
@@ -231,7 +230,7 @@ function WarpModelSwitcher({ models, selectedModel, onSelectModel }: WarpModelSw
 			<DropdownMenuTrigger asChild>
 				<button
 					type="button"
-					aria-label={tCopy("ui.warpComposer.switchModel", { ns: "common" })}
+					aria-label="Switch model"
 					className={cn(chipClassName, "hover:text-foreground hover:bg-accent cursor-pointer transition-colors")}
 					data-testid="warp-composer-model"
 				>
@@ -255,11 +254,7 @@ function WarpModelSwitcher({ models, selectedModel, onSelectModel }: WarpModelSw
 							data-testid={`warp-model-option-${model.provider}-${model.model}`}
 						>
 							<WarpModelName model={model} />
-							{index === 0 && (
-								<span className="text-muted-foreground ml-auto pl-2 text-[10px]">
-									{tCopy("providers.betaHeaders.colDefault", { ns: "models" })}
-								</span>
-							)}
+							{index === 0 && <span className="text-muted-foreground ml-auto pl-2 text-[10px]">Default</span>}
 						</DropdownMenuRadioItem>
 					))}
 				</DropdownMenuRadioGroup>

@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { ChevronDown } from "lucide-react";
 import * as React from "react";
@@ -58,7 +57,6 @@ type TabsTriggerElement = React.ReactElement<{ value?: string; children?: React.
  * untouched: partitionTabs returns everything inline and no dropdown renders.
  */
 function TabsList({ className, children, ...props }: React.ComponentProps<typeof TabsPrimitive.List>) {
-	const { t: tReview } = useTranslation();
 	const items = React.useMemo(
 		() => React.Children.toArray(children).filter((child) => React.isValidElement(child)) as TabsTriggerElement[],
 		[children],
@@ -133,7 +131,7 @@ function TabsList({ className, children, ...props }: React.ComponentProps<typeof
 							role="tab"
 							aria-selected={false}
 							data-testid="tabs-overflow-trigger"
-							aria-label={tReview("tabs.more", { ns: "common", count: overflow.length })}
+							aria-label={`Show ${overflow.length} more ${overflow.length === 1 ? "tab" : "tabs"}`}
 							className="text-foreground hover:bg-background/60 focus-visible:ring-ring/50 flex h-[calc(100%-1px)] shrink-0 cursor-pointer items-center gap-0.5 rounded-sm border border-transparent px-2 text-sm font-medium focus-visible:ring-[3px] focus-visible:outline-1"
 						>
 							{overflow.length}

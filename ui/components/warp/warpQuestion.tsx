@@ -4,7 +4,6 @@ import { isTypingInto, type WarpQuestion } from "@/components/warp/warpStream.ut
 import { cn } from "@/lib/utils";
 import { MessageCircleQuestion } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 
 interface WarpQuestionCardProps {
 	question: WarpQuestion;
@@ -16,7 +15,6 @@ interface WarpQuestionCardProps {
 const OPTION_KEYS = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
 export default function WarpQuestionCard({ question, onAnswer, onSkip }: WarpQuestionCardProps) {
-	const { t } = useTranslation("shell");
 	const [highlighted, setHighlighted] = useState(0);
 	// Bound on the document: the card opens while the composer has focus, so card-level keys would need a click.
 	useEffect(() => {
@@ -71,7 +69,7 @@ export default function WarpQuestionCard({ question, onAnswer, onSkip }: WarpQue
 			<div className="border-primary/25 bg-primary/3 space-y-3 rounded-md border p-3">
 				<div className="text-muted-foreground flex items-center gap-2 text-xs font-normal">
 					<MessageCircleQuestion className="size-3.5 shrink-0" />
-					<span>{t("warp.question.label")}</span>
+					<span>Question</span>
 				</div>
 
 				<p className="text-sm font-medium">{question.question}</p>
@@ -108,13 +106,13 @@ export default function WarpQuestionCard({ question, onAnswer, onSkip }: WarpQue
 				<div className="flex items-center justify-end gap-2">
 					<Button type="button" variant="ghost" size="sm" onClick={onSkip} data-testid="warp-question-skip" className="font-normal">
 						<span className="flex items-center gap-1.5">
-							<span>{t("warp.question.skip")}</span>
+							<span>Skip</span>
 							<kbd className="text-muted-foreground font-mono text-[10px] leading-none">Esc</kbd>
 						</span>
 					</Button>
 				</div>
 
-				{question.allow_other && <p className="text-muted-foreground text-[11px]">{t("warp.question.orType")}</p>}
+				{question.allow_other && <p className="text-muted-foreground text-[11px]">Or type your own answer below.</p>}
 			</div>
 		</div>
 	);

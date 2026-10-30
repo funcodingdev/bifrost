@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { CopyableId } from "@/components/copyableId";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -104,7 +103,6 @@ function RateLimitBar({ label, current, max, resetDuration }: { label: string; c
 // the Teams / Business Units sections, which depend on enterprise-only APIs.
 
 export function CustomerDetailSheet({ customer, open, onOpenChange }: Props) {
-	const { t: tCopy } = useTranslation();
 	const budgets = customer?.budgets ?? [];
 	const rateLimit = customer?.rate_limit;
 	const hasRateLimit = rateLimit?.token_max_limit != null || rateLimit?.request_max_limit != null;
@@ -114,28 +112,26 @@ export function CustomerDetailSheet({ customer, open, onOpenChange }: Props) {
 			<SheetContent className="max-w-[700px] overflow-y-auto p-0 pt-4">
 				<SheetHeader className="flex flex-col items-start px-0 py-4" headerClassName="mb-0 px-4 md:px-8 sticky -top-4 bg-card z-10">
 					<div className="flex min-w-0 items-center gap-1">
-						<SheetTitle className="truncate text-lg">
-							{customer?.name || tCopy("ui.customerDetailSheet.customerDetails", { ns: "common" })}
-						</SheetTitle>
-						{customer?.id && <CopyableId id={customer.id} entityLabel={tCopy("ui.customerDetailSheet.customer", { ns: "common" })} />}
+						<SheetTitle className="truncate text-lg">{customer?.name || "Customer Details"}</SheetTitle>
+						{customer?.id && <CopyableId id={customer.id} entityLabel="Customer" />}
 					</div>
-					<SheetDescription>{tCopy("ui.customerDetailSheet.usageDetailsForThisCustomer", { ns: "common" })}</SheetDescription>
+					<SheetDescription>Usage details for this customer.</SheetDescription>
 				</SheetHeader>
 
 				{customer && (
 					<div className="space-y-6 px-4 py-4 md:px-8">
 						{/* ── Info ─────────────────────────────────────────── */}
-						<DetailCard title={tCopy("ui.customerDetailSheet.info", { ns: "common" })}>
+						<DetailCard title="Info">
 							<div className="grid grid-cols-2 gap-x-8 gap-y-4">
 								<div>
-									<Label className="text-muted-foreground text-xs">{tCopy("skillsRepo.name", { ns: "config" })}</Label>
+									<Label className="text-muted-foreground text-xs">Name</Label>
 									<p className="mt-0.5 text-sm">{customer.name ?? "—"}</p>
 								</div>
 							</div>
 						</DetailCard>
 
 						{/* ── Budgets ──────────────────────────────────────── */}
-						<DetailCard title={tCopy("sheet.budgets", { ns: "governance" })}>
+						<DetailCard title="Budgets">
 							{budgets.length > 0 ? (
 								<div className="space-y-3">
 									{[...budgets]
@@ -151,19 +147,17 @@ export function CustomerDetailSheet({ customer, open, onOpenChange }: Props) {
 										))}
 								</div>
 							) : (
-								<p className="text-muted-foreground py-1 text-center text-sm">
-									{tCopy("ui.customerDetailSheet.noBudgetsConfigured", { ns: "common" })}
-								</p>
+								<p className="text-muted-foreground py-1 text-center text-sm">No budgets configured</p>
 							)}
 						</DetailCard>
 
 						{/* ── Rate Limits ──────────────────────────────────── */}
-						<DetailCard title={tCopy("virtualKeys.rateLimits", { ns: "models" })}>
+						<DetailCard title="Rate Limits">
 							{rateLimit && hasRateLimit ? (
 								<div className="space-y-3">
 									{rateLimit.token_max_limit != null && (
 										<RateLimitBar
-											label={tCopy("ui.customerDetailSheet.tokens", { ns: "common" })}
+											label="Tokens"
 											current={rateLimit.token_current_usage ?? 0}
 											max={rateLimit.token_max_limit}
 											resetDuration={rateLimit.token_reset_duration}
@@ -171,7 +165,7 @@ export function CustomerDetailSheet({ customer, open, onOpenChange }: Props) {
 									)}
 									{rateLimit.request_max_limit != null && (
 										<RateLimitBar
-											label={tCopy("sheet.requests", { ns: "governance" })}
+											label="Requests"
 											current={rateLimit.request_current_usage ?? 0}
 											max={rateLimit.request_max_limit}
 											resetDuration={rateLimit.request_reset_duration}
@@ -179,7 +173,7 @@ export function CustomerDetailSheet({ customer, open, onOpenChange }: Props) {
 									)}
 								</div>
 							) : (
-								<p className="text-muted-foreground py-1 text-center text-sm">{tCopy("virtualKeys.noRateLimits", { ns: "models" })}</p>
+								<p className="text-muted-foreground py-1 text-center text-sm">No rate limits configured</p>
 							)}
 						</DetailCard>
 					</div>

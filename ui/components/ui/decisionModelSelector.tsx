@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { ModelSelector } from "@/components/ui/modelSelector";
 import { ProviderSelector } from "@/components/ui/providerSelector";
@@ -6,12 +5,12 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { useGetModelsQuery } from "@/lib/store/apis/providersApi";
 import type { ModelProvider } from "@/lib/types/config";
 import {
+	clefModelFromProvider,
 	decisionProviderIconKey,
 	defaultDecisionModel,
 	isDecisionProvider,
 	listsDecisionModels,
 	selfHostedModelGroups,
-	servesFixedDecisionModel,
 } from "@/lib/utils/decisionModelProviders";
 import { useEffect, useMemo } from "react";
 
@@ -74,10 +73,9 @@ interface DecisionModelSelectorProps {
 }
 
 // DecisionModelSelector follows the provider: providers whose catalogs mix in
-// chat models (OpenAI, OpenRouter, Cloudflare, Perplexity, Ollama, Azure) list only
-// the models the datasheet marks as decision models, Typesafe offers Jev
-// releases, a Cloudflare URL on a custom provider fixes its Clef model,
-// Databricks serves only ai_decide, and a
+// chat models (OpenAI, OpenRouter, Cloudflare, Perplexity, Ollama, Azure, Databricks)
+// list only the models the datasheet marks as decision models, Typesafe offers Jev
+// releases, a Cloudflare URL on a custom provider fixes its Clef model, and a
 // self-hosted provider offers the models it lists, or the known Laya, Nimble,
 // and Clef checkpoints when it lists none.
 export function DecisionModelSelector({
@@ -92,10 +90,9 @@ export function DecisionModelSelector({
 	fixedModelTestId = testId,
 	className,
 }: DecisionModelSelectorProps) {
-	const { t: tCopy } = useTranslation();
 	const listsDecisions = listsDecisionModels(provider, providerName);
 	const servesJev = providerName === "typesafe";
-	const fixedModel = servesFixedDecisionModel(provider, providerName);
+	const fixedModel = clefModelFromProvider(provider) !== undefined;
 	const selfHosted = provider !== undefined && !servesJev && !listsDecisions && !fixedModel;
 
 	// currentData, not data: data keeps the previous provider's list while the new one loads.
@@ -121,8 +118,8 @@ export function DecisionModelSelector({
 				decisions
 				value={value}
 				onChange={onChange}
-				placeholder={tCopy("ui.decisionModelSelector.searchDecisionModels", { ns: "common" })}
-				emptyMessage={tCopy("ui.decisionModelSelector.thisProviderListsNoDecisionModels", { ns: "common" })}
+				placeholder="Search decision models…"
+				emptyMessage="This provider lists no decision models"
 				disabled={disabled}
 				className={className}
 			/>
@@ -140,19 +137,15 @@ export function DecisionModelSelector({
 				value={value}
 				onChange={onChange}
 				allowCustomModel
-				placeholder={
-					providerName
-						? tCopy("ui.decisionModelSelector.searchOrTypeAJevModel", { ns: "common" })
-						: tCopy("caching.selectProviderFirst", { ns: "config" })
-				}
+				placeholder={providerName ? "Search or type a Jev model…" : "Select a provider first"}
 				disabled={disabled || !providerName}
 				className={className}
 			/>
 		);
 	}
 	if (fixedModel) {
-		// Cloudflare binds the model to the provider's URL, and Databricks serves only
-		// ai_decide, so it is shown, not chosen: selecting the provider fills it in.
+		// Cloudflare binds the model to the provider's URL and rejects any other in the
+		// body, so it is shown, not chosen: selecting the provider fills it in.
 		return <Input id={inputId} data-testid={fixedModelTestId} value={value} readOnly disabled className="font-mono" />;
 	}
 	if (listedModels.length > 0) {
@@ -169,7 +162,7 @@ export function DecisionModelSelector({
 				value={value}
 				onChange={onChange}
 				allowCustomModel
-				placeholder={tCopy("ui.decisionModelSelector.searchOrTypeAModel", { ns: "common" })}
+				placeholder="Search or type a model…"
 				disabled={disabled}
 				className={className}
 			/>
@@ -178,7 +171,7 @@ export function DecisionModelSelector({
 	return (
 		<Select value={value || undefined} onValueChange={onChange} disabled={disabled}>
 			<SelectTrigger className="w-full" id={inputId} data-testid={testId}>
-				<SelectValue placeholder={tCopy("ui.decisionModelSelector.selectAModel", { ns: "common" })} />
+				<SelectValue placeholder="Select a model" />
 			</SelectTrigger>
 			<SelectContent>
 				{selfHostedModelGroups(providerName).map((group) => (

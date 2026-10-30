@@ -12,7 +12,6 @@ import { RbacOperation, RbacResource, useRbac } from "@enterprise/lib";
 import { ShieldCheck } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
 import {
 	authScopeOf,
 	buildMCPClientPayload,
@@ -80,26 +79,24 @@ function buildInitialValues(server: MCPLibraryEntry): CreateMCPClientRequest {
 	};
 }
 
-function authHelpText(authType: MCPAuthType | string | undefined, t: (key: string) => string): string {
+function authHelpText(authType?: MCPAuthType | string): string {
 	switch (authType) {
 		case "headers":
-			return t("library.install.helpHeaders");
+			return "Add the request headers Bifrost should send with each tool call.";
 		case "oauth":
-			return t("library.install.helpOauth");
+			return "Create the MCP client, then complete the OAuth authorization flow.";
 		case "per_user_oauth":
-			return t("library.install.helpPerUserOauth");
+			return "Create the MCP client, then authorize the first user OAuth connection.";
 		case "per_user_headers":
-			return t("library.install.helpPerUserHeaders");
+			return "Declare the header names each caller must supply, then verify a sample set on install.";
 		case "token_exchange":
-			return t("library.install.helpTokenExchange");
+			return "Set the identity-provider audience for this server; each caller's identity token is exchanged automatically.";
 		default:
-			return t("library.install.helpNone");
+			return "No credentials are required for this catalog entry.";
 	}
 }
 
 export function MCPLibraryInstallSheet({ server, open, onClose, onInstalled }: MCPLibraryInstallSheetProps) {
-	const { t } = useTranslation("mcp");
-	const { t: tc } = useTranslation("common");
 	const hasCreateMCPClientAccess = useRbac(RbacResource.MCPGateway, RbacOperation.Create);
 	const { toast } = useToast();
 	const [createMCPClient] = useCreateMCPClientMutation();
@@ -156,8 +153,8 @@ export function MCPLibraryInstallSheet({ server, open, onClose, onInstalled }: M
 		const hasTarget = isStdio ? !!data.stdio_config?.command?.trim() : !!data.connection_string?.value?.trim();
 		if (!hasTarget) {
 			toast({
-				title: t("library.install.incompleteTitle"),
-				description: t("library.install.incompleteDesc"),
+				title: "Incomplete library entry",
+				description: "This entry has no connection target. Ask the publisher to update the listing.",
 				variant: "destructive",
 			});
 			return;
@@ -177,7 +174,7 @@ export function MCPLibraryInstallSheet({ server, open, onClose, onInstalled }: M
 		// The headers table renders its own inline error, but a caller can still
 		// reach here with it non-empty; a toast keeps the button from looking inert.
 		if (headersValidationError) {
-			toast({ title: t("library.install.headersIncomplete"), description: headersValidationError, variant: "destructive" });
+			toast({ title: "Headers incomplete", description: headersValidationError, variant: "destructive" });
 			return;
 		}
 
@@ -204,7 +201,7 @@ export function MCPLibraryInstallSheet({ server, open, onClose, onInstalled }: M
 				return;
 			}
 
-			toast({ title: t("library.install.installed"), description: t("library.install.installedDesc", { name: server.name }) });
+			toast({ title: "Installed", description: `${server.name} MCP server installed.` });
 			onInstalled();
 			onClose();
 		} catch (error) {
@@ -213,21 +210,21 @@ export function MCPLibraryInstallSheet({ server, open, onClose, onInstalled }: M
 				setError("name", { message: getErrorMessage(error) });
 				return;
 			}
-			toast({ title: tc("error"), description: getErrorMessage(error), variant: "destructive" });
+			toast({ title: "Error", description: getErrorMessage(error), variant: "destructive" });
 		}
 	};
 
 	const iconUrl = server.icon_url || MCP_ICON_FALLBACK;
 	const isOauth = authType === "oauth" || authType === "per_user_oauth";
 	const isPerUserHeaders = authType === "per_user_headers";
-	const installButtonLabel = isOauth || isPerUserHeaders ? t("common.continue") : t("common.install");
+	const installButtonLabel = isOauth || isPerUserHeaders ? "Continue" : "Install";
 
 	return (
 		<Sheet open={open} onOpenChange={(sheetOpen) => !sheetOpen && !oauthFlow && !headersFlow && onClose()}>
 			<SheetContent className="flex w-full flex-col gap-4 overflow-x-hidden p-0 pt-4">
 				<SheetHeader className="flex flex-col items-start px-0 py-4" headerClassName="mb-0 sticky px-4 md:px-8 -top-4 bg-card z-10">
-					<SheetTitle>{t("library.install.title")}</SheetTitle>
-					<SheetDescription>{t("library.install.description")}</SheetDescription>
+					<SheetTitle>Install MCP Server</SheetTitle>
+					<SheetDescription>Connect this library server to Bifrost and supply the credentials it needs.</SheetDescription>
 				</SheetHeader>
 
 				<Form {...methods}>
@@ -249,7 +246,7 @@ export function MCPLibraryInstallSheet({ server, open, onClose, onInstalled }: M
 								<div className="min-w-0 flex-1 space-y-2">
 									<div className="min-w-0">
 										<p className="truncate text-sm font-medium">{server.name}</p>
-										<p className="text-muted-foreground line-clamp-2 text-xs">{server.description || t("library.card.noDescription")}</p>
+										<p className="text-muted-foreground line-clamp-2 text-xs">{server.description || "No description available."}</p>
 									</div>
 									<div className="flex min-w-0 flex-wrap items-center gap-1.5">
 										<Badge variant="outline" className="bg-background">
@@ -274,26 +271,21 @@ export function MCPLibraryInstallSheet({ server, open, onClose, onInstalled }: M
 								control={control}
 								name="name"
 								rules={{
-									required: t("registry.form.serverNameRequired"),
-									minLength: { value: 3, message: t("registry.form.serverNameMin") },
-									maxLength: { value: 50, message: t("registry.form.serverNameMax") },
+									required: "Server name is required",
+									minLength: { value: 3, message: "Server name must be at least 3 characters" },
+									maxLength: { value: 50, message: "Server name cannot exceed 50 characters" },
 									validate: {
-										format: (v) => /^[a-zA-Z0-9_]+$/.test(v) || t("registry.form.serverNameFormat"),
-										noLeadingDigit: (v) => !/^[0-9]/.test(v) || t("registry.form.serverNameLeadingDigit"),
+										format: (v) => /^[a-zA-Z0-9_]+$/.test(v) || "Server name can only contain letters, numbers, and underscores",
+										noLeadingDigit: (v) => !/^[0-9]/.test(v) || "Server name cannot start with a number",
 									},
 								}}
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("common.name")}</FormLabel>
+										<FormLabel>Name</FormLabel>
 										<FormControl>
-											<Input
-												{...field}
-												data-testid="library-mcp-name-input"
-												placeholder={t("registry.form.serverNamePlaceholder")}
-												maxLength={50}
-											/>
+											<Input {...field} data-testid="library-mcp-name-input" placeholder="Server name" maxLength={50} />
 										</FormControl>
-										<p className="text-muted-foreground text-xs">{t("library.install.nameHelp")}</p>
+										<p className="text-muted-foreground text-xs">Bifrost uses this name internally when routing MCP tool calls.</p>
 										<FormMessage />
 									</FormItem>
 								)}
@@ -314,14 +306,14 @@ export function MCPLibraryInstallSheet({ server, open, onClose, onInstalled }: M
 							<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 								<p className="text-muted-foreground text-xs">
 									{isOauth
-										? t("library.install.oauthAfter")
+										? "OAuth authorization starts after this step."
 										: isPerUserHeaders
-											? t("library.install.headersAfter")
-											: t("library.install.toolsEnabledAfter", { help: authHelpText(authType, t) })}
+											? "Header verification starts after this step."
+											: `${authHelpText(authType)} All discovered tools will be enabled after install.`}
 								</p>
 								<div className="flex justify-end gap-2">
 									<Button type="button" variant="outline" onClick={onClose} disabled={isLoading} data-testid="library-install-cancel-btn">
-										{tc("cancel")}
+										Cancel
 									</Button>
 									<TooltipProvider>
 										<Tooltip>
@@ -339,7 +331,7 @@ export function MCPLibraryInstallSheet({ server, open, onClose, onInstalled }: M
 											</TooltipTrigger>
 											{!hasCreateMCPClientAccess && (
 												<TooltipContent>
-													<p>{t("common.noPermissionApos")}</p>
+													<p>You don&apos;t have permission to perform this action</p>
 												</TooltipContent>
 											)}
 										</Tooltip>
@@ -356,13 +348,13 @@ export function MCPLibraryInstallSheet({ server, open, onClose, onInstalled }: M
 					open={!!oauthFlow}
 					onClose={() => setOauthFlow(null)}
 					onSuccess={() => {
-						toast({ title: t("library.install.installed"), description: t("library.install.connectedOauth", { name: server.name }) });
+						toast({ title: "Installed", description: `${server.name} MCP server connected with OAuth.` });
 						setOauthFlow(null);
 						onInstalled();
 						onClose();
 					}}
 					onError={(error) => {
-						toast({ title: t("registry.form.oauthError"), description: error, variant: "destructive" });
+						toast({ title: "OAuth Error", description: error, variant: "destructive" });
 					}}
 					onConflict={(error) => {
 						setOauthFlow(null);
@@ -381,7 +373,7 @@ export function MCPLibraryInstallSheet({ server, open, onClose, onInstalled }: M
 					onClose={() => setHeadersFlow(null)}
 					onSuccess={() => {
 						setHeadersFlow(null);
-						toast({ title: t("library.install.installed"), description: t("library.install.connectedHeaders", { name: server.name }) });
+						toast({ title: "Installed", description: `${server.name} MCP server connected with per-user headers.` });
 						onInstalled();
 						onClose();
 					}}

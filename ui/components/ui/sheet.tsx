@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 import { ArrowLeftFromLineIcon, ArrowRightFromLineIcon, XIcon } from "lucide-react";
 import * as React from "react";
@@ -138,7 +137,6 @@ function SheetHeader({
 	showCloseButton = true,
 	...props
 }: React.ComponentProps<"div"> & { showCloseButton?: boolean; headerClassName?: string }) {
-	const { t: tCopy } = useTranslation();
 	const sheetContext = useSheetContext();
 
 	return (
@@ -154,9 +152,7 @@ function SheetHeader({
 					className="-ml-5 shrink-0 cursor-pointer opacity-70 transition-opacity hover:scale-105 hover:opacity-100"
 				>
 					{sheetContext?.expanded ? <ArrowRightFromLineIcon className="size-4" /> : <ArrowLeftFromLineIcon className="size-4" />}
-					<span className="sr-only">
-						{sheetContext?.expanded ? tCopy("skillsRepo.collapse", { ns: "config" }) : tCopy("skillsRepo.expand", { ns: "config" })}
-					</span>
+					<span className="sr-only">{sheetContext?.expanded ? "Collapse" : "Expand"}</span>
 				</button>
 			)}
 
@@ -166,7 +162,7 @@ function SheetHeader({
 			{showCloseButton && (
 				<SheetPrimitive.Close className="hover:bg-accent shrink-0 cursor-pointer rounded-md p-2 opacity-70 transition-opacity hover:opacity-100">
 					<XIcon className="size-4" />
-					<span className="sr-only">{tCopy("close", { ns: "common" })}</span>
+					<span className="sr-only">Close</span>
 				</SheetPrimitive.Close>
 			)}
 		</div>

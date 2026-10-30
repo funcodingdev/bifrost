@@ -1,4 +1,3 @@
-import localeMessages from "@/lib/i18n";
 import { formatLatency } from "@/app/workspace/dashboard/utils/chartUtils";
 import BlockHeader from "@/app/workspace/logs/views/blockHeader";
 import LogEntryDetailsView from "@/app/workspace/logs/views/logEntryDetailsView";
@@ -36,15 +35,21 @@ import { useGetMCPLogByIdQuery, useGetUserAgentMappingsQuery } from "@/lib/store
 import type { MCPToolLogEntry } from "@/lib/types/logs";
 import { cn } from "@/lib/utils";
 import { downloadAsJson } from "@/lib/utils/browser-download";
-import { getMCPLogPillTone, getMCPLogPresentation, getMCPLogTimeline, type MCPLogPillTone } from "@/lib/utils/mcpLogPresentation";
+import {
+	getMCPLogPillTone,
+	getMCPLogPresentation,
+	getMCPLogTimeline,
+	getMCPReadKind,
+	type MCPLogPillTone,
+} from "@/lib/utils/mcpLogPresentation";
 import { applyRedactionMappingToValue, hasRedactionMappingEntries, mergeRedactionMappings } from "@/lib/utils/redaction";
+import { RbacOperation, RbacResource, useRbac } from "@enterprise/lib";
 import { OsIcon } from "@enterprise/lib/constants/edgeApps";
 import { useGetDeviceQuery } from "@enterprise/lib/store/apis/edgeControlApi";
 import { Link } from "@tanstack/react-router";
 import { format, isValid } from "date-fns";
 import { ChevronDown, Clipboard, Download, Loader2, MoreVertical, Trash2 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
-import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 interface MCPLogDetailSheetProps {
@@ -86,8 +91,7 @@ function StatusPill({ label, tone }: { label: string; tone: MCPLogPillTone }) {
 }
 
 function CopyInlineButton({ text, testId }: { text: string; testId?: string }) {
-	const { t } = useTranslation("observability");
-	const { copy } = useCopyToClipboard({ successMessage: t("labels.copied") });
+	const { copy } = useCopyToClipboard({ successMessage: "Copied" });
 	return (
 		<button
 			type="button"
@@ -96,7 +100,7 @@ function CopyInlineButton({ text, testId }: { text: string; testId?: string }) {
 				copy(text);
 			}}
 			className="text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-6 w-6 items-center justify-center rounded-sm transition"
-			aria-label={t("labels.copy")}
+			aria-label="Copy"
 			data-testid={testId}
 		>
 			<Clipboard className="h-3.5 w-3.5" />
@@ -121,7 +125,7 @@ function HeroStat({
 }) {
 	return (
 		<div className={cn("border-border/70 min-w-0 border-b px-5 py-3 md:border-b-0", hasRightBorder && "md:border-r")}>
-			<div className="text-muted-foreground truncate text-[10.5px] font-semibold tracking-wider uppercase">{label}</div>
+			<div className="text-muted-foreground text-[10.5px] font-semibold tracking-wider uppercase truncate">{label}</div>
 			<div className={cn("mt-0.5 truncate text-[18px] font-semibold tabular-nums", mono && "font-mono text-[15px]", valueClass)}>
 				{value}
 			</div>
@@ -151,7 +155,6 @@ export function MCPLogDetailSheet({
 	hasPrev = false,
 	hasNext = false,
 }: MCPLogDetailSheetProps) {
-	const { t } = useTranslation("observability");
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [dropdownOpen, setDropdownOpen] = useState(false);
 	const { data: userAgentMappings } = useGetUserAgentMappingsQuery();
@@ -164,9 +167,11 @@ export function MCPLogDetailSheet({
 		skip: !open || !log?.id,
 	});
 
-	// Device metadata (hostname, OS) comes from the Edge device registry; fall back to the raw id when absent.
+	// Device metadata (hostname, OS) comes from the Edge device registry; fall back to the raw id when absent,
+	// including for a caller without Devices:View, for whom the lookup is skipped.
+	const hasDevicesAccess = useRbac(RbacResource.Devices, RbacOperation.View);
 	const deviceId = fullLog?.device_id ?? log?.device_id ?? "";
-	const { data: deviceData } = useGetDeviceQuery(deviceId, { skip: !open || !deviceId });
+	const { data: deviceData } = useGetDeviceQuery(deviceId, { skip: !open || !deviceId || !hasDevicesAccess });
 	const device = deviceData?.device;
 
 	// Keyboard navigation: arrow up/down to navigate between logs
@@ -197,7 +202,7 @@ export function MCPLogDetailSheet({
 			<Sheet open={open} onOpenChange={onOpenChange}>
 				<SheetContent className="border-secondary flex w-full flex-col gap-2 overflow-x-hidden border p-0 sm:max-w-[60%]">
 					<div className="flex h-full items-center justify-center p-4 md:p-8">
-						<SheetTitle className="sr-only">{t("mcpLogs.loadingDetails")}</SheetTitle>
+						<SheetTitle className="sr-only">Loading MCP log details</SheetTitle>
 						<Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
 					</div>
 				</SheetContent>
@@ -213,14 +218,10 @@ export function MCPLogDetailSheet({
 	const displayedResult = applyRedactionMappingToValue(displayLog.result, outputRevealMapping);
 	const displayedErrorDetails = applyRedactionMappingToValue(displayLog.error_details, mixedRevealMapping);
 	const pluginLogCount = getPluginLogCount(displayLog.plugin_logs);
-	const presentation = getMCPLogPresentation(displayLog, t);
+	const presentation = getMCPLogPresentation(displayLog);
 	const { durationMs, startTimestamp, endTimestamp } = getMCPLogTimeline(displayLog, presentation);
 	const durationLabel = presentation.durationLabel;
-	const endLabel = presentation.policy
-		? t("mcpLogs.detail.policyCheckTimestamp")
-		: displayLog.source === "native"
-			? t("mcpLogs.detail.observedTimestamp")
-			: t("mcpLogs.detail.endTimestamp");
+	const endLabel = presentation.policy ? "Policy Check Timestamp" : displayLog.source === "native" ? "Observed Timestamp" : "End Timestamp";
 	const pillTone = getMCPLogPillTone(displayLog, presentation);
 	const requestId = displayLog.request_id || displayLog.id;
 	const durationSub = (() => {
@@ -237,19 +238,11 @@ export function MCPLogDetailSheet({
 	// value included.
 	const scopeLinks = (
 		[
-			[t("labels.user"), t("mcpLogs.detail.users"), "user_id", displayLog.user_name, displayLog.user_id, undefined, undefined],
+			["User", "Users", "user_id", displayLog.user_name, displayLog.user_id, undefined, undefined],
+			["Team", "Teams", "team_id", displayLog.team_name, displayLog.team_id, displayLog.team_names, displayLog.team_ids],
 			[
-				t("labels.team"),
-				t("mcpLogs.detail.teams"),
-				"team_id",
-				displayLog.team_name,
-				displayLog.team_id,
-				displayLog.team_names,
-				displayLog.team_ids,
-			],
-			[
-				t("labels.customer"),
-				t("mcpLogs.detail.customers"),
+				"Customer",
+				"Customers",
 				"customer_id",
 				displayLog.customer_name,
 				displayLog.customer_id,
@@ -257,24 +250,16 @@ export function MCPLogDetailSheet({
 				displayLog.customer_ids,
 			],
 			[
-				t("labels.businessUnit"),
-				t("mcpLogs.detail.businessUnits"),
+				"Business Unit",
+				"Business Units",
 				"business_unit_id",
 				displayLog.business_unit_name,
 				displayLog.business_unit_id,
 				displayLog.business_unit_names,
 				displayLog.business_unit_ids,
 			],
-			[
-				t("labels.project"),
-				t("mcpLogs.detail.projects"),
-				"project_id",
-				displayLog.project_name,
-				displayLog.project_id,
-				undefined,
-				undefined,
-			],
-			[t("labels.device"), t("mcpLogs.detail.devices"), "device_id", null, displayLog.device_id, undefined, undefined],
+			["Project", "Projects", "project_id", displayLog.project_name, displayLog.project_id, undefined, undefined],
+			["Device", "Devices", "device_id", null, displayLog.device_id, undefined, undefined],
 		] as const
 	)
 		.map(([label, pluralLabel, idKey, name, id, names, ids]) => {
@@ -305,13 +290,13 @@ export function MCPLogDetailSheet({
 							entityLabel="log"
 						/>
 						<SheetTitle className="flex w-fit items-center gap-2 font-medium">
-							<span className="text-foreground text-sm font-medium">{t("mcpLogs.detail.requestDetails")}</span>
+							<span className="text-foreground text-sm font-medium">Request details</span>
 						</SheetTitle>
 					</div>
 					{revealAvailable && (
 						<div className="flex items-center gap-2 whitespace-nowrap">
 							<label htmlFor="mcplogdetails-reveal-toggle" className="text-muted-foreground text-[11px] font-medium">
-								{t("mcpLogs.showOriginal")}
+								Show original values
 							</label>
 							<Switch
 								id="mcplogdetails-reveal-toggle"
@@ -338,7 +323,7 @@ export function MCPLogDetailSheet({
 									}}
 								>
 									<Download className="h-4 w-4" />
-									{t("mcpLogs.exportJson")}
+									Export as JSON
 								</DropdownMenuItem>
 								{handleDelete ? (
 									<>
@@ -352,7 +337,7 @@ export function MCPLogDetailSheet({
 											}}
 										>
 											<Trash2 className="h-4 w-4" />
-											{t("logs.detail.deleteLog")}
+											Delete log
 										</DropdownMenuItem>
 									</>
 								) : null}
@@ -360,11 +345,11 @@ export function MCPLogDetailSheet({
 						</DropdownMenu>
 						<AlertDialogContent>
 							<AlertDialogHeader>
-								<AlertDialogTitle>{t("mcpLogs.deleteConfirmTitle")}</AlertDialogTitle>
-								<AlertDialogDescription>{t("mcpLogs.deleteConfirmDesc")}</AlertDialogDescription>
+								<AlertDialogTitle>Are you sure you want to delete this log?</AlertDialogTitle>
+								<AlertDialogDescription>This action cannot be undone. This will permanently delete the log entry.</AlertDialogDescription>
 							</AlertDialogHeader>
 							<AlertDialogFooter>
-								<AlertDialogCancel>{t("labels.cancel")}</AlertDialogCancel>
+								<AlertDialogCancel>Cancel</AlertDialogCancel>
 								<AlertDialogAction
 									onClick={async (e) => {
 										e.preventDefault();
@@ -374,13 +359,13 @@ export function MCPLogDetailSheet({
 											setDeleteDialogOpen(false);
 											onOpenChange(false);
 										} catch (err) {
-											const errorMessage = err instanceof Error ? err.message : t("mcpLogs.detail.deleteFailed");
+											const errorMessage = err instanceof Error ? err.message : "Failed to delete log";
 											toast.error(errorMessage);
 											// Keep dialog open on error so user can see the error and retry
 										}
 									}}
 								>
-									{t("labels.delete")}
+									Delete
 								</AlertDialogAction>
 							</AlertDialogFooter>
 						</AlertDialogContent>
@@ -392,18 +377,21 @@ export function MCPLogDetailSheet({
 							<div className="min-w-0 flex-1">
 								<div className="flex flex-wrap items-center gap-2">
 									<Badge variant="outline" className="rounded-sm px-2 py-0.5 font-medium">
-										{displayLog.source === "native" ? t("mcpLogs.detail.nativeTool") : t("mcpLogs.detail.mcpTool")}
+										{displayLog.source === "native" ? "Native Tool" : "MCP Tool"}
 									</Badge>
 									<StatusPill label={presentation.label} tone={pillTone} />
 									{presentation.policy ? (
 										<Badge variant="outline" className="bg-card text-muted-foreground rounded-sm px-2 py-0.5 font-normal">
-											{t("mcpLogs.detail.preExecutionCheck")}
+											pre-execution check
 										</Badge>
 									) : null}
 								</div>
 								<div className="mt-3 flex items-center gap-2">
-									<div className="text-muted-foreground w-24 shrink-0 text-[10.5px] font-semibold tracking-wider uppercase">
-										{t("mcpLogs.detail.tool")}
+									<div
+										className="text-muted-foreground w-24 shrink-0 text-[10.5px] font-semibold tracking-wider uppercase"
+										data-testid="mcplogdetails-tool-label"
+									>
+										{getMCPReadKind(displayLog) ?? "Tool"}
 									</div>
 									<Link
 										to="/workspace/mcp-logs"
@@ -417,17 +405,13 @@ export function MCPLogDetailSheet({
 									<CopyInlineButton text={displayLog.tool_name} testId="mcplogdetails-copy-tool-name-button" />
 								</div>
 								<div className="mt-1 flex items-center gap-2">
-									<div className="text-muted-foreground w-24 shrink-0 text-[10.5px] font-semibold tracking-wider uppercase">
-										{t("mcpLogs.detail.request")}
-									</div>
+									<div className="text-muted-foreground w-24 shrink-0 text-[10.5px] font-semibold tracking-wider uppercase">Request</div>
 									<code className="text-foreground truncate font-mono text-[13px]">{requestId || "—"}</code>
 									{requestId ? <CopyInlineButton text={requestId} testId="mcplogdetails-copy-request-id-button" /> : null}
 								</div>
 								{displayLog.session_id && (
 									<div className="mt-1 flex items-center gap-2">
-										<div className="text-muted-foreground w-24 shrink-0 text-[10.5px] font-semibold tracking-wider uppercase">
-											{localeMessages.t("labels.session", { ns: "observability" })}
-										</div>
+										<div className="text-muted-foreground w-24 shrink-0 text-[10.5px] font-semibold tracking-wider uppercase">Session</div>
 										<code className="text-foreground truncate font-mono text-[13px]">{displayLog.session_id}</code>
 										<CopyInlineButton text={displayLog.session_id} testId="mcplogdetails-copy-session-id-button" />
 									</div>
@@ -435,7 +419,7 @@ export function MCPLogDetailSheet({
 								{displayLog.llm_request_id && (
 									<div className="mt-1 flex items-center gap-2">
 										<div className="text-muted-foreground w-24 shrink-0 text-[10.5px] font-semibold tracking-wider uppercase">
-											{localeMessages.t("mcpLogs.detail.llmRequest", { ns: "observability" })}
+											LLM Request
 										</div>
 										<Link
 											to="/workspace/logs"
@@ -450,9 +434,7 @@ export function MCPLogDetailSheet({
 								)}
 								{(displayLog.virtual_key || displayLog.virtual_key_id) && (
 									<div className="mt-1 flex items-center gap-2">
-										<div className="text-muted-foreground w-24 shrink-0 text-[10.5px] font-semibold tracking-wider uppercase">
-											{localeMessages.t("mcpLogs.detail.key", { ns: "observability" })}
-										</div>
+										<div className="text-muted-foreground w-24 shrink-0 text-[10.5px] font-semibold tracking-wider uppercase">Key</div>
 										<Link
 											to="/workspace/governance/virtual-keys"
 											search={{ selected_vk: displayLog.virtual_key?.id || displayLog.virtual_key_id! }}
@@ -478,25 +460,21 @@ export function MCPLogDetailSheet({
 								hasRightBorder
 							/>
 							<HeroStat
-								label={localeMessages.t("labels.server", { ns: "observability" })}
-								value={
-									displayLog.source === "native"
-										? localeMessages.t("mcpLogs.local", { ns: "observability" })
-										: displayLog.server_label || "—"
-								}
+								label="Server"
+								value={displayLog.source === "native" ? "Local" : displayLog.server_label || "—"}
 								sub={displayLog.source === "native" ? "native" : "mcp"}
 								valueClass="whitespace-normal overflow-visible break-all"
 								hasRightBorder
 							/>
 							<HeroStat
-								label={localeMessages.t("labels.user", { ns: "observability" })}
+								label="User"
 								value={displayLog.user_name || displayLog.user_id || "—"}
 								sub={displayLog.team_name || displayLog.team_id || ""}
 								valueClass={displayLog.user_name ? undefined : "font-mono text-[15px]"}
 								hasRightBorder
 							/>
 							<HeroStat
-								label={localeMessages.t("labels.device", { ns: "observability" })}
+								label="Device"
 								mono={!device?.hostname}
 								value={
 									displayLog.device_id ? (
@@ -520,12 +498,9 @@ export function MCPLogDetailSheet({
 					</div>
 					<details className="group bg-card rounded-sm border" open={false}>
 						<summary className="hover:bg-muted/30 flex cursor-pointer items-center justify-between px-4 py-2.5 text-sm transition">
-							<span className="text-foreground font-medium">{t("mcpLogs.detail.moreDetails")}</span>
+							<span className="text-foreground font-medium">More details</span>
 							<span className="text-muted-foreground flex items-center gap-2 text-xs">
-								<span className="hidden md:inline">
-									{localeMessages.t("mcpLogs.detail.summary", { ns: "observability" })}
-									{metadataEntries.length > 0 ? t("mcpLogs.detail.summaryWithMetadata") : t("mcpLogs.detail.summary")}
-								</span>
+								<span className="hidden md:inline">timings, request meta{metadataEntries.length > 0 ? ", metadata" : ""}</span>
 								<ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
 							</span>
 						</summary>
@@ -533,48 +508,40 @@ export function MCPLogDetailSheet({
 							<p className="text-muted-foreground text-sm">{presentation.description}</p>
 							<DottedSeparator />
 							<div className="space-y-4">
-								<BlockHeader title={t("mcpLogs.detail.timings")} />
+								<BlockHeader title="Timings" />
 								<div className="grid w-full grid-cols-1 items-center justify-between gap-4 md:grid-cols-3">
 									<LogEntryDetailsView
 										className="w-full"
-										label={t("mcpLogs.detail.startTimestamp")}
-										value={
-											startTimestamp && isValid(startTimestamp)
-												? format(startTimestamp, "yyyy-MM-dd hh:mm:ss aa")
-												: localeMessages.t("labels.nA", { ns: "observability" })
-										}
+										label="Start Timestamp"
+										value={startTimestamp && isValid(startTimestamp) ? format(startTimestamp, "yyyy-MM-dd hh:mm:ss aa") : "N/A"}
 									/>
 									<LogEntryDetailsView
 										className="w-full"
 										label={endLabel}
-										value={
-											endTimestamp && isValid(endTimestamp)
-												? format(endTimestamp, "yyyy-MM-dd hh:mm:ss aa")
-												: localeMessages.t("labels.nA", { ns: "observability" })
-										}
+										value={endTimestamp && isValid(endTimestamp) ? format(endTimestamp, "yyyy-MM-dd hh:mm:ss aa") : "N/A"}
 									/>
 									<LogEntryDetailsView
 										className="w-full"
 										label={durationLabel}
-										value={durationMs == null || isNaN(durationMs) ? t("mcpLogs.notRecorded") : `${durationMs.toFixed(2)}ms`}
+										value={durationMs == null || isNaN(durationMs) ? "Not recorded" : `${durationMs.toFixed(2)}ms`}
 									/>
 								</div>
 							</div>
 							<DottedSeparator />
 							<div className="space-y-4">
-								<BlockHeader title={t("mcpLogs.detail.requestDetails")} />
+								<BlockHeader title="Request Details" />
 								<div className="grid w-full grid-cols-1 items-start justify-between gap-4 md:grid-cols-3">
-									<LogEntryDetailsView className="col-span-3 w-full" label={t("mcpLogs.detail.requestId")} value={requestId} />
+									<LogEntryDetailsView className="col-span-3 w-full" label="Request ID" value={requestId} />
 									{displayLog.session_id && (
 										<LogEntryDetailsView
 											className="col-span-3 w-full"
-											label={localeMessages.t("filters.sessionID", { ns: "observability" })}
+											label="Session ID"
 											value={<code className="truncate font-mono text-xs">{displayLog.session_id}</code>}
 										/>
 									)}
 									<LogEntryDetailsView
 										className="w-full"
-										label={localeMessages.t("labels.app", { ns: "observability" })}
+										label="App"
 										value={
 											<div className="flex items-center gap-2">
 												{appIcon && <img src={appIcon} alt={app.name} width={14} height={14} />}
@@ -584,15 +551,15 @@ export function MCPLogDetailSheet({
 									/>
 									<LogEntryDetailsView
 										className="w-full"
-										label={t("mcpLogs.detail.toolName")}
+										label="Tool Name"
 										value={<span className="font-mono">{displayLog.tool_name}</span>}
 									/>
 									<LogEntryDetailsView
 										className="w-full"
-										label={t("labels.server")}
+										label="Server"
 										value={
 											displayLog.source === "native" ? (
-												<Badge variant="secondary">{t("mcpLogs.detail.localNative")}</Badge>
+												<Badge variant="secondary">Local · Native</Badge>
 											) : displayLog.server_label ? (
 												<Link
 													to="/workspace/mcp-logs"
@@ -629,9 +596,7 @@ export function MCPLogDetailSheet({
 																</Link>
 															</TooltipTrigger>
 															<TooltipContent sideOffset={6}>
-																{item.name !== item.id
-																	? item.id
-																	: t("accessibility.filterBy", { ns: "common", label: label.toLowerCase() })}
+																{item.name !== item.id ? item.id : `Filter by ${label.toLowerCase()}`}
 															</TooltipContent>
 														</Tooltip>
 													))}
@@ -642,21 +607,15 @@ export function MCPLogDetailSheet({
 									{(displayLog.virtual_key || displayLog.virtual_key_id) && (
 										<LogEntryDetailsView
 											className="w-full"
-											label={localeMessages.t("labels.virtualKey", { ns: "observability" })}
+											label="Virtual Key"
 											value={displayLog.virtual_key?.name || displayLog.virtual_key_name || displayLog.virtual_key_id}
 										/>
 									)}
-									{displayLog.decision && (
-										<LogEntryDetailsView
-											className="w-full"
-											label={localeMessages.t("logs.detail.roles.decision", { ns: "observability" })}
-											value={displayLog.decision}
-										/>
-									)}
+									{displayLog.decision && <LogEntryDetailsView className="w-full" label="Decision" value={displayLog.decision} />}
 									{displayLog.llm_request_id && (
 										<LogEntryDetailsView
 											className="col-span-3 w-full"
-											label={localeMessages.t("mcpLogs.detail.llmRequestId", { ns: "observability" })}
+											label="LLM Request ID"
 											value={<span className="font-mono text-xs">{displayLog.llm_request_id}</span>}
 										/>
 									)}
@@ -666,7 +625,7 @@ export function MCPLogDetailSheet({
 								<>
 									<DottedSeparator />
 									<div className="space-y-4">
-										<BlockHeader title={t("mcpLogs.detail.metadata")} />
+										<BlockHeader title="Metadata" />
 										<div className="grid w-full grid-cols-1 items-start justify-between gap-4 md:grid-cols-3">
 											{metadataEntries.map(([key, value]) => (
 												<LogEntryDetailsView key={key} className="w-full" label={key} value={String(value)} />
@@ -681,10 +640,10 @@ export function MCPLogDetailSheet({
 					<Tabs key={displayLog.id} defaultValue="execution" className="gap-2">
 						<TabsList className="bg-muted/60 h-10 w-fit">
 							<TabsTrigger value="execution" className="px-3">
-								{t("mcpLogs.execution")}
+								Execution
 							</TabsTrigger>
 							<TabsTrigger value="plugins" className="px-3">
-								{t("mcpLogs.pluginLogs")}
+								Plugin Logs
 								{pluginLogCount > 0 ? (
 									<span className="bg-background text-muted-foreground ml-1.5 rounded-sm border px-2 py-0.5 text-[10px] tabular-nums">
 										{pluginLogCount}
@@ -697,7 +656,7 @@ export function MCPLogDetailSheet({
 							{/* Arguments */}
 							{displayedArguments && (
 								<div className="w-full rounded-sm border">
-									<div className="border-b px-4 py-2 text-sm font-medium md:px-6">{t("mcpLogs.arguments")}</div>
+									<div className="border-b px-4 py-2 text-sm font-medium md:px-6">Arguments</div>
 									<CodeEditor
 										className="z-0 w-full"
 										shouldAdjustInitialHeight={true}
@@ -714,7 +673,7 @@ export function MCPLogDetailSheet({
 							{/* Result */}
 							{displayedResult && displayLog.status !== "processing" && (
 								<div className="w-full rounded-sm border">
-									<div className="border-b px-4 py-2 text-sm font-medium md:px-6">{t("mcpLogs.result")}</div>
+									<div className="border-b px-4 py-2 text-sm font-medium md:px-6">Result</div>
 									<CodeEditor
 										className="z-0 w-full"
 										shouldAdjustInitialHeight={true}
@@ -731,9 +690,7 @@ export function MCPLogDetailSheet({
 							{/* Error Details */}
 							{displayedErrorDetails && (
 								<div className="border-destructive/50 w-full rounded-sm border">
-									<div className="border-destructive/50 text-destructive border-b px-4 py-2 text-sm font-medium md:px-6">
-										{t("mcpLogs.errorDetails")}
-									</div>
+									<div className="border-destructive/50 text-destructive border-b px-4 py-2 text-sm font-medium md:px-6">Error Details</div>
 									<CodeEditor
 										className="z-0 w-full"
 										shouldAdjustInitialHeight={true}
@@ -753,7 +710,7 @@ export function MCPLogDetailSheet({
 								<PluginLogsView pluginLogs={displayLog.plugin_logs} />
 							) : (
 								<div className="text-muted-foreground rounded-sm border border-dashed p-5 text-center text-sm">
-									{t("mcpLogs.noPluginLogs")}
+									No plugin logs for this request.
 								</div>
 							)}
 						</TabsContent>

@@ -1,7 +1,3 @@
-import { dateFnsLocale } from "@/lib/i18n/dateLocale";
-import { getLocale as getUILocale } from "@/lib/i18n";
-import i18n from "@/lib/i18n";
-import type { TFunction } from "i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdownMenu";
@@ -20,14 +16,15 @@ const getValidatedStatus = (status: string): AgentLogStatus => {
 	return "processing";
 };
 
-export function getAgentColumnLabels(t: TFunction): Record<string, string> {
-	return Object.fromEntries(
-		["timestamp", "agent_name", "operation", "input", "context", "task", "duration"].map((key) => [
-			key,
-			t(`columns.${key}`, { ns: "agents" }),
-		]),
-	);
-}
+export const AGENT_COLUMN_LABELS: Record<string, string> = {
+	timestamp: "Time",
+	agent_name: "Agent",
+	operation: "Operation",
+	input: "Message",
+	context: "Context",
+	task: "Task",
+	duration: "Duration",
+};
 
 function collectTextParts(value: unknown, result: string[]): void {
 	if (typeof value === "string") {
@@ -76,7 +73,6 @@ interface AgentSessionExpansion {
 export const createAgentColumns = (
 	handleDelete?: (log: AgentLogSummary) => Promise<void>,
 	sessions?: AgentSessionExpansion,
-	t: TFunction = i18n.t.bind(i18n),
 ): ColumnDef<AgentLogSummary>[] => [
 	...(sessions
 		? [
@@ -94,7 +90,7 @@ export const createAgentColumns = (
 								>
 									<span className={`bg-border absolute top-0 left-[11px] w-px ${log.__isLast ? "h-1/2" : "bottom-0"}`} />
 									<span className="bg-border absolute top-1/2 left-[11px] h-px w-1.5" />
-									<span className="truncate">{t("columns.operationNumber", { number: log.__sessionTurn, ns: "agents" })}</span>
+									<span className="truncate">operation {log.__sessionTurn}</span>
 								</div>
 							);
 						}
@@ -112,9 +108,7 @@ export const createAgentColumns = (
 										<button
 											type="button"
 											data-testid="agent-logs-session-expand-btn"
-											aria-label={
-												expanded ? t("columns.collapseContext", { ns: "agents" }) : t("columns.expandContext", { count, ns: "agents" })
-											}
+											aria-label={expanded ? "Collapse this context" : `Expand ${count} more operations in this context`}
 											aria-expanded={expanded}
 											className={`hover:text-foreground relative flex h-full w-full cursor-pointer items-center gap-1 overflow-hidden pl-1 text-[11px] whitespace-nowrap transition-colors ${expanded ? "text-foreground" : "text-muted-foreground"}`}
 											onClick={(event) => {
@@ -127,10 +121,12 @@ export const createAgentColumns = (
 											) : (
 												<ChevronRight className={`size-3.5 shrink-0 transition-transform duration-150 ${expanded ? "rotate-90" : ""}`} />
 											)}
-											<span className="truncate tabular-nums">{t("columns.operations", { count: count + 1, ns: "agents" })}</span>
+											<span className="truncate tabular-nums">{count + 1} ops</span>
 										</button>
 									</TooltipTrigger>
-									<TooltipContent>{t("columns.contextDescription", { total: count + 1, count, ns: "agents" })}</TooltipContent>
+									<TooltipContent>
+										Context of {count + 1} operations sharing a context_id. Expand to see the other {count} operations.
+									</TooltipContent>
 								</Tooltip>
 							</>
 						);
@@ -152,7 +148,7 @@ export const createAgentColumns = (
 		accessorKey: "timestamp",
 		header: ({ column }) => (
 			<Button variant="ghost" className="-ml-3 h-8 px-2" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-				{t("columns.timestamp", { ns: "agents" })}
+				Time
 				<ArrowUpDown className="ml-2 size-3.5" />
 			</Button>
 		),
@@ -166,16 +162,14 @@ export const createAgentColumns = (
 			return (
 				<div className="flex flex-col leading-tight">
 					<span className="font-mono text-xs tabular-nums">{format(date, "MMM dd  HH:mm:ss")}</span>
-					<span className="text-muted-foreground text-[10.5px] tabular-nums">
-						{formatDistanceToNow(date, { addSuffix: true, locale: dateFnsLocale(getUILocale()) })}
-					</span>
+					<span className="text-muted-foreground text-[10.5px] tabular-nums">{formatDistanceToNow(date, { addSuffix: true })}</span>
 				</div>
 			);
 		},
 	},
 	{
 		accessorKey: "agent_name",
-		header: t("columns.agent_name", { ns: "agents" }),
+		header: "Agent",
 		size: 160,
 		cell: ({ row }) => (
 			<Badge variant="secondary" className="max-w-full font-mono">
@@ -185,7 +179,7 @@ export const createAgentColumns = (
 	},
 	{
 		accessorKey: "operation",
-		header: t("columns.operation", { ns: "agents" }),
+		header: "Operation",
 		size: 220,
 		cell: ({ row }) => (
 			<div className="flex min-w-0 flex-col leading-tight">
@@ -196,7 +190,7 @@ export const createAgentColumns = (
 	},
 	{
 		accessorKey: "input",
-		header: t("columns.input", { ns: "agents" }),
+		header: "Message",
 		size: 350,
 		cell: ({ row }) => {
 			const preview = getAgentInputPreview(row.original.input);
@@ -209,13 +203,13 @@ export const createAgentColumns = (
 	},
 	{
 		id: "context",
-		header: t("columns.context", { ns: "agents" }),
+		header: "Context",
 		size: 130,
 		cell: ({ row }) => <TruncatedLabel className="block font-mono text-xs">{row.original.context_id || "—"}</TruncatedLabel>,
 	},
 	{
 		id: "task",
-		header: t("columns.task", { ns: "agents" }),
+		header: "Task",
 		size: 130,
 		cell: ({ row }) => <TruncatedLabel className="block font-mono text-xs">{row.original.task_id || "—"}</TruncatedLabel>,
 	},
@@ -224,7 +218,7 @@ export const createAgentColumns = (
 		accessorKey: "latency",
 		header: ({ column }) => (
 			<Button variant="ghost" className="-ml-3 h-8 px-2" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-				{t("columns.duration", { ns: "agents" })}
+				Duration
 				<ArrowUpDown className="ml-2 size-3.5" />
 			</Button>
 		),
@@ -246,13 +240,7 @@ export const createAgentColumns = (
 							<div className="flex justify-center">
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild onClick={(event) => event.stopPropagation()}>
-										<Button
-											variant="ghost"
-											size="icon"
-											data-testid="log-actions-btn"
-											aria-label={t("columns.actions", { ns: "agents" })}
-											className="h-7 w-7"
-										>
+										<Button variant="ghost" size="icon" data-testid="log-actions-btn" aria-label="Log actions" className="h-7 w-7">
 											<MoreHorizontal className="h-4 w-4" />
 										</Button>
 									</DropdownMenuTrigger>
@@ -267,7 +255,7 @@ export const createAgentColumns = (
 											}}
 										>
 											<Trash2 className="h-4 w-4" />
-											{t("delete", { ns: "common" })}
+											Delete
 										</DropdownMenuItem>
 									</DropdownMenuContent>
 								</DropdownMenu>

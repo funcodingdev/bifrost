@@ -14,7 +14,6 @@ import { buildCSV, downloadCSV } from "@/lib/utils/csv";
 import { Download, FileSpreadsheet, FileText, Loader2 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { type DashboardData, type DashboardTab, type ExportTab, getCSVSections, getExportTabLabel } from "../utils/exportUtils";
-import { useTranslation } from "react-i18next";
 
 interface ExportPopoverProps {
 	getData: () => DashboardData;
@@ -28,7 +27,6 @@ interface ExportPopoverProps {
 }
 
 export function ExportPopover({ getData, activeTab, onPreloadData, onPdfExport, onExportDone }: ExportPopoverProps) {
-	const { t } = useTranslation("observability");
 	const [exporting, setExporting] = useState(false);
 
 	const fileName = useCallback((scope: ExportTab) => (scope === "all" ? "dashboard-export" : `dashboard-${scope}`), []);
@@ -72,7 +70,7 @@ export function ExportPopover({ getData, activeTab, onPreloadData, onPdfExport, 
 				await generatePdf(sections, fileName(scope), {
 					branding: {
 						logoSrc: "/bifrost-logo.webp",
-						text: t("dashboard.export.poweredBy"),
+						text: "Powered by",
 					},
 				});
 			} finally {
@@ -80,7 +78,7 @@ export function ExportPopover({ getData, activeTab, onPreloadData, onPdfExport, 
 				setExporting(false);
 			}
 		},
-		[onPdfExport, onExportDone, fileName, t],
+		[onPdfExport, onExportDone, fileName],
 	);
 
 	const activeTabLabel = getExportTabLabel(activeTab);
@@ -106,28 +104,28 @@ export function ExportPopover({ getData, activeTab, onPreloadData, onPdfExport, 
 								className="size-7.5"
 								disabled={exporting}
 								data-testid="dashboard-export-trigger"
-								aria-label={exporting ? t("dashboard.export.exporting") : t("dashboard.export.export")}
+								aria-label={exporting ? "Exporting..." : "Export"}
 							>
 								{exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
 							</Button>
 						</DropdownMenuTrigger>
 					</span>
 				</TooltipTrigger>
-				<TooltipContent side="bottom">{exporting ? t("dashboard.export.exporting") : t("dashboard.export.export")}</TooltipContent>
+				<TooltipContent side="bottom">{exporting ? "Exporting..." : "Export"}</TooltipContent>
 			</Tooltip>
 			<DropdownMenuContent align="end">
 				<DropdownMenuSub>
 					<DropdownMenuSubTrigger data-testid="export-csv-item" className="flex gap-2">
 						<FileSpreadsheet className="h-4 w-4" />
-						{t("dashboard.export.csv")}
+						CSV
 					</DropdownMenuSubTrigger>
 					<DropdownMenuPortal>
 						<DropdownMenuSubContent>
 							<DropdownMenuItem onClick={() => handleCsvExport(activeTab)} data-testid="export-csv-current-tab">
-								{t("dashboard.export.thisTab", { label: activeTabLabel })}
+								This tab ({activeTabLabel})
 							</DropdownMenuItem>
 							<DropdownMenuItem onClick={() => handleCsvExport("all")} data-testid="export-csv-all-tabs">
-								{t("dashboard.export.allTabs")}
+								All tabs
 							</DropdownMenuItem>
 						</DropdownMenuSubContent>
 					</DropdownMenuPortal>
@@ -135,15 +133,15 @@ export function ExportPopover({ getData, activeTab, onPreloadData, onPdfExport, 
 				<DropdownMenuSub>
 					<DropdownMenuSubTrigger data-testid="export-pdf-item" className="flex gap-2">
 						<FileText className="h-4 w-4" />
-						{t("dashboard.export.pdf")}
+						PDF
 					</DropdownMenuSubTrigger>
 					<DropdownMenuPortal>
 						<DropdownMenuSubContent>
 							<DropdownMenuItem onClick={() => handlePdfExport(activeTab)} data-testid="export-pdf-current-tab">
-								{t("dashboard.export.thisTab", { label: activeTabLabel })}
+								This tab ({activeTabLabel})
 							</DropdownMenuItem>
 							<DropdownMenuItem onClick={() => handlePdfExport("all")} data-testid="export-pdf-all-tabs">
-								{t("dashboard.export.allTabs")}
+								All tabs
 							</DropdownMenuItem>
 						</DropdownMenuSubContent>
 					</DropdownMenuPortal>

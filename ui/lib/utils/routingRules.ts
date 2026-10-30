@@ -1,4 +1,3 @@
-import i18nReview from "@/lib/i18n";
 import type { RoutingTarget } from "@/lib/types/routingRules";
 /**
  * Routing Rules Utility Functions
@@ -129,20 +128,20 @@ export function detectCELOperators(expression: string): string[] {
 
 	// Common CEL operators
 	const operatorPatterns = [
-		{ regex: /==/, label: i18nReview.t("ui.routingRules.equals", { ns: "models" }) },
-		{ regex: /!=/, label: i18nReview.t("ui.routingRules.notEquals", { ns: "models" }) },
-		{ regex: />=/, label: i18nReview.t("ui.routingRules.greaterThanOrEqual", { ns: "models" }) },
-		{ regex: /<=/, label: i18nReview.t("ui.routingRules.lessThanOrEqual", { ns: "models" }) },
-		{ regex: />/, label: i18nReview.t("ui.routingRules.greaterThan", { ns: "models" }) },
-		{ regex: /</, label: i18nReview.t("ui.routingRules.lessThan", { ns: "models" }) },
+		{ regex: /==/, label: "Equals" },
+		{ regex: /!=/, label: "Not equals" },
+		{ regex: />=/, label: "Greater than or equal" },
+		{ regex: /<=/, label: "Less than or equal" },
+		{ regex: />/, label: "Greater than" },
+		{ regex: /</, label: "Less than" },
 		{ regex: /&&/, label: "AND" },
 		{ regex: /\|\|/, label: "OR" },
 		{ regex: /!(?!=)/, label: "NOT" },
 		{ regex: /in\s/, label: "IN" },
-		{ regex: /.matches\(/, label: i18nReview.t("modelAccess.regexTab", { ns: "common" }) },
-		{ regex: /.startsWith\(/, label: i18nReview.t("ui.routingRules.startswith", { ns: "models" }) },
-		{ regex: /.contains\(/, label: i18nReview.t("ui.routingRules.contains", { ns: "models" }) },
-		{ regex: /.endsWith\(/, label: i18nReview.t("ui.routingRules.endswith", { ns: "models" }) },
+		{ regex: /.matches\(/, label: "Regex" },
+		{ regex: /.startsWith\(/, label: "StartsWith" },
+		{ regex: /.contains\(/, label: "Contains" },
+		{ regex: /.endsWith\(/, label: "EndsWith" },
 	];
 
 	operatorPatterns.forEach(({ regex, label }) => {

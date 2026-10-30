@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 // Per-row actions menu for an OAuth grant: a dropdown exposing "View auth
 // sessions" (deep-link into MCP sessions pre-filtered to this grant's exact
 // identity) and a destructive "Revoke" action. The revoke confirmation itself
@@ -18,7 +17,6 @@ interface GrantActionsProps {
 }
 
 export default function GrantActions({ row, revoking, isPendingRow, onRevoke }: GrantActionsProps) {
-	const { t: tCopy } = useTranslation();
 	const busy = revoking;
 	// Link to Auth Sessions pre-filtered to this grant's exact identity: the
 	// mode plus the identity filter, which exact-matches bf_sub against the
@@ -34,7 +32,7 @@ export default function GrantActions({ row, revoking, isPendingRow, onRevoke }: 
 					variant="ghost"
 					size="icon"
 					className="h-8 w-8"
-					aria-label={tCopy("ui.grantActions.grantActions", { ns: "mcp" })}
+					aria-label="Grant actions"
 					disabled={busy}
 				>
 					{busy && isPendingRow ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
@@ -45,7 +43,7 @@ export default function GrantActions({ row, revoking, isPendingRow, onRevoke }: 
 					<DropdownMenuItem asChild className="cursor-pointer">
 						<Link to={authSessionsUrl} data-testid="oauth-grants-view-sessions-link">
 							<ExternalLink className="h-4 w-4" />
-							{tCopy("ui.grantActions.viewAuthSessions", { ns: "mcp" })}
+							View auth sessions
 						</Link>
 					</DropdownMenuItem>
 				)}
@@ -60,7 +58,7 @@ export default function GrantActions({ row, revoking, isPendingRow, onRevoke }: 
 					}}
 				>
 					<Trash2 className="h-4 w-4" />
-					{tCopy("common.revoke", { ns: "mcp" })}
+					Revoke
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

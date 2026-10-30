@@ -17,7 +17,6 @@ import OtelView from "./plugins/otelView";
 import PrometheusView from "./plugins/prometheusView";
 import PubSubView from "./plugins/pubsubView";
 import SplunkView from "./plugins/splunkView";
-import { useTranslation } from "react-i18next";
 
 type SupportedPlatform = {
 	id: string;
@@ -102,7 +101,6 @@ const supportedPlatformsList = (resolvedTheme: string): SupportedPlatform[] => [
 ];
 
 export default function ObservabilityView() {
-	const { t } = useTranslation("observability");
 	const isMobile = useIsMobile();
 	const dispatch = useAppDispatch();
 	const { data: plugins, isLoading } = useGetPluginsQuery();
@@ -159,7 +157,7 @@ export default function ObservabilityView() {
 				<div className="flex w-full flex-col gap-2 pb-10">
 					<div className="rounded-md bg-zinc-100/10 p-4 dark:bg-zinc-800/20">
 						<div className="flex flex-col gap-1">
-							<div className="text-muted-foreground mb-2 text-xs font-medium">{t("connectors.providers")}</div>
+							<div className="text-muted-foreground mb-2 text-xs font-medium">Providers</div>
 							{supportedPlatforms.map((tab) => (
 								<button
 									type="button"
@@ -194,7 +192,7 @@ export default function ObservabilityView() {
 									)}
 									{tab.disabled && (
 										<Badge variant="secondary" className="text-muted-foreground ml-auto text-[10px] font-medium">
-											{t("connectors.comingSoon").toUpperCase()}
+											{"Coming soon".toUpperCase()}
 										</Badge>
 									)}
 								</button>
@@ -206,7 +204,7 @@ export default function ObservabilityView() {
 			<div className={cn("min-w-0 w-full pt-4", mobileDetailOpen ? "block" : "hidden md:block")}>
 				<Button variant="ghost" size="sm" className="mb-2 md:hidden" onClick={() => setMobileDetailOpen(false)}>
 					<ArrowLeft className="size-4" />
-					{t("connectors.providers")}
+					Providers
 				</Button>
 				{selectedPluginId === "prometheus" && <PrometheusView />}
 				{selectedPluginId === "otel" && <OtelView />}

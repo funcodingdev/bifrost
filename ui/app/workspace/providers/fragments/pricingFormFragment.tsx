@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
@@ -18,7 +17,6 @@ interface PricingFormFragmentProps {
 }
 
 export function PricingFormFragment({ provider }: PricingFormFragmentProps) {
-	const { t: tCopy } = useTranslation();
 	const dispatch = useAppDispatch();
 	const hasUpdateProviderAccess = useRbac(RbacResource.ModelProvider, RbacOperation.Update);
 	const [updateProvider, { isLoading: isUpdatingProvider }] = useUpdateProviderMutation();
@@ -49,11 +47,11 @@ export function PricingFormFragment({ provider }: PricingFormFragmentProps) {
 		updateProvider(updatedProvider)
 			.unwrap()
 			.then(() => {
-				toast.success(tCopy("ui.pricingFormFragment.pricingConfigurationUpdatedSuccessfully", { ns: "models" }));
+				toast.success("Pricing configuration updated successfully");
 				form.reset(data);
 			})
 			.catch((err) => {
-				toast.error(tCopy("ui.pricingFormFragment.failedToUpdatePricingConfiguration", { ns: "models" }), {
+				toast.error("Failed to update pricing configuration", {
 					description: getErrorMessage(err),
 				});
 			});
@@ -70,9 +68,11 @@ export function PricingFormFragment({ provider }: PricingFormFragmentProps) {
 							<FormItem>
 								<div className="flex items-center justify-between space-x-2">
 									<div className="space-y-0.5">
-										<FormLabel>{tCopy("ui.pricingFormFragment.ignoreProviderReportedCost", { ns: "models" })}</FormLabel>
+										<FormLabel>Ignore Provider-Reported Cost</FormLabel>
 										<p className="text-muted-foreground text-xs">
-											{tCopy("ui.pricingFormFragment.discardTheCostTheProviderReturnsInItsUsage", { ns: "models" })}
+											Discard the cost the provider returns in its usage object and calculate it in Bifrost from model pricing and pricing
+											overrides. Use this when a provider reports cost in its own units, such as credits or a non-USD currency. Models
+											without pricing or an override are logged at $0.
 										</p>
 									</div>
 									<FormControl>
@@ -100,7 +100,7 @@ export function PricingFormFragment({ provider }: PricingFormFragmentProps) {
 						disabled={!form.formState.isDirty || !hasUpdateProviderAccess || isUpdatingProvider}
 						isLoading={isUpdatingProvider}
 					>
-						{tCopy("ui.pricingFormFragment.savePricingConfiguration", { ns: "models" })}
+						Save Pricing Configuration
 					</Button>
 				</div>
 			</form>

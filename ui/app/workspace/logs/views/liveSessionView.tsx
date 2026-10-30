@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Clipboard, Mic } from "lucide-react";
 
 import { formatCost } from "@/app/workspace/dashboard/utils/chartUtils";
@@ -41,7 +40,6 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 function TranscriptLine({ line, last, mapping }: { line: LiveTranscriptLine; last: boolean; mapping?: Record<string, string> }) {
-	const { t: tCopy } = useTranslation();
 	const assistant = line.role === "assistant";
 	const range = line.start_ms !== undefined ? `${formatClock(line.start_ms)}–${formatClock(line.end_ms)}` : "";
 	return (
@@ -52,9 +50,7 @@ function TranscriptLine({ line, last, mapping }: { line: LiveTranscriptLine; las
 			</div>
 			<div className="min-w-0 flex-1 pb-3">
 				<div className="mb-1 flex items-center gap-2">
-					<span className="text-foreground text-[11.5px] font-semibold">
-						{assistant ? tCopy("logs.detail.roles.assistant", { ns: "observability" }) : tCopy("labels.user", { ns: "observability" })}
-					</span>
+					<span className="text-foreground text-[11.5px] font-semibold">{assistant ? "Assistant" : "User"}</span>
 					{range ? <span className="text-muted-foreground font-mono text-[11px]">{range}</span> : null}
 				</div>
 				<div
@@ -74,8 +70,7 @@ function TranscriptLine({ line, last, mapping }: { line: LiveTranscriptLine; las
 
 // CopyChip is one backend response id, shortened to fit; hovering names it and shows it whole.
 function CopyChip({ id, title }: { id: string; title: string }) {
-	const { t: tCopy } = useTranslation();
-	const { copy } = useCopyToClipboard({ successMessage: tCopy("celBuilder.copied", { ns: "observability" }) });
+	const { copy } = useCopyToClipboard({ successMessage: "Copied" });
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>
@@ -83,7 +78,7 @@ function CopyChip({ id, title }: { id: string; title: string }) {
 					type="button"
 					onClick={() => copy(id)}
 					className="text-muted-foreground hover:bg-muted hover:text-foreground inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 font-mono text-[11px] transition"
-					aria-label={tCopy("accessibility.copyNamed", { ns: "common", name: title })}
+					aria-label={`Copy ${title}`}
 					data-testid="logdetails-live-delegation-copy-response-id"
 				>
 					{shortId(id)}
@@ -117,7 +112,6 @@ function DelegationCard({
 	mapping?: Record<string, string>;
 	visibleRoles?: Set<MessageRole>;
 }) {
-	const { t: tCopy } = useTranslation();
 	const usage = delegation.usage;
 	const tokens = usage ? `${formatCompactNumber(usage.prompt_tokens)} in / ${formatCompactNumber(usage.completion_tokens)} out` : "";
 	const cost = delegation.cost !== undefined ? formatCost(delegation.cost) : "";
@@ -154,20 +148,14 @@ function DelegationCard({
 					))}
 				</div>
 			) : items.length > 0 ? (
-				<div className="text-muted-foreground text-[12px] italic">
-					{tCopy("ui.liveSessionView.hiddenByTheMessageFilter", { ns: "observability" })}
-				</div>
+				<div className="text-muted-foreground text-[12px] italic">Hidden by the message filter</div>
 			) : !delegation.error ? (
-				<div className="text-muted-foreground text-[12px] italic">{tCopy("ui.liveSessionView.noAnswer", { ns: "observability" })}</div>
+				<div className="text-muted-foreground text-[12px] italic">No answer</div>
 			) : null}
 			{responseIds.length ? (
 				<div className="flex flex-wrap items-center justify-end gap-1">
 					{responseIds.map((id, index) => (
-						<CopyChip
-							key={id}
-							id={id}
-							title={tCopy("logs.backendResponseNumber", { ns: "observability", number: index + 1, total: responseIds.length })}
-						/>
+						<CopyChip key={id} id={id} title={`Backend response ${index + 1} of ${responseIds.length}`} />
 					))}
 				</div>
 			) : null}
@@ -178,7 +166,6 @@ function DelegationCard({
 // LiveSessionView is the detail panel of a GPT Live session: how it ran, the conversation on
 // its timeline, and every call the backend made on its behalf.
 export default function LiveSessionView({ session, mapping, visibleRoles }: LiveSessionViewProps) {
-	const { t: tCopy } = useTranslation();
 	const transcript = visibleTranscript(session.transcript ?? [], visibleRoles);
 	const delegations = session.delegations ?? [];
 	const voiceCost = session.voice_cost ?? 0;
@@ -189,7 +176,7 @@ export default function LiveSessionView({ session, mapping, visibleRoles }: Live
 			<div className="w-full rounded-sm border">
 				<div className="flex items-center gap-2 border-b px-6 py-2 text-sm font-medium">
 					<Mic className="h-4 w-4" />
-					{tCopy("ui.liveSessionView.liveSession", { ns: "observability" })}
+					Live Session
 					{session.transport ? (
 						<Badge variant="outline" className="ml-1 font-mono text-[10px] uppercase">
 							{session.transport}
@@ -197,16 +184,16 @@ export default function LiveSessionView({ session, mapping, visibleRoles }: Live
 					) : null}
 				</div>
 				<div className="divide-border/70 grid grid-cols-2 md:grid-cols-4 md:divide-x">
-					<Stat label={tCopy("ui.liveSessionView.voiceTime", { ns: "observability" })} value={formatVoiceTime(session.voice_seconds)} />
-					<Stat label={tCopy("ui.liveSessionView.voiceCost", { ns: "observability" })} value={formatCost(voiceCost)} />
-					<Stat label={tCopy("ui.liveSessionView.backendCost", { ns: "observability" })} value={formatCost(backendCost)} />
-					<Stat label={tCopy("ui.liveSessionView.delegations", { ns: "observability" })} value={String(delegations.length)} />
+					<Stat label="Voice time" value={formatVoiceTime(session.voice_seconds)} />
+					<Stat label="Voice cost" value={formatCost(voiceCost)} />
+					<Stat label="Backend cost" value={formatCost(backendCost)} />
+					<Stat label="Delegations" value={String(delegations.length)} />
 				</div>
 			</div>
 
 			{transcript.length > 0 && (
 				<div className="w-full rounded-sm border">
-					<div className="border-b px-6 py-2 text-sm font-medium">{tCopy("ui.liveSessionView.transcript", { ns: "observability" })}</div>
+					<div className="border-b px-6 py-2 text-sm font-medium">Transcript</div>
 					<div className="p-6">
 						{transcript.map((line, index) => (
 							<TranscriptLine
@@ -222,7 +209,7 @@ export default function LiveSessionView({ session, mapping, visibleRoles }: Live
 
 			{delegations.length > 0 && (
 				<div className="w-full rounded-sm border">
-					<div className="border-b px-6 py-2 text-sm font-medium">{tCopy("ui.liveSessionView.delegations", { ns: "observability" })}</div>
+					<div className="border-b px-6 py-2 text-sm font-medium">Delegations</div>
 					<div className="divide-y">
 						{delegations.map((delegation) => (
 							<DelegationCard key={delegation.request_id} delegation={delegation} mapping={mapping} visibleRoles={visibleRoles} />

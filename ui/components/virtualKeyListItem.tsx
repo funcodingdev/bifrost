@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { cn } from "@/lib/utils";
@@ -38,8 +37,7 @@ export function VirtualKeyListItem({
 	className,
 	"data-testid": testId,
 }: VirtualKeyListItemProps) {
-	const { t: tCopy } = useTranslation();
-	const { copy } = useCopyToClipboard({ successMessage: tCopy("ui.virtualKeyListItem.virtualKeyCopied", { ns: "common" }) });
+	const { copy } = useCopyToClipboard({ successMessage: "Virtual key copied" });
 	return (
 		// oxlint-disable-next-line jsx-a11y/no-static-element-interactions -- role, tabIndex and keys are set together whenever onClick exists; the linter cannot follow the conditional
 		<div
@@ -69,7 +67,7 @@ export function VirtualKeyListItem({
 							variant="ghost"
 							size="icon"
 							className="text-muted-foreground h-5 w-5 shrink-0"
-							aria-label={tCopy("ui.virtualKeyListItem.copyVirtualKey", { ns: "common" })}
+							aria-label="Copy virtual key"
 							onClick={(event) => {
 								event.stopPropagation();
 								copy(secret);

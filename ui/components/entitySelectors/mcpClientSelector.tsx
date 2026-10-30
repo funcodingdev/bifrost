@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 // Server-backed searchable MCP client selector; scales past one page of clients.
 
 import {
@@ -34,7 +33,6 @@ interface MCPClientSelectorOwnProps extends EntitySelectorCommonProps {
 export type MCPClientSelectorProps = MCPClientSelectorOwnProps & EntitySelectorModeProps;
 
 export function MCPClientSelector({ limit = ENTITY_SELECTOR_PAGE_SIZE, ...props }: MCPClientSelectorProps) {
-	const { t: tReview } = useTranslation();
 	const search = useEntitySelectorSearch();
 
 	const { currentData, isFetching, isError, refetch } = useGetMCPClientsQuery(
@@ -57,8 +55,8 @@ export function MCPClientSelector({ limit = ENTITY_SELECTOR_PAGE_SIZE, ...props 
 		<EntitySelector
 			{...props}
 			LabelResolver={MCPClientLabelResolver}
-			entityLabel={tReview("entities.mcpServer", { ns: "common" })}
-			entityLabelPlural={tReview("entities.mcpServers", { ns: "common" })}
+			entityLabel="MCP server"
+			entityLabelPlural="MCP servers"
 			{...listProps}
 		/>
 	);

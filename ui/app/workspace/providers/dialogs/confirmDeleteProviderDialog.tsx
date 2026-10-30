@@ -12,7 +12,6 @@ import { ModelProvider } from "@/lib/types/config";
 import { RbacOperation, RbacResource, useRbac } from "@enterprise/lib";
 import { AlertDialogTitle } from "@radix-ui/react-alert-dialog";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
 
 interface Props {
 	show: boolean;
@@ -22,8 +21,6 @@ interface Props {
 }
 
 export default function ConfirmDeleteProviderDialog({ show, onCancel, onDelete, provider }: Props) {
-	const { t } = useTranslation("models");
-	const { t: tc } = useTranslation("common");
 	const [deleteProvider, { isLoading: isDeletingProvider }] = useDeleteProviderMutation();
 	const hasDeleteAccess = useRbac(RbacResource.ModelProvider, RbacOperation.Delete);
 
@@ -34,7 +31,7 @@ export default function ConfirmDeleteProviderDialog({ show, onCancel, onDelete, 
 				onDelete();
 			})
 			.catch((err) => {
-				toast.error(t("providers.failedToDelete"), {
+				toast.error("Failed to delete provider", {
 					description: getErrorMessage(err),
 				});
 			});
@@ -44,13 +41,13 @@ export default function ConfirmDeleteProviderDialog({ show, onCancel, onDelete, 
 		<AlertDialog open={show}>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>{t("providers.deleteTitle")}</AlertDialogTitle>
-					<AlertDialogDescription>{t("providers.deleteDescription")}</AlertDialogDescription>
+					<AlertDialogTitle>Delete Provider</AlertDialogTitle>
+					<AlertDialogDescription>Are you sure you want to delete this provider? This action cannot be undone.</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel onClick={onCancel}>{tc("cancel")}</AlertDialogCancel>
+					<AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
 					<AlertDialogAction onClick={onDeleteHandler} disabled={isDeletingProvider || !hasDeleteAccess}>
-						{isDeletingProvider ? t("providers.deleting") : tc("delete")}
+						{isDeletingProvider ? "Deleting..." : "Delete"}
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

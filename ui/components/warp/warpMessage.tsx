@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import {
 	decodeTurnError,
 	formatWarpUsage,
@@ -103,7 +102,6 @@ function WarpTimeline({
 	toolCalls?: WarpTurnToolCall[];
 	isStreaming?: boolean;
 }) {
-	const { t: tCopy } = useTranslation();
 	const items = useMemo(() => warpTimeline(content, toolCalls), [content, toolCalls]);
 	const last = items[items.length - 1];
 	// Nothing yet, or every lookup is back: the longest silence, which otherwise reads as hung.
@@ -140,7 +138,7 @@ function WarpTimeline({
 								className="text-muted-foreground my-3 rounded-sm border border-dashed p-3 text-xs"
 								data-testid="warp-chart-invalid"
 							>
-								{tCopy("ui.warpMessage.chartUnavailable", { ns: "common" })}
+								Chart unavailable.
 							</div>
 						);
 					}
@@ -323,7 +321,6 @@ function WarpAnswerLink({ href, children, ...rest }: AnchorHTMLAttributes<HTMLAn
 }
 
 function WarpAnswer({ content, toolCalls }: { content: string; toolCalls?: WarpTurnToolCall[] }) {
-	const { t } = useTranslation("shell");
 	const [expanded, setExpanded] = useState(false);
 	// Provenance is always last, so removing it leaves every tool call's offset valid.
 	const { answer, provenance } = splitWarpAnswer(content);
@@ -342,7 +339,7 @@ function WarpAnswer({ content, toolCalls }: { content: string; toolCalls?: WarpT
 						className="hover:text-foreground flex cursor-pointer items-center gap-1 text-[11px] transition-colors"
 					>
 						<Info className="size-3 shrink-0" />
-						<span>{t("warp.message.whatThisCovers")}</span>
+						<span>What this covers</span>
 						<WarpChevron open={expanded} className="size-3" />
 					</button>
 					<WarpCollapse open={expanded}>
@@ -360,7 +357,6 @@ function WarpAnswer({ content, toolCalls }: { content: string; toolCalls?: WarpT
 }
 
 function WarpPartialNote({ className }: { className?: string }) {
-	const { t } = useTranslation("shell");
 	return (
 		<div
 			className={cn("flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/5 p-2.5 text-xs", className)}
@@ -368,15 +364,17 @@ function WarpPartialNote({ className }: { className?: string }) {
 		>
 			<Info className="mt-0.5 size-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
 			<div className="space-y-0.5">
-				<p className="font-medium">{t("warp.message.partialTitle")}</p>
-				<p className="text-muted-foreground">{t("warp.message.partialBody")}</p>
+				<p className="font-medium">Partial answer</p>
+				<p className="text-muted-foreground">
+					Warp used all of its research steps before it finished checking. This is what it found so far, and it says what it could not
+					confirm. A narrower question usually completes.
+				</p>
 			</div>
 		</div>
 	);
 }
 
 function WarpTurnError({ error, className }: { error: string; className?: string }) {
-	const { t } = useTranslation("shell");
 	const [expanded, setExpanded] = useState(false);
 	// Not a bare split: a message with no colon is a message, not a code.
 	const { code, message } = decodeTurnError(error);
@@ -402,7 +400,7 @@ function WarpTurnError({ error, className }: { error: string; className?: string
 					<p>{detail.cause}</p>
 					{detail.suggestions.length > 0 && (
 						<div className="space-y-1">
-							<p className="text-foreground">{t("warp.message.whatToTry")}</p>
+							<p className="text-foreground">What to try:</p>
 							<ul className="list-disc space-y-0.5 pl-4">
 								{detail.suggestions.map((suggestion) => (
 									<li key={suggestion}>{suggestion}</li>
@@ -420,11 +418,10 @@ function WarpTurnError({ error, className }: { error: string; className?: string
 }
 
 function WarpThinking() {
-	const { t } = useTranslation("shell");
 	return (
 		<p className="warp-thinking-in text-muted-foreground flex items-center gap-1.5 text-xs" data-testid="warp-thinking">
 			<Brain className="size-3.5 shrink-0" />
-			<span className="warp-shimmer">{t("warp.message.thinking")}</span>
+			<span className="warp-shimmer">Thinking</span>
 		</p>
 	);
 }

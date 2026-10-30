@@ -1,4 +1,3 @@
-import i18n from "@/lib/i18n";
 import type { RequestType } from "@/lib/types/config";
 import type { PricingOverrideMatchType, PricingOverridePatch } from "@/lib/types/governance";
 
@@ -10,51 +9,35 @@ import type { PricingOverrideMatchType, PricingOverridePatch } from "@/lib/types
 
 export const REQUEST_TYPE_GROUPS = [
 	{
-		get label() {
-			return i18n.t("customPricing.requestGroups.chat", { ns: "models" });
-		},
+		label: "Chat / Text / Responses",
 		types: ["chat_completion", "text_completion", "responses"],
 	},
 	{
-		get label() {
-			return i18n.t("customPricing.requestGroups.embedding", { ns: "models" });
-		},
+		label: "Embedding",
 		types: ["embedding"],
 	},
 	{
-		get label() {
-			return i18n.t("customPricing.requestGroups.rerank", { ns: "models" });
-		},
+		label: "Rerank",
 		types: ["rerank"],
 	},
 	{
-		get label() {
-			return i18n.t("customPricing.requestGroups.decisions", { ns: "models" });
-		},
+		label: "Decisions",
 		types: ["decisions"],
 	},
 	{
-		get label() {
-			return i18n.t("customPricing.requestGroups.audio", { ns: "models" });
-		},
+		label: "Audio",
 		types: ["speech", "transcription", "live"],
 	},
 	{
-		get label() {
-			return i18n.t("customPricing.requestGroups.image", { ns: "models" });
-		},
+		label: "Image",
 		types: ["image_generation", "image_variation", "image_edit"],
 	},
 	{
-		get label() {
-			return i18n.t("customPricing.requestGroups.video", { ns: "models" });
-		},
+		label: "Video",
 		types: ["video_generation", "video_remix"],
 	},
 	{
-		get label() {
-			return i18n.t("customPricing.requestGroups.ocr", { ns: "models" });
-		},
+		label: "OCR",
 		types: ["ocr"],
 	},
 ] as const;
@@ -69,957 +52,779 @@ export const PRICING_FIELDS = [
 	// Chat / Text / Responses fields
 	{
 		key: "input_cost_per_token",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_token", { ns: "models" });
-		},
+		label: "Input / token",
 		group: "chat",
 		requestTypeGroups: ["chat", "embedding", "rerank", "audio", "image", "video"],
 	},
 	{
 		key: "output_cost_per_token",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_token", { ns: "models" });
-		},
+		label: "Output / token",
 		group: "chat",
 		requestTypeGroups: ["chat", "rerank", "audio", "image", "video"],
 	},
 	{
 		key: "input_cost_per_token_batches",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_token_batches", { ns: "models" });
-		},
+		label: "Input / token (batch)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "output_cost_per_token_batches",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_token_batches", { ns: "models" });
-		},
+		label: "Output / token (batch)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "input_cost_per_token_priority",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_token_priority", { ns: "models" });
-		},
+		label: "Input / token (priority)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "output_cost_per_token_priority",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_token_priority", { ns: "models" });
-		},
+		label: "Output / token (priority)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "input_cost_per_token_ultrafast",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_token_ultrafast", { ns: "models" });
-		},
+		label: "Input / token (ultrafast)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "output_cost_per_token_ultrafast",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_token_ultrafast", { ns: "models" });
-		},
+		label: "Output / token (ultrafast)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "input_cost_per_token_flex",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_token_flex", { ns: "models" });
-		},
+		label: "Input / token (flex)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "output_cost_per_token_flex",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_token_flex", { ns: "models" });
-		},
+		label: "Output / token (flex)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "input_cost_per_token_decisions",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_token_decisions", { ns: "models" });
-		},
+		label: "Input / token (decisions)",
 		group: "chat",
 		requestTypeGroups: ["decisions"],
 	},
 	{
 		key: "output_cost_per_token_decisions",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_token_decisions", { ns: "models" });
-		},
+		label: "Output / token (decisions)",
 		group: "chat",
 		requestTypeGroups: ["decisions"],
 	},
 	{
 		key: "input_cost_per_token_fast",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_token_fast", { ns: "models" });
-		},
+		label: "Input / token (fast)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "output_cost_per_token_fast",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_token_fast", { ns: "models" });
-		},
+		label: "Output / token (fast)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "input_cost_per_token_above_128k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_token_above_128k_tokens", { ns: "models" });
-		},
+		label: "Input / token (>128k)",
 		group: "chat",
 		requestTypeGroups: ["chat", "embedding", "rerank"],
 	},
 	{
 		key: "output_cost_per_token_above_128k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_token_above_128k_tokens", { ns: "models" });
-		},
+		label: "Output / token (>128k)",
 		group: "chat",
 		requestTypeGroups: ["chat", "rerank", "audio"],
 	},
 	{
 		key: "input_cost_per_token_above_100k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_token_above_100k_tokens", { ns: "models" });
-		},
+		label: "Input / token (>100k)",
 		group: "chat",
 		requestTypeGroups: ["chat", "embedding", "rerank"],
 	},
 	{
 		key: "output_cost_per_token_above_100k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_token_above_100k_tokens", { ns: "models" });
-		},
+		label: "Output / token (>100k)",
 		group: "chat",
 		requestTypeGroups: ["chat", "rerank", "audio"],
 	},
 	{
 		key: "input_cost_per_token_above_200k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_token_above_200k_tokens", { ns: "models" });
-		},
+		label: "Input / token (>200k)",
 		group: "chat",
 		requestTypeGroups: ["chat", "embedding", "rerank"],
 	},
 	{
 		key: "input_cost_per_token_above_200k_tokens_priority",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_token_above_200k_tokens_priority", { ns: "models" });
-		},
+		label: "Input / token (>200k, priority)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "output_cost_per_token_above_200k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_token_above_200k_tokens", { ns: "models" });
-		},
+		label: "Output / token (>200k)",
 		group: "chat",
 		requestTypeGroups: ["chat", "rerank", "audio"],
 	},
 	{
 		key: "output_cost_per_token_above_200k_tokens_priority",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_token_above_200k_tokens_priority", { ns: "models" });
-		},
+		label: "Output / token (>200k, priority)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "input_cost_per_token_above_272k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_token_above_272k_tokens", { ns: "models" });
-		},
+		label: "Input / token (>272k)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "input_cost_per_token_above_272k_tokens_priority",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_token_above_272k_tokens_priority", { ns: "models" });
-		},
+		label: "Input / token (>272k, priority)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "output_cost_per_token_above_272k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_token_above_272k_tokens", { ns: "models" });
-		},
+		label: "Output / token (>272k)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "output_cost_per_token_above_272k_tokens_priority",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_token_above_272k_tokens_priority", { ns: "models" });
-		},
+		label: "Output / token (>272k, priority)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "input_cost_per_token_flex_above_272k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_token_flex_above_272k_tokens", { ns: "models" });
-		},
+		label: "Input / token (>272k, flex)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "output_cost_per_token_flex_above_272k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_token_flex_above_272k_tokens", { ns: "models" });
-		},
+		label: "Output / token (>272k, flex)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "input_cost_per_token_above_272k_tokens_ultrafast",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_token_above_272k_tokens_ultrafast", { ns: "models" });
-		},
+		label: "Input / token (>272k, ultrafast)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "output_cost_per_token_above_272k_tokens_ultrafast",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_token_above_272k_tokens_ultrafast", { ns: "models" });
-		},
+		label: "Output / token (>272k, ultrafast)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_creation_input_token_cost",
-		get label() {
-			return i18n.t("customPricing.fields.cache_creation_input_token_cost", { ns: "models" });
-		},
+		label: "Cache creation / token",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_read_input_token_cost",
-		get label() {
-			return i18n.t("customPricing.fields.cache_read_input_token_cost", { ns: "models" });
-		},
+		label: "Cache read / token",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_creation_input_token_cost_above_200k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.cache_creation_input_token_cost_above_200k_tokens", { ns: "models" });
-		},
+		label: "Cache creation / token (>200k)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_read_input_token_cost_above_200k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.cache_read_input_token_cost_above_200k_tokens", { ns: "models" });
-		},
+		label: "Cache read / token (>200k)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_creation_input_token_cost_above_1hr",
-		get label() {
-			return i18n.t("customPricing.fields.cache_creation_input_token_cost_above_1hr", { ns: "models" });
-		},
+		label: "Cache creation / token (>1hr)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_creation_input_token_cost_above_1hr_above_200k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.cache_creation_input_token_cost_above_1hr_above_200k_tokens", { ns: "models" });
-		},
+		label: "Cache creation / token (>1hr, >200k)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_creation_input_token_cost_above_100k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.cache_creation_input_token_cost_above_100k_tokens", { ns: "models" });
-		},
+		label: "Cache creation / token (>100k)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_read_input_token_cost_above_100k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.cache_read_input_token_cost_above_100k_tokens", { ns: "models" });
-		},
+		label: "Cache read / token (>100k)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_creation_input_token_cost_above_1hr_above_100k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.cache_creation_input_token_cost_above_1hr_above_100k_tokens", { ns: "models" });
-		},
+		label: "Cache creation / token (>1hr, >100k)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_read_input_token_cost_priority",
-		get label() {
-			return i18n.t("customPricing.fields.cache_read_input_token_cost_priority", { ns: "models" });
-		},
+		label: "Cache read / token (priority)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_read_input_token_cost_ultrafast",
-		get label() {
-			return i18n.t("customPricing.fields.cache_read_input_token_cost_ultrafast", { ns: "models" });
-		},
+		label: "Cache read / token (ultrafast)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_read_input_token_cost_flex",
-		get label() {
-			return i18n.t("customPricing.fields.cache_read_input_token_cost_flex", { ns: "models" });
-		},
+		label: "Cache read / token (flex)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_creation_input_token_cost_fast",
-		get label() {
-			return i18n.t("customPricing.fields.cache_creation_input_token_cost_fast", { ns: "models" });
-		},
+		label: "Cache creation / token (fast)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_creation_input_token_cost_above_1hr_fast",
-		get label() {
-			return i18n.t("customPricing.fields.cache_creation_input_token_cost_above_1hr_fast", { ns: "models" });
-		},
+		label: "Cache creation / token (>1hr, fast)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_read_input_token_cost_fast",
-		get label() {
-			return i18n.t("customPricing.fields.cache_read_input_token_cost_fast", { ns: "models" });
-		},
+		label: "Cache read / token (fast)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_read_input_token_cost_above_200k_tokens_priority",
-		get label() {
-			return i18n.t("customPricing.fields.cache_read_input_token_cost_above_200k_tokens_priority", { ns: "models" });
-		},
+		label: "Cache read / token (>200k, priority)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_read_input_token_cost_above_272k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.cache_read_input_token_cost_above_272k_tokens", { ns: "models" });
-		},
+		label: "Cache read / token (>272k)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_read_input_token_cost_above_272k_tokens_priority",
-		get label() {
-			return i18n.t("customPricing.fields.cache_read_input_token_cost_above_272k_tokens_priority", { ns: "models" });
-		},
+		label: "Cache read / token (>272k, priority)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_read_input_token_cost_flex_above_272k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.cache_read_input_token_cost_flex_above_272k_tokens", { ns: "models" });
-		},
+		label: "Cache read / token (>272k, flex)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_read_input_token_cost_above_272k_tokens_ultrafast",
-		get label() {
-			return i18n.t("customPricing.fields.cache_read_input_token_cost_above_272k_tokens_ultrafast", { ns: "models" });
-		},
+		label: "Cache read / token (>272k, ultrafast)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_creation_input_token_cost_priority",
-		get label() {
-			return i18n.t("customPricing.fields.cache_creation_input_token_cost_priority", { ns: "models" });
-		},
+		label: "Cache creation / token (priority)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_creation_input_token_cost_ultrafast",
-		get label() {
-			return i18n.t("customPricing.fields.cache_creation_input_token_cost_ultrafast", { ns: "models" });
-		},
+		label: "Cache creation / token (ultrafast)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_creation_input_token_cost_flex",
-		get label() {
-			return i18n.t("customPricing.fields.cache_creation_input_token_cost_flex", { ns: "models" });
-		},
+		label: "Cache creation / token (flex)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_creation_input_token_cost_above_272k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.cache_creation_input_token_cost_above_272k_tokens", { ns: "models" });
-		},
+		label: "Cache creation / token (>272k)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_creation_input_token_cost_flex_above_272k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.cache_creation_input_token_cost_flex_above_272k_tokens", { ns: "models" });
-		},
+		label: "Cache creation / token (>272k, flex)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_creation_input_token_cost_above_272k_tokens_ultrafast",
-		get label() {
-			return i18n.t("customPricing.fields.cache_creation_input_token_cost_above_272k_tokens_ultrafast", { ns: "models" });
-		},
+		label: "Cache creation / token (>272k, ultrafast)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cache_creation_input_token_cost_above_272k_tokens_priority",
-		get label() {
-			return i18n.t("customPricing.fields.cache_creation_input_token_cost_above_272k_tokens_priority", { ns: "models" });
-		},
+		label: "Cache creation / token (>272k, priority)",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "web_search_cost_per_request",
-		get label() {
-			return i18n.t("customPricing.fields.web_search_cost_per_request", { ns: "models" });
-		},
+		label: "Web search / request",
 		group: "chat",
 		requestTypeGroups: ["chat", "rerank"],
 	},
 	{
 		key: "input_cost_per_query",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_query", { ns: "models" });
-		},
+		label: "Rerank / query",
 		group: "chat",
 		requestTypeGroups: ["rerank"],
 	},
 	{
 		key: "code_interpreter_cost_per_session",
-		get label() {
-			return i18n.t("customPricing.fields.code_interpreter_cost_per_session", { ns: "models" });
-		},
+		label: "Code interpreter / session",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "inference_geo_us_multiplier",
-		get label() {
-			return i18n.t("customPricing.fields.inference_geo_us_multiplier", { ns: "models" });
-		},
+		label: "Inference geo US multiplier",
 		group: "chat",
 		requestTypeGroups: ["chat"],
 	},
 	{
 		key: "cost_per_request",
-		get label() {
-			return i18n.t("customPricing.fields.cost_per_request", { ns: "models" });
-		},
+		label: "Flat fee / request",
 		group: "chat",
 		requestTypeGroups: ["chat", "embedding", "rerank", "audio", "image", "video", "ocr"],
 	},
 	{
 		key: "off_peak_cost_multiplier",
-		get label() {
-			return i18n.t("customPricing.fields.off_peak_cost_multiplier", { ns: "models" });
-		},
+		label: "Off-peak multiplier",
 		group: "chat",
 		requestTypeGroups: ["chat", "embedding", "rerank", "audio", "image", "video", "ocr"],
 	},
 	// Audio fields
 	{
 		key: "input_cost_per_character",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_character", { ns: "models" });
-		},
+		label: "Input / character",
 		group: "audio",
 		requestTypeGroups: ["audio"],
 	},
 	{
 		key: "input_cost_per_audio_token",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_audio_token", { ns: "models" });
-		},
+		label: "Input / audio token",
 		group: "audio",
 		requestTypeGroups: ["audio"],
 	},
 	{
 		key: "input_cost_per_audio_per_second",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_audio_per_second", { ns: "models" });
-		},
+		label: "Input / audio second",
 		group: "audio",
 		requestTypeGroups: ["audio"],
 	},
 	{
 		key: "input_cost_per_audio_per_second_above_128k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_audio_per_second_above_128k_tokens", { ns: "models" });
-		},
+		label: "Input / audio second (>128k)",
 		group: "audio",
 		requestTypeGroups: ["audio"],
 	},
 	{
 		key: "input_cost_per_second",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_second", { ns: "models" });
-		},
+		label: "Input / second",
 		group: "audio",
 		requestTypeGroups: ["audio", "video"],
 	},
 	{
 		key: "output_cost_per_audio_token",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_audio_token", { ns: "models" });
-		},
+		label: "Output / audio token",
 		group: "audio",
 		requestTypeGroups: ["audio"],
 	},
 	{
 		key: "output_cost_per_second",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_second", { ns: "models" });
-		},
+		label: "Output / second",
 		group: "audio",
 		requestTypeGroups: ["audio", "video"],
 	},
 	{
 		key: "cache_creation_input_audio_token_cost",
-		get label() {
-			return i18n.t("customPricing.fields.cache_creation_input_audio_token_cost", { ns: "models" });
-		},
+		label: "Cache creation / audio token",
 		group: "audio",
 		requestTypeGroups: ["audio"],
+	},
+	{
+		key: "input_cost_per_token_voice_live",
+		label: "Input / token (Voice Live)",
+		group: "audio",
+		requestTypeGroups: ["chat", "audio"],
+	},
+	{
+		key: "output_cost_per_token_voice_live",
+		label: "Output / token (Voice Live)",
+		group: "audio",
+		requestTypeGroups: ["chat", "audio"],
+	},
+	{
+		key: "cache_read_input_token_cost_voice_live",
+		label: "Cache read / token (Voice Live)",
+		group: "audio",
+		requestTypeGroups: ["chat", "audio"],
+	},
+	{
+		key: "input_cost_per_audio_token_voice_live",
+		label: "Input / audio token (Voice Live)",
+		group: "audio",
+		requestTypeGroups: ["chat", "audio"],
+	},
+	{
+		key: "output_cost_per_audio_token_voice_live",
+		label: "Output / audio token (Voice Live)",
+		group: "audio",
+		requestTypeGroups: ["chat", "audio"],
+	},
+	{
+		key: "input_cost_per_standard_speech_audio_token_voice_live",
+		label: "Input / standard speech audio token (Voice Live)",
+		group: "audio",
+		requestTypeGroups: ["chat", "audio"],
+	},
+	{
+		key: "output_cost_per_standard_speech_audio_token_voice_live",
+		label: "Output / standard speech audio token (Voice Live)",
+		group: "audio",
+		requestTypeGroups: ["chat", "audio"],
+	},
+	{
+		key: "input_cost_per_custom_speech_audio_token_voice_live",
+		label: "Input / custom speech audio token (Voice Live)",
+		group: "audio",
+		requestTypeGroups: ["chat", "audio"],
+	},
+	{
+		key: "output_cost_per_custom_speech_audio_token_voice_live",
+		label: "Output / custom speech audio token (Voice Live)",
+		group: "audio",
+		requestTypeGroups: ["chat", "audio"],
 	},
 	// Image fields
 	{
 		key: "input_cost_per_image_token",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_image_token", { ns: "models" });
-		},
+		label: "Input / image token",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "input_cost_per_image",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_image", { ns: "models" });
-		},
+		label: "Input / image",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "input_cost_per_image_above_128k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_image_above_128k_tokens", { ns: "models" });
-		},
+		label: "Input / image (>128k)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "input_cost_per_pixel",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_pixel", { ns: "models" });
-		},
+		label: "Input / pixel",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_token",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_token", { ns: "models" });
-		},
+		label: "Output / image token",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image", { ns: "models" });
-		},
+		label: "Output / image",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_pixel",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_pixel", { ns: "models" });
-		},
+		label: "Output / pixel",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_premium_image",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_premium_image", { ns: "models" });
-		},
+		label: "Output / image (premium)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_512_and_512_pixels",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_512_and_512_pixels", { ns: "models" });
-		},
+		label: "Output / image (>512px)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_512_and_512_pixels_and_premium_image",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_512_and_512_pixels_and_premium_image", { ns: "models" });
-		},
+		label: "Output / image (>512px, premium)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_1024_and_1024_pixels",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_1024_and_1024_pixels", { ns: "models" });
-		},
+		label: "Output / image (>1024px)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_1024_and_1024_pixels_and_premium_image",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_1024_and_1024_pixels_and_premium_image", { ns: "models" });
-		},
+		label: "Output / image (>1024px, premium)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_1024_and_1536_pixels",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_1024_and_1536_pixels", { ns: "models" });
-		},
+		label: "Output / image (>1024x1536px)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_1536_and_1024_pixels",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_1536_and_1024_pixels", { ns: "models" });
-		},
+		label: "Output / image (>1536x1024px)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_2048_and_2048_pixels",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_2048_and_2048_pixels", { ns: "models" });
-		},
+		label: "Output / image (>2048px)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_4096_and_4096_pixels",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_4096_and_4096_pixels", { ns: "models" });
-		},
+		label: "Output / image (>4096px)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_4_megapixels",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_4_megapixels", { ns: "models" });
-		},
+		label: "Output / image (>4MP)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_8_megapixels",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_8_megapixels", { ns: "models" });
-		},
+		label: "Output / image (>8MP)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_16_megapixels",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_16_megapixels", { ns: "models" });
-		},
+		label: "Output / image (>16MP)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_32_megapixels",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_32_megapixels", { ns: "models" });
-		},
+		label: "Output / image (>32MP)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_64_megapixels",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_64_megapixels", { ns: "models" });
-		},
+		label: "Output / image (>64MP)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_low_quality",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_low_quality", { ns: "models" });
-		},
+		label: "Output / image (low quality)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_medium_quality",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_medium_quality", { ns: "models" });
-		},
+		label: "Output / image (medium quality)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_high_quality",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_high_quality", { ns: "models" });
-		},
+		label: "Output / image (high quality)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_auto_quality",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_auto_quality", { ns: "models" });
-		},
+		label: "Output / image (auto quality)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_1024_and_1024_pixels_low_quality",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_1024_and_1024_pixels_low_quality", { ns: "models" });
-		},
+		label: "Output / image (>1024x1024px, low quality)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_1024_and_1536_pixels_low_quality",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_1024_and_1536_pixels_low_quality", { ns: "models" });
-		},
+		label: "Output / image (>1024x1536px, low quality)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_1536_and_1024_pixels_low_quality",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_1536_and_1024_pixels_low_quality", { ns: "models" });
-		},
+		label: "Output / image (>1536x1024px, low quality)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_1024_and_1024_pixels_medium_quality",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_1024_and_1024_pixels_medium_quality", { ns: "models" });
-		},
+		label: "Output / image (>1024x1024px, medium quality)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_1024_and_1536_pixels_medium_quality",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_1024_and_1536_pixels_medium_quality", { ns: "models" });
-		},
+		label: "Output / image (>1024x1536px, medium quality)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_1536_and_1024_pixels_medium_quality",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_1536_and_1024_pixels_medium_quality", { ns: "models" });
-		},
+		label: "Output / image (>1536x1024px, medium quality)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_1024_and_1024_pixels_high_quality",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_1024_and_1024_pixels_high_quality", { ns: "models" });
-		},
+		label: "Output / image (>1024x1024px, high quality)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_1024_and_1536_pixels_high_quality",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_1024_and_1536_pixels_high_quality", { ns: "models" });
-		},
+		label: "Output / image (>1024x1536px, high quality)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_1536_and_1024_pixels_high_quality",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_1536_and_1024_pixels_high_quality", { ns: "models" });
-		},
+		label: "Output / image (>1536x1024px, high quality)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_1024_and_1024_pixels_standard_quality",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_1024_and_1024_pixels_standard_quality", { ns: "models" });
-		},
+		label: "Output / image (>1024x1024px, standard quality)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_1024_and_1536_pixels_standard_quality",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_1024_and_1536_pixels_standard_quality", { ns: "models" });
-		},
+		label: "Output / image (>1024x1536px, standard quality)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "output_cost_per_image_above_1536_and_1024_pixels_standard_quality",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_image_above_1536_and_1024_pixels_standard_quality", { ns: "models" });
-		},
+		label: "Output / image (>1536x1024px, standard quality)",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	{
 		key: "cache_read_input_image_token_cost",
-		get label() {
-			return i18n.t("customPricing.fields.cache_read_input_image_token_cost", { ns: "models" });
-		},
+		label: "Cache read / image token",
 		group: "image",
 		requestTypeGroups: ["image"],
 	},
 	// Video fields
 	{
 		key: "input_cost_per_video_per_second",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_video_per_second", { ns: "models" });
-		},
+		label: "Input / video second",
 		group: "video",
 		requestTypeGroups: ["video"],
 	},
 	{
 		key: "input_cost_per_video_per_second_above_128k_tokens",
-		get label() {
-			return i18n.t("customPricing.fields.input_cost_per_video_per_second_above_128k_tokens", { ns: "models" });
-		},
+		label: "Input / video second (>128k)",
 		group: "video",
 		requestTypeGroups: ["video"],
 	},
 	{
 		key: "output_cost_per_video_per_second",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_video_per_second", { ns: "models" });
-		},
+		label: "Output / video second",
 		group: "video",
 		requestTypeGroups: ["video"],
 	},
 	{
 		key: "output_cost_per_video_per_second_480p",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_video_per_second_480p", { ns: "models" });
-		},
+		label: "Output / video second (480p)",
 		group: "video",
 		requestTypeGroups: ["video"],
 	},
 	{
 		key: "output_cost_per_video_per_second_720p",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_video_per_second_720p", { ns: "models" });
-		},
+		label: "Output / video second (720p)",
 		group: "video",
 		requestTypeGroups: ["video"],
 	},
 	{
 		key: "output_cost_per_video_per_second_1024p",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_video_per_second_1024p", { ns: "models" });
-		},
+		label: "Output / video second (1024p)",
 		group: "video",
 		requestTypeGroups: ["video"],
 	},
 	{
 		key: "output_cost_per_video_per_second_1080p",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_video_per_second_1080p", { ns: "models" });
-		},
+		label: "Output / video second (1080p)",
 		group: "video",
 		requestTypeGroups: ["video"],
 	},
 	{
 		key: "output_cost_per_video_per_second_4k",
-		get label() {
-			return i18n.t("customPricing.fields.output_cost_per_video_per_second_4k", { ns: "models" });
-		},
+		label: "Output / video second (4K)",
+		group: "video",
+		requestTypeGroups: ["video"],
+	},
+	{
+		key: "output_cost_per_video_token",
+		label: "Output / video token",
 		group: "video",
 		requestTypeGroups: ["video"],
 	},
 	// OCR fields
 	{
 		key: "ocr_cost_per_page",
-		get label() {
-			return i18n.t("customPricing.fields.ocr_cost_per_page", { ns: "models" });
-		},
+		label: "OCR / page",
 		group: "ocr",
 		requestTypeGroups: ["ocr"],
 	},
 	{
 		key: "annotation_cost_per_page",
-		get label() {
-			return i18n.t("customPricing.fields.annotation_cost_per_page", { ns: "models" });
-		},
+		label: "Annotation / page",
 		group: "ocr",
 		requestTypeGroups: ["ocr"],
 	},
@@ -1049,10 +854,10 @@ export function pricingFieldUnit(key: string): PricingFieldUnit {
 
 export type PricingFieldKey = (typeof PRICING_FIELDS)[number]["key"];
 
-export const fieldLabelByKey = Object.defineProperties(
-	{},
-	Object.fromEntries(PRICING_FIELDS.map((field) => [field.key, { enumerable: true, get: () => field.label }])),
-) as Record<PricingFieldKey, string>;
+export const fieldLabelByKey = Object.fromEntries(PRICING_FIELDS.map((field) => [field.key, field.label])) as Record<
+	PricingFieldKey,
+	string
+>;
 export const patchKeys = PRICING_FIELDS.map((field) => field.key) as PricingFieldKey[];
 
 /**
@@ -1065,13 +870,7 @@ export const FIELD_BOUNDS: Partial<Record<PricingFieldKey, { min?: number; max?:
 	// value above 1 would make them cost more than peak; the pricing engine
 	// rejects both and bills at peak, so reject them here too rather than
 	// silently accepting a setting that will never take effect.
-	off_peak_cost_multiplier: {
-		min: 0,
-		max: 1,
-		get message() {
-			return i18n.t("customPricing.validation.multiplierRange", { ns: "models" });
-		},
-	},
+	off_peak_cost_multiplier: { min: 0, max: 1, message: "Must be greater than 0 and at most 1" },
 };
 
 /**
@@ -1082,7 +881,7 @@ export const FIELD_BOUNDS: Partial<Record<PricingFieldKey, { min?: number; max?:
 export function pricingFieldError(key: PricingFieldKey, raw: string | undefined): string | undefined {
 	if (raw == null || raw.trim() === "") return undefined;
 	const parsed = Number(raw);
-	if (!Number.isFinite(parsed)) return i18n.t("customPricing.validation.number", { ns: "models" });
+	if (!Number.isFinite(parsed)) return "Must be a number";
 
 	const bounds = FIELD_BOUNDS[key];
 	if (bounds) {
@@ -1090,7 +889,7 @@ export function pricingFieldError(key: PricingFieldKey, raw: string | undefined)
 		if (bounds.max != null && parsed > bounds.max) return bounds.message;
 		return undefined;
 	}
-	if (parsed < 0) return i18n.t("customPricing.validation.nonNegative", { ns: "models" });
+	if (parsed < 0) return "Must be >= 0";
 	return undefined;
 }
 

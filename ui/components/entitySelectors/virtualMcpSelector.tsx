@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 // Server-backed searchable Virtual MCP selector; scales past one page of Virtual MCPs.
 
 import {
@@ -33,7 +32,6 @@ interface VirtualMCPSelectorOwnProps extends EntitySelectorCommonProps {
 export type VirtualMCPSelectorProps = VirtualMCPSelectorOwnProps & EntitySelectorModeProps;
 
 export function VirtualMCPSelector({ limit = ENTITY_SELECTOR_PAGE_SIZE, ...props }: VirtualMCPSelectorProps) {
-	const { t: tReview } = useTranslation();
 	const search = useEntitySelectorSearch();
 
 	const { currentData, isFetching, isError, refetch } = useGetVirtualMCPsQuery(
@@ -57,8 +55,8 @@ export function VirtualMCPSelector({ limit = ENTITY_SELECTOR_PAGE_SIZE, ...props
 		<EntitySelector
 			{...props}
 			LabelResolver={VirtualMCPLabelResolver}
-			entityLabel={tReview("entities.virtualMcp", { ns: "common" })}
-			entityLabelPlural={tReview("entities.virtualMcps", { ns: "common" })}
+			entityLabel="Virtual MCP"
+			entityLabelPlural="Virtual MCPs"
 			{...listProps}
 		/>
 	);

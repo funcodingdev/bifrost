@@ -1,5 +1,3 @@
-import i18n from "@/lib/i18n";
-import { useTranslation } from "react-i18next";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { fiscalQuarterNote, resetDurationLabels, supportsCalendarAlignment } from "@/lib/constants/governance";
@@ -19,7 +17,7 @@ interface BudgetDisplayProps {
 const formatResetDuration = (duration?: string | null, calendarAligned?: boolean) => {
 	if (!duration) return "";
 	const label = resetDurationLabels[duration] || duration;
-	return calendarAligned && supportsCalendarAlignment(duration) ? i18n.t("durations.calendarAligned", { ns: "common", label }) : label;
+	return calendarAligned && supportsCalendarAlignment(duration) ? `${label} (calendar)` : label;
 };
 
 /**
@@ -28,7 +26,6 @@ const formatResetDuration = (duration?: string | null, calendarAligned?: boolean
  * the exact current/max spend. Mirrors RateLimitDisplay for visual consistency across tables.
  */
 export function BudgetDisplay({ budgets, calendarAligned, maxVisible }: BudgetDisplayProps) {
-	const { t: tCopy } = useTranslation();
 	if (!budgets || budgets.length === 0) {
 		return <span className="text-muted-foreground text-sm">-</span>;
 	}
@@ -53,20 +50,14 @@ export function BudgetDisplay({ budgets, calendarAligned, maxVisible }: BudgetDi
 									<span className="text-xs font-medium">
 										{formatCurrency(effectiveMaxLimit)}
 										{b.label ? <span className="text-muted-foreground ml-1 text-xs font-normal">{b.label}</span> : null}
-										{hasOverride ? (
-											<span className="text-muted-foreground ml-1 text-[10px]">{tCopy("ui.budgetDisplay.override", { ns: "common" })}</span>
-										) : null}
+										{hasOverride ? <span className="text-muted-foreground ml-1 text-[10px]">override</span> : null}
 									</span>
 									<span className="text-muted-foreground text-xs">
 										{formatResetDuration(b.reset_duration, calendarAligned)}
 										{fiscalQuarterNote(b.reset_duration, b.reset_config)}
 									</span>
 								</div>
-								<Progress
-									aria-label={tCopy("ui.budgetDisplay.budgetUsage", { ns: "common" })}
-									value={pct}
-									className={cn("bg-muted/70 dark:bg-muted/30 h-1.5", barClass)}
-								/>
+								<Progress aria-label="Budget usage" value={pct} className={cn("bg-muted/70 dark:bg-muted/30 h-1.5", barClass)} />
 							</div>
 						</TooltipTrigger>
 						<TooltipContent>
@@ -75,15 +66,12 @@ export function BudgetDisplay({ budgets, calendarAligned, maxVisible }: BudgetDi
 							</p>
 							{hasOverride ? (
 								<p className="text-muted-foreground mt-1 text-xs">
-									{tCopy("ui.budgetDisplay.base", { ns: "common" }) + " "}
-									{formatCurrency(b.max_limit)} + {formatCurrency(b.override_amount ?? 0)}{" "}
-									{tCopy("ui.budgetDisplay.override", { ns: "common" })}
+									Base {formatCurrency(b.max_limit)} + {formatCurrency(b.override_amount ?? 0)} override
 								</p>
 							) : null}
 							{b.reset_duration ? (
 								<p className="text-muted-foreground mt-1 text-xs">
-									{tCopy("ui.budgetDisplay.resets", { ns: "common" }) + " "}
-									{formatResetDuration(b.reset_duration, calendarAligned)}
+									Resets {formatResetDuration(b.reset_duration, calendarAligned)}
 									{fiscalQuarterNote(b.reset_duration, b.reset_config)}
 								</p>
 							) : null}
@@ -94,8 +82,8 @@ export function BudgetDisplay({ budgets, calendarAligned, maxVisible }: BudgetDi
 			{hidden.length > 0 ? (
 				<Tooltip>
 					<TooltipTrigger asChild>
-						<button type="button" data-testid="budget-more-trigger" className="text-muted-foreground block cursor-help text-left text-xs">
-							+{hidden.length} {tCopy("ui.budgetDisplay.more", { ns: "common" })}
+						<button type="button" className="text-muted-foreground block cursor-help text-left text-xs">
+							+{hidden.length} more
 						</button>
 					</TooltipTrigger>
 					<TooltipContent>

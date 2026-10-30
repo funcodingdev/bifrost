@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 // RefreshTokenStatus is the shared one-line reading of an OAuth credential's
 // refresh token, used by the MCP sessions table and the MCP server sheet so
 // both describe the same row with the same words. Present: Bifrost renews
@@ -17,12 +16,11 @@ interface RefreshTokenStatusProps {
 }
 
 export function RefreshTokenStatus({ hasRefreshToken, status, className }: RefreshTokenStatusProps) {
-	const { t } = useTranslation("mcp");
 	if (status === "needs_reauth") {
 		return (
 			<span className={cn("inline-flex items-center gap-1.5 text-red-700 dark:text-red-300", className)}>
 				<X className="size-3.5 shrink-0" />
-				{t("credentials.rejected")}
+				Rejected upstream
 			</span>
 		);
 	}
@@ -30,14 +28,14 @@ export function RefreshTokenStatus({ hasRefreshToken, status, className }: Refre
 		return (
 			<span className={cn("inline-flex items-center gap-1.5 text-green-700 dark:text-green-300", className)}>
 				<Check className="size-3.5 shrink-0" />
-				{t("credentials.present")}
+				Present
 			</span>
 		);
 	}
 	return (
 		<span className={cn("inline-flex items-center gap-1.5", className)}>
 			<X className="text-muted-foreground size-3.5 shrink-0" />
-			{t("credentials.notIssued")}
+			Not issued
 		</span>
 	);
 }

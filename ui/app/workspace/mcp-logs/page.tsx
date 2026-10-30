@@ -12,8 +12,7 @@ import {
 	useGetMCPLogsStatsQuery,
 	useGetUserAgentMappingsQuery,
 } from "@/lib/store";
-import { useTranslation } from "react-i18next";
-import { useLazyGetMCPLogsQuery } from "@/lib/store/apis/mcpLogsApi";
+import { useLazyGetMCPLogByIdQuery, useLazyGetMCPLogsQuery } from "@/lib/store/apis/mcpLogsApi";
 import type { MCPToolLogEntry, MCPToolLogFilters, Pagination } from "@/lib/types/logs";
 import { dateUtils } from "@/lib/types/logs";
 import { COMPACT_NUMBER_FORMAT } from "@/lib/utils/numbers";
@@ -32,7 +31,6 @@ import { MCPLogDetailSheet } from "./views/mcpLogDetailsSheet";
 import { MCPLogsDataTable } from "./views/mcpLogsTable";
 
 export default function MCPLogsPage() {
-	const { t } = useTranslation("observability");
 	const [error, setError] = useState<string | null>(null);
 	const [showEmptyState, setShowEmptyState] = useState(false);
 	const hasCheckedEmptyState = useRef(false);
@@ -42,6 +40,9 @@ export default function MCPLogsPage() {
 	const [deleteLogs] = useDeleteMCPLogsMutation();
 	// Lazy query kept only for handleLogNavigate (fetches adjacent pages on demand)
 	const [triggerGetLogs] = useLazyGetMCPLogsQuery();
+	const [triggerGetLogById] = useLazyGetMCPLogByIdQuery();
+	const [fetchedLog, setFetchedLog] = useState<MCPToolLogEntry | null>(null);
+	const activeLogFetchId = useRef<string | null>(null);
 
 	// Track if user has manually modified the time range
 	const userModifiedTimeRange = useRef<boolean>(false);
@@ -231,7 +232,34 @@ export default function MCPLogsPage() {
 	const logs = logsData?.logs ?? [];
 	const totalItems = logsData?.pagination?.total_count ?? 0;
 
-	const selectedLog = useMemo(() => (selectedLogId ? (logs.find((l) => l.id === selectedLogId) ?? null) : null), [selectedLogId, logs]);
+	const selectedLogFromPage = useMemo(
+		() => (selectedLogId ? (logs.find((l) => l.id === selectedLogId) ?? null) : null),
+		[selectedLogId, logs],
+	);
+
+	// A shared link can name a log outside the current page (older than the
+	// default 1h window, or pushed off the page by newer logs). Fetch it by id
+	// so the sheet still opens.
+	useEffect(() => {
+		if (!selectedLogId || selectedLogFromPage) {
+			setFetchedLog(null);
+			activeLogFetchId.current = null;
+			return;
+		}
+		const fetchId = selectedLogId;
+		activeLogFetchId.current = fetchId;
+		triggerGetLogById(selectedLogId).then((result) => {
+			if (activeLogFetchId.current === fetchId) {
+				if (result.data) {
+					setFetchedLog(result.data);
+				} else if (result.error) {
+					setError(getErrorMessage(result.error));
+				}
+			}
+		});
+	}, [selectedLogId, selectedLogFromPage, triggerGetLogById]);
+
+	const selectedLog = selectedLogFromPage ?? fetchedLog;
 
 	// Set showEmptyState on first response; clear it as soon as logs appear.
 	useEffect(() => {
@@ -341,26 +369,26 @@ export default function MCPLogsPage() {
 	const statCards = useMemo(
 		() => [
 			{
-				title: t("mcpLogs.stats.totalExecutions"),
+				title: "Total Records",
 				value: <NumberFlow value={statsData?.total_executions ?? 0} format={COMPACT_NUMBER_FORMAT} />,
 				icon: <Hash className="size-4" />,
 			},
 			{
-				title: t("mcpLogs.stats.successRate"),
+				title: "Success Rate",
 				value: (
 					<NumberFlow value={statsData?.success_rate ?? 0} format={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }} suffix="%" />
 				),
 				icon: <CheckCircle className="size-4" />,
 			},
 			{
-				title: t("mcpLogs.stats.avgLatency"),
+				title: "Avg Latency",
 				value: (
 					<NumberFlow value={statsData?.average_latency ?? 0} format={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }} suffix="ms" />
 				),
 				icon: <Clock className="size-4" />,
 			},
 			{
-				title: t("mcpLogs.stats.totalCost"),
+				title: "Total Cost",
 				value: (
 					<NumberFlow
 						value={statsData?.total_cost ?? 0}
@@ -389,8 +417,8 @@ export default function MCPLogsPage() {
 	}, [userAgentMappingsData?.mappings]);
 
 	const columns = useMemo(
-		() => createMCPColumns(handleDelete, hasDeleteAccess, customAppIcons, t),
-		[customAppIcons, handleDelete, hasDeleteAccess, t],
+		() => createMCPColumns(handleDelete, hasDeleteAccess, customAppIcons),
+		[customAppIcons, handleDelete, hasDeleteAccess],
 	);
 
 	const columnIds = useMemo(
@@ -417,21 +445,21 @@ export default function MCPLogsPage() {
 
 	const MCP_COLUMN_LABELS: Record<string, string> = useMemo(
 		() => ({
-			timestamp: t("labels.time"),
-			tool_name: t("labels.toolName"),
-			server_label: t("labels.server"),
-			source: t("labels.source"),
-			user: t("labels.user"),
-			team: t("labels.team"),
-			customer: t("labels.customer"),
-			business_unit: t("labels.businessUnit"),
-			project: t("labels.project"),
-			device: t("labels.device"),
-			latency: t("labels.latency"),
-			cost: t("labels.cost"),
-			virtual_key: t("labels.virtualKey"),
+			timestamp: "Time",
+			tool_name: "Tool Name",
+			server_label: "Server",
+			source: "Source",
+			user: "User",
+			team: "Team",
+			customer: "Customer",
+			business_unit: "Business Unit",
+			project: "Project",
+			device: "Device",
+			latency: "Latency",
+			cost: "Cost",
+			virtual_key: "Virtual Key",
 		}),
-		[t],
+		[],
 	);
 
 	const selectedLogIndex = useMemo(() => (selectedLogId ? logs.findIndex((l) => l.id === selectedLogId) : -1), [selectedLogId, logs]);

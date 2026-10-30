@@ -57,20 +57,3 @@ describe("deriveTitleFromPathname", () => {
 		expect(deriveTitleFromPathname("/workspace/config/branding")).toBe("Branding");
 	});
 });
-import i18n from "@/lib/i18n";
-import { getRouteTitleI18nKey } from "./topbar.utils";
-
-it("resolves localized headings for business routes instead of falling back to English slugs", () => {
-	for (const path of [
-		"dashboard",
-		"custom-pricing/overrides",
-		"complexity-router",
-		"virtual-mcps",
-		"webhooks/deliveries",
-		"config/mcp-gateway",
-	]) {
-		const key = getRouteTitleI18nKey(`/workspace/${path}`);
-		expect(key, path).toBeTruthy();
-		expect(i18n.exists(key!, { ns: "shell", lng: "zh-CN" }), path).toBe(true);
-	}
-});

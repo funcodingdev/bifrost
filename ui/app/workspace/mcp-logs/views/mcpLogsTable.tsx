@@ -7,7 +7,6 @@ import {
 	useHeaderCellRefs,
 	usePinOffsets,
 } from "@/components/table";
-import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import type { MCPToolLogEntry, Pagination } from "@/lib/types/logs";
@@ -55,7 +54,6 @@ export function MCPLogsDataTable({
 	onTogglePin,
 	onReorderColumns,
 }: DataTableProps) {
-	const { t } = useTranslation("observability");
 	const [sorting, setSorting] = useState<SortingState>([{ id: pagination.sort_by, desc: pagination.order === "desc" }]);
 
 	const fixedColumnIds = useMemo(() => new Set<string>(["actions"]), []);
@@ -167,12 +165,12 @@ export function MCPLogsDataTable({
 										{polling ? (
 											<>
 												<RefreshCw className="h-4 w-4 animate-spin" />
-												{t("mcpLogs.waitingForNew")}
+												Waiting for new MCP logs...
 											</>
 										) : (
 											<Button variant="ghost" size="sm" onClick={onRefresh} disabled={loading} data-testid="mcp-logs-table-refresh-btn">
 												<RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-												{t("labels.refresh")}
+												Refresh
 											</Button>
 										)}
 									</div>
@@ -206,7 +204,7 @@ export function MCPLogsDataTable({
 							) : loading ? null : (
 								<TableRow>
 									<TableCell colSpan={columns.length} className="h-24 text-center">
-										{t("mcpLogs.noResults")}
+										No results found. Try adjusting your filters and/or time range.
 									</TableCell>
 								</TableRow>
 							)}
@@ -216,11 +214,7 @@ export function MCPLogsDataTable({
 				{/* Pagination Footer */}
 				<div className="flex items-center justify-between text-xs" data-testid="pagination">
 					<div className="text-muted-foreground flex items-center gap-2">
-						{t("logs.entryRange", {
-							start: startItemDisplay.toLocaleString(),
-							end: endItemDisplay.toLocaleString(),
-							total: totalItems.toLocaleString(),
-						})}
+						{startItemDisplay.toLocaleString()}-{endItemDisplay.toLocaleString()} of {totalItems.toLocaleString()} entries
 					</div>
 
 					<div className="flex items-center gap-2">
@@ -230,12 +224,16 @@ export function MCPLogsDataTable({
 							onClick={() => goToPage(currentPage - 1)}
 							disabled={currentPage <= 1}
 							data-testid="prev-page"
-							aria-label={t("labels.previousPage")}
+							aria-label="Previous page"
 						>
 							<ChevronLeft className="size-3" />
 						</Button>
 
-						<div className="flex items-center gap-1">{t("logs.pageRange", { page: currentPage, total: totalPages })}</div>
+						<div className="flex items-center gap-1">
+							<span>Page</span>
+							<span>{currentPage}</span>
+							<span>of {totalPages}</span>
+						</div>
 
 						<Button
 							variant="ghost"
@@ -243,7 +241,7 @@ export function MCPLogsDataTable({
 							onClick={() => goToPage(currentPage + 1)}
 							disabled={totalPages === 0 || currentPage >= totalPages}
 							data-testid="next-page"
-							aria-label={t("labels.nextPage")}
+							aria-label="Next page"
 						>
 							<ChevronRight className="size-3" />
 						</Button>

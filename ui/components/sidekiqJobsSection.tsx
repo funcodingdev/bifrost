@@ -1,7 +1,3 @@
-import i18nReview from "@/lib/i18n";
-import { dateFnsLocale } from "@/lib/i18n/dateLocale";
-import { getLocale as getUILocale } from "@/lib/i18n";
-import { useTranslation } from "react-i18next";
 import { sidekiqJobLabel, sidekiqJobPercent } from "@/components/notificationCenter.utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,36 +11,11 @@ const statusPresentation: Record<
 	SidekiqJobStatus,
 	{ label: string; variant: "secondary" | "default" | "success" | "destructive" | "outline" }
 > = {
-	pending: {
-		get label() {
-			return i18nReview.t("ui.sidekiqJobsSection.queued", { ns: "common" });
-		},
-		variant: "secondary",
-	},
-	running: {
-		get label() {
-			return i18nReview.t("ui.sidekiqJobsSection.running", { ns: "common" });
-		},
-		variant: "default",
-	},
-	completed: {
-		get label() {
-			return i18nReview.t("ui.sidekiqJobsSection.completed", { ns: "common" });
-		},
-		variant: "success",
-	},
-	failed: {
-		get label() {
-			return i18nReview.t("ui.sidekiqJobsSection.failed", { ns: "common" });
-		},
-		variant: "destructive",
-	},
-	cancelled: {
-		get label() {
-			return i18nReview.t("ui.sidekiqJobsSection.cancelled", { ns: "common" });
-		},
-		variant: "outline",
-	},
+	pending: { label: "Queued", variant: "secondary" },
+	running: { label: "Running", variant: "default" },
+	completed: { label: "Completed", variant: "success" },
+	failed: { label: "Failed", variant: "destructive" },
+	cancelled: { label: "Cancelled", variant: "outline" },
 };
 
 interface SidekiqJobsSectionProps {
@@ -55,7 +26,6 @@ interface SidekiqJobsSectionProps {
 }
 
 export default function SidekiqJobsSection({ jobs, cancellingId, onCancel, onDismiss }: SidekiqJobsSectionProps) {
-	const { t: tCopy } = useTranslation();
 	// Cancelling is final (a cancelled job is not resumable), so it takes a second click.
 	const [confirmId, setConfirmId] = useState<string>();
 
@@ -63,22 +33,20 @@ export default function SidekiqJobsSection({ jobs, cancellingId, onCancel, onDis
 		return (
 			<section
 				data-testid="sidekiq-jobs-section"
-				aria-label={tCopy("ui.notificationCenter.backgroundJobs", { ns: "common" })}
+				aria-label="Background jobs"
 				className="flex h-44 flex-col items-center justify-center gap-2 px-6 text-center"
 			>
 				<span className="bg-muted text-muted-foreground flex size-9 items-center justify-center rounded-full">
 					<Check className="size-4" />
 				</span>
-				<p className="text-sm font-medium">{tCopy("ui.sidekiqJobsSection.noBackgroundJobs", { ns: "common" })}</p>
-				<p className="text-muted-foreground text-xs">
-					{tCopy("ui.sidekiqJobsSection.longRunningTasksWillShowTheirProgressHere", { ns: "common" })}
-				</p>
+				<p className="text-sm font-medium">No background jobs</p>
+				<p className="text-muted-foreground text-xs">Long-running tasks will show their progress here.</p>
 			</section>
 		);
 	}
 
 	return (
-		<section data-testid="sidekiq-jobs-section" aria-label={tCopy("ui.notificationCenter.backgroundJobs", { ns: "common" })}>
+		<section data-testid="sidekiq-jobs-section" aria-label="Background jobs">
 			<ul className="max-h-[min(26rem,calc(100vh-8rem))] divide-y overflow-y-auto">
 				{jobs.map((job) => {
 					const presentation = statusPresentation[job.status] ?? statusPresentation.pending;
@@ -95,7 +63,7 @@ export default function SidekiqJobsSection({ jobs, cancellingId, onCancel, onDis
 								{!job.cancellable && (
 									<button
 										type="button"
-										aria-label={tCopy("accessibility.dismissNamed", { ns: "common", name: sidekiqJobLabel(job.kind) })}
+										aria-label={`Dismiss ${sidekiqJobLabel(job.kind)}`}
 										onClick={() => onDismiss([job.id])}
 										data-testid={`sidekiq-job-dismiss-${job.id}`}
 										className="text-muted-foreground hover:bg-muted hover:text-foreground -ml-2 flex h-5 w-0 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded opacity-0 transition-[width,margin,opacity] group-hover:ml-0 group-hover:w-5 group-hover:opacity-100 focus-visible:ml-0 focus-visible:w-5 focus-visible:opacity-100"
@@ -105,29 +73,18 @@ export default function SidekiqJobsSection({ jobs, cancellingId, onCancel, onDis
 								)}
 							</div>
 							{percent !== undefined && job.progress && (
-								<div className="flex items-center gap-2" data-testid={tCopy("jobs.namedProgress", { ns: "common", name: job.id })}>
-									<Progress
-										value={percent}
-										aria-label={tCopy("jobs.namedProgress", { ns: "common", name: sidekiqJobLabel(job.kind) })}
-										className="h-1.5 flex-1"
-									/>
+								<div className="flex items-center gap-2" data-testid={`sidekiq-job-progress-${job.id}`}>
+									<Progress value={percent} aria-label={`${sidekiqJobLabel(job.kind)} progress`} className="h-1.5 flex-1" />
 									<span className="text-muted-foreground w-24 text-right text-[11px] tabular-nums">
-										{job.status === "completed"
-											? tCopy("ui.sidekiqJobsSection.done", { ns: "common" })
-											: `${job.progress.done.toLocaleString()} / ${job.progress.total.toLocaleString()}`}
+										{job.status === "completed" ? "Done" : `${job.progress.done.toLocaleString()} / ${job.progress.total.toLocaleString()}`}
 									</span>
 								</div>
 							)}
 							{detail && <p className="text-muted-foreground line-clamp-2 text-xs">{detail}</p>}
 							<div className="text-muted-foreground flex items-center justify-between text-[11px]">
 								<span>
-									{job.cancellable
-										? tCopy("logs.session.started", { ns: "observability" })
-										: tCopy("ui.sidekiqJobsSection.finished", { ns: "common" })}{" "}
-									{formatDistanceToNow(new Date(job.cancellable ? job.created_at : finishedAt), {
-										addSuffix: true,
-										locale: dateFnsLocale(getUILocale()),
-									})}
+									{job.cancellable ? "Started" : "Finished"}{" "}
+									{formatDistanceToNow(new Date(job.cancellable ? job.created_at : finishedAt), { addSuffix: true })}
 								</span>
 								{job.cancellable &&
 									(confirmId === job.id ? (
@@ -143,10 +100,10 @@ export default function SidekiqJobsSection({ jobs, cancellingId, onCancel, onDis
 												}}
 												dataTestId={`sidekiq-job-cancel-confirm-${job.id}`}
 											>
-												{tCopy("ui.sidekiqJobsSection.stopJob", { ns: "common" })}
+												Stop job
 											</Button>
 											<Button variant="ghost" className="h-6 px-2 text-xs" onClick={() => setConfirmId(undefined)}>
-												{tCopy("ui.sidekiqJobsSection.keep", { ns: "common" })}
+												Keep
 											</Button>
 										</span>
 									) : (
@@ -157,7 +114,7 @@ export default function SidekiqJobsSection({ jobs, cancellingId, onCancel, onDis
 											onClick={() => setConfirmId(job.id)}
 											dataTestId={`sidekiq-job-cancel-${job.id}`}
 										>
-											{tCopy("cancel", { ns: "common" })}
+											Cancel
 										</Button>
 									))}
 							</div>

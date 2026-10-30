@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Command as CommandPrimitive, defaultFilter } from "cmdk";
 import { Loader2, Plus, SearchIcon } from "lucide-react";
 import * as React from "react";
@@ -64,10 +63,9 @@ interface SearchSelectAsyncProps<T extends SearchSelectOption = SearchSelectOpti
 type SearchSelectProps<T extends SearchSelectOption = SearchSelectOption> = SearchSelectSyncProps<T> | SearchSelectAsyncProps<T>;
 
 function RetryButton({ onRetry }: { onRetry: () => void }) {
-	const { t: tCopy } = useTranslation();
 	return (
 		<button type="button" className="text-foreground ml-2 underline underline-offset-2" onClick={onRetry} data-testid="search-select-retry">
-			{tCopy("promptRepo.retry", { ns: "config" })}
+			Retry
 		</button>
 	);
 }

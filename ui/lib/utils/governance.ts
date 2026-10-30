@@ -1,10 +1,9 @@
-import i18n, { getLocale } from "@/lib/i18n";
 import { supportsCalendarAlignment } from "@/lib/constants/governance";
 /**
  * Parses a duration string (e.g., "1m", "5m", "1h", "1d", "1w", "1M") into human readable format
  */
 export function parseResetPeriod(duration: string): string {
-	if (!duration) return i18n.t("durations.unknown", { ns: "common" });
+	if (!duration) return "Unknown";
 
 	const timeValue = parseInt(duration.slice(0, -1));
 	const timeUnit = duration.slice(-1);
@@ -24,7 +23,7 @@ export function parseResetPeriod(duration: string): string {
 	if (!unit) return duration;
 
 	const unitName = timeValue === 1 ? unit.singular : unit.plural;
-	return getLocale() === "zh-CN" ? i18n.t(`durations.units.${timeUnit}`, { ns: "common", count: timeValue }) : `${timeValue} ${unitName}`;
+	return `${timeValue} ${unitName}`;
 }
 
 import { budgetOverrideFormSchema } from "@/lib/types/schemas";

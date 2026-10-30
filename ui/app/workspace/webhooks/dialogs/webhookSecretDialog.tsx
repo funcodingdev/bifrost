@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { ArrowUpRight, Check, Copy } from "lucide-react";
-import { Trans, useTranslation } from "react-i18next";
 
 const WEBHOOKS_VERIFICATION_DOCS_URL = "https://docs.getbifrost.ai/features/webhooks?utm_source=bfd#verifying-deliveries";
 
@@ -19,16 +18,16 @@ interface WebhookSecretDialogProps {
 // The signing secret is returned exactly once by create and rotate-secret;
 // the API never exposes it again, so this dialog is the only chance to copy it.
 export function WebhookSecretDialog({ reveal, onClose }: WebhookSecretDialogProps) {
-	const { t } = useTranslation("governance");
 	const { copy, copied } = useCopyToClipboard();
 
 	return (
 		<Dialog open={!!reveal} onOpenChange={(open) => !open && onClose()}>
 			<DialogContent data-testid="webhook-secret-dialog">
 				<DialogHeader>
-					<DialogTitle>{t("webhooks.secret.title", { name: reveal?.endpointName })}</DialogTitle>
+					<DialogTitle>Signing secret for {reveal?.endpointName}</DialogTitle>
 					<DialogDescription>
-						<Trans t={t} i18nKey="webhooks.secret.description" components={{ code0: <code /> }} />
+						Use this secret to verify the <code>webhook-signature</code> header on deliveries. It is shown only once - copy it now and store
+						it securely. If you lose it, rotate the endpoint to get a new one.
 					</DialogDescription>
 				</DialogHeader>
 				<div className="flex items-center gap-2 rounded-sm border p-3">
@@ -38,14 +37,14 @@ export function WebhookSecretDialog({ reveal, onClose }: WebhookSecretDialogProp
 					<Button
 						variant="ghost"
 						size="sm"
-						aria-label={t("webhooks.secret.copyAria")}
+						aria-label="Copy signing secret"
 						onClick={() => reveal && copy(reveal.secret)}
 						data-testid="webhook-secret-copy-btn"
 					>
 						{copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
 					</Button>
 					<span className="sr-only" aria-live="polite">
-						{copied ? t("webhooks.secret.copied") : ""}
+						{copied ? "Signing secret copied" : ""}
 					</span>
 				</div>
 				<DialogFooter>
@@ -55,10 +54,10 @@ export function WebhookSecretDialog({ reveal, onClose }: WebhookSecretDialogProp
 							window.open(WEBHOOKS_VERIFICATION_DOCS_URL, "_blank", "noopener,noreferrer");
 						}}
 					>
-						{t("contactUs.readMore")} <ArrowUpRight className="text-muted-foreground h-3 w-3" />
+						Read more <ArrowUpRight className="text-muted-foreground h-3 w-3" />
 					</Button>
 					<Button onClick={onClose} data-testid="webhook-secret-done-btn">
-						{t("webhooks.secret.stored")}
+						I&apos;ve stored the secret
 					</Button>
 				</DialogFooter>
 			</DialogContent>

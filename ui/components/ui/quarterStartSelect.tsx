@@ -1,5 +1,3 @@
-import { getLocale } from "@/lib/i18n";
-import { Trans, useTranslation } from "react-i18next";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { currentQuarterIndex, nextQuarterReset, quarterRanges, quarterStartMonthOptions } from "@/lib/constants/governance";
@@ -25,7 +23,6 @@ interface QuarterStartSelectProps {
  * The helper line spells out the concrete next reset date so the effect is unambiguous.
  */
 export default function QuarterStartSelect({ "data-testid": testId, value, onChange }: QuarterStartSelectProps) {
-	const { t: tCopy } = useTranslation();
 	const quarters = quarterRanges(value);
 	const current = currentQuarterIndex(value);
 	const nextReset = nextQuarterReset(value);
@@ -37,10 +34,10 @@ export default function QuarterStartSelect({ "data-testid": testId, value, onCha
 			{/* Stacks below sm so the label and month select don't crush each other on
 			    narrow viewports; horizontal (select right-aligned inside the box) above. */}
 			<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-				<Label className="font-normal">{tCopy("ui.quarterStartSelect.fiscalYearStarts", { ns: "common" })}</Label>
+				<Label className="font-normal">Fiscal year starts</Label>
 				<Select value={String(value ?? 1)} onValueChange={(month) => onChange(Number(month))}>
 					<SelectTrigger
-						aria-label={tCopy("ui.quarterStartSelect.fiscalYearStarts", { ns: "common" })}
+						aria-label="Fiscal year starts"
 						className="h-9 w-full shrink-0 sm:w-40"
 						data-testid={testId ? `${testId}-trigger` : undefined}
 					>
@@ -75,15 +72,8 @@ export default function QuarterStartSelect({ "data-testid": testId, value, onCha
 				})}
 			</div>
 			<p className="text-muted-foreground border-t pt-2.5 text-[0.8rem] leading-relaxed">
-				<Trans
-					ns="common"
-					i18nKey="budget.quarterDates"
-					components={{ date: <span className="text-foreground font-medium" /> }}
-					values={{
-						next: format(nextReset, getLocale() === "zh-CN" ? "yyyy年M月d日" : "MMM d, yyyy"),
-						end: format(currentQuarterEnd, getLocale() === "zh-CN" ? "yyyy年M月d日" : "MMM d, yyyy"),
-					}}
-				/>
+				Next reset on <span className="text-foreground font-medium">{format(nextReset, "MMM d, yyyy")}</span>. The current quarter ends{" "}
+				{format(currentQuarterEnd, "MMM d, yyyy")}.
 			</p>
 		</div>
 	);

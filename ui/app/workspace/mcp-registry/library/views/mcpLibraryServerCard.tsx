@@ -9,8 +9,6 @@ import { Link } from "@tanstack/react-router";
 import { BookIcon, Globe, Radio, Terminal, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
-import i18n from "@/lib/i18n";
 import { MCPLibraryDeleteDialog } from "./mcpLibraryDeleteDialog";
 
 const MAX_VISIBLE_TAGS = 3;
@@ -43,17 +41,17 @@ export function transportIcon(connectionType: string) {
 export function authLabel(authType?: string): string {
 	switch (authType) {
 		case "headers":
-			return i18n.t("registry.filter.headers", { ns: "mcp" });
+			return "Headers";
 		case "oauth":
 			return "OAuth";
 		case "per_user_headers":
-			return i18n.t("library.auth.userHeaders", { ns: "mcp" });
+			return "User headers";
 		case "per_user_oauth":
-			return i18n.t("library.auth.userOauth", { ns: "mcp" });
+			return "User OAuth";
 		case "token_exchange":
-			return i18n.t("library.auth.tokenExchange", { ns: "mcp" });
+			return "Token exchange";
 		default:
-			return i18n.t("library.auth.noAuth", { ns: "mcp" });
+			return "No auth";
 	}
 }
 
@@ -66,7 +64,6 @@ interface MCPLibraryServerCardProps {
 }
 
 export function MCPLibraryServerCard({ server, isInstalled, canCreateMCPClient, canDelete, onInstall }: MCPLibraryServerCardProps) {
-	const { t } = useTranslation("mcp");
 	const [deleteEntry, { isLoading: isDeleting }] = useDeleteMCPLibraryEntryMutation();
 	const [confirmOpen, setConfirmOpen] = useState(false);
 	const isCustom = server.source === "custom";
@@ -74,7 +71,7 @@ export function MCPLibraryServerCard({ server, isInstalled, canCreateMCPClient, 
 	const handleDelete = async () => {
 		try {
 			await deleteEntry(server.id).unwrap();
-			toast.success(t("library.card.removedToast", { name: server.name }));
+			toast.success(`"${server.name}" removed from the library.`);
 			setConfirmOpen(false);
 		} catch (error) {
 			toast.error(getErrorMessage(error));
@@ -109,8 +106,8 @@ export function MCPLibraryServerCard({ server, isInstalled, canCreateMCPClient, 
 								<span className="block truncate">{server.name}</span>
 							</CardTitle>
 							<div className="flex shrink-0 items-center gap-1.5">
-								{isCustom && <Badge variant="outline">{t("library.card.custom")}</Badge>}
-								{isInstalled && <Badge variant="success">{t("library.card.installed")}</Badge>}
+								{isCustom && <Badge variant="outline">Custom</Badge>}
+								{isInstalled && <Badge variant="success">Installed</Badge>}
 							</div>
 						</div>
 						<div className="flex min-w-0 flex-wrap items-center gap-1.5">
@@ -119,19 +116,13 @@ export function MCPLibraryServerCard({ server, isInstalled, canCreateMCPClient, 
 									{server.category}
 								</Badge>
 							)}
-							{server.publisher && (
-								<span className="text-muted-foreground min-w-0 truncate text-xs">
-									{t("library.card.byPublisher", { publisher: server.publisher })}
-								</span>
-							)}
+							{server.publisher && <span className="text-muted-foreground min-w-0 truncate text-xs">by {server.publisher}</span>}
 						</div>
 					</div>
 				</div>
 			</CardHeader>
 			<CardContent className="flex flex-1 flex-col gap-3 px-4 py-3">
-				<CardDescription className="line-clamp-2 min-h-10 leading-5">
-					{server.description || t("library.card.noDescription")}
-				</CardDescription>
+				<CardDescription className="line-clamp-2 min-h-10 leading-5">{server.description || "No description available."}</CardDescription>
 				{server.tags && server.tags.length > 0 && (
 					<div className="flex min-w-0 flex-wrap items-center gap-1.5">
 						{server.tags.slice(0, MAX_VISIBLE_TAGS).map((tag) => (
@@ -176,13 +167,13 @@ export function MCPLibraryServerCard({ server, isInstalled, canCreateMCPClient, 
 										variant="outline"
 										size="sm"
 										onClick={() => setConfirmOpen(true)}
-										aria-label={t("library.card.removeAria", { name: server.name })}
+										aria-label={`Remove ${server.name} from library`}
 										data-testid={`mcp-library-delete-${server.slug}`}
 									>
 										<Trash2 className="h-4 w-4" />
 									</Button>
 								</TooltipTrigger>
-								<TooltipContent>{t("library.card.removeFromLibrary")}</TooltipContent>
+								<TooltipContent>Remove from library</TooltipContent>
 							</Tooltip>
 						</div>
 					)}
@@ -193,7 +184,7 @@ export function MCPLibraryServerCard({ server, isInstalled, canCreateMCPClient, 
 									asChild
 									variant="outline"
 									size="sm"
-									aria-label={t("library.card.docsAria", { name: server.name })}
+									aria-label={`Open ${server.name} documentation`}
 									data-testid={`mcp-library-docs-${server.slug}`}
 								>
 									<a href={server.docs_url} target="_blank" rel="noreferrer">
@@ -201,12 +192,12 @@ export function MCPLibraryServerCard({ server, isInstalled, canCreateMCPClient, 
 									</a>
 								</Button>
 							</TooltipTrigger>
-							<TooltipContent>{t("library.card.documentation")}</TooltipContent>
+							<TooltipContent>Documentation</TooltipContent>
 						</Tooltip>
 					)}
 					{isInstalled ? (
 						<Button asChild size="sm" data-testid={`mcp-library-open-${server.slug}`}>
-							<Link to="/workspace/mcp-registry">{t("common.open")}</Link>
+							<Link to="/workspace/mcp-registry">Open</Link>
 						</Button>
 					) : (
 						<Button
@@ -215,7 +206,7 @@ export function MCPLibraryServerCard({ server, isInstalled, canCreateMCPClient, 
 							disabled={!canCreateMCPClient}
 							data-testid={`mcp-library-install-${server.slug}`}
 						>
-							{t("common.install")}
+							Install
 						</Button>
 					)}
 				</div>

@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { ProviderIconType, RenderProviderIcon } from "@/lib/constants/icons";
 import { getProviderLabel } from "@/lib/constants/logs";
@@ -10,7 +9,6 @@ import { RULE_W, SCOPE_CONFIG, type ScopeKey } from "../constants";
 import { RFEdgeHandle } from "./rfEdgeHandle";
 
 export function RFRuleNode({ data }: { data: any }) {
-	const { t: tCopy } = useTranslation();
 	const rule = data.rule as RoutingRule;
 	const scopeColor = data.scopeColor as string;
 	const cfg = SCOPE_CONFIG[rule.scope as ScopeKey];
@@ -54,7 +52,7 @@ export function RFRuleNode({ data }: { data: any }) {
 						{rule.chain_rule && <Link2 className="h-3 w-3" style={{ color: scopeColor }} />}
 						{!rule.enabled && (
 							<Badge variant="secondary" className="px-1 py-0 text-[9px]">
-								{tCopy("providers.deployments.off", { ns: "models" })}
+								Off
 							</Badge>
 						)}
 					</div>
@@ -63,12 +61,7 @@ export function RFRuleNode({ data }: { data: any }) {
 				{/* rule name */}
 				<div className="px-3 py-2">
 					<p className="text-foreground truncate text-xs font-semibold">{rule.name}</p>
-					{rule.priority > 0 && (
-						<p className="text-muted-foreground mt-0.5 text-[10px]">
-							{tCopy("routing.priority", { ns: "models" }) + " "}
-							{rule.priority}
-						</p>
-					)}
+					{rule.priority > 0 && <p className="text-muted-foreground mt-0.5 text-[10px]">Priority {rule.priority}</p>}
 				</div>
 
 				{/* targets footer */}
@@ -89,8 +82,7 @@ export function RFRuleNode({ data }: { data: any }) {
 						{rule.targets.length > 4 && <span className="text-muted-foreground text-[9px]">+{rule.targets.length - 4}</span>}
 					</div>
 					<span className="text-muted-foreground ml-auto text-[10px]">
-						{rule.targets.length} {tCopy("ui.rfRuleNode.target", { ns: "models" })}
-						{rule.targets.length !== 1 ? "s" : ""}
+						{rule.targets.length} target{rule.targets.length !== 1 ? "s" : ""}
 					</span>
 				</div>
 
@@ -114,14 +106,12 @@ export function RFRuleNode({ data }: { data: any }) {
 							<div className="mb-1 flex items-start gap-2 border-b px-3 pb-1.5">
 								<Link2 className="mt-0.5 h-3 w-3 shrink-0" style={{ color: scopeColor }} />
 								<p className="text-muted-foreground text-[10px] leading-snug">
-									{tCopy("ui.rfRuleNode.chainRuleResolvedProviderModelFeedsBackAsTheNew", { ns: "models" })}
+									Chain rule: resolved provider/model feeds back as the new input and the full scope chain re-evaluates.
 								</p>
 							</div>
 						)}
 						<p className="mb-1 px-3 text-[10px] font-semibold tracking-wide uppercase" style={{ color: scopeColor }}>
-							{rule.chain_rule
-								? tCopy("ui.rfRuleNode.resolvedTargetNewInput", { ns: "models" })
-								: tCopy("routing.targets", { ns: "models" })}
+							{rule.chain_rule ? "Resolved target (new input)" : "Targets"}
 						</p>
 						{rule.targets.map((t, i) => {
 							const isPassthrough = !t.provider && !t.model;
@@ -134,18 +124,10 @@ export function RFRuleNode({ data }: { data: any }) {
 									)}
 									<div className="min-w-0 flex-1">
 										<p className="text-foreground truncate text-xs font-medium">
-											{isPassthrough
-												? tCopy("requestTypes.passthrough", { ns: "observability" })
-												: t.provider
-													? getProviderLabel(t.provider)
-													: t.model}
+											{isPassthrough ? "Passthrough" : t.provider ? getProviderLabel(t.provider) : t.model}
 										</p>
 										{t.model && t.provider && <p className="text-muted-foreground truncate font-mono text-[10px]">{t.model}</p>}
-										{isPassthrough && (
-											<p className="text-muted-foreground/60 text-[10px] italic">
-												{tCopy("ui.rfRuleNode.originalProviderModel", { ns: "models" })}
-											</p>
-										)}
+										{isPassthrough && <p className="text-muted-foreground/60 text-[10px] italic">original provider &amp; model</p>}
 									</div>
 									{multi && (
 										<span className="ml-1 shrink-0 text-[11px] font-semibold" style={{ color: scopeColor }}>

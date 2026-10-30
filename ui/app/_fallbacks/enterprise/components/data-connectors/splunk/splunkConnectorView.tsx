@@ -1,5 +1,4 @@
 import { Database } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import ContactUsView from "../../views/contactUsView";
 
 interface EnableToggleProps {
@@ -15,8 +14,6 @@ interface SplunkConnectorViewProps {
 }
 
 export default function SplunkConnectorView(_props: SplunkConnectorViewProps) {
-	const { t } = useTranslation("governance");
-
 	return (
 		<div className="space-y-6">
 			{/* Content - OSS: paywall only; no delete/save buttons */}
@@ -26,7 +23,8 @@ export default function SplunkConnectorView(_props: SplunkConnectorViewProps) {
 						align="middle"
 						className="mx-auto w-full max-w-lg"
 						icon={<Database className="h-[5.5rem] w-[5.5rem]" strokeWidth={1} />}
-						title={t("connectorsUnlock.splunk")}
+						title="Unlock native Splunk data ingestion for better observability"
+						description="This feature is a part of the Bifrost enterprise license. We would love to know more about your use case and how we can help you."
 						readmeLink="https://docs.getbifrost.ai/features/observability/splunk"
 					/>
 				</div>

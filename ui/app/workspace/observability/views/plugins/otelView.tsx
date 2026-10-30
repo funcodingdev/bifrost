@@ -8,7 +8,6 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { OtelFormFragment } from "../../fragments/otelFormFragment";
 import PluginTracingSheet from "../../sheets/pluginTracingSheet";
-import { useTranslation } from "react-i18next";
 
 interface OtelViewProps {
 	onDelete?: () => void;
@@ -16,7 +15,6 @@ interface OtelViewProps {
 }
 
 export default function OtelView({ onDelete, isDeleting }: OtelViewProps) {
-	const { t } = useTranslation("observability");
 	const selectedPlugin = useAppSelector((state) => state.plugin.selectedPlugin);
 	const currentConfig = useMemo(() => ({ config: selectedPlugin?.config, enabled: selectedPlugin?.enabled }), [selectedPlugin]);
 	const [updatePlugin] = useUpdatePluginMutation();
@@ -44,10 +42,10 @@ export default function OtelView({ onDelete, isDeleting }: OtelViewProps) {
 				.unwrap()
 				.then(() => {
 					resolve();
-					toast.success(t("connectors.toast.otelUpdated"));
+					toast.success("OTEL configuration updated successfully");
 				})
 				.catch((err) => {
-					toast.error(t("connectors.toast.otelFailed"), {
+					toast.error("Failed to update OTEL configuration", {
 						description: getErrorMessage(err),
 					});
 					reject(err);
@@ -68,7 +66,7 @@ export default function OtelView({ onDelete, isDeleting }: OtelViewProps) {
 							data-testid="otel-configure-tracing-button"
 						>
 							<Activity className="h-4 w-4" />
-							{t("connectors.configurePluginTracing")}
+							Configure Tracing
 						</Button>
 					</div>
 				)}
@@ -78,7 +76,7 @@ export default function OtelView({ onDelete, isDeleting }: OtelViewProps) {
 				open={isTracingSheetOpen}
 				onClose={() => setIsTracingSheetOpen(false)}
 				pluginName="otel"
-				destination={t("connectors.tracing.destinationOtel")}
+				destination="the OTEL collector"
 			/>
 		</div>
 	);

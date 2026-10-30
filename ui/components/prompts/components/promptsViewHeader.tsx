@@ -14,11 +14,9 @@ import { parseAsInteger, useQueryStates } from "nuqs";
 import { useCallback, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
 import { usePromptContext } from "../context";
 
 export default function PromptsViewHeader() {
-	const { t, i18n } = useTranslation("config");
 	const {
 		selectedPrompt,
 		messages,
@@ -94,11 +92,11 @@ export default function PromptsViewHeader() {
 				},
 			}).unwrap();
 			setUrlState({ sessionId: result.session.id, versionId: null });
-			toast.success(t("promptRepo.toastSessionSaved"));
+			toast.success("Session saved");
 		} catch (err) {
-			toast.error(t("promptRepo.toastSaveSessionFailed"), { description: getErrorMessage(err) });
+			toast.error("Failed to save session", { description: getErrorMessage(err) });
 		}
-	}, [selectedPrompt?.id, messages, buildSaveParams, provider, model, variables, createSession, setUrlState, hasChanges, isStreaming, t]);
+	}, [selectedPrompt?.id, messages, buildSaveParams, provider, model, variables, createSession, setUrlState, hasChanges, isStreaming]);
 
 	// Cmd+S / Ctrl+S to save session
 	useHotkeys(
@@ -136,21 +134,9 @@ export default function PromptsViewHeader() {
 			setUrlState({ sessionId: result.session.id, versionId: null });
 			onSessionSaved(result.session);
 		} catch (err) {
-			toast.error(t("promptRepo.toastSaveSessionFailed"), { description: getErrorMessage(err) });
+			toast.error("Failed to save session", { description: getErrorMessage(err) });
 		}
-	}, [
-		selectedPrompt?.id,
-		messages,
-		buildSaveParams,
-		provider,
-		model,
-		variables,
-		createSession,
-		setUrlState,
-		onSessionSaved,
-		hasChanges,
-		t,
-	]);
+	}, [selectedPrompt?.id, messages, buildSaveParams, provider, model, variables, createSession, setUrlState, onSessionSaved, hasChanges]);
 
 	const handleRenameSession = useCallback(
 		async (sessionId: number, name: string) => {
@@ -158,10 +144,10 @@ export default function PromptsViewHeader() {
 			try {
 				await renameSession({ id: sessionId, promptId: selectedPrompt.id, data: { name } }).unwrap();
 			} catch (err) {
-				toast.error(t("promptRepo.toastRenameSessionFailed"), { description: getErrorMessage(err) });
+				toast.error("Failed to rename session", { description: getErrorMessage(err) });
 			}
 		},
-		[selectedPrompt?.id, renameSession, t],
+		[selectedPrompt?.id, renameSession],
 	);
 
 	const handleClearConversation = useCallback(() => {
@@ -181,17 +167,17 @@ export default function PromptsViewHeader() {
 		<div className="flex items-center justify-between border-b px-4 py-3">
 			<div className="flex min-w-0 items-center gap-2">
 				<h3 className="truncate font-semibold">
-					{selectedPrompt?.name || t("promptRepo.playground")}
+					{selectedPrompt?.name || "Playground"}
 					{hasChanges && <span className="text-destructive ml-1">*</span>}
 				</h3>
 				{displayVersion && <Badge variant={"secondary"}>v{displayVersion.version_number}</Badge>}
-				{hasVersionChanges && versions.length > 0 && <Badge variant="outline">{t("promptRepo.unpublishedChanges")}</Badge>}
+				{hasVersionChanges && versions.length > 0 && <Badge variant="outline">Unpublished Changes</Badge>}
 			</div>
 			<div className="flex shrink-0 items-center gap-4">
 				{messages.length > 1 && (
 					<Button variant="ghost" size="sm" data-testid="header-clear" onClick={handleClearConversation} disabled={isStreaming}>
 						<Trash2 className="h-4 w-4" />
-						{t("promptRepo.clear")}
+						Clear
 					</Button>
 				)}
 				<SplitButton
@@ -204,9 +190,9 @@ export default function PromptsViewHeader() {
 						onOpenChange: setSessionsOpen,
 						children: (
 							<Command>
-								<CommandInput placeholder={t("promptRepo.searchSessions")} data-testid="header-sessions-search" />
+								<CommandInput placeholder="Search sessions..." data-testid="header-sessions-search" />
 								<CommandList>
-									<CommandEmpty>{t("promptRepo.noSessionsFound")}</CommandEmpty>
+									<CommandEmpty>No sessions found.</CommandEmpty>
 									<CommandGroup>
 										{sessions.map((session) => (
 											<SessionItem
@@ -236,7 +222,7 @@ export default function PromptsViewHeader() {
 					}}
 				>
 					<Save className="h-4 w-4" />
-					{t("promptRepo.saveSession")}
+					Save Session
 				</SplitButton>
 				<SplitButton
 					onClick={handleCommitVersion}
@@ -245,10 +231,10 @@ export default function PromptsViewHeader() {
 						className: "w-64 max-h-72 overflow-y-auto",
 						children: (
 							<>
-								<DropdownMenuLabel>{t("promptRepo.versions")}</DropdownMenuLabel>
+								<DropdownMenuLabel>Versions</DropdownMenuLabel>
 								<DropdownMenuSeparator />
 								{versions.length === 0 ? (
-									<div className="text-muted-foreground px-2 py-3 text-center text-sm">{t("promptRepo.noVersionsYet")}</div>
+									<div className="text-muted-foreground px-2 py-3 text-center text-sm">No versions yet</div>
 								) : (
 									versions.map((version) => (
 										<DropdownMenuItem
@@ -259,14 +245,10 @@ export default function PromptsViewHeader() {
 											<div className="flex min-w-0 flex-col">
 												<span className="truncate text-sm">
 													v{version.version_number}
-													{version.is_latest && <span className="text-primary ml-1.5 text-xs">{t("promptRepo.latest")}</span>}
+													{version.is_latest && <span className="text-primary ml-1.5 text-xs">(latest)</span>}
 												</span>
-												<span className="text-muted-foreground truncate text-xs">
-													{version.commit_message || t("promptRepo.noCommitMessage")}
-												</span>
-												<span className="text-muted-foreground text-xs">
-													{formatSessionDate(version.created_at, i18n.resolvedLanguage)}
-												</span>
+												<span className="text-muted-foreground truncate text-xs">{version.commit_message || "No commit message"}</span>
+												<span className="text-muted-foreground text-xs">{formatSessionDate(version.created_at)}</span>
 											</div>
 											{selectedVersionId === version.id && <Check className="text-primary h-4 w-4 shrink-0" />}
 										</DropdownMenuItem>
@@ -286,24 +268,15 @@ export default function PromptsViewHeader() {
 					}}
 				>
 					<GitCommit className="h-4 w-4" />
-					{t("promptRepo.commitVersion")}
+					Commit Version
 				</SplitButton>
 			</div>
 		</div>
 	);
 }
 
-function formatSessionDate(dateStr: string, language?: string): string {
+function formatSessionDate(dateStr: string): string {
 	const date = new Date(dateStr);
-	if (language && language !== "en") {
-		return date.toLocaleString(language, {
-			month: "short",
-			day: "numeric",
-			hour: "2-digit",
-			minute: "2-digit",
-			hour12: language.startsWith("zh"),
-		});
-	}
 	const month = date.toLocaleString("en-US", { month: "short" });
 	const day = date.getDate();
 	const hours = date.getHours();
@@ -324,7 +297,6 @@ function SessionItem({
 	onSelect: () => void;
 	onRename: (name: string) => void;
 }) {
-	const { t, i18n } = useTranslation("config");
 	const [isEditing, setIsEditing] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
 
@@ -338,7 +310,7 @@ function SessionItem({
 		setIsEditing(false);
 	};
 
-	const dateLabel = formatSessionDate(session.created_at, i18n.resolvedLanguage);
+	const dateLabel = formatSessionDate(session.created_at);
 
 	if (isEditing) {
 		return (
@@ -346,7 +318,7 @@ function SessionItem({
 				<Input
 					ref={inputRef}
 					defaultValue={session.name}
-					placeholder={t("promptRepo.sessionName")}
+					placeholder="Session name"
 					className="h-auto border-none bg-transparent p-0 text-sm shadow-none focus-visible:border-none focus-visible:ring-0"
 					data-testid="session-rename-input"
 					autoFocus
@@ -375,7 +347,7 @@ function SessionItem({
 			<div className="flex shrink-0 items-center gap-1">
 				<button
 					type="button"
-					aria-label={t("promptRepo.renameSessionAria")}
+					aria-label="Rename session"
 					data-testid="session-rename"
 					onPointerDown={(e) => {
 						e.preventDefault();

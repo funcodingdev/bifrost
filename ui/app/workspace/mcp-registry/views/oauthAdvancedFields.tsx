@@ -1,10 +1,10 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { SecretVarInput } from "@/components/ui/secretVarInput";
+import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
-import type { Control } from "react-hook-form";
-import { useTranslation } from "react-i18next";
+import { type Control, useWatch } from "react-hook-form";
 
 interface OAuthAdvancedFieldsProps {
 	// Loosely typed on purpose: shared between the create form (CreateMCPClientRequest)
@@ -45,6 +45,9 @@ interface OAuthAdvancedFieldsProps {
 	registrationUrlLabel: React.ReactNode;
 	registrationUrlTestId: string;
 
+	/** Shows the "Use Bifrost's client metadata document" toggle (create form only); it disables the client ID and secret. */
+	clientMetadataDocumentTestId?: string;
+
 	/** Called after a URL/client-id field changes, e.g. so the create form can clear a submit-time error for that field. */
 	onFieldTouched?: (field: "authorize_url" | "token_url" | "registration_url") => void;
 }
@@ -76,12 +79,41 @@ export function OAuthAdvancedFields({
 	tokenUrlTestId,
 	registrationUrlLabel,
 	registrationUrlTestId,
+	clientMetadataDocumentTestId,
 	onFieldTouched,
 }: OAuthAdvancedFieldsProps) {
-	const { t } = useTranslation("mcp");
+	const useClientMetadataDocument = useWatch({ control, name: "oauth_config.use_client_metadata_document" }) === true;
+	const credentialsDisabled = disabled || (clientMetadataDocumentTestId !== undefined && useClientMetadataDocument);
 	return (
 		<>
 			{beforeFields}
+			{clientMetadataDocumentTestId && (
+				<FormField
+					control={control}
+					name="oauth_config.use_client_metadata_document"
+					render={({ field }) => (
+						<FormItem className="flex flex-row items-center justify-between gap-4 rounded-md border px-4 py-3">
+							<div className="flex flex-col gap-1">
+								<FormLabel htmlFor="use-client-metadata-document">Use Bifrost&apos;s client metadata document</FormLabel>
+								<p className="text-muted-foreground text-xs">
+									Register as Bifrost through its client metadata document even when the authorization server does not advertise support,
+									for example when its endpoints are entered by hand. Bifrost must be reachable over public HTTPS. When off, the document is
+									still used wherever the server advertises support.
+								</p>
+							</div>
+							<FormControl>
+								<Switch
+									id="use-client-metadata-document"
+									data-testid={clientMetadataDocumentTestId}
+									checked={field.value === true}
+									onCheckedChange={field.onChange}
+									disabled={disabled}
+								/>
+							</FormControl>
+						</FormItem>
+					)}
+				/>
+			)}
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 				<FormField
 					control={control}
@@ -105,7 +137,7 @@ export function OAuthAdvancedFields({
 								<SecretVarInput
 									data-testid={clientIdTestId}
 									placeholder={clientIdPlaceholder}
-									disabled={disabled}
+									disabled={credentialsDisabled}
 									maskNonEnvValue
 									value={field.value}
 									onChange={field.onChange}
@@ -126,7 +158,7 @@ export function OAuthAdvancedFields({
 								<SecretVarInput
 									data-testid={clientSecretTestId}
 									placeholder={clientSecretPlaceholder}
-									disabled={disabled}
+									disabled={credentialsDisabled}
 									hideValueWhenEnv
 									maskNonEnvValue
 									value={field.value}
@@ -153,7 +185,7 @@ export function OAuthAdvancedFields({
 										field.onChange(e);
 										onFieldTouched?.("authorize_url");
 									}}
-									placeholder={t("registry.oauthFields.authorizeUrlPlaceholder")}
+									placeholder="https://provider.com/oauth/authorize"
 									data-testid={authorizeUrlTestId}
 								/>
 							</FormControl>
@@ -176,7 +208,7 @@ export function OAuthAdvancedFields({
 										field.onChange(e);
 										onFieldTouched?.("token_url");
 									}}
-									placeholder={t("registry.oauthFields.tokenUrlPlaceholder")}
+									placeholder="https://provider.com/oauth/token"
 									data-testid={tokenUrlTestId}
 								/>
 							</FormControl>
@@ -199,7 +231,7 @@ export function OAuthAdvancedFields({
 										field.onChange(e);
 										onFieldTouched?.("registration_url");
 									}}
-									placeholder={t("registry.oauthFields.registrationUrlPlaceholder")}
+									placeholder="https://provider.com/oauth/register"
 									data-testid={registrationUrlTestId}
 								/>
 							</FormControl>
@@ -215,11 +247,11 @@ export function OAuthAdvancedFields({
 							value={scopesRaw}
 							disabled={disabled}
 							onChange={(e) => onScopesRawChange(e.target.value)}
-							placeholder={t("registry.oauthFields.scopesPlaceholder")}
+							placeholder="read, write, admin"
 							data-testid={scopesTestId}
 						/>
 					</FormControl>
-					<p className="text-muted-foreground text-xs">{t("registry.oauthFields.commaSeparated")}</p>
+					<p className="text-muted-foreground text-xs">Comma-separated.</p>
 				</FormItem>
 				{resource.mode === "field" ? (
 					<FormField
@@ -233,7 +265,7 @@ export function OAuthAdvancedFields({
 										{...field}
 										value={field.value ?? ""}
 										disabled={disabled}
-										placeholder={t("registry.oauthFields.resourcePlaceholder")}
+										placeholder="https://provider.example.com/mcp or urn:example:mcp"
 										data-testid={resourceTestId}
 									/>
 								</FormControl>
@@ -250,7 +282,7 @@ export function OAuthAdvancedFields({
 								value={resource.value}
 								disabled={disabled}
 								onChange={(e) => resource.onChange(e.target.value)}
-								placeholder={t("registry.oauthFields.resourcePlaceholder")}
+								placeholder="https://provider.example.com/mcp or urn:example:mcp"
 								data-testid={resourceTestId}
 							/>
 						</FormControl>

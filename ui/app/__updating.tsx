@@ -1,15 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { IS_ENTERPRISE } from "@/lib/constants/config";
 import { getCachedBrandingAssets } from "@/lib/hooks/useBranding";
-import i18n from "@/lib/i18n";
 import { getEndpointUrl } from "@/lib/utils/port";
 import { consumeAutoReload, startVersionPoll } from "@/lib/utils/versionSkew";
 import { Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
-import { I18nextProvider, useTranslation } from "react-i18next";
 
-function UpdatingBannerBody() {
-	const { t } = useTranslation("shell");
+export function UpdatingBanner() {
 	return (
 		<div
 			className="pointer-events-none fixed inset-x-0 bottom-4 z-[100] flex justify-center px-4 sm:bottom-6"
@@ -23,8 +20,8 @@ function UpdatingBannerBody() {
 					<span className="bg-primary relative size-2 rounded-full" aria-hidden="true" />
 				</div>
 				<div className="min-w-0 flex-1">
-					<p className="text-foreground text-sm font-medium">{t("updating.bannerTitle")}</p>
-					<p className="text-muted-foreground truncate text-xs">{t("updating.bannerDescription")}</p>
+					<p className="text-foreground text-sm font-medium">Bifrost is upgrading</p>
+					<p className="text-muted-foreground truncate text-xs">You can keep working and reload when the upgrade is complete.</p>
 				</div>
 				<Button
 					variant="outline"
@@ -34,39 +31,31 @@ function UpdatingBannerBody() {
 					onClick={() => window.location.reload()}
 				>
 					<RefreshCw aria-hidden="true" />
-					<span className="hidden sm:inline">{t("updating.reload")}</span>
+					<span className="hidden sm:inline">Reload</span>
 				</Button>
 			</div>
 		</div>
 	);
 }
 
-export function UpdatingBanner() {
-	return (
-		<I18nextProvider i18n={i18n}>
-			<UpdatingBannerBody />
-		</I18nextProvider>
-	);
-}
+const UPDATING_COPY = IS_ENTERPRISE
+	? {
+			title: "A new version of Bifrost is rolling out",
+			waiting:
+				"Your organization has chosen to roll out a new version of Bifrost. The rollout is progressing one instance at a time. This page will reload automatically once the rollout completes across all instances.",
+			paused:
+				"The rollout is still in progress. Reload to check again in a minute. If this doesn't work, contact the administrator of your Bifrost deployment.",
+			waitingStatus: "Waiting for the rollout to complete…",
+		}
+	: {
+			title: "Bifrost is upgrading",
+			waiting:
+				"A new version of Bifrost is being rolled out. Keep this page open and it will reload automatically when the upgrade is complete.",
+			paused: "Bifrost is still upgrading. If this is taking longer than expected, reach out to your administrator for more information.",
+			waitingStatus: "Waiting for the upgrade to complete",
+		};
 
-function UpdatingScreenBody() {
-	const { t } = useTranslation("shell");
-	const UPDATING_COPY = IS_ENTERPRISE
-		? {
-				title: t("ui.updating.aNewVersionOfBifrostIsRollingOut", { ns: "common" }),
-				waiting:
-					"Your organization has chosen to roll out a new version of Bifrost. The rollout is progressing one instance at a time. This page will reload automatically once the rollout completes across all instances.",
-				paused:
-					"The rollout is still in progress. Reload to check again in a minute. If this doesn't work, contact the administrator of your Bifrost deployment.",
-				waitingStatus: "Waiting for the rollout to complete…",
-			}
-		: {
-				title: t("updating.screenTitle"),
-				waiting: t("updating.descriptionWaiting"),
-				paused: t("updating.descriptionStuck"),
-				waitingStatus: t("updating.waiting"),
-			};
-
+export function UpdatingScreen() {
 	// Rendered above <ReduxProvider> (main.tsx) and as the router error component,
 	// so branding has to come from the cache rather than a query.
 	const [{ logoSrc, logoAlt }] = useState(() => getCachedBrandingAssets(false));
@@ -134,7 +123,7 @@ function UpdatingScreenBody() {
 					<div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 						<div className="text-muted-foreground flex items-center gap-2 text-xs">
 							{autoReloadExhausted ? (
-								<span>{t("updating.autoReloadPaused")}</span>
+								<span>Automatic reload paused</span>
 							) : (
 								<>
 									<Loader2 className="size-3.5 motion-safe:animate-spin" aria-hidden="true" />
@@ -150,19 +139,11 @@ function UpdatingScreenBody() {
 							onClick={() => window.location.reload()}
 						>
 							<RefreshCw aria-hidden="true" />
-							{t("updating.reloadNow")}
+							Reload now
 						</Button>
 					</div>
 				</div>
 			</section>
 		</main>
-	);
-}
-
-export function UpdatingScreen() {
-	return (
-		<I18nextProvider i18n={i18n}>
-			<UpdatingScreenBody />
-		</I18nextProvider>
 	);
 }

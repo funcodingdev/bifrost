@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -52,7 +51,6 @@ async function fireConfettiFrom(el: HTMLElement) {
 }
 
 export default function OnboardingWidget() {
-	const { t } = useTranslation("shell");
 	const navigate = useNavigate();
 	const pathname = useLocation({ select: (l) => l.pathname });
 	// "Remind me later" is a real snooze: it survives navigation and reloads
@@ -158,13 +156,13 @@ export default function OnboardingWidget() {
 		return (
 			<button
 				type="button"
-				aria-label={t("onboarding.expandSetupChecklist")}
+				aria-label="Expand setup checklist"
 				data-testid="onboarding-widget-restore"
 				onClick={() => setMinimized(false)}
 				className="bg-card text-card-foreground fixed right-6 bottom-4 z-40 flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium shadow-lg transition-transform hover:scale-105"
 			>
 				<span aria-hidden>👋</span>
-				{t("onboarding.setupChecklist")} ({doneCount}/{steps.length})
+				Setup checklist ({doneCount}/{steps.length})
 			</button>
 		);
 	}
@@ -258,13 +256,15 @@ export default function OnboardingWidget() {
 							👋
 						</span>
 						<div className="min-w-0 flex-1">
-							<div className="text-sm font-semibold">{t("onboarding.setupChecklist")}</div>
-							<div className="text-muted-foreground text-xs">{t("onboarding.progress", { done: doneCount, total: steps.length })}</div>
+							<div className="text-sm font-semibold">Setup checklist</div>
+							<div className="text-muted-foreground text-xs">
+								{doneCount} of {steps.length} steps complete
+							</div>
 						</div>
 					</div>
 					<div className="flex flex-shrink-0 items-center gap-1">
 						<button
-							aria-label={t("onboarding.minimize")}
+							aria-label="Minimize"
 							type="button"
 							data-testid="onboarding-widget-minimize"
 							onClick={() => setMinimized(true)}
@@ -273,7 +273,7 @@ export default function OnboardingWidget() {
 							<Minus className="size-4" />
 						</button>
 						<button
-							aria-label={t("onboarding.closeForNow")}
+							aria-label="Close for now"
 							type="button"
 							data-testid="onboarding-widget-close"
 							onClick={() => setCookie(HIDDEN_UNTIL_NAV_COOKIE, "true", { path: "/" })}
@@ -301,7 +301,7 @@ export default function OnboardingWidget() {
 									<div
 										className={cn("text-muted-foreground px-2 pb-1 text-[10px] font-semibold tracking-wider uppercase", idx > 0 && "pt-3")}
 									>
-										{t(`onboarding.sections.${step.section}`, { defaultValue: step.section })}
+										{step.section}
 									</div>
 								)}
 								<div
@@ -326,7 +326,7 @@ export default function OnboardingWidget() {
 										>
 											<Checkbox checked={step.complete} disabled tabIndex={-1} className="pointer-events-none" />
 										</span>
-										{step.complete && <span className="sr-only">{t("ui.onboardingWidget.completed", { ns: "common" })}</span>}
+										{step.complete && <span className="sr-only">Completed:</span>}
 										<span
 											className={cn(
 												"flex-1 text-sm",
@@ -334,7 +334,7 @@ export default function OnboardingWidget() {
 												skipped && !step.complete && "text-muted-foreground italic",
 											)}
 										>
-											{t(`onboarding.steps.${step.id}`, { defaultValue: step.title })}
+											{step.title}
 										</span>
 									</button>
 									{!done && (
@@ -346,12 +346,12 @@ export default function OnboardingWidget() {
 												disabled={writingMetadata}
 												className="text-muted-foreground hover:text-foreground text-xs opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100 focus-visible:opacity-100 disabled:opacity-50"
 											>
-												{t("onboarding.skip")}
+												Skip
 											</button>
 											<ChevronRight className="text-muted-foreground size-4 transition-transform group-hover:translate-x-0.5" />
 										</>
 									)}
-									{skipped && !step.complete && <span className="text-muted-foreground text-xs">{t("onboarding.skipped")}</span>}
+									{skipped && !step.complete && <span className="text-muted-foreground text-xs">Skipped</span>}
 								</div>
 							</div>
 						);
@@ -367,13 +367,13 @@ export default function OnboardingWidget() {
 					>
 						<PopoverTrigger asChild>
 							<button type="button" data-testid="onboarding-later" className="text-muted-foreground hover:text-foreground py-2 text-center">
-								{t("onboarding.remindMeLater")}
+								Remind me later
 							</button>
 						</PopoverTrigger>
 						<PopoverContent align="start" className="z-[1002] w-64 p-3">
 							<div className="mb-2 flex items-start gap-1.5 text-amber-600 dark:text-amber-500">
 								<AlertTriangle className="mt-0.5 size-3.5 flex-shrink-0" />
-								<p className="text-xs leading-snug">{t("onboarding.notCompletingTheseStepsKeepsYourBifrostSetupVulnerable")}</p>
+								<p className="text-xs leading-snug">Not completing these steps keeps your Bifrost setup vulnerable.</p>
 							</div>
 							{remindPickerView === "options" ? (
 								<div className="flex flex-col gap-0.5">
@@ -383,7 +383,7 @@ export default function OnboardingWidget() {
 										onClick={() => handleRemindAt(addDaysFromToday(1))}
 										className="hover:bg-accent rounded-sm px-2 py-1.5 text-left text-sm"
 									>
-										{t("onboarding.tomorrow")}
+										Tomorrow
 									</button>
 									<button
 										type="button"
@@ -391,7 +391,7 @@ export default function OnboardingWidget() {
 										onClick={() => handleRemindAt(addDaysFromToday(7))}
 										className="hover:bg-accent rounded-sm px-2 py-1.5 text-left text-sm"
 									>
-										{t("onboarding.inAWeek")}
+										In a week
 									</button>
 									<button
 										type="button"
@@ -399,7 +399,7 @@ export default function OnboardingWidget() {
 										onClick={() => setRemindPickerView("calendar")}
 										className="hover:bg-accent rounded-sm px-2 py-1.5 text-left text-sm"
 									>
-										{t("onboarding.pickADate")}
+										Pick a date…
 									</button>
 								</div>
 							) : (
@@ -421,7 +421,7 @@ export default function OnboardingWidget() {
 						disabled={writingMetadata}
 						className="text-muted-foreground hover:text-foreground py-2 text-center disabled:opacity-50"
 					>
-						{t("onboarding.iAcceptTheRiskHideForEveryone")}
+						I accept the risk - hide for everyone
 					</button>
 				</CardFooter>
 			</Card>

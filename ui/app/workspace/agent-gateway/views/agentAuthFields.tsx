@@ -1,5 +1,3 @@
-import i18n from "@/lib/i18n";
-import { useTranslation } from "react-i18next";
 import { HeadersTable } from "@/components/ui/headersTable";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +9,12 @@ import type { SecretVar } from "@/lib/types/schemas";
 
 export const emptySecret = (): SecretVar => ({ value: "", ref: "" });
 export const emptyAuth = (): AgentUpstreamAuth => ({ type: "none", headers: {} });
+
+const AUTH_TYPE_LABELS: Record<AgentAuthType, string> = {
+	none: "No authentication",
+	headers: "Headers",
+	oauth: "OAuth 2.0",
+};
 
 export function hasTLS(tls?: AgentTLSConfig): boolean {
 	return !!(
@@ -39,22 +43,19 @@ export function normalizeAuth(auth: AgentUpstreamAuth): AgentUpstreamAuth | unde
 
 // One-line summary for collapsed auth sections, e.g. "Headers · custom TLS".
 export function authSummary(auth: AgentUpstreamAuth): string {
-	const parts = [i18n.t(`auth.${auth.type}`, { ns: "agents" })];
-	if (auth.tls?.insecure_skip_verify) parts.push(i18n.t("auth.tlsOff", { ns: "agents" }));
-	else if (hasTLS(auth.tls)) parts.push(i18n.t("auth.customTls", { ns: "agents" }));
+	const parts = [AUTH_TYPE_LABELS[auth.type]];
+	if (auth.tls?.insecure_skip_verify) parts.push("TLS verification off");
+	else if (hasTLS(auth.tls)) parts.push("custom TLS");
 	return parts.join(" · ");
 }
 
 export function TLSFields({ value, onChange }: { value: AgentTLSConfig; onChange: (next: AgentTLSConfig) => void }) {
-	const { t: tCopy } = useTranslation();
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center justify-between gap-4">
 				<div className="space-y-0.5">
-					<Label>{tCopy("registry.tls.skipVerify", { ns: "mcp" })}</Label>
-					<p className="text-muted-foreground text-xs">
-						{tCopy("ui.agentAuthFields.onlyForTrustedIsolatedNetworksOverridesTheCACertificate", { ns: "agents" })}
-					</p>
+					<Label>Skip TLS verification</Label>
+					<p className="text-muted-foreground text-xs">Only for trusted, isolated networks. Overrides the CA certificate.</p>
 				</div>
 				<Switch
 					checked={value.insecure_skip_verify ?? false}
@@ -62,7 +63,7 @@ export function TLSFields({ value, onChange }: { value: AgentTLSConfig; onChange
 				/>
 			</div>
 			<div className="flex flex-col gap-2">
-				<Label>{tCopy("ui.agentAuthFields.cACertificatePEM", { ns: "agents" })}</Label>
+				<Label>CA certificate (PEM)</Label>
 				<SecretVarInput
 					variant="textarea"
 					rows={3}
@@ -73,7 +74,7 @@ export function TLSFields({ value, onChange }: { value: AgentTLSConfig; onChange
 			</div>
 			<div className="grid grid-cols-1 gap-3 md:grid-cols-2">
 				<div className="flex flex-col gap-2">
-					<Label>{tCopy("ui.agentAuthFields.mTLSClientCertificate", { ns: "agents" })}</Label>
+					<Label>mTLS client certificate</Label>
 					<SecretVarInput
 						variant="textarea"
 						rows={3}
@@ -83,7 +84,7 @@ export function TLSFields({ value, onChange }: { value: AgentTLSConfig; onChange
 					/>
 				</div>
 				<div className="flex flex-col gap-2">
-					<Label>{tCopy("ui.agentAuthFields.mTLSClientKey", { ns: "agents" })}</Label>
+					<Label>mTLS client key</Label>
 					<SecretVarInput
 						variant="textarea"
 						rows={3}
@@ -98,11 +99,10 @@ export function TLSFields({ value, onChange }: { value: AgentTLSConfig; onChange
 }
 
 function OAuthFields({ value, onChange }: { value: AgentOAuthConfig; onChange: (next: AgentOAuthConfig) => void }) {
-	const { t: tCopy } = useTranslation();
 	return (
 		<div className="space-y-4">
 			<div className="flex flex-col gap-2">
-				<Label>{tCopy("registry.sheet.tokenUrl", { ns: "mcp" })}</Label>
+				<Label>Token URL</Label>
 				<Input
 					value={value.token_url ?? ""}
 					placeholder="https://auth.example.com/oauth/token"
@@ -111,25 +111,25 @@ function OAuthFields({ value, onChange }: { value: AgentOAuthConfig; onChange: (
 			</div>
 			<div className="grid grid-cols-1 gap-3 md:grid-cols-2">
 				<div className="flex flex-col gap-2">
-					<Label>{tCopy("registry.sheet.clientId", { ns: "mcp" })}</Label>
+					<Label>Client ID</Label>
 					<SecretVarInput
 						value={value.client_id}
-						placeholder={tCopy("ui.agentAuthFields.clientIdOrEnvOAUTHCLIENTID", { ns: "agents" })}
+						placeholder="client-id or env.OAUTH_CLIENT_ID"
 						onChange={(client_id) => onChange({ ...value, client_id })}
 					/>
 				</div>
 				<div className="flex flex-col gap-2">
-					<Label>{tCopy("ui.agentAuthFields.clientSecret", { ns: "agents" })}</Label>
+					<Label>Client secret</Label>
 					<SecretVarInput
 						value={value.client_secret}
-						placeholder={tCopy("ui.agentAuthFields.secretOrEnvOAUTHCLIENTSECRET", { ns: "agents" })}
+						placeholder="secret or env.OAUTH_CLIENT_SECRET"
 						onChange={(client_secret) => onChange({ ...value, client_secret })}
 					/>
 				</div>
 			</div>
 			<div className="grid grid-cols-1 gap-3 md:grid-cols-2">
 				<div className="flex flex-col gap-2">
-					<Label>{tCopy("sessions.scopes", { ns: "mcp" })}</Label>
+					<Label>Scopes</Label>
 					<Input
 						value={value.scopes?.join(" ") ?? ""}
 						placeholder="read write"
@@ -137,7 +137,7 @@ function OAuthFields({ value, onChange }: { value: AgentOAuthConfig; onChange: (
 					/>
 				</div>
 				<div className="flex flex-col gap-2">
-					<Label>{tCopy("registry.form.resource", { ns: "mcp" })}</Label>
+					<Label>Resource</Label>
 					<Input
 						value={value.resource ?? ""}
 						placeholder="https://agent.example.com"
@@ -147,7 +147,7 @@ function OAuthFields({ value, onChange }: { value: AgentOAuthConfig; onChange: (
 			</div>
 			<div className="grid grid-cols-1 gap-3 md:grid-cols-2">
 				<div className="flex flex-col gap-2">
-					<Label className="text-muted-foreground">{tCopy("ui.agentAuthFields.providerURL", { ns: "agents" })}</Label>
+					<Label className="text-muted-foreground">Provider URL</Label>
 					<Input
 						value={value.provider_url ?? ""}
 						placeholder="https://auth.example.com"
@@ -155,7 +155,7 @@ function OAuthFields({ value, onChange }: { value: AgentOAuthConfig; onChange: (
 					/>
 				</div>
 				<div className="flex flex-col gap-2">
-					<Label className="text-muted-foreground">{tCopy("ui.agentAuthFields.discoveryURL", { ns: "agents" })}</Label>
+					<Label className="text-muted-foreground">Discovery URL</Label>
 					<Input
 						value={value.discovery_url ?? ""}
 						placeholder="https://auth.example.com/.well-known/openid-configuration"
@@ -180,7 +180,6 @@ export function AuthFields({
 	disabled?: boolean;
 	requiredHeaderKeys?: string[];
 }) {
-	const { t: tCopy } = useTranslation();
 	const changeKind = (type: AgentAuthType) =>
 		onChange({
 			...emptyAuth(),
@@ -193,15 +192,15 @@ export function AuthFields({
 	return (
 		<fieldset disabled={disabled} className="space-y-4 disabled:opacity-70">
 			<div className="flex flex-col gap-2">
-				<Label>{tCopy("common.type", { ns: "mcp" })}</Label>
+				<Label>Type</Label>
 				<Select value={value.type} onValueChange={changeKind} disabled={readOnlyAuth}>
 					<SelectTrigger className="w-full">
-						<SelectValue placeholder={tCopy("registry.form.selectAuthType", { ns: "mcp" })} />
+						<SelectValue placeholder="Select authentication type" />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="none">{tCopy("auth.none", { ns: "agents" })}</SelectItem>
-						<SelectItem value="headers">{tCopy("auth.headers", { ns: "agents" })}</SelectItem>
-						<SelectItem value="oauth">{tCopy("ui.agentAuthFields.oAuth20ClientCredentials", { ns: "agents" })}</SelectItem>
+						<SelectItem value="none">{AUTH_TYPE_LABELS.none}</SelectItem>
+						<SelectItem value="headers">{AUTH_TYPE_LABELS.headers}</SelectItem>
+						<SelectItem value="oauth">OAuth 2.0 client credentials</SelectItem>
 					</SelectContent>
 				</Select>
 			</div>
@@ -213,7 +212,7 @@ export function AuthFields({
 							onChange={(headers) => onChange({ ...value, headers })}
 							fixedKeys={requiredHeaderKeys}
 							useSecretVarInput
-							label={tCopy("ui.agentAuthFields.requiredByTheCard", { ns: "agents" })}
+							label="Required by the card"
 						/>
 					)}
 					<HeadersTable
@@ -228,7 +227,7 @@ export function AuthFields({
 							})
 						}
 						useSecretVarInput
-						label={tCopy("providers.databricksMigration.extraHeaders", { ns: "models" })}
+						label="Extra headers"
 					/>
 				</div>
 			)}
@@ -239,7 +238,7 @@ export function AuthFields({
 						value={value.headers ?? {}}
 						onChange={(headers) => onChange({ ...value, headers })}
 						useSecretVarInput
-						label={tCopy("providers.databricksMigration.extraHeaders", { ns: "models" })}
+						label="Extra headers"
 					/>
 				</div>
 			)}

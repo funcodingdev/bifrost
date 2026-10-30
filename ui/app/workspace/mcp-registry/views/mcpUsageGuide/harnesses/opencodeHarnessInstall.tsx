@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
 import { buildOpenCodeConfig } from "../commandBuilders";
 import { HarnessCommandSection } from "../harnessCommandSection";
 import type { HarnessInstallProps } from "../types";
@@ -14,7 +13,6 @@ export function OpenCodeHarnessInstall({
 	selectedServers,
 	serverScope,
 }: HarnessInstallProps) {
-	const { t } = useTranslation("mcp");
 	const configPath = {
 		linux: "~/.config/opencode/opencode.json",
 		macos: "~/.config/opencode/opencode.json",
@@ -36,10 +34,10 @@ export function OpenCodeHarnessInstall({
 			canCopyCommand={canGenerateCommand}
 			command={config}
 			controls={null}
-			copySuccessMessage={t("common.configCopied")}
+			copySuccessMessage="Config copied"
 			emptyMessage={emptyMessage}
 			harnessName="OpenCode"
-			label={t("common.config")}
+			label="Config"
 			logoSrc="/images/harness/opencode.svg"
 			registrationLabel={`${configPath} · ${getRegistrationLabel(serverScope, selectedServers)}`}
 		/>

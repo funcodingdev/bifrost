@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
 
@@ -22,7 +21,6 @@ interface ExpandableTextProps {
 // Clamps long text to a few lines with a "View more" / "View less" toggle. The toggle
 // appears only when the text actually overflows, so short text is left untouched.
 export function ExpandableText({ text, lines = 3, toggleAlign = "left", className }: ExpandableTextProps) {
-	const { t: tCopy } = useTranslation();
 	const ref = useRef<HTMLParagraphElement>(null);
 	const [expanded, setExpanded] = useState(false);
 	const [overflowing, setOverflowing] = useState(false);
@@ -47,7 +45,7 @@ export function ExpandableText({ text, lines = 3, toggleAlign = "left", classNam
 			{(overflowing || expanded) && (
 				<div className={cn("mt-2 flex", toggleAlign === "right" ? "justify-end" : "justify-start")}>
 					<button type="button" className="text-primary text-xs font-medium hover:underline" onClick={() => setExpanded((value) => !value)}>
-						{expanded ? tCopy("ui.expandableText.viewLess", { ns: "common" }) : tCopy("ui.expandableText.viewMore", { ns: "common" })}
+						{expanded ? "View less" : "View more"}
 					</button>
 				</div>
 			)}

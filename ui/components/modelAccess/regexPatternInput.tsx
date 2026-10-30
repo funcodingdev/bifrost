@@ -3,7 +3,6 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
 import { useId, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { validateModelRegex } from "./utils";
 
 interface RegexPatternInputProps {
@@ -34,7 +33,6 @@ export function RegexPatternInput({
 	className,
 	...rest
 }: RegexPatternInputProps) {
-	const { t } = useTranslation();
 	const [pattern, setPattern] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const testId = rest["data-testid"];
@@ -89,7 +87,7 @@ export function RegexPatternInput({
 					data-testid={testId ? `${testId}-add` : undefined}
 				>
 					<Plus className="h-3.5 w-3.5" />
-					{t("modelAccess.add")}
+					Add
 				</Button>
 			</div>
 			{error ? (
@@ -98,7 +96,7 @@ export function RegexPatternInput({
 				</p>
 			) : (
 				<p id={hintId} className="text-muted-foreground text-xs">
-					{t("modelAccess.regexHint")}
+					Matched against the whole model name, case-insensitive.
 				</p>
 			)}
 		</div>

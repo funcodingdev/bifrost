@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 // Unified async virtual key selector — the single way to pick virtual keys
 // across governance surfaces (model limits, pricing overrides, routing rules,
 // MCP clients).
@@ -45,7 +44,6 @@ interface VirtualKeySelectorOwnProps extends EntitySelectorCommonProps {
 export type VirtualKeySelectorProps = VirtualKeySelectorOwnProps & EntitySelectorModeProps;
 
 export function VirtualKeySelector({ limit = ENTITY_SELECTOR_PAGE_SIZE, filters, ...props }: VirtualKeySelectorProps) {
-	const { t: tReview } = useTranslation();
 	const search = useEntitySelectorSearch();
 
 	const { currentData, isFetching, isError, refetch } = useGetVirtualKeysQuery(
@@ -72,8 +70,8 @@ export function VirtualKeySelector({ limit = ENTITY_SELECTOR_PAGE_SIZE, filters,
 		<EntitySelector
 			{...props}
 			LabelResolver={VirtualKeyLabelResolver}
-			entityLabel={tReview("entities.virtualKey", { ns: "common" })}
-			entityLabelPlural={tReview("entities.virtualKeys", { ns: "common" })}
+			entityLabel="virtual key"
+			entityLabelPlural="virtual keys"
 			{...listProps}
 		/>
 	);

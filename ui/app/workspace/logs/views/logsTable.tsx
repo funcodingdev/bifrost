@@ -17,7 +17,6 @@ import type { ColumnOrderState, ColumnPinningState, TableMeta, VisibilityState }
 import { ColumnDef, flexRender, getCoreRowModel, SortingState, useReactTable } from "@tanstack/react-table";
 import { ChevronLeft, ChevronRight, Loader2, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 
 // Fixed content height for every body cell: 32px here plus the cell's py-1.5
 // makes every body row exactly 44px, whatever it holds. It is a single-column
@@ -67,7 +66,6 @@ export function LogsDataTable({
 	onReorderColumns,
 	tableMeta,
 }: DataTableProps) {
-	const { t } = useTranslation("observability");
 	const [sorting, setSorting] = useState<SortingState>([{ id: pagination.sort_by, desc: pagination.order === "desc" }]);
 	const [pageSizePref, setPageSizePref, pageSizeHydrated] = useTablePageSizePreference("bifrost.logs.pageSize");
 
@@ -179,7 +177,7 @@ export function LogsDataTable({
 	return (
 		<div className="flex h-full flex-col gap-2">
 			<div className="min-h-0 flex-1 overflow-hidden rounded-sm border">
-				<Table containerClassName="@container/logs-table h-full overflow-auto">
+				<Table containerClassName="@container/logs-table h-full overflow-auto" data-testid="logs-table">
 					<thead className={cn("[&_tr]:border-b px-2 sticky top-0 z-10 bg-[#f9f9f9] dark:bg-[#27272a]")}>
 						{table.getHeaderGroups().map((headerGroup) => (
 							<tr
@@ -218,12 +216,12 @@ export function LogsDataTable({
 									{loading ? (
 										<>
 											<RefreshCw className="h-4 w-4 animate-spin" />
-											{t("logs.loading")}
+											Loading logs...
 										</>
 									) : polling ? (
 										<>
 											<RefreshCw className="h-4 w-4 animate-spin" />
-											{t("logs.waitingForNew")}
+											Waiting for new logs...
 										</>
 									) : (
 										<Button
@@ -234,7 +232,7 @@ export function LogsDataTable({
 											variant={"ghost"}
 										>
 											{loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-											{t("labels.refresh")}
+											Refresh
 										</Button>
 									)}
 								</div>
@@ -311,7 +309,7 @@ export function LogsDataTable({
 						) : loading ? null : (
 							<TableRow>
 								<TableCell colSpan={columns.length} className="h-24 text-center">
-									{t("mcpLogs.noResults")}
+									No results found. Try adjusting your filters and/or time range.
 								</TableCell>
 							</TableRow>
 						)}
@@ -322,12 +320,12 @@ export function LogsDataTable({
 			{/* Pagination Footer */}
 			<div className="flex shrink-0 items-center justify-between text-xs" data-testid="pagination">
 				<div className="text-muted-foreground flex items-center gap-2">
-					{t("logs.entryRange", { start: startItem.toLocaleString(), end: endItem.toLocaleString(), total: totalItems.toLocaleString() })}
+					{startItem.toLocaleString()}-{endItem.toLocaleString()} of {totalItems.toLocaleString()} entries
 				</div>
 
 				<div className="flex items-center gap-3">
 					<div className="flex items-center gap-1.5">
-						<span className="text-muted-foreground">{t("logs.rowsPerPage")}</span>
+						<span className="text-muted-foreground">Rows per page</span>
 						<ComboboxSelect
 							options={pageSizeOptions}
 							value={String(pageSizePref)}
@@ -335,7 +333,7 @@ export function LogsDataTable({
 							disableSearch
 							hideClear
 							className="h-7 w-fit gap-1 text-xs"
-							aria-label={t("logs.rowsPerPage", { ns: "observability" })}
+							aria-label="Rows per page"
 							data-testid="page-size-select"
 						/>
 					</div>
@@ -347,13 +345,15 @@ export function LogsDataTable({
 							onClick={() => goToPage(currentPage - 1)}
 							disabled={currentPage <= 1}
 							data-testid="prev-page"
-							aria-label={t("labels.previousPage")}
+							aria-label="Previous page"
 						>
 							<ChevronLeft className="size-3" />
 						</Button>
 
 						<div className="flex items-center gap-1">
-							<span>{t("logs.pageRange", { page: currentPage, total: totalPages })}</span>
+							<span>Page</span>
+							<span>{currentPage}</span>
+							<span>of {totalPages}</span>
 						</div>
 
 						<Button
@@ -362,7 +362,7 @@ export function LogsDataTable({
 							onClick={() => goToPage(currentPage + 1)}
 							disabled={totalPages === 0 || currentPage >= totalPages}
 							data-testid="next-page"
-							aria-label={t("labels.nextPage")}
+							aria-label="Next page"
 						>
 							<ChevronRight className="size-3" />
 						</Button>

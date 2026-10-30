@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { FilterSidebarTrigger } from "@/components/filters/filterSidebarTrigger";
 import { CheckboxFilterItem, FilterSection, SearchableCheckboxList, useAutoFocusOnOpen } from "@/components/filters/primitives";
 import { Button } from "@/components/ui/button";
@@ -58,7 +57,6 @@ interface AgentFilterSidebarProps {
 }
 
 export function AgentFilterSidebar({ filters, onFiltersChange }: AgentFilterSidebarProps) {
-	const { t: tCopy } = useTranslation();
 	const isMobile = useIsMobile();
 	const [collapsed, setCollapsed] = useState(false);
 
@@ -110,22 +108,15 @@ export function AgentFilterSidebar({ filters, onFiltersChange }: AgentFilterSide
 		<div className="bg-card fixed inset-y-2 left-2 z-40 flex h-auto w-[calc(100vw-1rem)] max-w-72 shrink-0 flex-col rounded-md border shadow-xl md:static md:h-full md:w-64 md:max-w-none md:rounded-md md:shadow-none">
 			{/* Header */}
 			<div className="flex h-11 items-center justify-between border-b pr-2 pl-5">
-				<span className="text-sm font-semibold">{tCopy("filters.filters", { ns: "governance" })}</span>
+				<span className="text-sm font-semibold">Filters</span>
 				<div className="flex items-center gap-1">
 					{activeFilterCount > 0 && (
 						<Button variant="outline" size="sm" className="text-muted-foreground h-7 px-2 text-xs" onClick={handleReset}>
 							<RotateCcw className="size-3" />
-							{tCopy("plugins.reset", { ns: "governance" })}
+							Reset
 						</Button>
 					)}
-					<Button
-						variant="ghost"
-						size="icon"
-						className="size-7"
-						onClick={toggleCollapsed}
-						title={tCopy("filters.hideFilters", { ns: "governance" })}
-						aria-label={tCopy("filters.hideFilters", { ns: "governance" })}
-					>
+					<Button variant="ghost" size="icon" className="size-7" onClick={toggleCollapsed} title="Hide filters" aria-label="Hide filters">
 						<PanelLeftClose className="size-4" />
 					</Button>
 				</div>
@@ -135,7 +126,7 @@ export function AgentFilterSidebar({ filters, onFiltersChange }: AgentFilterSide
 			<ScrollArea className="flex flex-1 overflow-y-auto p-2 pb-0" viewportClassName="no-table">
 				<div className="flex grow flex-col gap-1">
 					<EnumFilterSection
-						title={tCopy("webhooks.details.status", { ns: "governance" })}
+						title="Status"
 						filterKey="status"
 						options={STATUSES}
 						filters={filters}
@@ -145,117 +136,56 @@ export function AgentFilterSidebar({ filters, onFiltersChange }: AgentFilterSide
 					/>
 					<AgentFilter filters={filters} onFiltersChange={onFiltersChange} />
 					<VirtualKeyFilter filters={filters} onFiltersChange={onFiltersChange} />
+					<GovernanceFilter title="User" dimension="users" filterKey="user_id" filters={filters} onFiltersChange={onFiltersChange} />
+					<GovernanceFilter title="Teams" dimension="teams" filterKey="team_id" filters={filters} onFiltersChange={onFiltersChange} />
 					<GovernanceFilter
-						title={tCopy("promptRepo.roleUser", { ns: "config" })}
-						dimension="users"
-						filterKey="user_id"
-						filters={filters}
-						onFiltersChange={onFiltersChange}
-					/>
-					<GovernanceFilter
-						title={tCopy("customers.columns.teams", { ns: "governance" })}
-						dimension="teams"
-						filterKey="team_id"
-						filters={filters}
-						onFiltersChange={onFiltersChange}
-					/>
-					<GovernanceFilter
-						title={tCopy("customers.title", { ns: "governance" })}
+						title="Customers"
 						dimension="customers"
 						filterKey="customer_id"
 						filters={filters}
 						onFiltersChange={onFiltersChange}
 					/>
 					<GovernanceFilter
-						title={tCopy("mcpLogs.detail.businessUnits", { ns: "observability" })}
+						title="Business Units"
 						dimension="business_units"
 						filterKey="business_unit_id"
 						filters={filters}
 						onFiltersChange={onFiltersChange}
 					/>
 					<GovernanceFilter
-						title={tCopy("filters.projects", { ns: "governance" })}
+						title="Projects"
 						dimension="projects"
 						filterKey="project_id"
 						filters={filters}
 						onFiltersChange={onFiltersChange}
 					/>
 					<EnumFilterSection
-						title={tCopy("ui.agentFilterSidebar.operation", { ns: "agents" })}
+						title="Operation"
 						filterKey="operation"
 						options={OPERATIONS}
 						filters={filters}
 						onFiltersChange={onFiltersChange}
 					/>
 					<EnumFilterSection
-						title={tCopy("ui.agentFilterSidebar.taskState", { ns: "agents" })}
+						title="Task State"
 						filterKey="task_state"
 						options={TASK_STATES}
 						filters={filters}
 						onFiltersChange={onFiltersChange}
 					/>
-					<FilterSection
-						title={tCopy("ui.agentFilterSidebar.agentIdentifiers", { ns: "agents" })}
-						defaultOpen={Boolean(filters.task_id || filters.context_id || filters.push_config_id)}
-					>
-						<TextFilterInput
-							label={tCopy("ui.agentFilterSidebar.contextID", { ns: "agents" })}
-							filterKey="context_id"
-							filters={filters}
-							onFiltersChange={onFiltersChange}
-						/>
-						<TextFilterInput
-							label={tCopy("ui.page.taskID", { ns: "agents" })}
-							filterKey="task_id"
-							filters={filters}
-							onFiltersChange={onFiltersChange}
-						/>
-						<TextFilterInput
-							label={tCopy("ui.agentFilterSidebar.pushConfigID", { ns: "agents" })}
-							filterKey="push_config_id"
-							filters={filters}
-							onFiltersChange={onFiltersChange}
-						/>
+					<FilterSection title="Agent identifiers" defaultOpen={Boolean(filters.task_id || filters.context_id || filters.push_config_id)}>
+						<TextFilterInput label="Context ID" filterKey="context_id" filters={filters} onFiltersChange={onFiltersChange} />
+						<TextFilterInput label="Task ID" filterKey="task_id" filters={filters} onFiltersChange={onFiltersChange} />
+						<TextFilterInput label="Push Config ID" filterKey="push_config_id" filters={filters} onFiltersChange={onFiltersChange} />
 					</FilterSection>
-					<FilterSection
-						title={tCopy("ui.agentFilterSidebar.bifrostIdentifiers", { ns: "agents" })}
-						defaultOpen={Boolean(filters.search || filters.request_id || filters.trace_id)}
-					>
-						<TextFilterInput
-							label={tCopy("webhooks.details.requestId", { ns: "governance" })}
-							filterKey="request_id"
-							filters={filters}
-							onFiltersChange={onFiltersChange}
-						/>
-						<TextFilterInput
-							label={tCopy("ui.agentFilterSidebar.traceID", { ns: "agents" })}
-							filterKey="trace_id"
-							filters={filters}
-							onFiltersChange={onFiltersChange}
-						/>
-						<TextFilterInput
-							label={tCopy("ui.agentFilterSidebar.recordID", { ns: "agents" })}
-							filterKey="search"
-							filters={filters}
-							onFiltersChange={onFiltersChange}
-						/>
+					<FilterSection title="Bifrost identifiers" defaultOpen={Boolean(filters.search || filters.request_id || filters.trace_id)}>
+						<TextFilterInput label="Request ID" filterKey="request_id" filters={filters} onFiltersChange={onFiltersChange} />
+						<TextFilterInput label="Trace ID" filterKey="trace_id" filters={filters} onFiltersChange={onFiltersChange} />
+						<TextFilterInput label="Record ID" filterKey="search" filters={filters} onFiltersChange={onFiltersChange} />
 					</FilterSection>
-					<FilterSection
-						title={tCopy("ui.agentFilterSidebar.pushRelayIdentifiers", { ns: "agents" })}
-						defaultOpen={Boolean(filters.delivery_id || filters.attempt_id)}
-					>
-						<TextFilterInput
-							label={tCopy("ui.agentFilterSidebar.deliveryID", { ns: "agents" })}
-							filterKey="delivery_id"
-							filters={filters}
-							onFiltersChange={onFiltersChange}
-						/>
-						<TextFilterInput
-							label={tCopy("ui.agentFilterSidebar.attemptID", { ns: "agents" })}
-							filterKey="attempt_id"
-							filters={filters}
-							onFiltersChange={onFiltersChange}
-						/>
+					<FilterSection title="Push relay identifiers" defaultOpen={Boolean(filters.delivery_id || filters.attempt_id)}>
+						<TextFilterInput label="Delivery ID" filterKey="delivery_id" filters={filters} onFiltersChange={onFiltersChange} />
+						<TextFilterInput label="Attempt ID" filterKey="attempt_id" filters={filters} onFiltersChange={onFiltersChange} />
 					</FilterSection>
 				</div>
 			</ScrollArea>
@@ -279,7 +209,6 @@ interface FilterComponentProps {
 // ---------------------------------------------------------------------------
 
 function AgentFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentProps) {
-	const { t: tCopy } = useTranslation();
 	const hasActive = (filters.agent_name || []).length > 0;
 	const [opened, setOpened] = useState(defaultOpen || hasActive);
 	const searchInputRef = useAutoFocusOnOpen(opened);
@@ -291,15 +220,10 @@ function AgentFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentP
 	}, [data, filters.agent_name]);
 
 	return (
-		<FilterSection
-			title={tCopy("ui.page.agent", { ns: "agents" })}
-			defaultOpen={defaultOpen || hasActive}
-			loading={isLoading}
-			onOpenChange={setOpened}
-		>
+		<FilterSection title="Agent" defaultOpen={defaultOpen || hasActive} loading={isLoading} onOpenChange={setOpened}>
 			<SearchableCheckboxList
 				inputRef={searchInputRef}
-				placeholder={tCopy("ui.agentFilterSidebar.searchOrAddAnAgent", { ns: "agents" })}
+				placeholder="Search or add an agent"
 				items={items}
 				allowCustom
 				isSelected={(name) => (filters.agent_name || []).includes(name)}
@@ -318,7 +242,6 @@ function AgentFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentP
 // ---------------------------------------------------------------------------
 
 function VirtualKeyFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentProps) {
-	const { t: tCopy } = useTranslation();
 	const active = useMemo(() => filters.virtual_key_id || [], [filters.virtual_key_id]);
 	const hasActive = active.length > 0;
 	const [opened, setOpened] = useState(defaultOpen || hasActive);
@@ -350,15 +273,10 @@ function VirtualKeyFilter({ filters, onFiltersChange, defaultOpen }: FilterCompo
 	const resolveIDs = (name: string) => nameToIds.get(name) || [name];
 
 	return (
-		<FilterSection
-			title={tCopy("consent.virtualKey", { ns: "login" })}
-			defaultOpen={defaultOpen || hasActive}
-			loading={isLoading}
-			onOpenChange={setOpened}
-		>
+		<FilterSection title="Virtual Key" defaultOpen={defaultOpen || hasActive} loading={isLoading} onOpenChange={setOpened}>
 			<SearchableCheckboxList
 				inputRef={searchInputRef}
-				placeholder={tCopy("filters.searchVirtualKeys", { ns: "governance" })}
+				placeholder="Search virtual keys"
 				items={items}
 				isSelected={(name) => resolveIDs(name).every((id) => active.includes(id))}
 				onToggle={(name) => {
@@ -382,7 +300,6 @@ function GovernanceFilter({
 	filters,
 	onFiltersChange,
 }: FilterComponentProps & { title: string; dimension: GovernanceDimension; filterKey: AgentGovernanceFilterKey }) {
-	const { t: tReview } = useTranslation();
 	const active = useMemo(() => filters[filterKey] || [], [filterKey, filters]);
 	const hasActive = active.length > 0;
 	const [opened, setOpened] = useState(hasActive);
@@ -405,7 +322,7 @@ function GovernanceFilter({
 		<FilterSection title={title} defaultOpen={hasActive} loading={isLoading} onOpenChange={setOpened}>
 			<SearchableCheckboxList
 				inputRef={searchInputRef}
-				placeholder={tReview("accessibility.searchOrAdd", { ns: "common", label: title })}
+				placeholder={`Search or add ${title.toLowerCase().replace(/s$/, "")}`}
 				items={items}
 				allowCustom
 				isSelected={(id) => active.includes(id)}
@@ -473,7 +390,6 @@ function TextFilterInput({
 	filters,
 	onFiltersChange,
 }: FilterComponentProps & { label?: string; placeholder?: string; filterKey: AgentTextFilterKey }) {
-	const { t: tReview } = useTranslation();
 	const [localValue, setLocalValue] = useState(filters[filterKey] || "");
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 	const filtersRef = useRef(filters);
@@ -504,7 +420,7 @@ function TextFilterInput({
 			<Input
 				value={localValue}
 				onChange={(e) => handleChange(e.target.value)}
-				placeholder={placeholder ?? tReview("ui.agentFilterSidebar.exactValue", { ns: "agents" })}
+				placeholder={placeholder ?? "Exact value"}
 				className="h-8 font-mono text-xs"
 				data-testid={`a2a-filter-${filterKey.replaceAll("_", "-")}`}
 			/>

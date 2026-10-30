@@ -1,4 +1,3 @@
-import i18nReview from "@/lib/i18n";
 /**
  * Complexity Router Type Definitions
  * Mirrors the AnalyzerConfig shape exchanged with /governance/complexity-analyzer-config.
@@ -161,12 +160,8 @@ export const COMPLEXITY_MECHANISM_VALUES = ["semantic", "decision", "llm", "sess
 // "lexical" — the classifier that actually wrote them — for the detail view.
 export const COMPLEXITY_MECHANISM_LABELS: Record<string, string> = {
 	lexical: "Lexical",
-	get semantic() {
-		return i18nReview.t("ui.sections.semantic", { ns: "models" });
-	},
-	get decision() {
-		return i18nReview.t("ui.page.decisionModel", { ns: "models" });
-	},
+	semantic: "Semantic",
+	decision: "Decision model",
 	llm: "LLM",
 	session: "Session",
 	skipped: "Skipped",
@@ -188,30 +183,18 @@ export const TIER_PHRASE_LIST_DEFINITIONS: Array<{
 }> = [
 	{
 		key: "simple_keywords",
-		get label() {
-			return i18nReview.t("routing.complexityUi.tierSimple", { ns: "models" });
-		},
-		get description() {
-			return i18nReview.t("routing.complexityUi.tierSimpleDesc", { ns: "models" });
-		},
+		label: "Simple",
+		description: "Requests to route to your cheapest, fastest model.",
 	},
 	{
 		key: "medium_keywords",
-		get label() {
-			return i18nReview.t("routing.complexityUi.tierMedium", { ns: "models" });
-		},
-		get description() {
-			return i18nReview.t("routing.complexityUi.tierMediumDesc", { ns: "models" });
-		},
+		label: "Medium",
+		description: "Requests that need more capability than your cheapest model, but not your most capable.",
 	},
 	{
 		key: "complex_keywords",
-		get label() {
-			return i18nReview.t("routing.complexityUi.tierComplex", { ns: "models" });
-		},
-		get description() {
-			return i18nReview.t("routing.complexityUi.tierComplexDesc", { ns: "models" });
-		},
+		label: "Complex",
+		description: "Requests that justify your most capable model.",
 	},
 ];
 
@@ -263,16 +246,17 @@ export const OPENROUTER_DECISION_MODEL = "~typesafe/jev-latest";
 // The picker lists every model the datasheet marks as serving decisions.
 export const OPENAI_DECISION_MODEL = "gpt-6-luna";
 
-// PERPLEXITY_DECISION_MODEL is the model a newly selected Perplexity provider starts on.
-// The picker lists the decider models Perplexity serves.
-export const PERPLEXITY_DECISION_MODEL = "pplx-decider-v1.1-27b";
+// PERPLEXITY_DECISION_MODEL is the model a newly selected Perplexity provider starts on:
+// the alias that follows Perplexity's newest decider. The picker lists the decider
+// models Perplexity serves.
+export const PERPLEXITY_DECISION_MODEL = "pplx-decider-latest";
 
 // AZURE_DECISION_MODEL is the model a newly selected Azure provider starts on: the model
 // name a key alias maps to the user's deployment. The picker lists Microsoft's decision models.
 export const AZURE_DECISION_MODEL = "Microsoft-Decision-1";
 
-// DATABRICKS_DECISION_MODEL is the model a Databricks provider runs: the ai_decide AI
-// Function, the only decision model a Databricks workspace serves.
+// DATABRICKS_DECISION_MODEL is the model a newly selected Databricks provider starts on:
+// the ai_decide AI Function. The picker also lists the System One models.
 export const DATABRICKS_DECISION_MODEL = "ai_decide";
 
 // CLOUDFLARE_DECISION_MODEL is the model a newly selected Cloudflare provider starts on.
@@ -305,16 +289,12 @@ export const DEFAULT_SEMANTIC_CONFIG: SemanticConfig = {
 export const SEMANTIC_VECTOR_STORE_OPTIONS: Array<{ value: SemanticVectorStore; label: string; tooltip: string }> = [
 	{
 		value: "embedded",
-		get label() {
-			return i18nReview.t("routing.complexityUi.vectorStoreEmbedded", { ns: "models" });
-		},
+		label: "Embedded",
 		tooltip: "Keeps phrase vectors in Bifrost's own memory. No infrastructure to run, but every restart re-embeds them.",
 	},
 	{
 		value: "vector_store",
-		get label() {
-			return i18nReview.t("routing.complexityUi.vectorStoreExternal", { ns: "models" });
-		},
+		label: "Vector Store",
 		tooltip:
 			"Keeps phrase vectors in the vector store configured for Bifrost, so they survive restarts. Falls back to Embedded if no vector store is available.",
 	},
@@ -324,9 +304,7 @@ export const SEMANTIC_STATUS_LABELS: Record<SemanticStatusInfo["state"], string>
 	disabled: "Disabled",
 	warming: "Warming up",
 	ready: "Ready",
-	get failed() {
-		return i18nReview.t("ui.complexityRouter.failed", { ns: "models" });
-	},
+	failed: "Failed",
 };
 
 // Duration strings round-trip through the API as Go durations ("500ms"), but the
@@ -386,43 +364,26 @@ export const DEFAULT_LLM_CONFIG: LLMConfig = {
 export const SEMANTIC_FALLBACK_OPTIONS: Array<{ value: SemanticFallback; label: string; description: string }> = [
 	{
 		value: "none",
-		get label() {
-			return i18nReview.t("virtualKeys.none", { ns: "models" });
-		},
-		get description() {
-			return i18nReview.t("routing.complexityUi.fallbackNoneDesc", { ns: "models" });
-		},
+		label: "None",
+		description: "A request matching no phrase confidently carries no tier, and rules referencing complexity_tier do not match it.",
 	},
 	{
 		value: "llm",
-		get label() {
-			return i18nReview.t("routing.complexityUi.fallbackLlm", { ns: "models" });
-		},
-		get description() {
-			return i18nReview.t("routing.complexityUi.fallbackLlmDesc", { ns: "models" });
-		},
+		label: "LLM classifier",
+		description: "A chat model names the tier instead. Slower and costlier than an embedding, but only unmatched requests pay for it.",
 	},
 	{
 		value: "decision",
-		get label() {
-			return i18nReview.t("ui.page.decisionModel", { ns: "models" });
-		},
-		get description() {
-			return i18nReview.t("ui.complexityRouter.aDecisionModelNamesTheTierWhenSemanticMatching", { ns: "models" });
-		},
+		label: "Decision model",
+		description:
+			"A decision model names the tier when semantic matching has no result, using the same tier guidance as when it is the primary classifier.",
 	},
 ];
 
 export const SEMANTIC_FALLBACK_LABELS: Record<SemanticFallback, string> = {
-	get none() {
-		return i18nReview.t("virtualKeys.none", { ns: "models" });
-	},
-	get llm() {
-		return i18nReview.t("routing.complexityUi.fallbackLlm", { ns: "models" });
-	},
-	get decision() {
-		return i18nReview.t("ui.page.decisionModel", { ns: "models" });
-	},
+	none: "None",
+	llm: "LLM classifier",
+	decision: "Decision model",
 };
 
 // Same duration round-trip as parseSemanticTimeoutMs, with the llm default.

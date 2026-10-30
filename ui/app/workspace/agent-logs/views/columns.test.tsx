@@ -3,8 +3,7 @@ import { createTable, getCoreRowModel } from "@tanstack/react-table";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import i18n from "@/lib/i18n";
-import { createAgentColumns, getAgentColumnLabels } from "./columns";
+import { createAgentColumns } from "./columns";
 
 const root: AgentLogSummary = {
 	id: "root",
@@ -56,12 +55,4 @@ describe("agent context grouping cells", () => {
 		expect(html).toContain("h-1/2");
 		expect(html).not.toContain("agent-logs-session-expand-btn");
 	});
-});
-
-it("translates factory-created agent columns when the selected language changes", async () => {
-	await i18n.changeLanguage("zh-CN");
-	expect(getAgentColumnLabels(i18n.t).agent_name).toBe("智能体");
-	expect(createAgentColumns().find((column) => "accessorKey" in column && column.accessorKey === "agent_name")?.header).toBe("智能体");
-	await i18n.changeLanguage("en");
-	expect(getAgentColumnLabels(i18n.t).agent_name).toBe("Agent");
 });

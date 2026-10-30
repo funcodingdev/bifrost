@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { ColumnConfigDropdown, type ColumnConfigEntry } from "@/components/table";
 import { Button } from "@/components/ui/button";
 import { DateTimePickerWithRange } from "@/components/ui/datePickerWithRange";
@@ -44,7 +43,6 @@ export function AgentHeaderView({
 	onToggleColumnVisibility,
 	onResetColumns,
 }: AgentHeaderViewProps) {
-	const { t: tCopy } = useTranslation();
 	const [timezone, setTimezone] = useTimezonePreference();
 	const [startTime, setStartTime] = useState<Date | undefined>(filters.start_time ? new Date(filters.start_time) : undefined);
 	const [endTime, setEndTime] = useState<Date | undefined>(filters.end_time ? new Date(filters.end_time) : undefined);
@@ -91,7 +89,7 @@ export function AgentHeaderView({
 				data-testid="agent-logs-header-refresh-btn"
 			>
 				<RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-				{tCopy("labels.refresh", { ns: "observability" })}
+				Refresh
 			</Button>
 			<Button
 				variant={polling ? "default" : "outline"}
@@ -101,7 +99,7 @@ export function AgentHeaderView({
 				data-testid="agent-logs-header-live-btn"
 			>
 				{polling ? <Radio className="h-4 w-4 animate-pulse" /> : <Radio className="h-4 w-4" />}
-				{tCopy("labels.live", { ns: "observability" })}
+				Live
 			</Button>
 			<Tooltip>
 				<TooltipTrigger asChild>
@@ -114,11 +112,11 @@ export function AgentHeaderView({
 						aria-pressed={grouped}
 					>
 						<ListTree className="h-4 w-4" />
-						{tCopy("routing.group", { ns: "models" })}
+						Group
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent sideOffset={6} className="max-w-64">
-					{tCopy("ui.agentHeaderView.groupsOperationsSharingAContextUnderTheContextSFirst", { ns: "agents" })}
+					Groups operations sharing a context under the context&apos;s first matching operation. Expand a row to view its operations.
 				</TooltipContent>
 			</Tooltip>
 			<div className="border-input flex h-7.5 min-w-[12rem] flex-1 items-center gap-2 rounded-sm border">
@@ -126,7 +124,7 @@ export function AgentHeaderView({
 				<Input
 					type="text"
 					className="!h-7 rounded-tl-none rounded-tr-sm rounded-br-sm rounded-bl-none border-none bg-slate-50 shadow-none outline-none focus-visible:ring-0 dark:bg-zinc-900"
-					placeholder={tCopy("ui.agentHeaderView.searchAgentOperationOrAnyIdentifier", { ns: "agents" })}
+					placeholder="Search agent, operation, or any identifier"
 					value={localSearch}
 					onChange={(e) => handleSearchChange(e.target.value)}
 					data-testid="agent-logs-header-search-input"
@@ -135,7 +133,7 @@ export function AgentHeaderView({
 					<button
 						type="button"
 						onClick={clearSearch}
-						aria-label={tCopy("ui.agentHeaderView.clearSearch", { ns: "agents" })}
+						aria-label="Clear search"
 						className="text-muted-foreground hover:text-foreground mr-2 transition-colors"
 						data-testid="agent-logs-header-search-clear-btn"
 					>

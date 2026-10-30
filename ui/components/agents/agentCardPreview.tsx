@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { TruncatedLabel } from "@/components/ui/truncatedLabel";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -44,7 +43,6 @@ function DefinitionFields({ fields }: { fields: Record<string, unknown> }) {
 }
 
 function SecurityFields({ fields }: { fields: Record<string, unknown> }) {
-	const { t: tCopy } = useTranslation();
 	const labels: Record<string, string> = {
 		oauth2MetadataUrl: "OAuth metadata URL",
 		openIdConnectUrl: "OpenID Connect URL",
@@ -62,7 +60,7 @@ function SecurityFields({ fields }: { fields: Record<string, unknown> }) {
 				if (key === "flows" && record) {
 					return (
 						<div key={key} className="py-3 first:pt-0 last:pb-0">
-							<dt className="sr-only">{tCopy("ui.agentCardPreview.oAuthFlows", { ns: "agents" })}</dt>
+							<dt className="sr-only">OAuth flows</dt>
 							<dd className="space-y-4">
 								{Object.entries(record).map(([flow, definition]) => {
 									const flowFields =
@@ -73,16 +71,14 @@ function SecurityFields({ fields }: { fields: Record<string, unknown> }) {
 										<section key={flow} className="space-y-3">
 											<dl className="border-b pb-2.5">
 												<div className="grid gap-1 sm:grid-cols-[140px_minmax(0,1fr)] sm:gap-4">
-													<dt className="text-muted-foreground">{tCopy("ui.agentCardPreview.flow", { ns: "agents" })}</dt>
-													<dd>{labels[flow] ? tCopy(`security.${flow}`, { ns: "agents" }) : capabilityLabel(flow)}</dd>
+													<dt className="text-muted-foreground">Flow</dt>
+													<dd>{labels[flow] ?? capabilityLabel(flow)}</dd>
 												</div>
 											</dl>
 											{flowFields ? (
 												<SecurityFields fields={flowFields} />
 											) : (
-												<p className="text-muted-foreground">
-													{definition === "REDACTED" ? tCopy("ui.agentCardPreview.redacted", { ns: "agents" }) : String(definition)}
-												</p>
+												<p className="text-muted-foreground">{definition === "REDACTED" ? "Redacted" : String(definition)}</p>
 											)}
 										</section>
 									);
@@ -93,7 +89,7 @@ function SecurityFields({ fields }: { fields: Record<string, unknown> }) {
 				}
 				return (
 					<div key={key} className="grid gap-1 py-2.5 first:pt-0 last:pb-0 sm:grid-cols-[140px_minmax(0,1fr)] sm:gap-4">
-						<dt className="text-muted-foreground">{labels[key] ? tCopy(`security.${key}`, { ns: "agents" }) : capabilityLabel(key)}</dt>
+						<dt className="text-muted-foreground">{labels[key] ?? capabilityLabel(key)}</dt>
 						<dd className="min-w-0 break-words">
 							{record ? (
 								key === "scopes" ? (
@@ -110,11 +106,7 @@ function SecurityFields({ fields }: { fields: Record<string, unknown> }) {
 								)
 							) : (
 								<span className="font-mono break-all">
-									{Array.isArray(value)
-										? value.join(", ")
-										: value === "REDACTED"
-											? tCopy("ui.agentCardPreview.redacted", { ns: "agents" })
-											: String(value)}
+									{Array.isArray(value) ? value.join(", ") : value === "REDACTED" ? "Redacted" : String(value)}
 								</span>
 							)}
 						</dd>
@@ -144,10 +136,9 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
 }
 
 function SkillItem({ skill }: { skill: InspectedAgentSkill }) {
-	const { t: tCopy } = useTranslation();
 	const idRef = useRef<HTMLButtonElement>(null);
 	const [idTruncated, setIdTruncated] = useState(false);
-	const { copy } = useCopyToClipboard({ successMessage: tCopy("common.copied", { ns: "mcp" }) });
+	const { copy } = useCopyToClipboard({ successMessage: "Copied" });
 
 	return (
 		<details className="group/skill">
@@ -169,7 +160,7 @@ function SkillItem({ skill }: { skill: InspectedAgentSkill }) {
 										type="button"
 										ref={idRef}
 										className="text-muted-foreground max-w-[45%] truncate font-mono text-[11px] hover:underline"
-										aria-label={tCopy("card.copySkillId", { ns: "agents", id: skill.id })}
+										aria-label={`Copy skill ID ${skill.id}`}
 										onClick={(event) => {
 											event.preventDefault();
 											event.stopPropagation();
@@ -181,7 +172,7 @@ function SkillItem({ skill }: { skill: InspectedAgentSkill }) {
 								</TooltipTrigger>
 								<TooltipContent>
 									{idTruncated && <p>{skill.id}</p>}
-									<p>{tCopy("ui.agentCardPreview.clickToCopySkillID", { ns: "agents" })}</p>
+									<p>Click to copy skill ID</p>
 								</TooltipContent>
 							</Tooltip>
 						</TooltipProvider>
@@ -238,7 +229,6 @@ export function AgentCardPreview({
 	showFetched?: boolean;
 	gatewayCard?: boolean;
 }) {
-	const { t: tCopy } = useTranslation();
 	const [detailsOpen, setDetailsOpen] = useState(false);
 	const [iconFailed, setIconFailed] = useState(false);
 	const capabilities = Object.entries(card.capabilities)
@@ -265,21 +255,17 @@ export function AgentCardPreview({
 				</div>
 				<div className="min-w-0 flex-1 space-y-0.5">
 					<div className="flex flex-wrap items-center gap-2">
-						<p className="truncate font-medium">{card.name || tCopy("ui.agentCardPreview.unnamedAgent", { ns: "agents" })}</p>
+						<p className="truncate font-medium">{card.name || "Unnamed agent"}</p>
 						{card.version && <Badge variant="outline">v{card.version}</Badge>}
 					</div>
 					<div className="text-muted-foreground flex flex-wrap items-center gap-x-3 text-xs">
 						{card.provider &&
 							(card.provider_url ? (
 								<a href={card.provider_url} target="_blank" rel="noreferrer" className="hover:text-foreground hover:underline">
-									{tCopy("ui.agentCardPreview.by", { ns: "agents" }) + " "}
-									{card.provider}
+									by {card.provider}
 								</a>
 							) : (
-								<span>
-									{tCopy("ui.agentCardPreview.by", { ns: "agents" }) + " "}
-									{card.provider}
-								</span>
+								<span>by {card.provider}</span>
 							))}
 						{card.documentation_url && (
 							<a
@@ -288,8 +274,7 @@ export function AgentCardPreview({
 								rel="noreferrer"
 								className="hover:text-foreground inline-flex items-center gap-1 hover:underline"
 							>
-								{tCopy("routing.docs", { ns: "models" }) + " "}
-								<ExternalLink className="size-3" />
+								Docs <ExternalLink className="size-3" />
 							</a>
 						)}
 					</div>
@@ -297,7 +282,7 @@ export function AgentCardPreview({
 				{showFetched && (
 					<span className="inline-flex shrink-0 items-center gap-1 text-xs text-green-700 dark:text-green-400">
 						<CheckCircle2 className="size-3.5" />
-						{tCopy("ui.agentCardPreview.fetched", { ns: "agents" })}
+						Fetched
 					</span>
 				)}
 			</div>
@@ -305,10 +290,10 @@ export function AgentCardPreview({
 			{card.description && <p className="text-muted-foreground px-4 pb-4 text-xs leading-relaxed break-words">{card.description}</p>}
 
 			<div className="bg-muted/30 grid grid-cols-3 divide-x border-t">
-				<Stat label={tCopy("skillsRepo.breadcrumb", { ns: "config" })} value={skills.length} />
-				<Stat label={tCopy("ui.agentCardPreview.interfaces", { ns: "agents" })} value={interfaces.length} />
+				<Stat label="Skills" value={skills.length} />
+				<Stat label="Interfaces" value={interfaces.length} />
 				<Stat
-					label={tCopy("ui.agentCardPreview.signatures", { ns: "agents" })}
+					label="Signatures"
 					value={
 						gatewayCard ? (
 							<TooltipProvider>
@@ -317,7 +302,8 @@ export function AgentCardPreview({
 										<span className="cursor-help border-b border-dotted">{card.signature_count}</span>
 									</TooltipTrigger>
 									<TooltipContent className="max-w-80">
-										{tCopy("ui.agentCardPreview.upstreamSignaturesAreRemovedBecauseTheGatewayRewritesThe", { ns: "agents" })}
+										Upstream signatures are removed because the gateway rewrites the card’s endpoints and authentication requirements.
+										Original signatures remain in raw capture when recorded.
 									</TooltipContent>
 								</Tooltip>
 							</TooltipProvider>
@@ -356,15 +342,13 @@ export function AgentCardPreview({
 					className="text-muted-foreground hover:text-foreground flex w-full items-center justify-between px-4 py-2.5 text-xs font-medium"
 					data-testid="agent-card-details-toggle"
 				>
-					{detailsOpen
-						? tCopy("ui.agentCardPreview.hideCardDetails", { ns: "agents" })
-						: tCopy("ui.agentCardPreview.showCardDetails", { ns: "agents" })}
+					{detailsOpen ? "Hide card details" : "Show card details"}
 					<ChevronDown className={`size-4 transition-transform ${detailsOpen ? "rotate-180" : ""}`} />
 				</CollapsibleTrigger>
 				<CollapsibleContent className="divide-y border-t px-4 pb-2">
 					{interfaces.length > 0 && (
 						<section className="py-3">
-							<p className="text-muted-foreground mb-2 text-xs">{tCopy("ui.agentCardPreview.interfaces", { ns: "agents" })}</p>
+							<p className="text-muted-foreground mb-2 text-xs">Interfaces</p>
 							<div className="space-y-2">
 								{interfaces.map((item) => (
 									<div key={`${item.protocol_binding}-${item.url}`} className="flex min-w-0 items-start gap-3">
@@ -374,28 +358,23 @@ export function AgentCardPreview({
 										</div>
 										<div className="min-w-0 flex-1">
 											<TruncatedLabel className="block font-mono text-xs">{item.url}</TruncatedLabel>
-											{item.tenant && (
-												<p className="text-muted-foreground mt-1 text-xs">
-													{tCopy("ui.agentCardPreview.tenant", { ns: "agents" }) + " "}
-													{item.tenant}
-												</p>
-											)}
+											{item.tenant && <p className="text-muted-foreground mt-1 text-xs">Tenant: {item.tenant}</p>}
 										</div>
 									</div>
 								))}
 							</div>
 						</section>
 					)}
-					<DetailRow label={tCopy("ui.agentCardPreview.inputModes", { ns: "agents" })}>
-						<p className="font-mono text-xs break-words">{inputModes || tCopy("ui.agentCardPreview.notDeclared", { ns: "agents" })}</p>
+					<DetailRow label="Input modes">
+						<p className="font-mono text-xs break-words">{inputModes || "Not declared"}</p>
 					</DetailRow>
-					<DetailRow label={tCopy("ui.agentCardPreview.outputModes", { ns: "agents" })}>
-						<p className="font-mono text-xs break-words">{outputModes || tCopy("ui.agentCardPreview.notDeclared", { ns: "agents" })}</p>
+					<DetailRow label="Output modes">
+						<p className="font-mono text-xs break-words">{outputModes || "Not declared"}</p>
 					</DetailRow>
-					<DetailRow label={tCopy("registry.sheet.tabAuthentication", { ns: "mcp" })}>
+					<DetailRow label="Authentication">
 						<div className="flex flex-wrap gap-1">
 							{card.security_requirements.length === 0 ? (
-								<Badge variant="outline">{tCopy("registry.filter.none", { ns: "mcp" })}</Badge>
+								<Badge variant="outline">None</Badge>
 							) : (
 								card.security_requirements.map((requirement, index) => (
 									<Badge key={`${requirement.join("-")}-${index}`} variant="outline">
@@ -407,7 +386,7 @@ export function AgentCardPreview({
 					</DetailRow>
 					{card.security_schemes.length > 0 && (
 						<section className="py-3">
-							<p className="text-muted-foreground mb-2 text-xs">{tCopy("ui.agentCardPreview.securitySchemes", { ns: "agents" })}</p>
+							<p className="text-muted-foreground mb-2 text-xs">Security schemes</p>
 							<div className="divide-y overflow-hidden rounded-sm border">
 								{card.security_schemes.map((scheme) => (
 									<details key={scheme.name} className="group/scheme">
@@ -435,7 +414,7 @@ export function AgentCardPreview({
 						</section>
 					)}
 					{(card.signatures?.length ?? 0) > 0 && (
-						<DetailRow label={tCopy("ui.agentCardPreview.signatures", { ns: "agents" })}>
+						<DetailRow label="Signatures">
 							<div className="divide-y">
 								{card.signatures?.map((signature, index) => (
 									<details key={index} className="group/signature py-2 first:pt-0 last:pb-0">
@@ -443,8 +422,7 @@ export function AgentCardPreview({
 											data-testid="agent-card-signature-toggle"
 											className="flex cursor-pointer list-none items-center justify-between text-xs [&::-webkit-details-marker]:hidden"
 										>
-											{tCopy("ui.agentCardPreview.signature", { ns: "agents" }) + " "}
-											{index + 1}
+											Signature {index + 1}
 											<ChevronDown className="text-muted-foreground size-3.5 transition-transform group-open/signature:rotate-180" />
 										</summary>
 										<div className="pt-2">
@@ -456,14 +434,12 @@ export function AgentCardPreview({
 						</DetailRow>
 					)}
 					{card.capabilities.extendedAgentCard && (
-						<DetailRow label={tCopy("ui.agentCardPreview.extendedCard", { ns: "agents" })}>
-							<p className="text-muted-foreground text-xs">
-								{tCopy("ui.agentCardPreview.supportsFetchingAnExtendedAgentCardWithAuthentication", { ns: "agents" })}
-							</p>
+						<DetailRow label="Extended card">
+							<p className="text-muted-foreground text-xs">Supports fetching an extended agent card with authentication.</p>
 						</DetailRow>
 					)}
 					{extensions.length > 0 && (
-						<DetailRow label={tCopy("ui.agentCardPreview.extensions", { ns: "agents" })}>
+						<DetailRow label="Extensions">
 							<div className="flex flex-wrap gap-1">
 								{extensions.map((extension) => (
 									<TooltipProvider key={extension.uri}>
@@ -472,10 +448,7 @@ export function AgentCardPreview({
 												<Badge variant="outline" className="max-w-full">
 													<span className="min-w-0 truncate">{extension.uri}</span>
 													{extension.required && (
-														<span
-															className="text-destructive shrink-0"
-															aria-label={tCopy("ui.agentCardPreview.required", { ns: "agents" })}
-														>
+														<span className="text-destructive shrink-0" aria-label="Required">
 															*
 														</span>
 													)}
@@ -483,7 +456,7 @@ export function AgentCardPreview({
 											</TooltipTrigger>
 											{(extension.description || extension.params || extension.required) && (
 												<TooltipContent className="max-w-80">
-													{extension.required && <p className="font-medium">{tCopy("ui.agentCardPreview.required", { ns: "agents" })}</p>}
+													{extension.required && <p className="font-medium">Required</p>}
 													{extension.description && <p>{extension.description}</p>}
 													{extension.params && (
 														<pre className="mt-1 text-xs whitespace-pre-wrap">{JSON.stringify(extension.params, null, 2)}</pre>
@@ -498,7 +471,7 @@ export function AgentCardPreview({
 					)}
 					{skills.length > 0 && (
 						<section className="py-3">
-							<p className="text-muted-foreground mb-2 text-xs">{tCopy("skillsRepo.breadcrumb", { ns: "config" })}</p>
+							<p className="text-muted-foreground mb-2 text-xs">Skills</p>
 							<div className="divide-y overflow-hidden rounded-sm border">
 								{skills.map((skill) => (
 									<SkillItem key={skill.id} skill={skill} />

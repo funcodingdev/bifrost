@@ -25,7 +25,6 @@ import {
 	Trash2,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { usePromptContext } from "../context";
 
 /**
@@ -36,7 +35,6 @@ import { usePromptContext } from "../context";
  * @returns The sidebar React element containing the search input, folder list, root prompt drop zone, and drag-and-drop provider.
  */
 export function PromptSidebar() {
-	const { t } = useTranslation("config");
 	const {
 		folders,
 		prompts,
@@ -184,7 +182,7 @@ export function PromptSidebar() {
 					<div className="relative grow">
 						<Search className="text-muted-foreground absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2" />
 						<Input
-							placeholder={t("promptRepo.searchPrompts")}
+							placeholder="Search prompts..."
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
 							data-testid="sidebar-search"
@@ -198,7 +196,7 @@ export function PromptSidebar() {
 									variant="outline"
 									className="h-8 w-8 shrink-0 bg-transparent"
 									data-testid="sidebar-create-menu"
-									aria-label={t("promptRepo.createPromptOrFolderAria")}
+									aria-label="Add prompt or folder"
 								>
 									<PlusIcon className="h-3.5 w-3.5" />
 								</Button>
@@ -211,7 +209,7 @@ export function PromptSidebar() {
 										onCreatePrompt();
 									}}
 								>
-									{t("promptRepo.newPrompt")}
+									Add Prompt
 								</DropdownMenuItem>
 								<DropdownMenuItem
 									data-testid="sidebar-create-folder"
@@ -220,7 +218,7 @@ export function PromptSidebar() {
 										onCreateFolder();
 									}}
 								>
-									{t("promptRepo.newFolder")}
+									Add Folder
 								</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
@@ -230,9 +228,7 @@ export function PromptSidebar() {
 				<ScrollArea className="grow overflow-y-auto" viewportClassName="no-table viewport-table-height-full">
 					<div className="flex flex-col p-2 px-3">
 						{filteredData.folders.length === 0 && filteredData.rootPrompts.length === 0 ? (
-							<div className="text-muted-foreground py-8 text-center text-sm">
-								{searchQuery ? t("promptRepo.noResultsFound") : t("promptRepo.noPromptsYet")}
-							</div>
+							<div className="text-muted-foreground py-8 text-center text-sm">{searchQuery ? "No results found" : "No prompts yet"}</div>
 						) : (
 							<>
 								{filteredData.folders.map((folder) => (
@@ -383,7 +379,6 @@ function DroppableFolder({
 	canUpdate,
 	canDelete,
 }: DroppableFolderProps) {
-	const { t } = useTranslation("config");
 	const { ref } = useDroppable({ id: `folder-${folder.id}` });
 	const showActions = canCreate || canUpdate || canDelete;
 
@@ -398,7 +393,7 @@ function DroppableFolder({
 				onClick={onToggle}
 				data-testid={`sidebar-folder-${folder.id}`}
 			>
-				<button className="flex shrink-0 items-center" aria-label={t("promptRepo.toggleFolderAria")}>
+				<button className="flex shrink-0 items-center" aria-label="Toggle folder">
 					{isExpanded ? (
 						<ChevronDown className="text-muted-foreground h-4 w-4" />
 					) : (
@@ -420,7 +415,7 @@ function DroppableFolder({
 								size="icon"
 								className="h-6 w-6 shrink-0 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 focus-visible:opacity-100"
 								data-testid={`sidebar-folder-actions-${folder.id}`}
-								aria-label={t("promptRepo.folderActionsAria")}
+								aria-label="Folder actions"
 							>
 								<MoreHorizontal className="h-4 w-4" />
 							</Button>
@@ -435,7 +430,7 @@ function DroppableFolder({
 									}}
 								>
 									<Plus className="mr-2 h-4 w-4" />
-									{t("promptRepo.newPrompt")}
+									Add Prompt
 								</DropdownMenuItem>
 							)}
 							{canCreate && (canUpdate || canDelete) && <DropdownMenuSeparator />}
@@ -448,7 +443,7 @@ function DroppableFolder({
 									}}
 								>
 									<Pencil className="h-4 w-4" />
-									{t("promptRepo.editFolder")}
+									Edit Folder
 								</DropdownMenuItem>
 							)}
 							{canDelete && (
@@ -461,7 +456,7 @@ function DroppableFolder({
 									}}
 								>
 									<Trash2 className="h-4 w-4" />
-									{t("promptRepo.deleteFolder")}
+									Delete Folder
 								</DropdownMenuItem>
 							)}
 						</DropdownMenuContent>
@@ -472,9 +467,7 @@ function DroppableFolder({
 			{isExpanded && (
 				<div className="ml-4 border-l pl-2">
 					{prompts.length === 0 ? (
-						<div className="text-muted-foreground py-2 pl-4 text-xs">
-							{isDragOver ? t("promptRepo.dropHere") : t("promptRepo.noPrompts")}
-						</div>
+						<div className="text-muted-foreground py-2 pl-4 text-xs">{isDragOver ? "Drop here" : "No prompts"}</div>
 					) : (
 						prompts.map((prompt) => (
 							<DraggablePromptItem
@@ -520,8 +513,6 @@ interface DraggablePromptItemProps {
  * @returns The rendered prompt item JSX element.
  */
 function DraggablePromptItem({ prompt, isSelected, onSelect, onEdit, onDelete, canUpdate, canDelete }: DraggablePromptItemProps) {
-	const { t } = useTranslation("config");
-	const { t: tc } = useTranslation("common");
 	const { ref, isDragging } = useDraggable({
 		id: `prompt-${prompt.id}`,
 		disabled: !canUpdate,
@@ -563,7 +554,7 @@ function DraggablePromptItem({ prompt, isSelected, onSelect, onEdit, onDelete, c
 							size="icon"
 							className="h-6 w-6 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 focus-visible:opacity-100"
 							data-testid={`sidebar-prompt-actions-${prompt.id}`}
-							aria-label={t("promptRepo.promptActionsAria")}
+							aria-label="Prompt actions"
 						>
 							<MoreHorizontal className="h-4 w-4" />
 						</Button>
@@ -579,7 +570,7 @@ function DraggablePromptItem({ prompt, isSelected, onSelect, onEdit, onDelete, c
 								}}
 							>
 								<Pencil className="h-4 w-4" />
-								{t("promptRepo.rename")}
+								Rename
 							</DropdownMenuItem>
 						)}
 						{canDelete && (
@@ -593,7 +584,7 @@ function DraggablePromptItem({ prompt, isSelected, onSelect, onEdit, onDelete, c
 								}}
 							>
 								<Trash2 className="h-4 w-4" />
-								{tc("delete")}
+								Delete
 							</DropdownMenuItem>
 						)}
 					</DropdownMenuContent>

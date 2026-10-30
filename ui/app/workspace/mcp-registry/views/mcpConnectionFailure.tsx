@@ -16,7 +16,6 @@ import {
 } from "@/lib/utils/mcpConnectionFailure";
 import { titleCaseFromSnakeCase } from "@/lib/utils/strings";
 import { ChevronDown } from "lucide-react";
-import { useTranslation } from "react-i18next";
 
 type StatefulClient = Pick<MCPClient, "state" | "last_failure" | "node_states">;
 
@@ -39,7 +38,6 @@ function FailureDetail({ failure, state }: { failure: MCPConnectionFailure; stat
  * per group, because that is the only case where states differ.
  */
 export function StateBadge({ client }: { client: StatefulClient }) {
-	const { t } = useTranslation("mcp");
 	const { state, last_failure, node_states } = client;
 	const badge = <Badge className={MCP_STATUS_COLORS[state]}>{titleCaseFromSnakeCase(state)}</Badge>;
 	if (!hasStateReason(client)) {
@@ -64,7 +62,7 @@ export function StateBadge({ client }: { client: StatefulClient }) {
 								<div className="flex items-center gap-2">
 									{mixed && <Badge className={MCP_STATUS_COLORS[g.state]}>{titleCaseFromSnakeCase(g.state)}</Badge>}
 									<span className={mixed ? "text-muted-foreground" : "font-medium"}>
-										{t("registry.connection.instance", { count: g.count })}
+										{g.count} {g.count === 1 ? "instance" : "instances"}
 									</span>
 								</div>
 								{g.last_failure && <FailureDetail failure={g.last_failure} state={g.state} />}
@@ -76,7 +74,7 @@ export function StateBadge({ client }: { client: StatefulClient }) {
 				) : null}
 				<p className="text-muted-foreground mt-2 border-t pt-2">
 					<a href="https://docs.getbifrost.ai/mcp/connections" target="_blank" rel="noreferrer" className="underline underline-offset-2">
-						{t("registry.connection.aboutStates")}
+						About connection states
 					</a>
 				</p>
 			</PopoverContent>
@@ -91,7 +89,6 @@ export function StateBadge({ client }: { client: StatefulClient }) {
  * in the servers table's actions menu and the form, not here.
  */
 export function ConnectionFailureBlock({ client }: { client: MCPClient }) {
-	const { t } = useTranslation("mcp");
 	const { state, last_failure, node_states } = client;
 	if (!hasStateReason(client)) {
 		return null;
@@ -109,21 +106,23 @@ export function ConnectionFailureBlock({ client }: { client: MCPClient }) {
 		return (
 			<div className={`overflow-hidden rounded-md border ${tone}`} data-testid="mcpclient-connection-failure-block">
 				<div className="bg-muted text-muted-foreground hidden gap-3 px-3 py-2 text-[11px] font-medium tracking-wide uppercase sm:grid sm:grid-cols-[6rem_1fr_auto]">
-					<span>{t("registry.connection.instances")}</span>
-					<span>{t("registry.connection.reason")}</span>
-					<span>{t("registry.connection.lastFailed")}</span>
+					<span>Instances</span>
+					<span>Reason</span>
+					<span>Last failed</span>
 				</div>
 				{groups.map((g, i) => (
 					<div key={i} className="grid grid-cols-1 gap-1 border-t px-3 py-2 text-xs sm:grid-cols-[6rem_1fr_auto] sm:items-center sm:gap-3">
 						<span className="flex flex-col gap-1">
-							<span>{t("registry.connection.instance", { count: g.count })}</span>
+							<span>
+								{g.count} {g.count === 1 ? "instance" : "instances"}
+							</span>
 							{mixed && <Badge className={`w-fit ${MCP_STATUS_COLORS[g.state]}`}>{titleCaseFromSnakeCase(g.state)}</Badge>}
 						</span>
 						<span className="font-mono text-[11px] break-words whitespace-normal">
 							{g.last_failure ? (
 								`${failureStageLabel(g.last_failure.stage)}: ${g.last_failure.message}`
 							) : (
-								<span className="text-muted-foreground">{t("registry.connection.checkPassed")}</span>
+								<span className="text-muted-foreground">Check passed</span>
 							)}
 						</span>
 						<span className="text-muted-foreground sm:whitespace-nowrap">

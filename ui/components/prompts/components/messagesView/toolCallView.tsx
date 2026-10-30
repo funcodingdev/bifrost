@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { isJson } from "@/lib/utils/validation";
 import { Check, ExternalLink, Loader2, PencilLine, Play, RefreshCw, Send, ShieldAlert, Wrench, XIcon } from "lucide-react";
 import { useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { MCPAuthRequiredError } from "../../utils/executor";
 import MessageRoleSwitcher from "./messageRoleSwitcher";
 
@@ -33,8 +32,6 @@ export default function ToolCallMessageView({
 	fetchToolResult?: (toolCall: ToolCall) => Promise<string>;
 	respondedToolCallIds?: Set<string>;
 }) {
-	const { t } = useTranslation("config");
-	const { t: tCommon } = useTranslation("common");
 	const toolCalls = message.toolCalls ?? [];
 	const [responses, setResponses] = useState<Record<string, string>>({});
 	const [executingIds, setExecutingIds] = useState<Set<string>>(new Set());
@@ -267,7 +264,7 @@ export default function ToolCallMessageView({
 
 				{toolCalls.length > 0 && (
 					<span className="animate-in fade-in-0 zoom-in-95 bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-[10px] font-medium duration-200 motion-reduce:animate-none">
-						{t("promptRepo.toolCall", { count: toolCalls.length })}
+						{toolCalls.length} tool call{toolCalls.length > 1 ? "s" : ""}
 					</span>
 				)}
 
@@ -275,7 +272,7 @@ export default function ToolCallMessageView({
 					{!disabled && onRemove && (
 						<button
 							type="button"
-							aria-label={t("promptRepo.deleteMessageAria")}
+							aria-label="Delete message"
 							data-testid="tool-call-msg-delete"
 							onClick={onRemove}
 							className="hover:bg-destructive/10 focus:bg-destructive/10 rounded-md p-1 opacity-0 transition group-focus-within:opacity-100 group-hover:opacity-100 focus:opacity-100"
@@ -332,13 +329,13 @@ export default function ToolCallMessageView({
 
 										{isResponded && (
 											<span className="animate-in fade-in-0 zoom-in-90 shrink-0 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-medium text-emerald-600 duration-200 motion-reduce:animate-none dark:text-emerald-400">
-												{t("promptRepo.responded")}
+												Responded
 											</span>
 										)}
 										{!isResponded && isMultiple && hasResult && (
 											<span className="animate-in fade-in-0 zoom-in-90 flex shrink-0 items-center gap-0.5 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[9px] font-medium text-blue-600 duration-200 motion-reduce:animate-none dark:text-blue-400">
 												<Check className="size-2.5" />
-												{t("promptRepo.ready")}
+												Ready
 											</span>
 										)}
 									</div>
@@ -350,9 +347,7 @@ export default function ToolCallMessageView({
 							{/* Arguments */}
 							{formattedArgs && (
 								<div className="border-t px-3 py-2">
-									<div className="text-muted-foreground mb-1.5 text-[10px] font-semibold tracking-wide uppercase">
-										{t("promptRepo.arguments")}
-									</div>
+									<div className="text-muted-foreground mb-1.5 text-[10px] font-semibold tracking-wide uppercase">Arguments</div>
 
 									{argsIsJson ? (
 										<div className="bg-background overflow-hidden rounded-md border">
@@ -386,7 +381,7 @@ export default function ToolCallMessageView({
 								<div className="animate-in fade-in-0 bg-muted/20 space-y-2 border-t px-3 py-2 duration-150 motion-reduce:animate-none">
 									<div className="flex items-center gap-2">
 										<div className="text-foreground text-xs font-medium">
-											{isResolved && !isManualEntryOpen ? t("promptRepo.executedResult") : t("promptRepo.toolResult")}
+											{isResolved && !isManualEntryOpen ? "Executed result" : "Tool result"}
 										</div>
 										{isMultiple && (
 											<Button
@@ -396,7 +391,7 @@ export default function ToolCallMessageView({
 												onClick={() => hideManualEntry(tc.id)}
 												disabled={isBusy}
 											>
-												{t("promptRepo.clear")}
+												Clear
 											</Button>
 										)}
 										{!isMultiple && (
@@ -408,13 +403,13 @@ export default function ToolCallMessageView({
 												onClick={() => hideManualEntry(tc.id)}
 												disabled={isBusy}
 											>
-												{tCommon("cancel")}
+												Cancel
 											</Button>
 										)}
 									</div>
 									<Textarea
 										autoFocus={isManualEntryOpen && !isResolved}
-										placeholder={t("promptRepo.pasteToolResult")}
+										placeholder="Paste tool result..."
 										value={responses[tc.id] ?? ""}
 										onChange={(e) => handleResponseChange(tc.id, e.target.value)}
 										data-testid="tool-call-response-textarea"
@@ -434,7 +429,7 @@ export default function ToolCallMessageView({
 												onClick={() => handleSubmitResponse(tc.id)}
 											>
 												<Send className="size-3.5" />
-												{t("promptRepo.submitResult")}
+												Submit result
 											</Button>
 										</div>
 									)}
@@ -451,9 +446,9 @@ export default function ToolCallMessageView({
 											</div>
 											<div className="min-w-0">
 												<div className="text-foreground text-xs font-medium">
-													{t("promptRepo.authRequiredFor", { name: authErrors[tc.id].mcpClientName })}
+													Authentication required for {authErrors[tc.id].mcpClientName}
 												</div>
-												<div className="text-muted-foreground text-[10px]">{t("promptRepo.connectToExecute")}</div>
+												<div className="text-muted-foreground text-[10px]">Connect your account to execute this tool.</div>
 											</div>
 										</div>
 										<div className="ml-auto flex items-center gap-1.5">
@@ -464,7 +459,7 @@ export default function ToolCallMessageView({
 													onClick={() => window.open(authErrors[tc.id].authorizeUrl, "_blank", "noopener,noreferrer")}
 												>
 													<ExternalLink className="size-3.5" />
-													{t("promptRepo.authenticate")}
+													Authenticate
 												</Button>
 											)}
 											<Button
@@ -475,7 +470,7 @@ export default function ToolCallMessageView({
 												disabled={isBusy}
 											>
 												<RefreshCw className="size-3.5" />
-												{t("promptRepo.retry")}
+												Retry
 											</Button>
 										</div>
 									</div>
@@ -488,8 +483,8 @@ export default function ToolCallMessageView({
 									<div className="flex flex-wrap items-center gap-2">
 										{!isMultiple && (
 											<div className="min-w-0">
-												<div className="text-foreground text-xs font-medium">{t("promptRepo.awaitingToolResult")}</div>
-												<div className="text-muted-foreground text-[10px]">{t("promptRepo.executeOrAddManually")}</div>
+												<div className="text-foreground text-xs font-medium">Awaiting tool result</div>
+												<div className="text-muted-foreground text-[10px]">Execute the call or add the result manually.</div>
 											</div>
 										)}
 										<div className={cn("flex items-center gap-1.5", !isMultiple && "ml-auto")}>
@@ -503,7 +498,7 @@ export default function ToolCallMessageView({
 													onClick={() => (isMultiple ? handleExecuteOne(tc) : handleExecuteSingle(tc))}
 												>
 													{executingIds.has(tc.id) ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
-													{executingIds.has(tc.id) ? t("promptRepo.executing") : t("promptRepo.execute")}
+													{executingIds.has(tc.id) ? "Executing" : "Execute"}
 												</Button>
 											)}
 											<Button
@@ -515,7 +510,7 @@ export default function ToolCallMessageView({
 												onClick={() => showManualEntry(tc.id)}
 											>
 												<PencilLine className="size-3.5" />
-												{t("promptRepo.addManually")}
+												Add manually
 											</Button>
 										</div>
 									</div>
@@ -534,11 +529,13 @@ export default function ToolCallMessageView({
 							<div className="min-w-0">
 								<div className="text-foreground text-xs font-medium">
 									{allResolved
-										? t("promptRepo.allResultsReady", { count: pendingToolCalls.length })
-										: t("promptRepo.resultsCollected", { resolved: resolvedCount, total: pendingToolCalls.length })}
+										? `All ${pendingToolCalls.length} results ready`
+										: `${resolvedCount} of ${pendingToolCalls.length} results collected`}
 								</div>
 								<div className="text-muted-foreground text-[10px]">
-									{allResolved ? t("promptRepo.submitAllToContinue") : t("promptRepo.executeOrFillThenSubmit")}
+									{allResolved
+										? "Submit all results to continue the conversation."
+										: "Execute or fill each tool call above, then submit together."}
 								</div>
 							</div>
 							<div className="ml-auto flex items-center gap-1.5">
@@ -551,7 +548,7 @@ export default function ToolCallMessageView({
 										onClick={handleExecuteAll}
 									>
 										{isExecutingAll ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
-										{isExecutingAll ? t("promptRepo.executingAll") : t("promptRepo.executeAll")}
+										{isExecutingAll ? "Executing all" : "Execute all"}
 									</Button>
 								)}
 								<Button
@@ -567,7 +564,7 @@ export default function ToolCallMessageView({
 									onClick={handleSubmitAll}
 								>
 									{isSubmittingAll ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
-									{isSubmittingAll ? t("promptRepo.submitting") : t("promptRepo.submitAllResults")}
+									{isSubmittingAll ? "Submitting" : "Submit all results"}
 								</Button>
 							</div>
 						</div>

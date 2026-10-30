@@ -3,7 +3,6 @@ import { ExternalLink, Video } from "lucide-react";
 import { CopyableId } from "@/components/copyableId";
 import { Badge } from "@/components/ui/badge";
 import { RequestTypeLabels } from "@/lib/constants/logs";
-import { useTranslation } from "react-i18next";
 import {
 	BifrostVideoDeleteOutput,
 	BifrostVideoDownloadOutput,
@@ -28,9 +27,13 @@ interface VideoViewProps {
 	requestType?: string;
 }
 
-function getMethodTypeLabel(requestType: string | undefined, fallback: string): string {
-	if (!requestType) return fallback;
-	return RequestTypeLabels[requestType.toLowerCase() as keyof typeof RequestTypeLabels] || fallback;
+function getMethodTypeLabel(requestType?: string): string {
+	if (!requestType) return "Video";
+	return RequestTypeLabels[requestType.toLowerCase() as keyof typeof RequestTypeLabels] || "Video";
+}
+
+function isImageOutput(video: VideoAsset): boolean {
+	return !!video.content_type?.startsWith("image/");
 }
 
 function getVideoSrc(video: VideoAsset): string | null {
@@ -40,15 +43,17 @@ function getVideoSrc(video: VideoAsset): string | null {
 }
 
 export default function VideoView({ videoInput, videoOutput, videoListOutput, requestType }: VideoViewProps) {
-	const { t } = useTranslation("observability");
-	const methodTypeLabel = getMethodTypeLabel(requestType, t("logs.media.video"));
+	const methodTypeLabel = getMethodTypeLabel(requestType);
 	const normalizedType = requestType?.toLowerCase() ?? "";
 	const isDownload = normalizedType.includes("video_download");
 	const isDelete = normalizedType.includes("video_delete");
 	const downloadOutput = isDownload && videoOutput ? (videoOutput as BifrostVideoDownloadOutput) : null;
 	const deleteOutput = isDelete && videoOutput ? (videoOutput as BifrostVideoDeleteOutput) : null;
 	const generationOutput = !isDownload && !isDelete && videoOutput ? (videoOutput as BifrostVideoGenerationOutput) : null;
-	const videos = generationOutput?.videos?.filter((video) => video.url || video.base64) ?? [];
+	const outputs = generationOutput?.videos?.filter((video) => video.url || video.base64) ?? [];
+	// Image outputs (a Seedance task's last frame) are not playable in a <video> element.
+	const videos = outputs.filter((video) => !isImageOutput(video));
+	const images = outputs.filter(isImageOutput);
 
 	return (
 		<div className="space-y-4">
@@ -56,10 +61,10 @@ export default function VideoView({ videoInput, videoOutput, videoListOutput, re
 				<div className="w-full rounded-sm border">
 					<div className="flex items-center gap-2 border-b px-6 py-2 text-sm font-medium">
 						<Video className="h-4 w-4" />
-						{t("logs.video.input", { type: methodTypeLabel })}
+						{methodTypeLabel} Input
 					</div>
 					<div className="space-y-2 p-6">
-						<div className="text-muted-foreground text-xs font-medium">{t("logs.video.prompt")}</div>
+						<div className="text-muted-foreground text-xs font-medium">PROMPT</div>
 						<div className="font-mono text-xs">{videoInput.prompt}</div>
 					</div>
 				</div>
@@ -69,7 +74,7 @@ export default function VideoView({ videoInput, videoOutput, videoListOutput, re
 				<div className="w-full rounded-sm border">
 					<div className="flex items-center gap-2 border-b px-6 py-2 text-sm font-medium">
 						<Video className="h-4 w-4" />
-						{t("logs.video.output", { type: methodTypeLabel })}
+						{methodTypeLabel} Output
 					</div>
 					<div className="space-y-3 p-6">
 						{downloadOutput ? (
@@ -77,43 +82,35 @@ export default function VideoView({ videoInput, videoOutput, videoListOutput, re
 								<div className="grid grid-cols-1 gap-3 md:grid-cols-3">
 									{downloadOutput.video_id && (
 										<div className="space-y-1">
-											<div className="text-muted-foreground text-xs font-medium">{t("logs.video.videoId")}</div>
+											<div className="text-muted-foreground text-xs font-medium">VIDEO ID</div>
 											<div className="flex items-center gap-1">
 												<div className="font-mono text-xs break-all">{downloadOutput.video_id}</div>
-												<CopyableId
-													id={downloadOutput.video_id}
-													entityLabel={t("logs.video.entityLabel")}
-													testId="video-view-copy-download-video-id-button"
-												/>
+												<CopyableId id={downloadOutput.video_id} entityLabel="Video" testId="video-view-copy-download-video-id-button" />
 											</div>
 										</div>
 									)}
 									{downloadOutput.content_type && (
 										<div className="space-y-1">
-											<div className="text-muted-foreground text-xs font-medium">{t("logs.video.contentType")}</div>
+											<div className="text-muted-foreground text-xs font-medium">CONTENT TYPE</div>
 											<div className="font-mono text-xs">{downloadOutput.content_type}</div>
 										</div>
 									)}
 								</div>
-								<p className="text-muted-foreground text-xs">{t("logs.video.downloaded")}</p>
+								<p className="text-muted-foreground text-xs">Video content was successfully downloaded (content is not stored in logs)</p>
 							</>
 						) : deleteOutput ? (
 							<div className="grid grid-cols-1 gap-3 md:grid-cols-3">
 								{deleteOutput.id && (
 									<div className="space-y-1">
-										<div className="text-muted-foreground text-xs font-medium">{t("logs.video.videoId")}</div>
+										<div className="text-muted-foreground text-xs font-medium">VIDEO ID</div>
 										<div className="flex items-center gap-1">
 											<div className="font-mono text-xs break-all">{deleteOutput.id}</div>
-											<CopyableId
-												id={deleteOutput.id}
-												entityLabel={t("logs.video.entityLabel")}
-												testId="video-view-copy-delete-video-id-button"
-											/>
+											<CopyableId id={deleteOutput.id} entityLabel="Video" testId="video-view-copy-delete-video-id-button" />
 										</div>
 									</div>
 								)}
 								<div className="space-y-1">
-									<div className="text-muted-foreground text-xs font-medium">{t("logs.video.deleted")}</div>
+									<div className="text-muted-foreground text-xs font-medium">DELETED</div>
 									<Badge variant="secondary" className="uppercase">
 										{deleteOutput.deleted ? "true" : "false"}
 									</Badge>
@@ -124,20 +121,16 @@ export default function VideoView({ videoInput, videoOutput, videoListOutput, re
 								<div className="grid grid-cols-1 gap-3 md:grid-cols-3">
 									{generationOutput.id && (
 										<div className="space-y-1">
-											<div className="text-muted-foreground text-xs font-medium">{t("logs.video.videoId")}</div>
+											<div className="text-muted-foreground text-xs font-medium">VIDEO ID</div>
 											<div className="flex items-center gap-1">
 												<div className="font-mono text-xs break-all">{generationOutput.id}</div>
-												<CopyableId
-													id={generationOutput.id}
-													entityLabel={t("logs.video.entityLabel")}
-													testId="video-view-copy-generation-video-id-button"
-												/>
+												<CopyableId id={generationOutput.id} entityLabel="Video" testId="video-view-copy-generation-video-id-button" />
 											</div>
 										</div>
 									)}
 									{generationOutput.status && (
 										<div className="space-y-1">
-											<div className="text-muted-foreground text-xs font-medium">{t("logs.video.status")}</div>
+											<div className="text-muted-foreground text-xs font-medium">STATUS</div>
 											<Badge variant="secondary" className="uppercase">
 												{generationOutput.status}
 											</Badge>
@@ -145,25 +138,25 @@ export default function VideoView({ videoInput, videoOutput, videoListOutput, re
 									)}
 									{generationOutput.progress !== undefined && (
 										<div className="space-y-1">
-											<div className="text-muted-foreground text-xs font-medium">{t("logs.video.progress")}</div>
+											<div className="text-muted-foreground text-xs font-medium">PROGRESS</div>
 											<div className="font-mono text-xs">{generationOutput.progress}%</div>
 										</div>
 									)}
 									{generationOutput.seconds && (
 										<div className="space-y-1">
-											<div className="text-muted-foreground text-xs font-medium">{t("logs.video.duration")}</div>
+											<div className="text-muted-foreground text-xs font-medium">DURATION</div>
 											<div className="font-mono text-xs">{generationOutput.seconds}s</div>
 										</div>
 									)}
 									{generationOutput.size && (
 										<div className="space-y-1">
-											<div className="text-muted-foreground text-xs font-medium">{t("logs.video.size")}</div>
+											<div className="text-muted-foreground text-xs font-medium">SIZE</div>
 											<div className="font-mono text-xs">{generationOutput.size}</div>
 										</div>
 									)}
 									{generationOutput.remixed_from_video_id && (
 										<div className="space-y-1">
-											<div className="text-muted-foreground text-xs font-medium">{t("logs.video.remixedFrom")}</div>
+											<div className="text-muted-foreground text-xs font-medium">REMIXED FROM</div>
 											<div className="font-mono text-xs break-all">{generationOutput.remixed_from_video_id}</div>
 										</div>
 									)}
@@ -172,7 +165,7 @@ export default function VideoView({ videoInput, videoOutput, videoListOutput, re
 								{generationOutput.error && (generationOutput.error.message || generationOutput.error.code) && (
 									<div className="flex items-start gap-2 rounded-md border px-3 py-2 text-sm">
 										<div className="space-y-1">
-											<div className="text-muted-foreground font-medium">{t("logs.video.errorFromProvider")}</div>
+											<div className="text-muted-foreground font-medium">Error from provider</div>
 											{generationOutput.error.code && <div className="font-medium">{generationOutput.error.code}</div>}
 											{generationOutput.error.message && <div className="text-muted-foreground">{generationOutput.error.message}</div>}
 										</div>
@@ -195,7 +188,34 @@ export default function VideoView({ videoInput, videoOutput, videoListOutput, re
 													data-testid="video-view-open-video-url-link"
 													className="text-primary inline-flex items-center gap-1 text-xs underline"
 												>
-													{t("logs.video.openVideoUrl")}
+													Open video URL
+													<ExternalLink className="h-3 w-3" />
+												</a>
+											)}
+										</div>
+									);
+								})}
+
+								{images.map((image, index) => {
+									const src = getVideoSrc(image);
+									if (!src) return null;
+									return (
+										<div key={`image-${index}`} className="space-y-2">
+											<img
+												className="max-h-96 w-full rounded-sm border object-contain"
+												src={src}
+												alt="Video output frame"
+												data-testid="video-view-output-image"
+											/>
+											{image.url && (
+												<a
+													href={image.url}
+													target="_blank"
+													rel="noopener noreferrer"
+													data-testid="video-view-open-image-url-link"
+													className="text-primary inline-flex items-center gap-1 text-xs underline"
+												>
+													Open image URL
 													<ExternalLink className="h-3 w-3" />
 												</a>
 											)}
@@ -210,7 +230,7 @@ export default function VideoView({ videoInput, videoOutput, videoListOutput, re
 
 			{videoListOutput && (
 				<CollapsibleBox
-					title={t("logs.video.listOutput", { count: videoListOutput.data?.length ?? 0 })}
+					title={`Video List Output (${videoListOutput.data?.length ?? 0})`}
 					onCopy={() => JSON.stringify(videoListOutput, null, 2)}
 				>
 					<CodeEditor

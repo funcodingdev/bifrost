@@ -1,5 +1,4 @@
-import i18n from "@/lib/i18n";
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
 	WARP_COMPOSER_TESTID,
 	decodeTurnError,
@@ -32,10 +31,6 @@ import {
 	warpToolLabel,
 	warpToolStatusLabel,
 } from "./warpStream.utils";
-
-beforeAll(async () => {
-	await i18n.changeLanguage("en");
-});
 
 describe("splitWarpFrames", () => {
 	it("returns complete frames and keeps the remainder", () => {
@@ -111,6 +106,7 @@ describe("warpToolLabel", () => {
 			"render_chart",
 			"describe_filter_space",
 			"describe_virtual_key",
+			"list_topics",
 			"ask_user",
 		];
 		for (const tool of tools) {

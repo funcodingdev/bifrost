@@ -1,6 +1,5 @@
 import type { ModelProvider } from "@/lib/types/config";
-import i18n from "@/lib/i18n";
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
 	embeddingSpaceChanged,
 	normalizeWarpNamespace,
@@ -21,10 +20,6 @@ const valid: WarpEmbeddingFields = {
 	threshold: 0.8,
 	searchLimit: 10,
 };
-
-beforeAll(async () => {
-	await i18n.changeLanguage("en");
-});
 
 describe("Warp embedding configuration", () => {
 	it("requires a connected vector store and complete embedding space when enabled", () => {

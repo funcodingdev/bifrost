@@ -1,6 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { buildCursorConfig, buildCursorDeeplink } from "../commandBuilders";
 import { HarnessCommandSection } from "../harnessCommandSection";
 import type { CursorConfigScope, HarnessInstallProps } from "../types";
@@ -15,7 +14,6 @@ export function CursorHarnessInstall({
 	selectedServers,
 	serverScope,
 }: HarnessInstallProps) {
-	const { t } = useTranslation("mcp");
 	const [configScope, setConfigScope] = useState<CursorConfigScope>("global");
 
 	const serverArgs = useMemo(
@@ -43,16 +41,16 @@ export function CursorHarnessInstall({
 						<SelectValue />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="global">{t("usageGuide.scopeGlobal")}</SelectItem>
-						<SelectItem value="project">{t("usageGuide.scopeProject")}</SelectItem>
+						<SelectItem value="global">Global</SelectItem>
+						<SelectItem value="project">Project</SelectItem>
 					</SelectContent>
 				</Select>
 			}
-			copySuccessMessage={t("common.configCopied")}
+			copySuccessMessage="Config copied"
 			deeplink={deeplink}
 			emptyMessage={emptyMessage}
 			harnessName="Cursor"
-			label={t("common.config")}
+			label="Config"
 			logoSrc="/images/harness/cursor.svg"
 			registrationLabel={`${configPath} · ${getRegistrationLabel(serverScope, selectedServers)}`}
 		/>

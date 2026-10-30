@@ -14,7 +14,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { getErrorMessage } from "@/lib/store";
 import { CheckCircle2, KeyRound, Loader2, RefreshCw, ShieldCheck, XCircle } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { IconWrap, InfoBox, StepDots, UiVariant } from "./authorizerUi";
 
 interface MCPHeadersAuthorizerProps {
@@ -42,6 +41,22 @@ const STATUS_ICON: Record<Status, { variant: UiVariant; icon: React.ReactNode }>
 	failed: { variant: "danger", icon: <XCircle className="size-4" /> },
 };
 
+const titles: Record<Status, string> = {
+	confirm: "Test header configuration",
+	input: "Enter sample values",
+	testing: "Verifying connection",
+	success: "Connection verified",
+	failed: "Verification failed",
+};
+
+const subtitles: Record<Status, string> = {
+	confirm: "Verify your header setup to discover available tools.",
+	input: "Enter sample values to verify the connection.",
+	testing: "Checking your headers and discovering available tools.",
+	success: "Header verification completed successfully.",
+	failed: "The verification did not complete.",
+};
+
 export const MCPHeadersAuthorizer: React.FC<MCPHeadersAuthorizerProps> = ({
 	open,
 	onClose,
@@ -51,8 +66,6 @@ export const MCPHeadersAuthorizer: React.FC<MCPHeadersAuthorizerProps> = ({
 	perUserHeaderKeys,
 	submitHandler,
 }) => {
-	const { t } = useTranslation("mcp");
-	const { t: tc } = useTranslation("common");
 	const [status, setStatus] = useState<Status>("confirm");
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	// Set to true when the user cancels so in-flight async callbacks do not
@@ -106,21 +119,6 @@ export const MCPHeadersAuthorizer: React.FC<MCPHeadersAuthorizerProps> = ({
 		onClose();
 	};
 
-	const titles: Record<Status, string> = {
-		confirm: t("registry.authorizer.headers.testConfig"),
-		input: t("registry.authorizer.headers.enterSample"),
-		testing: t("registry.authorizer.headers.verifying"),
-		success: t("registry.authorizer.headers.verified"),
-		failed: t("registry.toast.verificationFailed"),
-	};
-	const subtitles: Record<Status, string> = {
-		confirm: t("registry.authorizer.headers.confirmSubtitle"),
-		input: t("registry.authorizer.headers.inputSubtitle"),
-		testing: t("registry.authorizer.headers.testingSubtitle"),
-		success: t("registry.authorizer.headers.successSubtitle"),
-		failed: t("registry.authorizer.headers.failedSubtitle"),
-	};
-
 	return (
 		<Dialog
 			open={open}
@@ -156,15 +154,21 @@ export const MCPHeadersAuthorizer: React.FC<MCPHeadersAuthorizerProps> = ({
 					{status === "confirm" && (
 						<>
 							<InfoBox icon={<KeyRound className="size-4" />}>
-								<p>{t("registry.authorizer.headers.confirmBody")}</p>
-								<p className="text-muted-foreground/80 text-xs">{t("registry.authorizer.headers.confirmHint")}</p>
+								<p>
+									To set up this MCP server, we need to verify that your header configuration is correct and discover the available tools.
+								</p>
+								<p className="text-muted-foreground/80 text-xs">
+									You will be asked to provide sample values for the required headers. Bifrost keeps these values on file to periodically
+									refresh the available tool list; they are never used for real end-user requests. Once verified, each user will submit
+									their own header values when they use this MCP server.
+								</p>
 							</InfoBox>
 							<div className="flex justify-end gap-2">
 								<Button size="sm" variant="outline" onClick={handleCancel} data-testid="per-user-headers-cancel">
-									{tc("cancel")}
+									Cancel
 								</Button>
 								<Button size="sm" onClick={handleConfirm} data-testid="per-user-headers-confirm">
-									{t("common.continue")}
+									Continue
 								</Button>
 							</div>
 						</>
@@ -174,12 +178,15 @@ export const MCPHeadersAuthorizer: React.FC<MCPHeadersAuthorizerProps> = ({
 					{status === "input" && (
 						<>
 							<InfoBox icon={<KeyRound className="size-4" />}>
-								<p>{t("registry.authorizer.headers.inputBody")}</p>
+								<p>
+									These values verify the connection now and are kept on file so Bifrost can periodically refresh the available tool list.
+									Each user still submits their own values when they use this server.
+								</p>
 							</InfoBox>
 							<HeadersForm
 								requiredKeys={perUserHeaderKeys}
 								onSubmit={handleRunTest}
-								submitLabel={t("registry.authorizer.headers.runTest")}
+								submitLabel="Run Test"
 								onCancel={handleCancel}
 								testIdPrefix="per-user-headers-admin-test"
 							/>
@@ -190,8 +197,8 @@ export const MCPHeadersAuthorizer: React.FC<MCPHeadersAuthorizerProps> = ({
 					{status === "testing" && (
 						<>
 							<InfoBox icon={<Loader2 className="size-4 animate-spin" />}>
-								<p>{t("registry.authorizer.headers.testingBody")}</p>
-								<p className="text-muted-foreground/80 text-xs">{t("registry.authorizer.headers.takesAMoment")}</p>
+								<p>Checking your headers against the server and discovering available tools.</p>
+								<p className="text-muted-foreground/80 text-xs">This only takes a moment.</p>
 							</InfoBox>
 							<div className="flex items-center justify-end">
 								<StepDots active={2} total={3} />
@@ -202,8 +209,8 @@ export const MCPHeadersAuthorizer: React.FC<MCPHeadersAuthorizerProps> = ({
 					{/* Success */}
 					{status === "success" && (
 						<InfoBox variant="success" icon={<CheckCircle2 className="size-4" />}>
-							<p className="font-medium">{t("registry.authorizer.headers.verifiedBody")}</p>
-							<p className="text-xs opacity-80">{t("registry.authorizer.headers.closeDialog")}</p>
+							<p className="font-medium">Header configuration verified.</p>
+							<p className="text-xs opacity-80">You can close this dialog.</p>
 						</InfoBox>
 					)}
 
@@ -211,16 +218,16 @@ export const MCPHeadersAuthorizer: React.FC<MCPHeadersAuthorizerProps> = ({
 					{status === "failed" && (
 						<>
 							<InfoBox variant="danger" icon={<XCircle className="size-4" />}>
-								<p className="font-medium">{t("registry.authorizer.headers.didNotComplete")}</p>
-								<p className="text-xs opacity-80">{errorMessage ?? t("registry.authorizer.headers.checkValues")}</p>
+								<p className="font-medium">Verification did not complete.</p>
+								<p className="text-xs opacity-80">{errorMessage ?? "Check your header values and try again."}</p>
 							</InfoBox>
 							<div className="flex justify-end gap-2">
 								<Button size="sm" variant="outline" onClick={handleCancel} data-testid="mcp-headers-authorizer-close-btn">
-									{tc("close")}
+									Close
 								</Button>
 								<Button size="sm" onClick={handleRetry} data-testid="mcp-headers-authorizer-retry-btn">
 									<RefreshCw className="size-3.5" />
-									{t("common.retry")}
+									Retry
 								</Button>
 							</div>
 						</>

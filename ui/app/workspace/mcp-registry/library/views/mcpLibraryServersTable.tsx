@@ -9,7 +9,6 @@ import { Link } from "@tanstack/react-router";
 import { BookIcon, Check, Download, LogIn, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
 import { MCPLibraryDeleteDialog } from "./mcpLibraryDeleteDialog";
 import { authLabel, MCP_ICON_FALLBACK, transportIcon, transportLabel } from "./mcpLibraryServerCard";
 
@@ -28,7 +27,6 @@ export function MCPLibraryServersTable({
 	canDelete,
 	onInstall,
 }: MCPLibraryServersTableProps) {
-	const { t } = useTranslation("mcp");
 	const [deleteEntry, { isLoading: isDeleting }] = useDeleteMCPLibraryEntryMutation();
 	const [serverToDelete, setServerToDelete] = useState<MCPLibraryEntry | null>(null);
 
@@ -36,7 +34,7 @@ export function MCPLibraryServersTable({
 		if (!serverToDelete) return;
 		try {
 			await deleteEntry(serverToDelete.id).unwrap();
-			toast.success(t("library.card.removedToast", { name: serverToDelete.name }));
+			toast.success(`"${serverToDelete.name}" removed from the library.`);
 			setServerToDelete(null);
 		} catch (error) {
 			toast.error(getErrorMessage(error));
@@ -48,10 +46,10 @@ export function MCPLibraryServersTable({
 			<Table className="min-w-[32rem] md:min-w-0" containerClassName="overflow-x-auto md:overflow-x-clip">
 				<TableHeader className="bg-muted sticky top-0 z-10">
 					<TableRow>
-						<TableHead className="w-16">{t("library.table.icon")}</TableHead>
-						<TableHead>{t("library.table.server")}</TableHead>
-						<TableHead className="hidden w-10 lg:table-cell">{t("library.table.details")}</TableHead>
-						<TableHead className="w-32 text-right">{t("actions", { ns: "common" })}</TableHead>
+						<TableHead className="w-16">Icon</TableHead>
+						<TableHead>Server</TableHead>
+						<TableHead className="hidden w-10 lg:table-cell">Details</TableHead>
+						<TableHead className="w-32 text-right">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -83,13 +81,13 @@ export function MCPLibraryServersTable({
 											{isInstalled && (
 												<Badge variant="success" className="gap-1">
 													<Check className="size-3" />
-													{t("library.card.installed")}
+													Installed
 												</Badge>
 											)}
-											{server.source === "custom" && <Badge variant="outline">{t("library.card.custom")}</Badge>}
+											{server.source === "custom" && <Badge variant="outline">Custom</Badge>}
 										</div>
 										<p className="text-muted-foreground line-clamp-1 max-w-4xl text-sm leading-5">
-											{server.description || t("library.card.noDescription")}
+											{server.description || "No description available."}
 										</p>
 									</div>
 								</TableCell>
@@ -113,13 +111,13 @@ export function MCPLibraryServersTable({
 															variant="outline"
 															size="icon"
 															onClick={() => setServerToDelete(server)}
-															aria-label={t("library.card.removeAria", { name: server.name })}
+															aria-label={`Remove ${server.name} from library`}
 															data-testid={`mcp-library-table-delete-${server.slug}`}
 														>
 															<Trash2 className="h-4 w-4" />
 														</Button>
 													</TooltipTrigger>
-													<TooltipContent>{t("library.card.removeFromLibrary")}</TooltipContent>
+													<TooltipContent>Remove from library</TooltipContent>
 												</Tooltip>
 											</div>
 										)}
@@ -130,7 +128,7 @@ export function MCPLibraryServersTable({
 														asChild
 														variant="outline"
 														size="icon"
-														aria-label={t("library.card.docsAria", { name: server.name })}
+														aria-label={`Open ${server.name} documentation`}
 														data-testid={`mcp-library-table-docs-${server.slug}`}
 													>
 														<a href={server.docs_url} target="_blank" rel="noreferrer">
@@ -138,19 +136,19 @@ export function MCPLibraryServersTable({
 														</a>
 													</Button>
 												</TooltipTrigger>
-												<TooltipContent>{t("library.card.documentation")}</TooltipContent>
+												<TooltipContent>Documentation</TooltipContent>
 											</Tooltip>
 										)}
 										{isInstalled ? (
 											<Tooltip>
 												<TooltipTrigger asChild>
 													<Button asChild size="icon" data-testid={`mcp-library-table-open-${server.slug}`}>
-														<Link to="/workspace/mcp-registry" aria-label={t("library.table.openAria", { name: server.name })}>
+														<Link to="/workspace/mcp-registry" aria-label={`Open ${server.name}`}>
 															<LogIn className="h-4 w-4" />
 														</Link>
 													</Button>
 												</TooltipTrigger>
-												<TooltipContent>{t("library.table.openInstalled")}</TooltipContent>
+												<TooltipContent>Open installed server</TooltipContent>
 											</Tooltip>
 										) : (
 											<Tooltip>
@@ -159,13 +157,13 @@ export function MCPLibraryServersTable({
 														size="icon"
 														onClick={() => onInstall(server)}
 														disabled={!canCreateMCPClient}
-														aria-label={t("library.table.installAria", { name: server.name })}
+														aria-label={`Install ${server.name}`}
 														data-testid={`mcp-library-table-install-${server.slug}`}
 													>
 														<Download className="h-4 w-4" />
 													</Button>
 												</TooltipTrigger>
-												<TooltipContent>{t("common.install")}</TooltipContent>
+												<TooltipContent>Install</TooltipContent>
 											</Tooltip>
 										)}
 									</div>
@@ -190,16 +188,15 @@ export function MCPLibraryServersTable({
 
 /** Skeleton placeholder mirroring the table layout while the library catalog loads. */
 export function MCPLibraryServersTableSkeleton({ rows = 8 }: { rows?: number }) {
-	const { t } = useTranslation("mcp");
 	return (
 		<div className="mb-2 overflow-visible rounded-md border md:overflow-y-auto" data-testid="mcp-library-table-skeleton">
 			<Table className="min-w-[32rem] md:min-w-0" containerClassName="overflow-x-auto md:overflow-x-clip">
 				<TableHeader className="bg-muted sticky top-0 z-10">
 					<TableRow>
-						<TableHead className="w-16">{t("library.table.icon")}</TableHead>
-						<TableHead>{t("library.table.server")}</TableHead>
-						<TableHead className="hidden w-10 lg:table-cell">{t("library.table.details")}</TableHead>
-						<TableHead className="w-32 text-right">{t("actions", { ns: "common" })}</TableHead>
+						<TableHead className="w-16">Icon</TableHead>
+						<TableHead>Server</TableHead>
+						<TableHead className="hidden w-10 lg:table-cell">Details</TableHead>
+						<TableHead className="w-32 text-right">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>

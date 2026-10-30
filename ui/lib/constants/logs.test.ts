@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { mapAppToClientApp, mapUserAgentToApp, RequestTypeColors, RequestTypeLabels, RequestTypes, RoutingEngineUsedLabels } from "./logs";
+import { mapAppToClientApp, mapUserAgentToApp, RequestTypeColors, RequestTypeLabels, RequestTypes } from "./logs";
 
 describe("logs constants", () => {
 	it.each([
@@ -42,16 +42,6 @@ describe("logs constants", () => {
 		expect(RequestTypeLabels["live.session"]).toBe("Live Session");
 		expect(RequestTypeLabels["live_content"]).toBe("Live Recording");
 		expect(RequestTypeLabels["live_sideband"]).toBe("Live Sideband");
-	});
-
-	it("registers session-affinity as a routing engine", () => {
-		expect(RoutingEngineUsedLabels["session-affinity"]).toBe("Session");
-	});
-
-	it("registers decisions as a known request type", () => {
-		expect(RequestTypes).toContain("decisions");
-		expect(RequestTypeLabels.decisions).toBe("Decisions");
-		expect(RequestTypeColors.decisions).toBeTruthy();
 	});
 
 	it("maps backend app names to display metadata", () => {

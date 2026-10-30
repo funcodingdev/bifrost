@@ -1,4 +1,3 @@
-import localeMessages from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -7,7 +6,6 @@ import type { LogFilters as LogFiltersType } from "@/lib/types/logs";
 import { formatCompactNumber } from "@/lib/utils/numbers";
 import { Check, Info } from "lucide-react";
 import { useCallback, useState } from "react";
-import { useTranslation } from "react-i18next";
 
 export type RecalculateCostMode = "missing" | "all";
 
@@ -22,8 +20,6 @@ interface RecalculateCostDialogProps {
 }
 
 export function RecalculateCostDialog({ open, onOpenChange, filters, totalLogs, onConfirm }: RecalculateCostDialogProps) {
-	const { t } = useTranslation("observability");
-
 	const [mode, setMode] = useState<RecalculateCostMode>("missing");
 	// Lazy query for the missing-cost count: triggered imperatively on open and on
 	// selecting "Missing cost only", so there is no data-fetching effect to manage.
@@ -45,9 +41,9 @@ export function RecalculateCostDialog({ open, onOpenChange, filters, totalLogs, 
 	const disabledReason =
 		mode === "missing"
 			? isFetching
-				? localeMessages.t("logs.recalc.checking", { ns: "observability" })
+				? "Checking how many logs are missing a cost…"
 				: missingCount === 0
-					? localeMessages.t("logs.recalc.allHaveCost", { ns: "observability" })
+					? "All logs in the current window already have a cost."
 					: null
 			: totalLogs === 0
 				? "No logs match the current filters."
@@ -65,53 +61,61 @@ export function RecalculateCostDialog({ open, onOpenChange, filters, totalLogs, 
 				}}
 			>
 				<DialogHeader className="pb-2">
-					<DialogTitle>{t("logs.recalc.title")}</DialogTitle>
-					<DialogDescription>{t("logs.recalc.description")}</DialogDescription>
+					<DialogTitle>Recalculate costs</DialogTitle>
+					<DialogDescription>
+						The current time window and filters will be applied. Choose which logs to recompute cost for.
+					</DialogDescription>
 				</DialogHeader>
 
 				<div className="flex flex-col gap-2">
 					<RecalculateModeOption
 						selected={mode === "missing"}
 						onSelect={() => selectMode("missing")}
-						title={t("logs.recalc.missingOnly")}
-						description={t("logs.recalc.missingOnlyDesc")}
+						title="Missing cost only"
+						description="Only recompute logs that don't have a cost yet."
 					/>
 					<RecalculateModeOption
 						selected={mode === "all"}
 						onSelect={() => selectMode("all")}
-						title={t("logs.recalc.allSelected")}
-						description={t("logs.recalc.allSelectedDesc")}
+						title="All selected logs"
+						description="Recompute cost for every log matching the current filters."
 					/>
 				</div>
 
 				<p className="text-muted-foreground text-xs">
 					{mode === "all" ? (
-						<>{t("logs.recalc.matchCount", { count: formatCompactNumber(totalLogs) })}</>
+						<>
+							<span className="text-foreground font-medium">{formatCompactNumber(totalLogs)}</span> logs match the current filters and will
+							be recalculated.
+						</>
 					) : isFetching ? (
-						t("logs.recalc.checking")
+						"Checking how many logs are missing a cost…"
 					) : isError || missingCount === null ? (
-						t("logs.recalc.fallbackMissing")
+						"Logs in the current window that don't have a cost yet will be recalculated."
 					) : missingCount === 0 ? (
-						t("logs.recalc.allHaveCost")
+						"All logs in the current window already have a cost."
 					) : (
-						<>{t("logs.recalc.missingCount", { count: missingCount })}</>
+						<>
+							<span className="text-foreground font-medium">{formatCompactNumber(missingCount)}</span> {missingCount === 1 ? "log" : "logs"}{" "}
+							in the current window {missingCount === 1 ? "doesn't have" : "don't have"} a cost yet and will be recalculated.
+						</>
 					)}
 				</p>
 
 				<div className="text-muted-foreground flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-xs">
 					<Info className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-500" />
-					<span>{t("logs.recalc.warning")}</span>
+					<span>Affects the logs dashboard only. Governance budgets and usage tracking remain unchanged.</span>
 				</div>
 
 				<DialogFooter className="pt-0">
 					<Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
-						{t("labels.cancel")}
+						Cancel
 					</Button>
 					<Tooltip>
 						<TooltipTrigger asChild>
 							<span tabIndex={disabledReason ? 0 : undefined}>
 								<Button size="sm" onClick={() => onConfirm(mode)} disabled={disabledReason !== null}>
-									{t("logs.recalc.confirm")}
+									Recalculate
 								</Button>
 							</span>
 						</TooltipTrigger>

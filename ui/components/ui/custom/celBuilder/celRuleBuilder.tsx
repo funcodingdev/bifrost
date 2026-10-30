@@ -20,7 +20,6 @@ import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { cn } from "@/lib/utils";
 import { Check, Copy, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { Field, QueryBuilder, RuleGroupType } from "react-querybuilder";
 import "react-querybuilder/dist/query-builder.css";
 import { normalizeRoutingRuleGroupQuery } from "@/lib/utils/routingRuleGroupQuery";
@@ -112,8 +111,6 @@ export function CELRuleBuilder({
 		hideCELExpression: false,
 	},
 }: CELRuleBuilderProps) {
-	const { t } = useTranslation("observability");
-	const { t: tc } = useTranslation("common");
 	const normalizedInitial = normalizeRoutingRuleGroupQuery(initialQuery ?? defaultQuery);
 	const [query, setQuery] = useState<RuleGroupType>(normalizedInitial);
 	const [celExpression, setCelExpression] = useState("");
@@ -196,7 +193,7 @@ export function CELRuleBuilder({
 		return (
 			<div className="flex items-center justify-center space-x-2 rounded-md border p-8">
 				<Loader2 className="h-5 w-5 animate-spin" />
-				<span className="text-muted-foreground text-sm">{t("celBuilder.loading")}</span>
+				<span className="text-muted-foreground text-sm">Loading CEL builder...</span>
 			</div>
 		);
 	}
@@ -222,7 +219,7 @@ export function CELRuleBuilder({
 							)}
 							data-testid="cel-builder-mode-builder"
 						>
-							{t("celBuilder.builder")}
+							Builder
 						</button>
 						<button
 							type="button"
@@ -264,8 +261,8 @@ export function CELRuleBuilder({
 									combinatorSelector: CombinatorSelector,
 								}}
 								translations={{
-									addRule: { label: t("celBuilder.addRule") },
-									addGroup: { label: t("celBuilder.addRuleGroup") },
+									addRule: { label: "Add Rule" },
+									addGroup: { label: "Add Rule Group" },
 								}}
 							/>
 						</QueryBuilderWrapper>
@@ -276,17 +273,17 @@ export function CELRuleBuilder({
 			{(mode === "cel" || !options.hideCELExpression) && (
 				<div className="space-y-2">
 					<div className="flex items-center justify-between">
-						<Label>{mode === "cel" ? t("celBuilder.expression") : t("celBuilder.expressionPreview")}</Label>
+						<Label>{mode === "cel" ? "CEL Expression" : "CEL Expression Preview"}</Label>
 						<Button variant="outline" size="sm" onClick={() => copy(copyValue)} disabled={!copyValue} className="gap-2" type="button">
 							{copied ? (
 								<>
 									<Check className="h-4 w-4" />
-									{t("celBuilder.copied")}
+									Copied
 								</>
 							) : (
 								<>
 									<Copy className="h-4 w-4" />
-									{t("labels.copy")}
+									Copy
 								</>
 							)}
 						</Button>
@@ -298,7 +295,7 @@ export function CELRuleBuilder({
 								onChange={(e) => handleCelTextChange(e.target.value)}
 								className={cn("font-mono text-sm", celError && "border-destructive focus-visible:ring-destructive")}
 								rows={4}
-								placeholder={t("ui.celRuleBuilder.eGModelClaudeSonnet46", { ns: "common" })}
+								placeholder='e.g. model == "claude-sonnet-4-6"'
 								aria-invalid={!!celError}
 								data-testid="cel-builder-cel-textarea"
 							/>
@@ -307,11 +304,11 @@ export function CELRuleBuilder({
 									{celError}
 								</p>
 							) : (
-								<p className="text-muted-foreground text-xs">{t("celBuilder.leaveEmpty")}</p>
+								<p className="text-muted-foreground text-xs">Leave empty to match all requests.</p>
 							)}
 						</>
 					) : (
-						<Textarea value={celExpression || t("celBuilder.noRules")} readOnly className="font-mono text-sm" rows={4} />
+						<Textarea value={celExpression || "No rules defined yet"} readOnly className="font-mono text-sm" rows={4} />
 					)}
 				</div>
 			)}
@@ -319,18 +316,21 @@ export function CELRuleBuilder({
 			<AlertDialog open={confirmSwitchToBuilder} onOpenChange={setConfirmSwitchToBuilder}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>{t("celBuilder.switchTitle")}</AlertDialogTitle>
-						<AlertDialogDescription>{t("celBuilder.switchDescription")}</AlertDialogDescription>
+						<AlertDialogTitle>Switch to the visual builder?</AlertDialogTitle>
+						<AlertDialogDescription>
+							The visual builder can&apos;t import a hand-written CEL expression, so your current CEL will be discarded and the builder will
+							start empty. Copy it first if you want to keep it.
+						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>{tc("cancel")}</AlertDialogCancel>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={() => {
 								setConfirmSwitchToBuilder(false);
 								applySwitchToBuilder();
 							}}
 						>
-							{t("celBuilder.discardAndSwitch")}
+							Discard CEL &amp; switch
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

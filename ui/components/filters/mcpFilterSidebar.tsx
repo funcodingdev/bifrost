@@ -9,7 +9,6 @@ import { useGetAgentsQuery, useGetMCPLogsFilterDataQuery } from "@/lib/store";
 import type { MCPToolLogFilters } from "@/lib/types/logs";
 import { PanelLeftClose, RotateCcw, Search } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 
 const COLLAPSE_STORAGE_KEY = "mcp-filter-sidebar-collapsed";
 
@@ -23,7 +22,6 @@ interface MCPFilterSidebarProps {
 }
 
 export function MCPFilterSidebar({ filters, onFiltersChange }: MCPFilterSidebarProps) {
-	const { t } = useTranslation("governance");
 	const isMobile = useIsMobile();
 	const [collapsed, setCollapsed] = useState(false);
 
@@ -74,22 +72,15 @@ export function MCPFilterSidebar({ filters, onFiltersChange }: MCPFilterSidebarP
 		<div className="bg-card fixed inset-y-2 left-2 z-40 flex h-auto w-[calc(100vw-1rem)] max-w-72 shrink-0 flex-col rounded-md border shadow-xl md:static md:h-full md:w-64 md:max-w-none md:rounded-md md:shadow-none">
 			{/* Header */}
 			<div className="flex h-11 items-center justify-between border-b pr-2 pl-5">
-				<span className="text-sm font-semibold">{t("filters.filters")}</span>
+				<span className="text-sm font-semibold">Filters</span>
 				<div className="flex items-center gap-1">
 					{activeFilterCount > 0 && (
 						<Button variant="outline" size="sm" className="text-muted-foreground h-7 px-2 text-xs" onClick={handleReset}>
 							<RotateCcw className="size-3" />
-							{t("filters.reset")}
+							Reset
 						</Button>
 					)}
-					<Button
-						variant="ghost"
-						size="icon"
-						className="size-7"
-						onClick={toggleCollapsed}
-						title={t("filters.hideFilters")}
-						aria-label={t("filters.hideFilters")}
-					>
+					<Button variant="ghost" size="icon" className="size-7" onClick={toggleCollapsed} title="Hide filters" aria-label="Hide filters">
 						<PanelLeftClose className="size-4" />
 					</Button>
 				</div>
@@ -108,32 +99,32 @@ export function MCPFilterSidebar({ filters, onFiltersChange }: MCPFilterSidebarP
 						filters={filters}
 						onFiltersChange={onFiltersChange}
 						filterKey="session_id"
-						title={t("filters.sessionID", { ns: "observability" })}
-						placeholder={t("filters.exactSessionID", { ns: "observability" })}
+						title="Session ID"
+						placeholder="Exact session ID"
 						testId="mcp-session-id-filter"
 					/>
 					<ExactIDFilter
 						filters={filters}
 						onFiltersChange={onFiltersChange}
 						filterKey="agent_correlation_id"
-						title={t("ui.logsFilterSidebar.agentCorrelationID", { ns: "common" })}
-						placeholder={t("ui.logsFilterSidebar.exactAgentCorrelationID", { ns: "common" })}
+						title="Agent correlation ID"
+						placeholder="Exact Agent correlation ID"
 						testId="mcp-agent-correlation-id-filter"
 					/>
 					<AppFilter filters={filters} onFiltersChange={onFiltersChange} />
 					<VirtualKeysFilter filters={filters} onFiltersChange={onFiltersChange} />
 					{(
 						[
-							["user_ids", "filters.users"],
-							["team_ids", "filters.teams"],
-							["customer_ids", "filters.customers"],
-							["business_unit_ids", "filters.businessUnits"],
-							["project_ids", "filters.projects"],
-							["device_ids", "filters.devices"],
+							["user_ids", "Users"],
+							["team_ids", "Teams"],
+							["customer_ids", "Customers"],
+							["business_unit_ids", "Business units"],
+							["project_ids", "Projects"],
+							["device_ids", "Devices"],
 						] as const
-					).map(([key, labelKey]) =>
+					).map(([key, label]) =>
 						filters[key]?.length ? (
-							<FilterSection key={key} title={t(labelKey)} defaultOpen>
+							<FilterSection key={key} title={label} defaultOpen>
 								<Button
 									variant="ghost"
 									size="sm"
@@ -141,7 +132,7 @@ export function MCPFilterSidebar({ filters, onFiltersChange }: MCPFilterSidebarP
 									data-testid={`mcp-clear-${key}`}
 									onClick={() => onFiltersChange({ ...filters, [key]: [] })}
 								>
-									<span>{t("filters.selectedCount", { count: filters[key]!.length })}</span>
+									<span>{filters[key]!.length} selected</span>
 									<RotateCcw className="size-3" />
 								</Button>
 							</FilterSection>
@@ -164,7 +155,6 @@ interface FilterComponentProps {
 }
 
 function AgentsFilter({ filters, onFiltersChange }: FilterComponentProps) {
-	const { t: tCopy } = useTranslation();
 	const selected = filters.agent_names ?? [];
 	const hasActive = selected.length > 0;
 	const [opened, setOpened] = useState(hasActive);
@@ -178,15 +168,10 @@ function AgentsFilter({ filters, onFiltersChange }: FilterComponentProps) {
 		[data?.agents, filters.agent_names],
 	);
 	return (
-		<FilterSection
-			title={tCopy("ui.logsFilterSidebar.agent", { ns: "common" })}
-			defaultOpen={hasActive}
-			loading={isLoading}
-			onOpenChange={setOpened}
-		>
+		<FilterSection title="Agent" defaultOpen={hasActive} loading={isLoading} onOpenChange={setOpened}>
 			<SearchableCheckboxList
 				inputRef={searchInputRef}
-				placeholder={tCopy("ui.logsFilterSidebar.searchAgents", { ns: "common" })}
+				placeholder="Search agents"
 				items={items}
 				isSelected={(name) => selected.includes(name)}
 				onToggle={(name) => {
@@ -230,11 +215,10 @@ function ExactIDFilter({ filters, onFiltersChange, filterKey, title, placeholder
 // ---------------------------------------------------------------------------
 
 function StatusFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentProps) {
-	const { t } = useTranslation("governance");
 	const hasActive = (filters.status || []).length > 0;
 
 	return (
-		<FilterSection title={t("filters.status")} defaultOpen={defaultOpen || hasActive}>
+		<FilterSection title="Status" defaultOpen={defaultOpen || hasActive}>
 			{[...Statuses, "unknown"].map((status) => (
 				<CheckboxFilterItem
 					key={status}
@@ -257,7 +241,6 @@ function StatusFilter({ filters, onFiltersChange, defaultOpen }: FilterComponent
 // ---------------------------------------------------------------------------
 
 function ToolNamesFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentProps) {
-	const { t } = useTranslation("governance");
 	const hasActive = (filters.tool_names || []).length > 0;
 	const [opened, setOpened] = useState(defaultOpen || hasActive);
 	const searchInputRef = useAutoFocusOnOpen(opened);
@@ -278,10 +261,10 @@ function ToolNamesFilter({ filters, onFiltersChange, defaultOpen }: FilterCompon
 	if (!isUninitialized && !isLoading && availableToolNames.length === 0 && !hasActive && !opened) return null;
 
 	return (
-		<FilterSection title={t("filters.toolNames")} defaultOpen={defaultOpen || hasActive} loading={isLoading} onOpenChange={setOpened}>
+		<FilterSection title="Tool Names" defaultOpen={defaultOpen || hasActive} loading={isLoading} onOpenChange={setOpened}>
 			<SearchableCheckboxList
 				inputRef={searchInputRef}
-				placeholder={t("filters.searchOrAddATool")}
+				placeholder="Search or add a tool"
 				items={items}
 				allowCustom
 				isSelected={(name) => (filters.tool_names || []).includes(name)}
@@ -302,7 +285,6 @@ function ToolNamesFilter({ filters, onFiltersChange, defaultOpen }: FilterCompon
 // ---------------------------------------------------------------------------
 
 function ServersFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentProps) {
-	const { t } = useTranslation("governance");
 	const hasActive = (filters.server_labels || []).length > 0;
 	const [opened, setOpened] = useState(defaultOpen || hasActive);
 	const searchInputRef = useAutoFocusOnOpen(opened);
@@ -323,10 +305,10 @@ function ServersFilter({ filters, onFiltersChange, defaultOpen }: FilterComponen
 	if (!isUninitialized && !isLoading && availableServerLabels.length === 0 && !hasActive && !opened) return null;
 
 	return (
-		<FilterSection title={t("filters.servers")} defaultOpen={defaultOpen || hasActive} loading={isLoading} onOpenChange={setOpened}>
+		<FilterSection title="Servers" defaultOpen={defaultOpen || hasActive} loading={isLoading} onOpenChange={setOpened}>
 			<SearchableCheckboxList
 				inputRef={searchInputRef}
-				placeholder={t("filters.searchOrAddAServer")}
+				placeholder="Search or add a server"
 				items={items}
 				allowCustom
 				isSelected={(label) => (filters.server_labels || []).includes(label)}
@@ -347,7 +329,6 @@ function ServersFilter({ filters, onFiltersChange, defaultOpen }: FilterComponen
 // ---------------------------------------------------------------------------
 
 function AppFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentProps) {
-	const { t } = useTranslation("governance");
 	const hasActive = (filters.apps || []).length > 0;
 	const [opened, setOpened] = useState(defaultOpen || hasActive);
 	const searchInputRef = useAutoFocusOnOpen(opened);
@@ -368,7 +349,7 @@ function AppFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentPro
 
 	return (
 		<FilterSection
-			title={t("filters.app")}
+			title="App"
 			defaultOpen={defaultOpen || hasActive}
 			loading={isLoading}
 			onOpenChange={setOpened}
@@ -376,7 +357,7 @@ function AppFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentPro
 		>
 			<SearchableCheckboxList
 				inputRef={searchInputRef}
-				placeholder={t("filters.searchApps")}
+				placeholder="Search apps"
 				items={items}
 				isSelected={(appName) => selectedSet.has(appName)}
 				onToggle={(appName) => {
@@ -396,7 +377,6 @@ function AppFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentPro
 // ---------------------------------------------------------------------------
 
 function VirtualKeysFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentProps) {
-	const { t } = useTranslation("governance");
 	const hasActive = (filters.virtual_key_ids || []).length > 0;
 	const [opened, setOpened] = useState(defaultOpen || hasActive);
 	const searchInputRef = useAutoFocusOnOpen(opened);
@@ -425,10 +405,10 @@ function VirtualKeysFilter({ filters, onFiltersChange, defaultOpen }: FilterComp
 	};
 
 	return (
-		<FilterSection title={t("filters.virtualKeys")} defaultOpen={defaultOpen || hasActive} loading={isLoading} onOpenChange={setOpened}>
+		<FilterSection title="Virtual Keys" defaultOpen={defaultOpen || hasActive} loading={isLoading} onOpenChange={setOpened}>
 			<SearchableCheckboxList
 				inputRef={searchInputRef}
-				placeholder={t("filters.searchVirtualKeys")}
+				placeholder="Search virtual keys"
 				items={availableVirtualKeys.map((key) => ({ key: key.name, label: key.name }))}
 				isSelected={isSelected}
 				onToggle={toggle}
