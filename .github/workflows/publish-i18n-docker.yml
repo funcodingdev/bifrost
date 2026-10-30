@@ -217,11 +217,11 @@ jobs:
           version="${GITHUB_REF_NAME#v}"
           notes="$RUNNER_TEMP/i18n-release-notes.md"
           cat > "$notes" <<EOF
-          Bifrost 中文发行版，基于上游 dev 分支的 ${version%.*} 版本，中文修订号为 ${version##*.}。
+          Bifrost 中文发行版，基于上游 ${version%.*} 版本，中文修订号为 ${version##*.}。
 
           - Dashboard 仅保留简体中文和英文，默认语言为简体中文。
-          - 补齐业务页面、弹窗、校验提示、分页及日期文案，并优化中文翻译。
-          - 修复复杂度路由的决策模型回退标签，同步 Go 工具模块依赖。
+          - 同步上游 2.4.0，恢复并补齐新增页面、业务弹窗、校验提示及导出文案的中文翻译。
+          - 补齐动态插值与常量文案，保留 USD、StartsWith、EndsWith、LogProb 等技术术语。
           - 支持 linux/amd64 和 linux/arm64。
           - 两种架构均通过容器健康、程序版本及中文 UI 资源检查。
           - 镜像已公开，可直接拉取。
