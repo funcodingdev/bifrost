@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -42,7 +43,7 @@ export function OpenAPIImportDialog({ open, onClose, onImport }: OpenAPIImportDi
 	const parse = useCallback(async () => {
 		const checked = mode === "url" ? relayOpenAPISpecUrlSchema.safeParse(specUrl) : undefined;
 		if (checked && !checked.success) {
-			setSpecUrlError(checked.error.issues[0]?.message ?? "Enter an absolute http(s) URL");
+			setSpecUrlError(checked.error.issues[0]?.message ?? localeMessages.t("ui.upstream.enterAnAbsoluteHttpSUrl", { ns: "common" }));
 			return;
 		}
 		const url = checked?.data ?? "";
@@ -60,7 +61,9 @@ export function OpenAPIImportDialog({ open, onClose, onImport }: OpenAPIImportDi
 		} catch (e) {
 			if (seq !== parseSeq.current) return;
 			setPreview(null);
-			setParseError(e instanceof Error ? e.message : getErrorMessage(e) || "The document could not be read");
+			setParseError(
+				e instanceof Error ? e.message : getErrorMessage(e) || localeMessages.t("ui.upstream.theDocumentCouldNotBeRead", { ns: "common" }),
+			);
 		} finally {
 			if (seq === parseSeq.current) setIsParsing(false);
 		}
@@ -95,10 +98,8 @@ export function OpenAPIImportDialog({ open, onClose, onImport }: OpenAPIImportDi
 		<Dialog open={open} onOpenChange={(o) => !o && close()}>
 			<DialogContent className="sm:max-w-2xl">
 				<DialogHeader>
-					<DialogTitle>Import routes from OpenAPI</DialogTitle>
-					<DialogDescription>
-						Every operation becomes a route. Imported routes replace the current list; review prices before saving.
-					</DialogDescription>
+					<DialogTitle>{localeMessages.t("ui.upstream.importRoutesFromOpenapi", { ns: "common" })}</DialogTitle>
+					<DialogDescription>{localeMessages.t("ui.upstream.everyOperationBecomesARouteImported", { ns: "common" })}</DialogDescription>
 				</DialogHeader>
 				<div data-testid="relay-openapi-source">
 					<OpenAPISpecSource
@@ -116,7 +117,7 @@ export function OpenAPIImportDialog({ open, onClose, onImport }: OpenAPIImportDi
 							setSpecUrlError(undefined);
 						}}
 						specUrlError={specUrlError}
-						urlHint="Bifrost fetches the document once to read its operations; neither the document nor the URL is stored."
+						urlHint={localeMessages.t("ui.upstream.bifrostFetchesTheDocumentOnceTo", { ns: "common" })}
 						fileName={fileName}
 						onFileSelected={(file, content) => {
 							setFileName(file.name);
@@ -133,20 +134,20 @@ export function OpenAPIImportDialog({ open, onClose, onImport }: OpenAPIImportDi
 				{result && (
 					<div className="bg-muted/40 space-y-1.5 rounded-md border p-3 text-sm" data-testid="relay-openapi-preview">
 						<div className="flex flex-wrap items-center gap-2">
-							<span className="font-medium">{result.title ?? "Untitled document"}</span>
+							<span className="font-medium">{result.title ?? localeMessages.t("ui.upstream.untitledDocument", { ns: "common" })}</span>
 							{result.version && <Badge variant="outline">v{result.version}</Badge>}
 							<Badge variant="secondary">
 								{result.routes.length} {result.routes.length === 1 ? "route" : "routes"}
 							</Badge>
-							{result.partial && <Badge variant="outline">partial</Badge>}
+							{result.partial && <Badge variant="outline">{localeMessages.t("ui.upstream.partial", { ns: "common" })}</Badge>}
 						</div>
 						<div className="text-muted-foreground text-xs">
 							{result.baseUrl ? (
 								<>
-									Base URL <code className="font-mono">{result.baseUrl}</code>
+									{localeMessages.t("ui.upstream.baseUrl", { ns: "common" })} <code className="font-mono">{result.baseUrl}</code>
 								</>
 							) : (
-								"No server listed; keep the base URL you set on the relay."
+								localeMessages.t("ui.upstream.noServerListedKeepTheBase", { ns: "common" })
 							)}
 							{result.auth ? ` · Auth suggestion: ${result.auth.type}` : ""}
 						</div>
@@ -161,10 +162,11 @@ export function OpenAPIImportDialog({ open, onClose, onImport }: OpenAPIImportDi
 				)}
 				<DialogFooter>
 					<Button variant="outline" onClick={close}>
-						Cancel
+						{localeMessages.t("ui.upstream.cancel", { ns: "common" })}
 					</Button>
 					<Button onClick={apply} disabled={!result || isParsing} data-testid="relay-openapi-import">
-						Import{result ? ` ${result.routes.length} ${result.routes.length === 1 ? "route" : "routes"}` : ""}
+						{localeMessages.t("ui.upstream.import", { ns: "common" })}
+						{result ? ` ${result.routes.length} ${result.routes.length === 1 ? "route" : "routes"}` : ""}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { SecretVarInput } from "@/components/ui/secretVarInput";
@@ -377,10 +378,10 @@ export function HeadersTable<T extends HeaderValue>({
 											{hasConflict && (
 												<span className="text-destructive px-3 text-xs">
 													{conflictKey === UNSUPPORTED_KEY
-														? "This key name is not supported"
+														? localeMessages.t("ui.upstream.thisKeyNameIsNotSupported", { ns: "common" })
 														: conflictKey === ""
-															? "Enter a name or remove the row"
-															: "Duplicate key"}
+															? localeMessages.t("ui.upstream.enterANameOrRemoveThe", { ns: "common" })
+															: localeMessages.t("ui.upstream.duplicateKey", { ns: "common" })}
 												</span>
 											)}
 										</div>

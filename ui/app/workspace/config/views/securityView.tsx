@@ -288,7 +288,7 @@ export default function SecurityView() {
 			}
 			const oauthModeActive = localConfig.mcp_server_auth_mode === "both" || localConfig.mcp_server_auth_mode === "oauth";
 			if (oauthModeActive && !isSecretVarSet(localConfig.oauth2_server_config?.issuer_url)) {
-				toast.error("Issuer URL is required while MCP auth mode is OAuth or Both. Switch MCP auth to Headers in MCP Settings to clear it.");
+				toast.error(localeMessages.t("ui.upstream.issuerUrlIsRequiredWhileMcp", { ns: "common" }));
 				return;
 			}
 			const cooldownInput = localValues.vk_rotation_cooldown.trim();
@@ -674,12 +674,9 @@ export default function SecurityView() {
 					<div className="flex items-center justify-between space-x-2 rounded-sm border p-4">
 						<div className="space-y-0.5">
 							<label htmlFor="skip-access-profile-user-virtual-key-creation" className="text-sm font-medium">
-								Don&apos;t Create User Virtual Keys for Access Profiles
+								{localeMessages.t("ui.upstream.donTCreateUserVirtualKeys", { ns: "common" })}
 							</label>
-							<p className="text-muted-foreground text-sm">
-								When enabled, a user&apos;s first access profile doesn&apos;t create a virtual key for them. Keys the user already owns, or
-								that you add for them, are still governed by the profile while they hold one.
-							</p>
+							<p className="text-muted-foreground text-sm">{localeMessages.t("ui.upstream.whenEnabledAUserSFirst", { ns: "common" })}</p>
 						</div>
 						<Switch
 							id="skip-access-profile-user-virtual-key-creation"
@@ -693,12 +690,9 @@ export default function SecurityView() {
 					<div className="flex items-center justify-between space-x-2 rounded-sm border p-4">
 						<div className="space-y-0.5">
 							<label htmlFor="skip-access-profile-user-virtual-key-deletion" className="text-sm font-medium">
-								Don&apos;t Delete User Virtual Keys When Access Profiles Are Removed
+								{localeMessages.t("ui.upstream.donTDeleteUserVirtualKeys", { ns: "common" })}
 							</label>
-							<p className="text-muted-foreground text-sm">
-								When enabled, removing a user&apos;s last access profile keeps their virtual keys as ordinary keys, with none of the
-								profile&apos;s providers or access. Deleting the user still deletes their keys.
-							</p>
+							<p className="text-muted-foreground text-sm">{localeMessages.t("ui.upstream.whenEnabledRemovingAUserS", { ns: "common" })}</p>
 						</div>
 						<Switch
 							id="skip-access-profile-user-virtual-key-deletion"
@@ -712,13 +706,14 @@ export default function SecurityView() {
 				<div className="space-y-2 rounded-sm border p-4" data-testid="oauth2-issuer-url-section">
 					<div className="space-y-0.5">
 						<label htmlFor="oauth2-issuer-url" className="text-sm font-medium">
-							OAuth Issuer URL
+							{localeMessages.t("ui.upstream.oauthIssuerUrl", { ns: "common" })}
 						</label>
 						<p className="text-muted-foreground text-sm">
-							Stable public URL of Bifrost's OAuth authorization server, advertised in discovery documents and set as the{" "}
-							<code className="text-xs">iss</code> claim of every token Bifrost issues. MCP OAuth (required in OAuth and Both modes) and
-							Cross App Access use it. Bifrost never derives it from the request <code className="text-xs">Host</code> header, because that
-							header is caller-controlled. Supports env var syntax (e.g. <code className="text-xs">env.BIFROST_ISSUER_URL</code>).
+							{localeMessages.t("ui.upstream.stablePublicUrlOfBifrostS", { ns: "common" })} <code className="text-xs">iss</code>{" "}
+							{localeMessages.t("ui.upstream.claimOfEveryTokenBifrostIssues", { ns: "common" })}{" "}
+							<code className="text-xs">{localeMessages.t("ui.upstream.host", { ns: "common" })}</code>{" "}
+							{localeMessages.t("ui.upstream.headerBecauseThatHeaderIsCaller", { ns: "common" })}{" "}
+							<code className="text-xs">env.BIFROST_ISSUER_URL</code>).
 						</p>
 					</div>
 					<SecretVarInput
@@ -736,8 +731,7 @@ export default function SecurityView() {
 							<Alert variant="warning" data-testid="oauth2-issuer-url-change-warning">
 								<AlertTriangle className="size-4" />
 								<AlertDescription>
-									Changing the issuer invalidates the access tokens Bifrost has issued. MCP clients refresh them automatically, and Cross
-									App Access apps request new ones.
+									{localeMessages.t("ui.upstream.changingTheIssuerInvalidatesTheAccess", { ns: "common" })}
 								</AlertDescription>
 							</Alert>
 						)}
@@ -819,7 +813,7 @@ export default function SecurityView() {
 			</div>
 			<div className="bg-card sticky bottom-0 flex justify-end py-2">
 				<Button onClick={handleSave} disabled={!hasChanges || isLoading || !hasSettingsUpdateAccess} data-testid="security-save-btn">
-					{isLoading ? "Saving..." : "Save Changes"}
+					{isLoading ? "Saving..." : localeMessages.t("ui.upstream.saveChanges", { ns: "common" })}
 				</Button>
 			</div>
 			<Dialog open={!!setupTokenErrorMessage} onOpenChange={(open) => !open && setSetupTokenErrorMessage(null)}>

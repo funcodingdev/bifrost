@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -39,11 +40,11 @@ export function AddEndpointSheet({
 	const onSubmit = async (values: RelayFormValues) => {
 		try {
 			const created = await createEndpoint(toRelayConfig(values)).unwrap();
-			toast.success("Relay added successfully");
+			toast.success(localeMessages.t("ui.upstream.relayAddedSuccessfully", { ns: "common" }));
 			onCreated(created.name);
 			close();
 		} catch (e) {
-			toast.error("Failed to add relay", { description: getErrorMessage(e) });
+			toast.error(localeMessages.t("ui.upstream.failedToAddRelay", { ns: "common" }), { description: getErrorMessage(e) });
 		}
 	};
 
@@ -54,7 +55,7 @@ export function AddEndpointSheet({
 					<SheetTitle>
 						<div className="font-lg flex items-center gap-2">
 							<Waypoints className="h-5 w-5" />
-							Add relay
+							{localeMessages.t("ui.upstream.addRelay2", { ns: "common" })}
 						</div>
 					</SheetTitle>
 				</SheetHeader>
@@ -66,7 +67,10 @@ export function AddEndpointSheet({
 								name="name"
 								render={({ field }) => (
 									<FormItem>
-										<InfoLabel label="Name (Required)" info={<>Callers use /relay/&lt;name&gt;. It cannot be changed later.</>} />
+										<InfoLabel
+											label={localeMessages.t("ui.upstream.nameRequired", { ns: "common" })}
+											info={<>{localeMessages.t("ui.upstream.callersUseRelayNameItCannot", { ns: "common" })}</>}
+										/>
 										<FormControl>
 											<Input placeholder="tavily" data-testid="relay-name" {...field} />
 										</FormControl>
@@ -80,8 +84,8 @@ export function AddEndpointSheet({
 								render={({ field }) => (
 									<FormItem>
 										<InfoLabel
-											label="Base URL (Required)"
-											info="Every request is pinned under this origin and path; callers cannot reach another host."
+											label={localeMessages.t("ui.upstream.baseUrlRequired", { ns: "common" })}
+											info={localeMessages.t("ui.upstream.everyRequestIsPinnedUnderThis", { ns: "common" })}
 										/>
 										<FormControl>
 											<Input placeholder="https://api.tavily.com" data-testid="relay-new-base-url" {...field} />
@@ -94,10 +98,10 @@ export function AddEndpointSheet({
 						</div>
 						<div className="bg-card sticky bottom-0 z-10 flex justify-end gap-2 border-t px-4 py-4 md:px-8">
 							<Button type="button" variant="outline" onClick={close} disabled={isLoading}>
-								Cancel
+								{localeMessages.t("ui.upstream.cancel", { ns: "common" })}
 							</Button>
 							<Button type="submit" disabled={!canCreate || isLoading} isLoading={isLoading} data-testid="relay-create">
-								Add Relay
+								{localeMessages.t("ui.upstream.addRelay", { ns: "common" })}
 							</Button>
 						</div>
 					</form>

@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TriStateCheckbox } from "@/components/ui/tristateCheckbox";
@@ -29,7 +30,12 @@ export function MCPExposeList({
 }) {
 	const allKeys = items.map((item) => item.key);
 	const selected = allKeys.filter((key) => isExposed(value, key));
-	const status = selected.length === allKeys.length ? "All served" : selected.length === 0 ? "None served" : `${selected.length} served`;
+	const status =
+		selected.length === allKeys.length
+			? localeMessages.t("ui.upstream.allServed", { ns: "common" })
+			: selected.length === 0
+				? localeMessages.t("ui.upstream.noneServed", { ns: "common" })
+				: `${selected.length} served`;
 
 	return (
 		<div className="space-y-4" data-testid={`mcp-expose-${kind}`}>
@@ -55,8 +61,8 @@ export function MCPExposeList({
 					<Table>
 						<TableHeader>
 							<TableRow>
-								<TableHead>Name</TableHead>
-								<TableHead className="w-24 text-center">Served</TableHead>
+								<TableHead>{localeMessages.t("ui.upstream.name", { ns: "common" })}</TableHead>
+								<TableHead className="w-24 text-center">{localeMessages.t("ui.upstream.served", { ns: "common" })}</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -76,9 +82,11 @@ export function MCPExposeList({
 													size="md"
 													checked={exposed}
 													disabled={byRule}
-													title={byRule ? "Served by a pattern rule" : undefined}
+													title={byRule ? localeMessages.t("ui.upstream.servedByAPatternRule", { ns: "common" }) : undefined}
 													aria-label={
-														byRule ? `${item.label} is served by a pattern rule` : `${exposed ? "Stop serving" : "Serve"} ${item.label}`
+														byRule
+															? `${item.label} is served by a pattern rule`
+															: `${exposed ? localeMessages.t("ui.upstream.stopServing", { ns: "common" }) : localeMessages.t("ui.upstream.serve", { ns: "common" })} ${item.label}`
 													}
 													data-testid={`mcp-expose-${kind}-toggle-${item.key}`}
 													onCheckedChange={(checked) => onChange(nextExposeList(value, allKeys, item.key, checked))}
@@ -93,7 +101,9 @@ export function MCPExposeList({
 				</div>
 			) : (
 				<div className="text-muted-foreground rounded-sm border p-6 text-center" data-testid={`mcp-expose-${kind}-empty`}>
-					<p className="text-sm">This server lists no {kind}</p>
+					<p className="text-sm">
+						{localeMessages.t("ui.upstream.thisServerListsNo", { ns: "common" })} {kind}
+					</p>
 				</div>
 			)}
 		</div>

@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import {
 	averaged,
 	formatCount,
@@ -83,7 +84,7 @@ export function RelayMetricStrip({ stats, histogram, loading, error }: RelayMetr
 			<MetricStripCard className="grid-cols-2 @5xl/metric-strip:grid-cols-4" loading={loading} testId="relay-logs-metric-strip">
 				<MetricSegment
 					state={state}
-					title="Total Requests"
+					title={localeMessages.t("ui.upstream.totalRequests", { ns: "common" })}
 					testId="relay-logs-stat-requests"
 					footer={
 						<>
@@ -115,14 +116,14 @@ export function RelayMetricStrip({ stats, histogram, loading, error }: RelayMetr
 
 				<MetricSegment
 					state={state}
-					title="Success Rate"
+					title={localeMessages.t("ui.upstream.successRate", { ns: "common" })}
 					testId="relay-logs-stat-success"
 					footer={
 						<>
 							<RatioBar
 								percent={successRate}
 								tooltip={
-									<MetricTooltipBody heading="Of all relay calls in this window">
+									<MetricTooltipBody heading={localeMessages.t("ui.upstream.ofAllRelayCallsInThis", { ns: "common" })}>
 										<MetricTooltipRow name="Succeeded" className={positive}>
 											{formatCount(succeeded)}
 										</MetricTooltipRow>
@@ -149,7 +150,7 @@ export function RelayMetricStrip({ stats, histogram, loading, error }: RelayMetr
 
 				<MetricSegment
 					state={state}
-					title="Avg Latency"
+					title={localeMessages.t("ui.upstream.avgLatency", { ns: "common" })}
 					testId="relay-logs-stat-latency"
 					footer={
 						<>
@@ -173,7 +174,7 @@ export function RelayMetricStrip({ stats, histogram, loading, error }: RelayMetr
 
 				<MetricSegment
 					state={state}
-					title="Total Cost"
+					title={localeMessages.t("ui.upstream.totalCost", { ns: "common" })}
 					testId="relay-logs-stat-cost"
 					footer={
 						<>
@@ -190,7 +191,8 @@ export function RelayMetricStrip({ stats, histogram, loading, error }: RelayMetr
 							) : (
 								costPerRequest > 0 && (
 									<MetricTrailing testId="relay-logs-metric-trailing" className={muted}>
-										{formatCurrencyNumber(costPerRequest)}/req
+										{formatCurrencyNumber(costPerRequest)}
+										{localeMessages.t("ui.upstream.req", { ns: "common" })}
 									</MetricTrailing>
 								)
 							)}

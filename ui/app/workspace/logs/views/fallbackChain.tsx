@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { formatLatency } from "@/app/workspace/dashboard/utils/chartUtils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { RenderProviderIcon, type ProviderIconType } from "@/lib/constants/icons";
@@ -54,15 +55,15 @@ export function useFallbackChain(log: LogEntry): LogEntry[] | undefined {
 
 const outcomeCopy: Record<FallbackChainOutcome, { text: string; className: string }> = {
 	succeeded: {
-		text: "Request succeeded",
+		text: localeMessages.t("ui.upstream.requestSucceeded", { ns: "common" }),
 		className: "border-chart-success/30 bg-chart-success/10 text-chart-success-ink",
 	},
 	failed: {
-		text: "All attempts failed",
+		text: localeMessages.t("ui.upstream.allAttemptsFailed", { ns: "common" }),
 		className: "border-chart-error/30 bg-chart-error/10 text-chart-error-ink",
 	},
 	in_progress: {
-		text: "Still running",
+		text: localeMessages.t("ui.upstream.stillRunning", { ns: "common" }),
 		className: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-400",
 	},
 };
@@ -143,7 +144,7 @@ export function FallbackChainBanner({ chain, currentId, onOpenLog }: FallbackCha
 						onClick={() => onOpenLog(last.id)}
 						data-testid="logdetails-fallback-open-final"
 					>
-						Open final attempt
+						{localeMessages.t("ui.upstream.openFinalAttempt", { ns: "common" })}
 					</button>
 				)}
 			</div>
@@ -199,13 +200,13 @@ export function FallbackChainTimeline({ chain, currentId, onOpenLog }: FallbackC
 		<div className="border-border rounded-sm border" data-testid="logdetails-fallback-timeline">
 			<div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b px-4 py-3">
 				<div className="flex items-center gap-2">
-					<div className="text-sm font-medium">Fallback chain</div>
+					<div className="text-sm font-medium">{localeMessages.t("ui.upstream.fallbackChain", { ns: "common" })}</div>
 					<span className={cn("rounded-sm border px-2 py-0.5 text-[11px] font-semibold uppercase", outcomeCopy[outcome].className)}>
 						{outcomeCopy[outcome].text}
 					</span>
 				</div>
 				<div className="text-muted-foreground text-xs tabular-nums">
-					{chain.length} attempts
+					{chain.length} {localeMessages.t("ui.upstream.attempts", { ns: "common" })}
 					{totalMs > 0 ? ` · ${formatLatency(totalMs)} total` : ""}
 				</div>
 			</div>
@@ -270,7 +271,7 @@ export function FallbackChainTimeline({ chain, currentId, onOpenLog }: FallbackC
 												{entry.status === "processing" && <Loader2 className="h-3 w-3 animate-spin text-blue-500" />}
 												{isCurrent && (
 													<span className="bg-foreground/10 text-foreground rounded-sm px-1.5 py-0.5 text-[10px] font-medium uppercase">
-														Viewing
+														{localeMessages.t("ui.upstream.viewing", { ns: "common" })}
 													</span>
 												)}
 											</div>

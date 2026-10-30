@@ -511,9 +511,9 @@ export default function CachingView() {
 												onChange={(e) => updateLocal({ vector_store_namespace: e.target.value })}
 											/>
 											<p className="text-muted-foreground text-xs">
-												Bucket/index name where cache entries live. Leave blank to use the default (<code>BifrostSemanticCachePlugin</code>).
-												Changing this points the plugin at a different (possibly empty) bucket. Old entries are not deleted, they just stop
-												being queried.
+												{localeMessages.t("ui.upstream.bucketIndexNameWhereCacheEntries", { ns: "common" })}
+												<code>BifrostSemanticCachePlugin</code>
+												{localeMessages.t("ui.upstream.changingThisPointsThePluginAt", { ns: "common" })}
 											</p>
 										</div>
 										<div className="space-y-2">

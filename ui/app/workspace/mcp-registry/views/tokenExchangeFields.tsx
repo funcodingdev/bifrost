@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -179,17 +180,17 @@ export function TokenExchangeFields({
 						name="token_exchange.profile"
 						render={({ field }) => (
 							<FormItem className={`flex flex-col gap-2 ${fullRow}`}>
-								<FormLabel>How the upstream token is obtained</FormLabel>
+								<FormLabel>{localeMessages.t("ui.upstream.howTheUpstreamTokenIsObtained", { ns: "common" })}</FormLabel>
 								<FormControl>
 									<div
 										className="bg-muted inline-flex w-fit gap-0.5 rounded-md p-0.5"
 										role="radiogroup"
-										aria-label="Token exchange profile"
+										aria-label={localeMessages.t("ui.upstream.tokenExchangeProfile", { ns: "common" })}
 									>
 										{(
 											[
-												["", "Identity provider issues it"],
-												["id_jag", "Cross App Access (ID-JAG)"],
+												["", localeMessages.t("ui.upstream.identityProviderIssuesIt", { ns: "common" })],
+												["id_jag", localeMessages.t("ui.upstream.crossAppAccessIdJag", { ns: "common" })],
 											] as const
 										).map(([value, label]) => {
 											const selected = (field.value ?? "") === value;
@@ -218,8 +219,8 @@ export function TokenExchangeFields({
 								</FormControl>
 								<p className="text-muted-foreground text-xs">
 									{isIDJAG
-										? "Cross App Access (ID-JAG), for example Okta XAA: the identity provider issues an identity assertion (ID-JAG) for the upstream authorization server named in Audience, and that server exchanges it for its own token. Users must have signed in to Bifrost through the identity provider. Bifrost asks as your SSO login application, the only app the identity provider accepts the user's sign-in token from."
-										: "The identity provider exchanges the caller's token for one scoped to the audience. Use this for internal servers that trust your identity provider."}
+										? localeMessages.t("ui.upstream.crossAppAccessIdJagFor", { ns: "common" })
+										: localeMessages.t("ui.upstream.theIdentityProviderExchangesTheCaller", { ns: "common" })}
 								</p>
 							</FormItem>
 						)}
@@ -432,11 +433,11 @@ export function TokenExchangeFields({
 							name="token_exchange.resource_client_id"
 							render={({ field }) => (
 								<FormItem className="flex flex-col gap-2">
-									<FormLabel>Client ID at the upstream server</FormLabel>
+									<FormLabel>{localeMessages.t("ui.upstream.clientIdAtTheUpstreamServer2", { ns: "common" })}</FormLabel>
 									<FormControl>
 										<SecretVarInput
 											data-testid="token-exchange-resource-client-id-input"
-											placeholder="Bifrost's client ID registered with the MCP server's authorization server"
+											placeholder={localeMessages.t("ui.upstream.bifrostSClientIdRegisteredWith", { ns: "common" })}
 											disabled={disabled}
 											redactNonEnvValue={clientIdRedactNonEnvValue}
 											value={field.value}
@@ -459,17 +460,19 @@ export function TokenExchangeFields({
 							name="token_exchange.resource_token_endpoint"
 							render={({ field }) => (
 								<FormItem className="flex flex-col gap-2">
-									<FormLabel>Upstream token endpoint (optional)</FormLabel>
+									<FormLabel>{localeMessages.t("ui.upstream.upstreamTokenEndpointOptional", { ns: "common" })}</FormLabel>
 									<FormControl>
 										<Input
 											{...field}
 											value={field.value ?? ""}
 											disabled={disabled}
-											placeholder="Discovered from the audience"
+											placeholder={localeMessages.t("ui.upstream.discoveredFromTheAudience", { ns: "common" })}
 											data-testid="token-exchange-resource-token-endpoint-input"
 										/>
 									</FormControl>
-									<p className="text-muted-foreground text-xs">Leave empty to discover it from the audience; the server must support the jwt-bearer grant.</p>
+									<p className="text-muted-foreground text-xs">
+										{localeMessages.t("ui.upstream.leaveEmptyToDiscoverItFrom", { ns: "common" })}
+									</p>
 									<FormMessage />
 								</FormItem>
 							)}
@@ -479,13 +482,13 @@ export function TokenExchangeFields({
 							name="token_exchange.resource"
 							render={({ field }) => (
 								<FormItem className="flex flex-col gap-2">
-									<FormLabel>Resource (optional)</FormLabel>
+									<FormLabel>{localeMessages.t("ui.upstream.resourceOptional", { ns: "common" })}</FormLabel>
 									<FormControl>
 										<Input
 											{...field}
 											value={field.value ?? ""}
 											disabled={disabled}
-											placeholder="Only if your IdP connection defines one"
+											placeholder={localeMessages.t("ui.upstream.onlyIfYourIdpConnectionDefines", { ns: "common" })}
 											data-testid="token-exchange-resource-input"
 										/>
 									</FormControl>
@@ -579,14 +582,14 @@ function ResourceClientAuthFields({
 	return (
 		<>
 			<FormItem className="flex flex-col gap-2">
-				<FormLabel>Authentication at the upstream server</FormLabel>
+				<FormLabel>{localeMessages.t("ui.upstream.authenticationAtTheUpstreamServer", { ns: "common" })}</FormLabel>
 				<Select value={method} onValueChange={(v) => choose(v as MCPResourceAuthMode)} disabled={disabled}>
 					<SelectTrigger className="w-full" data-testid="token-exchange-resource-auth-method-select">
 						<SelectValue />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="secret">Client secret, or none for a public client</SelectItem>
-						<SelectItem value="private_key">Private key (private_key_jwt)</SelectItem>
+						<SelectItem value="secret">{localeMessages.t("ui.upstream.clientSecretOrNoneForA", { ns: "common" })}</SelectItem>
+						<SelectItem value="private_key">{localeMessages.t("ui.upstream.privateKeyPrivateKeyJwt", { ns: "common" })}</SelectItem>
 					</SelectContent>
 				</Select>
 			</FormItem>
@@ -597,11 +600,11 @@ function ResourceClientAuthFields({
 						name="token_exchange.resource_client_secret"
 						render={({ field }) => (
 							<FormItem className="flex flex-col gap-2">
-								<FormLabel>Client secret at the upstream server</FormLabel>
+								<FormLabel>{localeMessages.t("ui.upstream.clientSecretAtTheUpstreamServer", { ns: "common" })}</FormLabel>
 								<FormControl>
 									<SecretVarInput
 										data-testid="token-exchange-resource-client-secret-input"
-										placeholder="Leave empty for a public client"
+										placeholder={localeMessages.t("ui.upstream.leaveEmptyForAPublicClient", { ns: "common" })}
 										disabled={disabled}
 										hideValueWhenEnv={hideValueWhenEnv}
 										maskNonEnvValue={maskNonEnvValue}
@@ -619,7 +622,7 @@ function ResourceClientAuthFields({
 						name="token_exchange.resource_client_auth_method"
 						render={({ field }) => (
 							<FormItem className="flex flex-col gap-2">
-								<FormLabel>Send the secret</FormLabel>
+								<FormLabel>{localeMessages.t("ui.upstream.sendTheSecret", { ns: "common" })}</FormLabel>
 								<Select
 									value={field.value || AUTO_CLIENT_AUTH}
 									onValueChange={(v) => field.onChange(v === AUTO_CLIENT_AUTH ? "" : v)}
@@ -631,14 +634,17 @@ function ResourceClientAuthFields({
 										</SelectTrigger>
 									</FormControl>
 									<SelectContent>
-										<SelectItem value={AUTO_CLIENT_AUTH}>Automatic</SelectItem>
-										<SelectItem value="client_secret_basic">HTTP Basic (client_secret_basic)</SelectItem>
-										<SelectItem value="client_secret_post">Request body (client_secret_post)</SelectItem>
+										<SelectItem value={AUTO_CLIENT_AUTH}>{localeMessages.t("ui.upstream.automatic", { ns: "common" })}</SelectItem>
+										<SelectItem value="client_secret_basic">
+											{localeMessages.t("ui.upstream.httpBasicClientSecretBasic", { ns: "common" })}
+										</SelectItem>
+										<SelectItem value="client_secret_post">
+											{localeMessages.t("ui.upstream.requestBodyClientSecretPost", { ns: "common" })}
+										</SelectItem>
 									</SelectContent>
 								</Select>
 								<p className="text-muted-foreground text-xs">
-									Automatic uses the request body when the server&apos;s metadata lists only client_secret_post, otherwise HTTP Basic.
-									Choose one when you set the token endpoint yourself.
+									{localeMessages.t("ui.upstream.automaticUsesTheRequestBodyWhen", { ns: "common" })}
 								</p>
 								<FormMessage />
 							</FormItem>
@@ -652,7 +658,7 @@ function ResourceClientAuthFields({
 						name="token_exchange.resource_private_key"
 						render={({ field }) => (
 							<FormItem className="flex flex-col gap-2">
-								<FormLabel>Private key</FormLabel>
+								<FormLabel>{localeMessages.t("ui.upstream.privateKey", { ns: "common" })}</FormLabel>
 								<FormControl>
 									<SecretVarInput
 										data-testid="token-exchange-resource-private-key-input"
@@ -667,10 +673,7 @@ function ResourceClientAuthFields({
 										onChange={field.onChange}
 									/>
 								</FormControl>
-								<p className="text-muted-foreground text-xs">
-									RSA or EC key in PEM form. Bifrost signs a client assertion with it for each redemption; register the public key with the
-									upstream server.
-								</p>
+								<p className="text-muted-foreground text-xs">{localeMessages.t("ui.upstream.rsaOrEcKeyInPem", { ns: "common" })}</p>
 								<FormMessage />
 							</FormItem>
 						)}
@@ -680,13 +683,13 @@ function ResourceClientAuthFields({
 						name="token_exchange.resource_key_id"
 						render={({ field }) => (
 							<FormItem className="flex flex-col gap-2">
-								<FormLabel>Key ID (optional)</FormLabel>
+								<FormLabel>{localeMessages.t("ui.upstream.keyIdOptional", { ns: "common" })}</FormLabel>
 								<FormControl>
 									<Input
 										{...field}
 										value={field.value ?? ""}
 										disabled={disabled}
-										placeholder="The kid the upstream server registered for this key"
+										placeholder={localeMessages.t("ui.upstream.theKidTheUpstreamServerRegistered", { ns: "common" })}
 										data-testid="token-exchange-resource-key-id-input"
 									/>
 								</FormControl>
@@ -699,7 +702,7 @@ function ResourceClientAuthFields({
 						name="token_exchange.resource_signing_algorithm"
 						render={({ field }) => (
 							<FormItem className="flex flex-col gap-2">
-								<FormLabel>Signing algorithm</FormLabel>
+								<FormLabel>{localeMessages.t("ui.upstream.signingAlgorithm", { ns: "common" })}</FormLabel>
 								<Select value={field.value || "RS256"} onValueChange={field.onChange} disabled={disabled}>
 									<FormControl>
 										<SelectTrigger className="w-full" data-testid="token-exchange-resource-signing-algorithm-select">
@@ -723,18 +726,18 @@ function ResourceClientAuthFields({
 						name="token_exchange.resource_assertion_audience"
 						render={({ field }) => (
 							<FormItem className="flex flex-col gap-2">
-								<FormLabel>Assertion audience (optional)</FormLabel>
+								<FormLabel>{localeMessages.t("ui.upstream.assertionAudienceOptional", { ns: "common" })}</FormLabel>
 								<FormControl>
 									<Input
 										{...field}
 										value={field.value ?? ""}
 										disabled={disabled}
-										placeholder="Defaults to the upstream token endpoint"
+										placeholder={localeMessages.t("ui.upstream.defaultsToTheUpstreamTokenEndpoint", { ns: "common" })}
 										data-testid="token-exchange-resource-assertion-audience-input"
 									/>
 								</FormControl>
 								<p className="text-muted-foreground text-xs">
-									Set this only when the upstream server expects a different aud, such as its issuer URL.
+									{localeMessages.t("ui.upstream.setThisOnlyWhenTheUpstream", { ns: "common" })}
 								</p>
 								<FormMessage />
 							</FormItem>

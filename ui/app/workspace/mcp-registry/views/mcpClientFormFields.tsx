@@ -381,12 +381,14 @@ export function validateMCPClientForm({
 		}
 		if (data.token_exchange?.profile === "id_jag") {
 			if (!isSecretVarSet(data.token_exchange?.resource_client_id)) {
-				setError("token_exchange.resource_client_id", { message: "Client ID at the upstream server is required for Cross App Access" });
+				setError("token_exchange.resource_client_id", {
+					message: localeMessages.t("ui.upstream.clientIdAtTheUpstreamServer", { ns: "common" }),
+				});
 				hasErrors = true;
 			}
 			if (isSecretVarSet(data.token_exchange?.resource_client_secret) && isSecretVarSet(data.token_exchange?.resource_private_key)) {
 				setError("token_exchange.resource_private_key", {
-					message: "Use either a client secret or a private key at the upstream server, not both",
+					message: localeMessages.t("ui.upstream.useEitherAClientSecretOr", { ns: "common" }),
 				});
 				hasErrors = true;
 			}
@@ -401,14 +403,14 @@ export function validateMCPClientForm({
 			const endpoint = data.token_exchange?.resource_token_endpoint?.trim();
 			if (endpoint && !isHTTPSOrLoopbackURL(endpoint)) {
 				setError("token_exchange.resource_token_endpoint", {
-					message: "Token endpoint must be an https URL (http is allowed only for localhost)",
+					message: localeMessages.t("ui.upstream.tokenEndpointMustBeAnHttps", { ns: "common" }),
 				});
 				hasErrors = true;
 			}
 			const assertionAudience = data.token_exchange?.resource_assertion_audience?.trim();
 			if (assertionAudience && !isHTTPSOrLoopbackURL(assertionAudience)) {
 				setError("token_exchange.resource_assertion_audience", {
-					message: "Assertion audience must be an https URL (http is allowed only for localhost)",
+					message: localeMessages.t("ui.upstream.assertionAudienceMustBeAnHttps", { ns: "common" }),
 				});
 				hasErrors = true;
 			}
@@ -579,8 +581,7 @@ export function StdioRuntimeNotice() {
 				<div className="flex-1">
 					<p className="text-xs font-medium text-amber-900">{localeMessages.t("registry.form.dockerNotice", { ns: "mcp" })}</p>
 					<p className="mt-0.5 text-xs text-amber-800">
-						If using the official Bifrost Docker image, STDIO connections may not work because common commands like npx, python, etc.
-						aren&apos;t installed. You can safely ignore this if running locally or using a custom image with the necessary dependencies.
+						{localeMessages.t("ui.upstream.ifUsingTheOfficialBifrostDocker", { ns: "common" })}
 					</p>
 				</div>
 			</div>
@@ -907,17 +908,14 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 							render={({ field }) => (
 								<FormItem className="flex flex-row items-center justify-between gap-4 px-4 py-3">
 									<div className="flex items-center gap-2">
-										<FormLabel>Max Protocol Version</FormLabel>
+										<FormLabel>{localeMessages.t("ui.upstream.maxProtocolVersion", { ns: "common" })}</FormLabel>
 										<TooltipProvider>
 											<Tooltip>
 												<TooltipTrigger asChild>
 													<Info className="text-muted-foreground h-4 w-4 cursor-help" />
 												</TooltipTrigger>
 												<TooltipContent className="max-w-xs">
-													<p>
-														Newest MCP protocol version Bifrost offers this server. Pick an earlier version if the server misbehaves on the
-														latest one.
-													</p>
+													<p>{localeMessages.t("ui.upstream.newestMcpProtocolVersionBifrostOffers2", { ns: "common" })}</p>
 												</TooltipContent>
 											</Tooltip>
 										</TooltipProvider>
@@ -1296,14 +1294,7 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 										clientSecretMaskNonEnvValue={true}
 										clientSecretRedactNonEnvValue={false}
 										authServerUrlLabel="Authorization Server URL (optional)"
-										authServerUrlTooltip={
-											<>
-												Only needed when the audience above is registered on a different authorization server than the one your SSO login
-												uses - for example, Okta&apos;s per-resource Custom Authorization Servers. Leave blank to use your SSO login&apos;s
-												issuer, which is correct for most providers. Enter an issuer, or a full token endpoint ending in /token to use it as
-												is.
-											</>
-										}
+										authServerUrlTooltip={<>{localeMessages.t("ui.upstream.onlyNeededWhenTheAudienceAbove", { ns: "common" })}</>}
 										authServerUrlTestId="token-exchange-authorization-server-url-input"
 										scopes={{
 											variant: "textarea",
@@ -1343,13 +1334,13 @@ export function MCPClientFormFields({ form, satellites, headersValidationError, 
 										resource={{ mode: "raw", value: satellites.resourceText, onChange: satellites.setResourceText }}
 										resourceLabel={t("registry.form.resource")}
 										resourceTestId="mcp-oauth-resource-input"
-										clientIdLabel="OAuth Client ID (optional)"
+										clientIdLabel={localeMessages.t("ui.upstream.oauthClientIdOptional", { ns: "common" })}
 										clientIdPlaceholder="your-client-id (registered automatically if empty)"
-										clientIdHelperText="Left empty, Bifrost registers itself: through its client metadata document where the provider supports it, otherwise by dynamic registration"
-										clientIdTooltip="Leave empty to let Bifrost register itself. It uses its client metadata document where the authorization server advertises support, and Dynamic Client Registration (RFC 7591) otherwise."
+										clientIdHelperText={localeMessages.t("ui.upstream.leftEmptyBifrostRegistersItselfThrough", { ns: "common" })}
+										clientIdTooltip={localeMessages.t("ui.upstream.leaveEmptyToLetBifrostRegister", { ns: "common" })}
 										clientIdTestId="mcp-oauth-client-id"
 										clientMetadataDocumentTestId="mcp-oauth-use-client-metadata-document"
-										clientSecretLabel="OAuth Client Secret (optional for PKCE)"
+										clientSecretLabel={localeMessages.t("ui.upstream.oauthClientSecretOptionalForPkce", { ns: "common" })}
 										clientSecretPlaceholder="your-client-secret"
 										clientSecretHelperText={t("registry.form.oauthClientSecretHelper")}
 										clientSecretTestId="mcp-oauth-client-secret"

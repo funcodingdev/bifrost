@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import i18nReview from "@/lib/i18n";
 import { useTranslation } from "react-i18next";
 import { FilterSidebarTrigger } from "@/components/filters/filterSidebarTrigger";
@@ -1468,7 +1469,7 @@ function TopicFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentP
 
 	return (
 		<FilterSection
-			title="Topics"
+			title={localeMessages.t("ui.upstream.topics", { ns: "common" })}
 			defaultOpen={defaultOpen || hasActive}
 			loading={isLoading}
 			onOpenChange={setOpened}
@@ -1476,7 +1477,7 @@ function TopicFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentP
 		>
 			<SearchableCheckboxList
 				inputRef={searchInputRef}
-				placeholder="Search topics"
+				placeholder={localeMessages.t("ui.upstream.searchTopics", { ns: "common" })}
 				items={items}
 				isSelected={(id) => current.includes(id)}
 				onToggle={toggle}

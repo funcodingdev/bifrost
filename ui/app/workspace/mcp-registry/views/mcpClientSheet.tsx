@@ -582,13 +582,13 @@ export default function MCPClientSheet({
 			// with its current stored value rather than left blank.
 			token_exchange: supportsTokenExchangeCredentialUpdate
 				? {
-					audience: mcpClient.config.token_exchange?.audience,
-					use_idp_credentials: mcpClient.config.token_exchange?.use_idp_credentials,
-					client_id: mcpClient.config.token_exchange?.client_id,
-					client_secret: mcpClient.config.token_exchange?.client_secret,
-					authorization_server_url: mcpClient.config.token_exchange?.authorization_server_url,
-					...tokenExchangeProfileFormValues(mcpClient.config.token_exchange),
-				}
+						audience: mcpClient.config.token_exchange?.audience,
+						use_idp_credentials: mcpClient.config.token_exchange?.use_idp_credentials,
+						client_id: mcpClient.config.token_exchange?.client_id,
+						client_secret: mcpClient.config.token_exchange?.client_secret,
+						authorization_server_url: mcpClient.config.token_exchange?.authorization_server_url,
+						...tokenExchangeProfileFormValues(mcpClient.config.token_exchange),
+					}
 				: undefined,
 			tls_config: mcpClient.config.tls_config
 				? {
@@ -660,13 +660,13 @@ export default function MCPClientSheet({
 			// with its current stored value rather than left blank.
 			token_exchange: supportsTokenExchangeCredentialUpdate
 				? {
-					audience: mcpClient.config.token_exchange?.audience,
-					use_idp_credentials: mcpClient.config.token_exchange?.use_idp_credentials,
-					client_id: mcpClient.config.token_exchange?.client_id,
-					client_secret: mcpClient.config.token_exchange?.client_secret,
-					authorization_server_url: mcpClient.config.token_exchange?.authorization_server_url,
-					...tokenExchangeProfileFormValues(mcpClient.config.token_exchange),
-				}
+						audience: mcpClient.config.token_exchange?.audience,
+						use_idp_credentials: mcpClient.config.token_exchange?.use_idp_credentials,
+						client_id: mcpClient.config.token_exchange?.client_id,
+						client_secret: mcpClient.config.token_exchange?.client_secret,
+						authorization_server_url: mcpClient.config.token_exchange?.authorization_server_url,
+						...tokenExchangeProfileFormValues(mcpClient.config.token_exchange),
+					}
 				: undefined,
 			tls_config: mcpClient.config.tls_config
 				? {
@@ -929,16 +929,16 @@ export default function MCPClientSheet({
 						: undefined,
 					token_exchange: shouldUpdateTokenExchange
 						? {
-							audience: data.token_exchange?.audience?.trim() || "",
-							use_idp_credentials: exchangesAsSSOApplication(data.token_exchange),
-							client_id: exchangesAsSSOApplication(data.token_exchange)
-								? undefined
-								: (data.token_exchange?.client_id ?? { value: "", ref: "" }),
-							client_secret: exchangesAsSSOApplication(data.token_exchange) ? undefined : data.token_exchange?.client_secret,
-							authorization_server_url: data.token_exchange?.authorization_server_url?.trim() || undefined,
-							scopes: tokenExchangeScopes,
-							...tokenExchangeProfilePayload(data.token_exchange),
-						}
+								audience: data.token_exchange?.audience?.trim() || "",
+								use_idp_credentials: exchangesAsSSOApplication(data.token_exchange),
+								client_id: exchangesAsSSOApplication(data.token_exchange)
+									? undefined
+									: (data.token_exchange?.client_id ?? { value: "", ref: "" }),
+								client_secret: exchangesAsSSOApplication(data.token_exchange) ? undefined : data.token_exchange?.client_secret,
+								authorization_server_url: data.token_exchange?.authorization_server_url?.trim() || undefined,
+								scopes: tokenExchangeScopes,
+								...tokenExchangeProfilePayload(data.token_exchange),
+							}
 						: undefined,
 					tls_config:
 						data.tls_config !== undefined
@@ -1110,7 +1110,7 @@ export default function MCPClientSheet({
 												{t("registry.sheet.tabTools")}
 											</TabsTrigger>
 											<TabsTrigger value="resources" data-testid="mcpclient-tab-resources">
-												Prompts & Resources
+												{localeMessages.t("ui.upstream.promptsResources", { ns: "common" })}
 											</TabsTrigger>
 											<TabsTrigger value="access" data-testid="mcpclient-tab-access">
 												{t("registry.sheet.tabAccess")}
@@ -1511,25 +1511,30 @@ export default function MCPClientSheet({
 															<FormItem className="flex flex-row items-center justify-between gap-4 px-4 py-3">
 																<div className="flex flex-col items-start gap-0.5">
 																	<div className="flex items-start gap-2">
-																		<FormLabel>Max Protocol Version</FormLabel>
+																		<FormLabel>{localeMessages.t("ui.upstream.maxProtocolVersion", { ns: "common" })}</FormLabel>
 																		<TooltipProvider>
 																			<Tooltip>
 																				<TooltipTrigger asChild>
 																					<Info className="text-muted-foreground h-4 w-4 cursor-help" />
 																				</TooltipTrigger>
 																				<TooltipContent className="max-w-xs">
-																					<p>
-																						Newest MCP protocol version Bifrost offers this server. Changing it reconnects the server at the
-																						new version.
-																					</p>
+																					<p>{localeMessages.t("ui.upstream.newestMcpProtocolVersionBifrostOffers3", { ns: "common" })}</p>
 																				</TooltipContent>
 																			</Tooltip>
 																		</TooltipProvider>
 																	</div>
-																	{field.value === "" && <p className="text-muted-foreground text-xs">{localeMessages.t("registry.sheet.usingGlobal", { ns: "mcp" })}</p>}
+																	{field.value === "" && (
+																		<p className="text-muted-foreground text-xs">
+																			{localeMessages.t("registry.sheet.usingGlobal", { ns: "mcp" })}
+																		</p>
+																	)}
 																</div>
 																<FormControl>
-																	<MaxProtocolVersionSelect value={field.value ?? ""} onChange={field.onChange} globalValue={globalMaxProtocolVersion} />
+																	<MaxProtocolVersionSelect
+																		value={field.value ?? ""}
+																		onChange={field.onChange}
+																		globalValue={globalMaxProtocolVersion}
+																	/>
 																</FormControl>
 															</FormItem>
 														)}
@@ -1929,7 +1934,7 @@ export default function MCPClientSheet({
 																		clientSecretMaskNonEnvValue={true}
 																		clientSecretRedactNonEnvValue={false}
 																		authServerUrlLabel="Authorization Server URL"
-																		authServerUrlHelperText="Leave blank to use the deployment's SSO login issuer. Enter an issuer, or a full token endpoint ending in /token to use it as is."
+																		authServerUrlHelperText={localeMessages.t("ui.upstream.leaveBlankToUseTheDeployment", { ns: "common" })}
 																		authServerUrlTestId="mcpclient-input-token-exchange-authorization-server-url"
 																		scopes={{
 																			variant: "input",
@@ -2136,12 +2141,16 @@ export default function MCPClientSheet({
 																				<div className="flex min-w-0 items-start gap-2">
 																					<MCPToolIconImage tool={tool} />
 																					<div className="min-w-0">
-																						<div className="text-foreground truncate text-sm font-medium" data-testid={`mcp-tool-title-${tool.name}`}>
+																						<div
+																							className="text-foreground truncate text-sm font-medium"
+																							data-testid={`mcp-tool-title-${tool.name}`}
+																						>
 																							{tool.title || tool.annotations?.title || tool.name}
 																						</div>
-																						{(tool.title || tool.annotations?.title) && (tool.title || tool.annotations?.title) !== tool.name && (
-																							<div className="text-muted-foreground truncate font-mono text-xs">{tool.name}</div>
-																						)}
+																						{(tool.title || tool.annotations?.title) &&
+																							(tool.title || tool.annotations?.title) !== tool.name && (
+																								<div className="text-muted-foreground truncate font-mono text-xs">{tool.name}</div>
+																							)}
 																						{tool.description && (
 																							<p className="text-muted-foreground mt-0.5 truncate text-xs">{tool.description}</p>
 																						)}
@@ -2257,7 +2266,9 @@ export default function MCPClientSheet({
 																						)}
 																						{tool.output_schema && (
 																							<div data-testid={`mcp-tool-output-schema-${tool.name}`}>
-																								<div className="text-muted-foreground mt-3 mb-2 text-xs font-medium">Output Schema</div>
+																								<div className="text-muted-foreground mt-3 mb-2 text-xs font-medium">
+																									{localeMessages.t("ui.upstream.outputSchema", { ns: "common" })}
+																								</div>
 																								<CodeEditor
 																									className="z-0 w-full rounded-sm border"
 																									shouldAdjustInitialHeight={true}
@@ -2300,8 +2311,8 @@ export default function MCPClientSheet({
 											render={({ field }) => (
 												<MCPExposeList
 													kind="prompts"
-													title="Prompts"
-													description="Prompts this server lists, and which of them MCP clients connected to Bifrost can use."
+													title={localeMessages.t("ui.upstream.prompts", { ns: "common" })}
+													description={localeMessages.t("ui.upstream.promptsThisServerListsAndWhich", { ns: "common" })}
 													items={promptExposeItems}
 													value={field.value}
 													onChange={(next) => form.setValue("prompts_to_expose", next, { shouldDirty: true })}
@@ -2314,8 +2325,8 @@ export default function MCPClientSheet({
 											render={({ field }) => (
 												<MCPExposeList
 													kind="resources"
-													title="Resources"
-													description="Resources and resource templates this server lists, and which of them MCP clients connected to Bifrost can read."
+													title={localeMessages.t("ui.upstream.resources", { ns: "common" })}
+													description={localeMessages.t("ui.upstream.resourcesAndResourceTemplatesThisServer", { ns: "common" })}
 													items={resourceExposeItems}
 													value={field.value}
 													onChange={(next) => form.setValue("resources_to_expose", next, { shouldDirty: true })}

@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import {
 	buildPinStyle,
 	type ColumnConfigEntry,
@@ -205,12 +206,12 @@ export function RelayLogsDataTable({
 									{loading ? (
 										<>
 											<RefreshCw className="h-4 w-4 animate-spin" />
-											Loading logs...
+											{localeMessages.t("ui.upstream.loadingLogs", { ns: "common" })}
 										</>
 									) : polling ? (
 										<>
 											<RefreshCw className="h-4 w-4 animate-spin" />
-											Waiting for new relay calls...
+											{localeMessages.t("ui.upstream.waitingForNewRelayCalls", { ns: "common" })}
 										</>
 									) : (
 										<Button
@@ -221,7 +222,7 @@ export function RelayLogsDataTable({
 											variant={"ghost"}
 										>
 											{loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-											Refresh
+											{localeMessages.t("ui.upstream.refresh", { ns: "common" })}
 										</Button>
 									)}
 								</div>
@@ -269,7 +270,7 @@ export function RelayLogsDataTable({
 						) : loading ? null : (
 							<TableRow>
 								<TableCell colSpan={columns.length} className="h-24 text-center">
-									No results found. Try adjusting your filters and/or time range.
+									{localeMessages.t("ui.upstream.noResultsFoundTryAdjustingYour", { ns: "common" })}
 								</TableCell>
 							</TableRow>
 						)}
@@ -280,12 +281,13 @@ export function RelayLogsDataTable({
 			{/* Pagination Footer */}
 			<div className="flex shrink-0 items-center justify-between text-xs" data-testid="pagination">
 				<div className="text-muted-foreground flex items-center gap-2">
-					{startItem.toLocaleString()}-{endItem.toLocaleString()} of {totalItems.toLocaleString()} entries
+					{startItem.toLocaleString()}-{endItem.toLocaleString()} of {totalItems.toLocaleString()}{" "}
+					{localeMessages.t("ui.upstream.entries", { ns: "common" })}
 				</div>
 
 				<div className="flex items-center gap-3">
 					<div className="flex items-center gap-1.5">
-						<span className="text-muted-foreground">Rows per page</span>
+						<span className="text-muted-foreground">{localeMessages.t("ui.upstream.rowsPerPage", { ns: "common" })}</span>
 						<ComboboxSelect
 							options={pageSizeOptions}
 							value={String(pageSizePref)}
@@ -293,7 +295,7 @@ export function RelayLogsDataTable({
 							disableSearch
 							hideClear
 							className="h-7 w-fit gap-1 text-xs"
-							aria-label="Rows per page"
+							aria-label={localeMessages.t("ui.upstream.rowsPerPage", { ns: "common" })}
 							data-testid="relay-logs-page-size-select"
 						/>
 					</div>
@@ -305,13 +307,13 @@ export function RelayLogsDataTable({
 							onClick={() => goToPage(currentPage - 1)}
 							disabled={currentPage <= 1}
 							data-testid="prev-page"
-							aria-label="Previous page"
+							aria-label={localeMessages.t("ui.upstream.previousPage", { ns: "common" })}
 						>
 							<ChevronLeft className="size-3" />
 						</Button>
 
 						<div className="flex items-center gap-1">
-							<span>Page</span>
+							<span>{localeMessages.t("ui.upstream.page", { ns: "common" })}</span>
 							<span>{currentPage}</span>
 							<span>of {totalPages}</span>
 						</div>
@@ -322,7 +324,7 @@ export function RelayLogsDataTable({
 							onClick={() => goToPage(currentPage + 1)}
 							disabled={totalPages === 0 || currentPage >= totalPages}
 							data-testid="next-page"
-							aria-label="Next page"
+							aria-label={localeMessages.t("ui.upstream.nextPage", { ns: "common" })}
 						>
 							<ChevronRight className="size-3" />
 						</Button>

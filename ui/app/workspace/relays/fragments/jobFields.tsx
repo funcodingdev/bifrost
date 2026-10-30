@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
@@ -111,7 +112,7 @@ function PollHeaders({
 						type="button"
 						variant="ghost"
 						size="icon"
-						aria-label="Remove poll header"
+						aria-label={localeMessages.t("ui.upstream.removePollHeader", { ns: "common" })}
 						disabled={disabled}
 						onClick={() => commit(rows.filter((_, j) => j !== i))}
 					>
@@ -127,7 +128,7 @@ function PollHeaders({
 				onClick={() => setRows([...rows, { name: "", value: "" }])}
 				data-testid="relay-route-job-poll-add-header"
 			>
-				<Plus className="h-4 w-4" /> Add poll header
+				<Plus className="h-4 w-4" /> {localeMessages.t("ui.upstream.addPollHeader", { ns: "common" })}
 			</Button>
 		</div>
 	);
@@ -157,7 +158,7 @@ export function JobFields({ form, inheritFrom, disabled }: JobFieldsProps) {
 	const control = form.control;
 	const summary = job
 		? `Polls ${job.poll.method || "GET"} ${job.poll.path || "…"} until ${job.status_path || "…"} is ${job.succeeded.join(" or ") || "…"}`
-		: "This route answers right away.";
+		: localeMessages.t("ui.upstream.thisRouteAnswersRightAway", { ns: "common" });
 	// The settlement charges only a fee the job sets itself: the start call already paid the route fee.
 	const jobInherit = inheritFrom ? { ...inheritFrom, cost_per_request: undefined } : undefined;
 
@@ -166,7 +167,7 @@ export function JobFields({ form, inheritFrom, disabled }: JobFieldsProps) {
 			<CollapsibleTrigger asChild>
 				<button type="button" className="flex w-full items-center justify-between px-4 py-3 text-left" data-testid="relay-route-job-toggle">
 					<div className="min-w-0 space-y-0.5">
-						<div className="text-sm font-medium">Async Job</div>
+						<div className="text-sm font-medium">{localeMessages.t("ui.upstream.asyncJob", { ns: "common" })}</div>
 						<p className="text-muted-foreground truncate text-sm">{summary}</p>
 					</div>
 					<ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform", open && "rotate-180")} />
@@ -176,8 +177,8 @@ export function JobFields({ form, inheritFrom, disabled }: JobFieldsProps) {
 				<div className="flex flex-row items-center justify-between">
 					<InfoLabel
 						inForm={false}
-						label="This route starts an async job"
-						info="For APIs that reply with a job id and bill when the work finishes. The route is then always buffered."
+						label={localeMessages.t("ui.upstream.thisRouteStartsAnAsyncJob", { ns: "common" })}
+						info={localeMessages.t("ui.upstream.forApisThatReplyWithA", { ns: "common" })}
 					/>
 					<Switch
 						checked={!!job}
@@ -189,17 +190,23 @@ export function JobFields({ form, inheritFrom, disabled }: JobFieldsProps) {
 				{job && (
 					<>
 						<ol className="text-muted-foreground list-decimal space-y-1 pl-5 text-sm">
-							<li>The start call is relayed and billed like any call.</li>
-							<li>Bifrost reads the job id from its reply.</li>
-							<li>It sends the poll request, with the job id in place of {"{{job.id}}"}, until the status is terminal.</li>
-							<li>A succeeded job is priced with the job pricing below and charged to the caller once.</li>
+							<li>{localeMessages.t("ui.upstream.theStartCallIsRelayedAnd", { ns: "common" })}</li>
+							<li>{localeMessages.t("ui.upstream.bifrostReadsTheJobIdFrom", { ns: "common" })}</li>
+							<li>
+								{localeMessages.t("ui.upstream.itSendsThePollRequestWith", { ns: "common" })} {"{{job.id}}"}
+								{localeMessages.t("ui.upstream.untilTheStatusIsTerminal", { ns: "common" })}
+							</li>
+							<li>{localeMessages.t("ui.upstream.aSucceededJobIsPricedWith", { ns: "common" })}</li>
 						</ol>
 						<FormField
 							control={control}
 							name="job.id_path"
 							render={({ field }) => (
 								<FormItem>
-									<InfoLabel label="Job ID Path (Required)" info="Where the start call's reply carries the job id, as a gjson path." />
+									<InfoLabel
+										label={localeMessages.t("ui.upstream.jobIdPathRequired", { ns: "common" })}
+										info={localeMessages.t("ui.upstream.whereTheStartCallSReply", { ns: "common" })}
+									/>
 									<FormControl>
 										<Input placeholder="JobId" disabled={disabled} data-testid="relay-route-job-id-path" {...field} />
 									</FormControl>
@@ -210,7 +217,7 @@ export function JobFields({ form, inheritFrom, disabled }: JobFieldsProps) {
 						<div className="space-y-2">
 							<InfoLabel
 								inForm={false}
-								label="Poll Request"
+								label={localeMessages.t("ui.upstream.pollRequest", { ns: "common" })}
 								info="The request that reports where the job stands. {{job.id}} in the path, a header value or the body is replaced with the job id."
 							/>
 							<div className="flex w-full flex-row items-start gap-4">
@@ -279,7 +286,10 @@ export function JobFields({ form, inheritFrom, disabled }: JobFieldsProps) {
 							name="job.status_path"
 							render={({ field }) => (
 								<FormItem>
-									<InfoLabel label="Status Path (Required)" info="Where the poll reply carries the job status, as a gjson path." />
+									<InfoLabel
+										label={localeMessages.t("ui.upstream.statusPathRequired", { ns: "common" })}
+										info={localeMessages.t("ui.upstream.whereThePollReplyCarriesThe", { ns: "common" })}
+									/>
 									<FormControl>
 										<Input placeholder="JobStatus" disabled={disabled} data-testid="relay-route-job-status-path" {...field} />
 									</FormControl>
@@ -293,7 +303,10 @@ export function JobFields({ form, inheritFrom, disabled }: JobFieldsProps) {
 								name="job.succeeded"
 								render={({ field }) => (
 									<FormItem className="flex-1">
-										<InfoLabel label="Succeeded Statuses (Required)" info="Comma-separated statuses that end the job with work to bill." />
+										<InfoLabel
+											label={localeMessages.t("ui.upstream.succeededStatusesRequired", { ns: "common" })}
+											info={localeMessages.t("ui.upstream.commaSeparatedStatusesThatEndThe", { ns: "common" })}
+										/>
 										<FormControl>
 											<ListInput
 												value={field.value}
@@ -312,7 +325,10 @@ export function JobFields({ form, inheritFrom, disabled }: JobFieldsProps) {
 								name="job.failed"
 								render={({ field }) => (
 									<FormItem className="flex-1">
-										<InfoLabel label="Failed Statuses (Optional)" info="Comma-separated statuses that end the job at no further charge." />
+										<InfoLabel
+											label={localeMessages.t("ui.upstream.failedStatusesOptional", { ns: "common" })}
+											info={localeMessages.t("ui.upstream.commaSeparatedStatusesThatEndThe2", { ns: "common" })}
+										/>
 										<FormControl>
 											<ListInput
 												value={field.value}
@@ -329,12 +345,17 @@ export function JobFields({ form, inheritFrom, disabled }: JobFieldsProps) {
 						<div className="flex w-full flex-row items-start gap-4">
 							{(
 								[
-									["interval_seconds", "Poll Interval (seconds)", "30", "Seconds between polls."],
+									[
+										"interval_seconds",
+										localeMessages.t("ui.upstream.pollIntervalSeconds", { ns: "common" }),
+										"30",
+										localeMessages.t("ui.upstream.secondsBetweenPolls", { ns: "common" }),
+									],
 									[
 										"timeout_seconds",
-										"Timeout (seconds)",
+										localeMessages.t("ui.upstream.timeoutSeconds", { ns: "common" }),
 										"3600",
-										"A job still running after this long is dropped without a further charge.",
+										localeMessages.t("ui.upstream.aJobStillRunningAfterThis", { ns: "common" }),
 									],
 								] as const
 							).map(([key, label, placeholder, info]) => (
@@ -363,10 +384,9 @@ export function JobFields({ form, inheritFrom, disabled }: JobFieldsProps) {
 							))}
 						</div>
 						<div className="space-y-1">
-							<div className="text-sm font-medium">Job Pricing</div>
+							<div className="text-sm font-medium">{localeMessages.t("ui.upstream.jobPricing", { ns: "common" })}</div>
 							<p className="text-muted-foreground text-sm">
-								Applied to the final poll reply of a succeeded job, such as pages processed. Empty fields inherit the route pricing; the fee
-								is charged only if set here, since the start call already paid it.
+								{localeMessages.t("ui.upstream.appliedToTheFinalPollReply", { ns: "common" })}
 							</p>
 						</div>
 						<UsageFields

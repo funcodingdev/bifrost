@@ -99,7 +99,7 @@ const SAGEMAKER_VPC_ENDPOINT_SERVICES = [
 	{
 		name: "runtime",
 		label: "Runtime",
-		description: "Serves all endpoint invocations.",
+		description: localeMessages.t("ui.upstream.servesAllEndpointInvocations", { ns: "common" }),
 		placeholder: "vpce-0abc123-x1y2z3.runtime.sagemaker.us-east-1.vpce.amazonaws.com",
 	},
 ];
@@ -680,9 +680,9 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 						render={({ field }) => (
 							<FormItem className="flex flex-row items-center justify-between rounded-sm border p-2">
 								<div className="space-y-1.5">
-									<FormLabel>Use Azure Speech endpoints</FormLabel>
+									<FormLabel>{localeMessages.t("ui.upstream.useAzureSpeechEndpoints", { ns: "common" })}</FormLabel>
 									<FormDescription>
-										Send speech and transcription requests to Azure AI Speech instead of Azure OpenAI. A deployment can override this.
+										{localeMessages.t("ui.upstream.sendSpeechAndTranscriptionRequestsTo", { ns: "common" })}
 									</FormDescription>
 								</div>
 								<FormControl>
@@ -701,9 +701,9 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 						render={({ field }) => (
 							<FormItem className="flex flex-row items-center justify-between rounded-sm border p-2">
 								<div className="space-y-1.5">
-									<FormLabel>Use Azure Voice Live endpoints</FormLabel>
+									<FormLabel>{localeMessages.t("ui.upstream.useAzureVoiceLiveEndpoints", { ns: "common" })}</FormLabel>
 									<FormDescription>
-										Send realtime WebSocket sessions to Azure Voice Live instead of Azure OpenAI. A deployment can override this.
+										{localeMessages.t("ui.upstream.sendRealtimeWebsocketSessionsToAzure", { ns: "common" })}
 									</FormDescription>
 								</div>
 								<FormControl>
@@ -1657,15 +1657,20 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 						name="key.value"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>GitHub Token or Copilot API Token</FormLabel>
+								<FormLabel>{localeMessages.t("ui.upstream.githubTokenOrCopilotApiToken", { ns: "common" })}</FormLabel>
 								<FormDescription>
-									A fine-grained personal access token (<code>github_pat_…</code>) with the <strong>Copilot Requests</strong> permission.
-									Your organization must enable the <strong>Copilot CLI</strong> policy.
+									{localeMessages.t("ui.upstream.aFineGrainedPersonalAccessToken", { ns: "common" })}
+									<code>github_pat_…</code>
+									{localeMessages.t("ui.upstream.withThe", { ns: "common" })}{" "}
+									<strong>{localeMessages.t("ui.upstream.copilotRequests", { ns: "common" })}</strong>{" "}
+									{localeMessages.t("ui.upstream.permissionYourOrganizationMustEnableThe", { ns: "common" })}{" "}
+									<strong>{localeMessages.t("ui.upstream.copilotCli", { ns: "common" })}</strong>{" "}
+									{localeMessages.t("ui.upstream.policy", { ns: "common" })}
 								</FormDescription>
 								<FormControl>
 									<SecretVarInput
 										data-testid="key-input-copilot-token"
-										placeholder="github_pat_… or ghu_… token, or a Copilot API token"
+										placeholder={localeMessages.t("ui.upstream.githubPatOrGhuTokenOr", { ns: "common" })}
 										type="text"
 										{...field}
 									/>
@@ -1676,7 +1681,7 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 					/>
 					<Separator />
 					<div className="space-y-1.5">
-						<p className="text-muted-foreground text-sm">Or sign in with GitHub to fill in a token.</p>
+						<p className="text-muted-foreground text-sm">{localeMessages.t("ui.upstream.orSignInWithGithubTo", { ns: "common" })}</p>
 						<GithubCopilotSignIn
 							provider={providerName}
 							onToken={(token) => form.setValue("key.value", { value: token, ref: "" }, { shouldDirty: true, shouldValidate: true })}
@@ -2200,21 +2205,23 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 									{localeMessages.t("providers.keys.explicitCredentials", { ns: "models" })}
 								</TabsTrigger>
 								<TabsTrigger data-testid="apikey-sagemaker-api-key-tab" value="api_key">
-									Bearer Token
+									{localeMessages.t("ui.upstream.bearerToken", { ns: "common" })}
 								</TabsTrigger>
 							</TabsList>
 						</Tabs>
 						{sageMakerAuthType === "iam_role" && (
 							<p className="text-muted-foreground text-sm">
-								Uses the default AWS credential chain (IAM role, IRSA, environment). Bifrost mints the SageMaker bearer token from it.
+								{localeMessages.t("ui.upstream.usesTheDefaultAwsCredentialChain", { ns: "common" })}
 							</p>
 						)}
 						{sageMakerAuthType === "explicit" && (
-							<p className="text-muted-foreground text-sm">Bifrost mints the SageMaker bearer token from these AWS credentials.</p>
+							<p className="text-muted-foreground text-sm">
+								{localeMessages.t("ui.upstream.bifrostMintsTheSagemakerBearerToken", { ns: "common" })}
+							</p>
 						)}
 						{sageMakerAuthType === "api_key" && (
 							<p className="text-muted-foreground text-sm">
-								Sends a pre-minted sagemaker-api-key-... token as-is. Such tokens expire within 12 hours.
+								{localeMessages.t("ui.upstream.sendsAPreMintedSagemakerApi", { ns: "common" })}
 							</p>
 						)}
 					</div>
@@ -2281,7 +2288,7 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 							name={`key.value`}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Bearer Token</FormLabel>
+									<FormLabel>{localeMessages.t("ui.upstream.bearerToken", { ns: "common" })}</FormLabel>
 									<FormControl>
 										<SecretVarInput
 											data-testid="apikey-sagemaker-api-key-input"
@@ -2302,11 +2309,13 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>{localeMessages.t("providers.keys.regionRequired", { ns: "models" })}</FormLabel>
-								<FormDescription>
-									Region of your endpoints. A model id can override it with a prefix: us-west-2/my-endpoint.
-								</FormDescription>
+								<FormDescription>{localeMessages.t("ui.upstream.regionOfYourEndpointsAModel", { ns: "common" })}</FormDescription>
 								<FormControl>
-									<SecretVarInput data-testid="apikey-sagemaker-region-input" placeholder={localeMessages.t("providers.keys.awsRegionPlaceholder", { ns: "models" })} {...field} />
+									<SecretVarInput
+										data-testid="apikey-sagemaker-region-input"
+										placeholder={localeMessages.t("providers.keys.awsRegionPlaceholder", { ns: "models" })}
+										{...field}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -2321,9 +2330,7 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>{localeMessages.t("providers.keys.assumeRoleArnOptional", { ns: "models" })}</FormLabel>
-										<FormDescription>
-											Assume an IAM role before minting tokens. Works with both explicit credentials and the inherited IAM role.
-										</FormDescription>
+										<FormDescription>{localeMessages.t("ui.upstream.assumeAnIamRoleBeforeMinting", { ns: "common" })}</FormDescription>
 										<FormControl>
 											<SecretVarInput
 												data-testid="apikey-sagemaker-role-arn-input"
@@ -2341,7 +2348,7 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>{localeMessages.t("providers.keys.externalIdOptional", { ns: "models" })}</FormLabel>
-										<FormDescription>Required by the role&apos;s trust policy when using cross-account access.</FormDescription>
+										<FormDescription>{localeMessages.t("ui.upstream.requiredByTheRoleSTrust", { ns: "common" })}</FormDescription>
 										<FormControl>
 											<SecretVarInput
 												data-testid="apikey-sagemaker-external-id-input"

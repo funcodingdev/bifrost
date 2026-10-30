@@ -209,16 +209,16 @@ function AzureSection({ config, onChange, disabled }: ProviderSectionProps) {
 				/>
 			</FieldRow>
 			<TriStateOverrideRow
-				label="Use Azure Speech endpoints"
-				hint="Send this deployment's speech and transcription requests to Azure AI Speech instead of Azure OpenAI."
+				label={localeMessages.t("ui.upstream.useAzureSpeechEndpoints", { ns: "common" })}
+				hint={localeMessages.t("ui.upstream.sendThisDeploymentSSpeechAnd", { ns: "common" })}
 				value={config.use_speech_endpoints}
 				onChange={(next) => onChange({ use_speech_endpoints: next })}
 				disabled={disabled}
 				testId="deployment-azure-use-speech-endpoints"
 			/>
 			<TriStateOverrideRow
-				label="Use Azure Voice Live endpoints"
-				hint="Send this deployment's realtime WebSocket sessions to Azure Voice Live instead of Azure OpenAI."
+				label={localeMessages.t("ui.upstream.useAzureVoiceLiveEndpoints", { ns: "common" })}
+				hint={localeMessages.t("ui.upstream.sendThisDeploymentSRealtimeWebsocket", { ns: "common" })}
 				value={config.use_voice_live_endpoints}
 				onChange={(next) => onChange({ use_voice_live_endpoints: next })}
 				disabled={disabled}
@@ -238,8 +238,8 @@ function VertexSection({ config, onChange, disabled }: ProviderSectionProps) {
 		<div className="space-y-4">
 			<FieldRow
 				htmlFor={servingId}
-				label="Serving mode"
-				hint="Use a custom endpoint when your deployed container accepts OpenAI chat completions."
+				label={localeMessages.t("ui.upstream.servingMode", { ns: "common" })}
+				hint={localeMessages.t("ui.upstream.useACustomEndpointWhenYour", { ns: "common" })}
 			>
 				<Select
 					value={endpoint ? (endpoint.method ?? "raw_predict") : "standard"}
@@ -261,17 +261,19 @@ function VertexSection({ config, onChange, disabled }: ProviderSectionProps) {
 						<SelectValue />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="standard">Standard Vertex</SelectItem>
-						<SelectItem value="raw_predict">OpenAI-compatible — Raw prediction</SelectItem>
-						<SelectItem value="chat_completions">OpenAI-compatible — Chat completions</SelectItem>
+						<SelectItem value="standard">{localeMessages.t("ui.upstream.standardVertex", { ns: "common" })}</SelectItem>
+						<SelectItem value="raw_predict">{localeMessages.t("ui.upstream.openaiCompatibleRawPrediction", { ns: "common" })}</SelectItem>
+						<SelectItem value="chat_completions">
+							{localeMessages.t("ui.upstream.openaiCompatibleChatCompletions", { ns: "common" })}
+						</SelectItem>
 					</SelectContent>
 				</Select>
 			</FieldRow>
 			{endpoint && (
 				<FieldRow
 					htmlFor={endpointId}
-					label="Vertex endpoint ID or URL"
-					hint="The Model ID above is the served model name sent in the body. Uses Google credentials from this key. Supports chat and Responses-to-chat conversion."
+					label={localeMessages.t("ui.upstream.vertexEndpointIdOrUrl", { ns: "common" })}
+					hint={localeMessages.t("ui.upstream.theModelIdAboveIsThe", { ns: "common" })}
 				>
 					<Input
 						id={endpointId}
@@ -297,7 +299,7 @@ function VertexSection({ config, onChange, disabled }: ProviderSectionProps) {
 					/>
 					{endpointInvalid && (
 						<p id={`${endpointId}-error`} className="text-destructive text-xs" data-testid="deployment-vertex-endpoint-error">
-							Enter a Vertex endpoint ID or paste a supported endpoint URL.
+							{localeMessages.t("ui.upstream.enterAVertexEndpointIdOr", { ns: "common" })}
 						</p>
 					)}
 				</FieldRow>
@@ -315,7 +317,10 @@ function VertexSection({ config, onChange, disabled }: ProviderSectionProps) {
 				/>
 			</FieldRow>
 			{!endpoint && (
-				<FieldRow label={localeMessages.t("providers.deployments.projectNumber", { ns: "models" })} hint="Required for fine-tuned models.">
+				<FieldRow
+					label={localeMessages.t("providers.deployments.projectNumber", { ns: "models" })}
+					hint={localeMessages.t("ui.upstream.requiredForFineTunedModels", { ns: "common" })}
+				>
 					<SecretVarField
 						value={config.project_number}
 						onChange={(v) => onChange({ project_number: v })}
@@ -328,8 +333,8 @@ function VertexSection({ config, onChange, disabled }: ProviderSectionProps) {
 				label={localeMessages.t("providers.deployments.region", { ns: "models" })}
 				hint={
 					endpoint
-						? "Use the deployment's region, such as us-west1. Custom endpoints do not use global or multi-region locations."
-						: "Multi-region-only models are auto-routed to a multi-region endpoint unless Force single region is on."
+						? localeMessages.t("ui.upstream.useTheDeploymentSRegionSuch", { ns: "common" })
+						: localeMessages.t("ui.upstream.multiRegionOnlyModelsAreAuto", { ns: "common" })
 				}
 			>
 				<SecretVarField

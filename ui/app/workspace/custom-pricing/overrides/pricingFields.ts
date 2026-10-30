@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import i18n from "@/lib/i18n";
 import type { RequestType } from "@/lib/types/config";
 import type { PricingOverrideMatchType, PricingOverridePatch } from "@/lib/types/governance";
@@ -638,55 +639,55 @@ export const PRICING_FIELDS = [
 	},
 	{
 		key: "input_cost_per_token_voice_live",
-		label: "Input / token (Voice Live)",
+		label: localeMessages.t("ui.upstream.inputTokenVoiceLive", { ns: "common" }),
 		group: "audio",
 		requestTypeGroups: ["chat", "audio"],
 	},
 	{
 		key: "output_cost_per_token_voice_live",
-		label: "Output / token (Voice Live)",
+		label: localeMessages.t("ui.upstream.outputTokenVoiceLive", { ns: "common" }),
 		group: "audio",
 		requestTypeGroups: ["chat", "audio"],
 	},
 	{
 		key: "cache_read_input_token_cost_voice_live",
-		label: "Cache read / token (Voice Live)",
+		label: localeMessages.t("ui.upstream.cacheReadTokenVoiceLive", { ns: "common" }),
 		group: "audio",
 		requestTypeGroups: ["chat", "audio"],
 	},
 	{
 		key: "input_cost_per_audio_token_voice_live",
-		label: "Input / audio token (Voice Live)",
+		label: localeMessages.t("ui.upstream.inputAudioTokenVoiceLive", { ns: "common" }),
 		group: "audio",
 		requestTypeGroups: ["chat", "audio"],
 	},
 	{
 		key: "output_cost_per_audio_token_voice_live",
-		label: "Output / audio token (Voice Live)",
+		label: localeMessages.t("ui.upstream.outputAudioTokenVoiceLive", { ns: "common" }),
 		group: "audio",
 		requestTypeGroups: ["chat", "audio"],
 	},
 	{
 		key: "input_cost_per_standard_speech_audio_token_voice_live",
-		label: "Input / standard speech audio token (Voice Live)",
+		label: localeMessages.t("ui.upstream.inputStandardSpeechAudioTokenVoice", { ns: "common" }),
 		group: "audio",
 		requestTypeGroups: ["chat", "audio"],
 	},
 	{
 		key: "output_cost_per_standard_speech_audio_token_voice_live",
-		label: "Output / standard speech audio token (Voice Live)",
+		label: localeMessages.t("ui.upstream.outputStandardSpeechAudioTokenVoice", { ns: "common" }),
 		group: "audio",
 		requestTypeGroups: ["chat", "audio"],
 	},
 	{
 		key: "input_cost_per_custom_speech_audio_token_voice_live",
-		label: "Input / custom speech audio token (Voice Live)",
+		label: localeMessages.t("ui.upstream.inputCustomSpeechAudioTokenVoice", { ns: "common" }),
 		group: "audio",
 		requestTypeGroups: ["chat", "audio"],
 	},
 	{
 		key: "output_cost_per_custom_speech_audio_token_voice_live",
-		label: "Output / custom speech audio token (Voice Live)",
+		label: localeMessages.t("ui.upstream.outputCustomSpeechAudioTokenVoice", { ns: "common" }),
 		group: "audio",
 		requestTypeGroups: ["chat", "audio"],
 	},
@@ -1062,7 +1063,7 @@ export const PRICING_FIELDS = [
 	},
 	{
 		key: "output_cost_per_video_token",
-		label: "Output / video token",
+		label: localeMessages.t("ui.upstream.outputVideoToken", { ns: "common" }),
 		group: "video",
 		requestTypeGroups: ["video"],
 	},

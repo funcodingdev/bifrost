@@ -844,7 +844,8 @@ export default function VirtualKeySheet({ virtualKey, defaultOwner, onSave, onCa
 			</p>
 		) : isGovernedByOwnerProfile && owner ? (
 			<p data-testid="vk-owner-profile-notice">
-				Governed by the access profile of this {owner.label}. Its budgets, rate limits and providers apply to this key.
+				{localeMessages.t("ui.upstream.governedByTheAccessProfileOf", { ns: "common" })} {owner.label}
+				{localeMessages.t("ui.upstream.itsBudgetsRateLimitsAndProviders", { ns: "common" })}
 			</p>
 		) : null;
 
@@ -1961,11 +1962,10 @@ export default function VirtualKeySheet({ virtualKey, defaultOwner, onSave, onCa
 											<Alert variant="warning" data-testid="vk-leaves-governing-owner-warning">
 												<AlertTriangle className="h-4 w-4" />
 												<AlertDescription>
-													This key&apos;s providers, budgets and rate limit came from its owner&apos;s access profile, and it has none of
-													its own.{" "}
+													{localeMessages.t("ui.upstream.thisKeySProvidersBudgetsAnd", { ns: "common" })}{" "}
 													{form.watch("entityType") === "user"
-														? "If the user you assign it to has an access profile, that profile takes the key over and it keeps working; otherwise configure it below, or it will refuse requests."
-														: "Configure it below, or it will refuse requests once it is unassigned."}
+														? localeMessages.t("ui.upstream.ifTheUserYouAssignIt", { ns: "common" })
+														: localeMessages.t("ui.upstream.configureItBelowOrItWill", { ns: "common" })}
 												</AlertDescription>
 											</Alert>
 										)}

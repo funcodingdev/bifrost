@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 /**
  * Utilities for exporting filtered logs to CSV.
  */
@@ -8,29 +9,29 @@ import { buildCSV } from "@/lib/utils/csv";
 import { getRangeForPeriod } from "@/lib/utils/timeRange";
 
 export const LOGS_CSV_HEADERS = [
-	"Time",
-	"Request ID",
-	"Status",
-	"Type",
-	"Provider",
-	"Model",
-	"Canonical Model",
+	localeMessages.t("ui.upstream.time", { ns: "common" }),
+	localeMessages.t("ui.upstream.requestId", { ns: "common" }),
+	localeMessages.t("ui.upstream.status", { ns: "common" }),
+	localeMessages.t("ui.upstream.type", { ns: "common" }),
+	localeMessages.t("ui.upstream.provider", { ns: "common" }),
+	localeMessages.t("ui.upstream.model", { ns: "common" }),
+	localeMessages.t("ui.upstream.canonicalModel", { ns: "common" }),
 	"App",
-	"Latency (ms)",
-	"Prompt Tokens",
-	"Completion Tokens",
-	"Total Tokens",
-	"Cost ($)",
-	"Session ID",
-	"Service Tier",
-	"Virtual Key",
-	"Routing Rule",
-	"Team",
-	"Customer",
-	"User",
-	"Business Unit",
-	"Project",
-	"Stop Reason",
+	localeMessages.t("ui.upstream.latencyMs", { ns: "common" }),
+	localeMessages.t("ui.upstream.promptTokens", { ns: "common" }),
+	localeMessages.t("ui.upstream.completionTokens", { ns: "common" }),
+	localeMessages.t("ui.upstream.totalTokens", { ns: "common" }),
+	localeMessages.t("ui.upstream.cost2", { ns: "common" }),
+	localeMessages.t("ui.upstream.sessionId", { ns: "common" }),
+	localeMessages.t("ui.upstream.serviceTier", { ns: "common" }),
+	localeMessages.t("ui.upstream.virtualKey", { ns: "common" }),
+	localeMessages.t("ui.upstream.routingRule", { ns: "common" }),
+	localeMessages.t("ui.upstream.team", { ns: "common" }),
+	localeMessages.t("ui.upstream.customer", { ns: "common" }),
+	localeMessages.t("ui.upstream.user", { ns: "common" }),
+	localeMessages.t("ui.upstream.businessUnit", { ns: "common" }),
+	localeMessages.t("ui.upstream.project", { ns: "common" }),
+	localeMessages.t("ui.upstream.stopReason", { ns: "common" }),
 ];
 
 /**

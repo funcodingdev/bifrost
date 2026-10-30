@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import FullPageLoader from "@/components/fullPageLoader";
 import { LoadErrorView } from "@/components/loadErrorView";
 import { Button } from "@/components/ui/button";
@@ -73,7 +74,9 @@ export default function RelaysPage() {
 				)}
 			>
 				<div className="flex min-h-0 flex-1 flex-col rounded-md bg-zinc-50/50 md:p-4 md:pb-0 dark:bg-zinc-800/20">
-					<div className="text-muted-foreground mb-2 shrink-0 text-xs font-medium">Relays</div>
+					<div className="text-muted-foreground mb-2 shrink-0 text-xs font-medium">
+						{localeMessages.t("ui.upstream.relays", { ns: "common" })}
+					</div>
 					<div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">
 						{endpoints?.map((endpoint) => (
 							<div
@@ -111,7 +114,7 @@ export default function RelaysPage() {
 									data-testid="relays-create-button"
 								>
 									<PlusIcon className="h-4 w-4" />
-									Add Relay
+									{localeMessages.t("ui.upstream.addRelay", { ns: "common" })}
 								</Button>
 							</div>
 						)}
@@ -122,7 +125,7 @@ export default function RelaysPage() {
 			<div className={cn("custom-scrollbar min-w-0 w-full md:h-full", mobileDetailOpen ? "block" : "hidden md:block")}>
 				<Button variant="ghost" size="sm" className="mb-3 -ml-2 md:hidden" onClick={() => setMobileDetailOpen(false)}>
 					<ArrowLeft className="size-4" />
-					Endpoints
+					{localeMessages.t("ui.upstream.endpoints", { ns: "common" })}
 				</Button>
 				{current && <EndpointView key={current.name} endpoint={current} onRequestDelete={() => setShowDeleteDialog(true)} />}
 			</div>

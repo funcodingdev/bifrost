@@ -301,7 +301,7 @@ export default function MCPView() {
 			}
 
 			if (oauthModeActive && !isSecretVarSet(localConfig.oauth2_server_config?.issuer_url)) {
-				toast.error("Issuer URL is required when MCP auth mode is OAuth or Both. Set it in Settings > Security first.");
+				toast.error(localeMessages.t("ui.upstream.issuerUrlIsRequiredWhenMcp", { ns: "common" }));
 				return;
 			}
 
@@ -402,11 +402,10 @@ export default function MCPView() {
 				<div className="flex items-center justify-between space-x-2 rounded-sm border p-4">
 					<div className="space-y-0.5">
 						<label htmlFor="mcp-max-protocol-version" className="text-sm font-medium">
-							Max Protocol Version
+							{localeMessages.t("ui.upstream.maxProtocolVersion", { ns: "common" })}
 						</label>
 						<p className="text-muted-foreground text-sm">
-							Newest MCP protocol version Bifrost offers to MCP servers. Auto uses the latest Bifrost supports. Each server can override
-							this.
+							{localeMessages.t("ui.upstream.newestMcpProtocolVersionBifrostOffers", { ns: "common" })}
 						</p>
 					</div>
 					<Select
@@ -690,7 +689,7 @@ export default function MCPView() {
 											Issuer URL <span className="text-destructive">*</span>
 										</p>
 										<p className="text-muted-foreground text-sm">
-											Required in OAuth and Both modes.{" "}
+											{localeMessages.t("ui.upstream.requiredInOauthAndBothModes", { ns: "common" })}{" "}
 											{/* The API returns an env or vault issuer resolved; it is a public URL, so it is shown as is,
 											    next to the reference it comes from, as the Security editor shows it. */}
 											{issuerURL?.value?.trim() ? (
@@ -699,10 +698,10 @@ export default function MCPView() {
 												</code>
 											) : issuerRef ? (
 												<span className="text-destructive" data-testid="oauth2-issuer-url-unresolved">
-													Not resolved.
+													{localeMessages.t("ui.upstream.notResolved", { ns: "common" })}
 												</span>
 											) : (
-												<span className="text-destructive">Not set.</span>
+												<span className="text-destructive">{localeMessages.t("ui.upstream.notSet", { ns: "common" })}</span>
 											)}{" "}
 											{issuerRef && (
 												<Badge
@@ -718,7 +717,7 @@ export default function MCPView() {
 												className="text-primary underline"
 												data-testid="oauth2-issuer-url-security-link"
 											>
-												Edit in Settings &gt; Security
+												{localeMessages.t("ui.upstream.editInSettingsSecurity", { ns: "common" })}
 											</Link>
 										</p>
 									</div>

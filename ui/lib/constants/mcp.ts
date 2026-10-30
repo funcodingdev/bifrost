@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 // "Use the global setting" for one MCP server's max protocol version; sent to the API as "".
 export const MCP_PROTOCOL_VERSION_USE_GLOBAL = "global";
 
@@ -6,9 +7,13 @@ export const MCP_MAX_PROTOCOL_VERSIONS = ["auto", "2026-07-28", "2025-11-25", "2
 
 export const MCP_MAX_PROTOCOL_VERSION_OPTIONS = MCP_MAX_PROTOCOL_VERSIONS.map((value) => ({
 	value,
-	label: value === "auto" ? "Auto (latest)" : value,
+	label: value === "auto" ? localeMessages.t("ui.upstream.autoLatest", { ns: "common" }) : value,
 }));
 
 export function mcpMaxProtocolVersionLabel(value?: string): string {
-	return MCP_MAX_PROTOCOL_VERSION_OPTIONS.find((option) => option.value === (value || "auto"))?.label ?? value ?? "Auto (latest)";
+	return (
+		MCP_MAX_PROTOCOL_VERSION_OPTIONS.find((option) => option.value === (value || "auto"))?.label ??
+		value ??
+		localeMessages.t("ui.upstream.autoLatest", { ns: "common" })
+	);
 }

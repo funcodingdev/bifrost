@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { LogAppCell, LogCostCell, LogLatencyCell, LogTimeCell } from "@/app/workspace/logs/views/columns";
 import { formatCostPrecise } from "@/app/workspace/relay-logs/views/relayLogDetailsSheet";
 import { AttributionCell } from "@/components/logAttributionCell";
@@ -14,22 +15,22 @@ import { ArrowUpDown, MoreHorizontal, Trash2 } from "lucide-react";
 const statusOf = (status: string): Status => (Statuses.includes(status as Status) ? (status as Status) : "processing");
 
 export const RELAY_COLUMN_LABELS: Record<string, string> = {
-	timestamp: "Time",
-	relay_name: "Relay",
+	timestamp: localeMessages.t("ui.upstream.time", { ns: "common" }),
+	relay_name: localeMessages.t("ui.upstream.relay", { ns: "common" }),
 	method: "Method",
-	request: "Path",
-	status_code: "Status",
+	request: localeMessages.t("ui.upstream.path", { ns: "common" }),
+	status_code: localeMessages.t("ui.upstream.status", { ns: "common" }),
 	app: "App",
-	model: "Model",
-	cost: "Cost",
-	units: "Units",
-	latency: "Latency",
-	virtual_key: "Virtual Key",
-	user: "User",
-	team: "Team",
-	customer: "Customer",
-	business_unit: "Business Unit",
-	project: "Project",
+	model: localeMessages.t("ui.upstream.model", { ns: "common" }),
+	cost: localeMessages.t("ui.upstream.cost", { ns: "common" }),
+	units: localeMessages.t("ui.upstream.units", { ns: "common" }),
+	latency: localeMessages.t("ui.upstream.latency", { ns: "common" }),
+	virtual_key: localeMessages.t("ui.upstream.virtualKey", { ns: "common" }),
+	user: localeMessages.t("ui.upstream.user", { ns: "common" }),
+	team: localeMessages.t("ui.upstream.team", { ns: "common" }),
+	customer: localeMessages.t("ui.upstream.customer", { ns: "common" }),
+	business_unit: localeMessages.t("ui.upstream.businessUnit", { ns: "common" }),
+	project: localeMessages.t("ui.upstream.project", { ns: "common" }),
 };
 
 // Same sort header as the LLM table's Time / Latency / Cost columns.
@@ -62,13 +63,13 @@ export const createRelayColumns = (
 	},
 	{
 		accessorKey: "timestamp",
-		header: sortableHeader("Time", "relay-logs-time-sort-btn"),
+		header: sortableHeader(localeMessages.t("ui.upstream.time", { ns: "common" }), "relay-logs-time-sort-btn"),
 		size: 150,
 		cell: ({ row }) => <LogTimeCell timestamp={row.original.timestamp} testId="relay-logs-row-open-btn" />,
 	},
 	{
 		accessorKey: "relay_name",
-		header: "Relay",
+		header: localeMessages.t("ui.upstream.relay", { ns: "common" }),
 		size: 150,
 		cell: ({ row }) => (
 			<Badge variant="outline" className="px-1.5 py-0.5 font-mono text-[11px]">
@@ -79,7 +80,7 @@ export const createRelayColumns = (
 	{
 		// Its own column, as in the relay's route table, so the paths beside it line up.
 		id: "method",
-		header: "Method",
+		header: localeMessages.t("ui.upstream.method", { ns: "common" }),
 		size: 90,
 		cell: ({ row }) => (
 			<Badge variant="secondary" className="px-1.5 py-0.5 font-mono text-[11px]">
@@ -89,7 +90,7 @@ export const createRelayColumns = (
 	},
 	{
 		id: "request",
-		header: "Path",
+		header: localeMessages.t("ui.upstream.path", { ns: "common" }),
 		size: 260,
 		cell: ({ row }) => {
 			// Same two-line shape as the LLM table's model cell: primary line in mono, detail beneath.
@@ -101,7 +102,11 @@ export const createRelayColumns = (
 			// A literal (non-glob) route's path is identical to the request's own path, so "Route X"
 			// would just restate the primary line above it; show it only when it's new information
 			// (a glob, or no match at all).
-			const routeLabel = !log.route_path ? "No route" : log.route_path !== pathOnly ? `Route ${log.route_path}` : null;
+			const routeLabel = !log.route_path
+				? localeMessages.t("ui.upstream.noRoute", { ns: "common" })
+				: log.route_path !== pathOnly
+					? `Route ${log.route_path}`
+					: null;
 			// "Streamed" is not repeated here as plain text: it's already a colored badge on the
 			// detail sheet, the same way LLM's streaming variants get a distinct badge color/label
 			// rather than a text suffix, so a bare "streamed" string in this muted line read as out
@@ -123,14 +128,14 @@ export const createRelayColumns = (
 	{
 		id: "app",
 		accessorKey: "app",
-		header: "App",
+		header: localeMessages.t("ui.upstream.app", { ns: "common" }),
 		size: 140,
 		cell: ({ row }) => <LogAppCell app={row.original.app} userAgent={row.original.user_agent} customAppIcons={customAppIcons} />,
 	},
 	{
 		id: "model",
 		accessorKey: "model",
-		header: "Model",
+		header: localeMessages.t("ui.upstream.model", { ns: "common" }),
 		size: 180,
 		cell: ({ row }) =>
 			row.original.model ? (
@@ -143,13 +148,13 @@ export const createRelayColumns = (
 	},
 	{
 		accessorKey: "latency",
-		header: sortableHeader("Latency", "relay-logs-latency-sort-btn"),
+		header: sortableHeader(localeMessages.t("ui.upstream.latency", { ns: "common" }), "relay-logs-latency-sort-btn"),
 		size: 170,
 		cell: ({ row }) => <LogLatencyCell latency={row.original.latency} />,
 	},
 	{
 		id: "units",
-		header: "Units",
+		header: localeMessages.t("ui.upstream.units", { ns: "common" }),
 		size: 120,
 		cell: ({ row }) => {
 			// Same numeric style as the LLM table's token count.
@@ -164,34 +169,44 @@ export const createRelayColumns = (
 	},
 	{
 		accessorKey: "cost",
-		header: sortableHeader("Cost", "relay-logs-cost-sort-btn"),
+		header: sortableHeader(localeMessages.t("ui.upstream.cost", { ns: "common" }), "relay-logs-cost-sort-btn"),
 		size: 120,
 		// Relay charges are often sub-cent, so the column keeps the sheet's six-decimal precision.
 		cell: ({ row }) => <LogCostCell cost={row.original.cost} format={formatCostPrecise} />,
 	},
 	{
 		id: "virtual_key",
-		header: "Virtual Key",
+		header: localeMessages.t("ui.upstream.virtualKey", { ns: "common" }),
 		size: 170,
 		cell: ({ row }) => <AttributionCell name={row.original.virtual_key_name} id={row.original.virtual_key_id} />,
 	},
-	{ id: "team", header: "Team", size: 150, cell: ({ row }) => <AttributionCell name={row.original.team_name} id={row.original.team_id} /> },
+	{
+		id: "team",
+		header: localeMessages.t("ui.upstream.team", { ns: "common" }),
+		size: 150,
+		cell: ({ row }) => <AttributionCell name={row.original.team_name} id={row.original.team_id} />,
+	},
 	{
 		id: "customer",
-		header: "Customer",
+		header: localeMessages.t("ui.upstream.customer", { ns: "common" }),
 		size: 150,
 		cell: ({ row }) => <AttributionCell name={row.original.customer_name} id={row.original.customer_id} />,
 	},
-	{ id: "user", header: "User", size: 150, cell: ({ row }) => <AttributionCell name={row.original.user_name} id={row.original.user_id} /> },
+	{
+		id: "user",
+		header: localeMessages.t("ui.upstream.user", { ns: "common" }),
+		size: 150,
+		cell: ({ row }) => <AttributionCell name={row.original.user_name} id={row.original.user_id} />,
+	},
 	{
 		id: "business_unit",
-		header: "Business Unit",
+		header: localeMessages.t("ui.upstream.businessUnit", { ns: "common" }),
 		size: 150,
 		cell: ({ row }) => <AttributionCell name={row.original.business_unit_name} id={row.original.business_unit_id} />,
 	},
 	{
 		id: "project",
-		header: "Project",
+		header: localeMessages.t("ui.upstream.project", { ns: "common" }),
 		size: 150,
 		cell: ({ row }) => <AttributionCell name={row.original.project_name} id={row.original.project_id} />,
 	},
@@ -205,7 +220,13 @@ export const createRelayColumns = (
 						<div className="flex justify-center">
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild onClick={(event) => event.stopPropagation()}>
-									<Button variant="ghost" size="icon" data-testid="relay-log-actions-btn" aria-label="Log actions" className="h-7 w-7">
+									<Button
+										variant="ghost"
+										size="icon"
+										data-testid="relay-log-actions-btn"
+										aria-label={localeMessages.t("ui.upstream.logActions", { ns: "common" })}
+										className="h-7 w-7"
+									>
 										<MoreHorizontal className="h-4 w-4" />
 									</Button>
 								</DropdownMenuTrigger>
@@ -220,7 +241,7 @@ export const createRelayColumns = (
 										}}
 									>
 										<Trash2 className="h-4 w-4" />
-										Delete
+										{localeMessages.t("ui.upstream.delete", { ns: "common" })}
 									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>

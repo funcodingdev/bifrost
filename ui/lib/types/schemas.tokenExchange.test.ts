@@ -37,7 +37,11 @@ describe("resourceCredentialResendRequired", () => {
 		// The API returns a reference with its resolved value masked; the server keeps the reference.
 		const referenced = { ...saved, resource_client_secret: { value: "<redacted>", ref: "env.UPSTREAM_SECRET", type: "env" } };
 		expect(resourceCredentialResendRequired(referenced, { ...referenced, audience: "https://new.example.com" })).toBeUndefined();
-		const keyRef = { ...saved, resource_client_secret: undefined, resource_private_key: { value: "<redacted>", ref: "vault.keys/upstream", type: "vault" } };
+		const keyRef = {
+			...saved,
+			resource_client_secret: undefined,
+			resource_private_key: { value: "<redacted>", ref: "vault.keys/upstream", type: "vault" },
+		};
 		expect(resourceCredentialResendRequired(keyRef, { ...keyRef, audience: "https://new.example.com" })).toBeUndefined();
 	});
 });

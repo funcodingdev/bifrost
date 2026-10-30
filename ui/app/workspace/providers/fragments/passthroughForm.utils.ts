@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import type {
 	CustomProviderConfig,
 	ModelProvider,
@@ -49,14 +50,14 @@ export function defaultPassthroughMode(isCustom: boolean): PassthroughMode {
 export function passthroughModeOptions(isCustom: boolean): Array<{ value: PassthroughMode; label: string }> {
 	if (isCustom) {
 		return [
-			{ value: "off", label: "Off (default)" },
-			{ value: "all", label: "All routes" },
-			{ value: "custom", label: "Custom" },
+			{ value: "off", label: localeMessages.t("ui.upstream.offDefault", { ns: "common" }) },
+			{ value: "all", label: localeMessages.t("ui.upstream.allRoutes", { ns: "common" }) },
+			{ value: "custom", label: localeMessages.t("ui.upstream.custom", { ns: "common" }) },
 		];
 	}
 	return [
-		{ value: "all", label: "All routes (default)" },
-		{ value: "custom", label: "Custom" },
+		{ value: "all", label: localeMessages.t("ui.upstream.allRoutesDefault", { ns: "common" }) },
+		{ value: "custom", label: localeMessages.t("ui.upstream.custom", { ns: "common" }) },
 		{ value: "off", label: "Off" },
 	];
 }

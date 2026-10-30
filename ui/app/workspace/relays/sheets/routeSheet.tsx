@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -77,7 +78,9 @@ export function RouteSheet({ show, route, isNew, endpointUsage, ignoreUpstreamCo
 					<SheetTitle>
 						<div className="font-lg flex items-center gap-2">
 							<Waypoints className="h-5 w-5" />
-							{isNew ? "Add route" : "Edit route"}
+							{isNew
+								? localeMessages.t("ui.upstream.addRoute2", { ns: "common" })
+								: localeMessages.t("ui.upstream.editRoute", { ns: "common" })}
 						</div>
 					</SheetTitle>
 				</SheetHeader>
@@ -93,7 +96,7 @@ export function RouteSheet({ show, route, isNew, endpointUsage, ignoreUpstreamCo
 									name="method"
 									render={({ field }) => (
 										<FormItem className="w-32">
-											<FormLabel>Method</FormLabel>
+											<FormLabel>{localeMessages.t("ui.upstream.method", { ns: "common" })}</FormLabel>
 											<Select onValueChange={field.onChange} value={field.value} disabled={disabled}>
 												<FormControl>
 													<SelectTrigger className="w-full" data-testid="relay-route-method">
@@ -117,7 +120,10 @@ export function RouteSheet({ show, route, isNew, endpointUsage, ignoreUpstreamCo
 									name="path"
 									render={({ field }) => (
 										<FormItem className="flex-1">
-											<InfoLabel label="Path (Required)" info="* matches within one segment; a trailing /** matches everything below." />
+											<InfoLabel
+												label={localeMessages.t("ui.upstream.pathRequired", { ns: "common" })}
+												info="* matches within one segment; a trailing /** matches everything below."
+											/>
 											<FormControl>
 												<Input placeholder="/v1/search" disabled={disabled} data-testid="relay-route-path" {...field} />
 											</FormControl>
@@ -133,8 +139,8 @@ export function RouteSheet({ show, route, isNew, endpointUsage, ignoreUpstreamCo
 								render={({ field }) => (
 									<FormItem>
 										<InfoLabel
-											label="Header Matchers (Optional)"
-											info="Request headers that must also match, such as X-Amz-Target for AWS JSON APIs. Values are globs."
+											label={localeMessages.t("ui.upstream.headerMatchersOptional", { ns: "common" })}
+											info={localeMessages.t("ui.upstream.requestHeadersThatMustAlsoMatch", { ns: "common" })}
 										/>
 										<HeaderPairsTable
 											value={field.value}
@@ -154,7 +160,10 @@ export function RouteSheet({ show, route, isNew, endpointUsage, ignoreUpstreamCo
 								name="stream"
 								render={({ field }) => (
 									<FormItem>
-										<InfoLabel label="Streaming" info={<>Auto follows the relay&apos;s streaming settings.</>} />
+										<InfoLabel
+											label={localeMessages.t("ui.upstream.streaming", { ns: "common" })}
+											info={<>{localeMessages.t("ui.upstream.autoFollowsTheRelaySStreaming", { ns: "common" })}</>}
+										/>
 										<Select
 											value={field.value === undefined ? STREAM_AUTO : field.value ? "on" : "off"}
 											onValueChange={(v) => field.onChange(v === STREAM_AUTO ? undefined : v === "on")}
@@ -166,9 +175,9 @@ export function RouteSheet({ show, route, isNew, endpointUsage, ignoreUpstreamCo
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												<SelectItem value={STREAM_AUTO}>Auto</SelectItem>
-												<SelectItem value="on">Always stream</SelectItem>
-												<SelectItem value="off">Never stream</SelectItem>
+												<SelectItem value={STREAM_AUTO}>{localeMessages.t("ui.upstream.auto", { ns: "common" })}</SelectItem>
+												<SelectItem value="on">{localeMessages.t("ui.upstream.alwaysStream", { ns: "common" })}</SelectItem>
+												<SelectItem value="off">{localeMessages.t("ui.upstream.neverStream", { ns: "common" })}</SelectItem>
 											</SelectContent>
 										</Select>
 										<FormMessage />
@@ -182,10 +191,10 @@ export function RouteSheet({ show, route, isNew, endpointUsage, ignoreUpstreamCo
 									<FormItem className="flex flex-row items-center justify-between">
 										<div className="space-y-0.5">
 											<InfoLabel
-												label="Billable"
+												label={localeMessages.t("ui.upstream.billable", { ns: "common" })}
 												info={
 													<>
-														Counted against rate limits and charged to budgets. Default for {method}:{" "}
+														{localeMessages.t("ui.upstream.countedAgainstRateLimitsAndCharged", { ns: "common" })} {method}:{" "}
 														{routeBillableByDefault(method) ? "yes" : "no"}.
 													</>
 												}
@@ -211,9 +220,11 @@ export function RouteSheet({ show, route, isNew, endpointUsage, ignoreUpstreamCo
 											data-testid="relay-route-pricing-toggle"
 										>
 											<div className="space-y-0.5">
-												<div className="text-sm font-medium">Pricing Override</div>
+												<div className="text-sm font-medium">{localeMessages.t("ui.upstream.pricingOverride", { ns: "common" })}</div>
 												<p className="text-muted-foreground text-sm">
-													{hasOverride ? "This route overrides the relay pricing." : "Uses the relay pricing."}
+													{hasOverride
+														? localeMessages.t("ui.upstream.thisRouteOverridesTheRelayPricing", { ns: "common" })
+														: localeMessages.t("ui.upstream.usesTheRelayPricing", { ns: "common" })}
 												</p>
 											</div>
 											<ChevronDown className={cn("h-4 w-4 transition-transform", pricingOpen && "rotate-180")} />
@@ -221,7 +232,7 @@ export function RouteSheet({ show, route, isNew, endpointUsage, ignoreUpstreamCo
 									</CollapsibleTrigger>
 									<CollapsibleContent className="space-y-4 border-t px-4 py-4">
 										<p className="text-muted-foreground text-sm">
-											Empty fields inherit the relay&apos;s pricing; set a field to 0 to waive it on this route.
+											{localeMessages.t("ui.upstream.emptyFieldsInheritTheRelayS", { ns: "common" })}
 										</p>
 										<UsageFields
 											control={form.control as unknown as Control<FieldValues>}
@@ -239,10 +250,12 @@ export function RouteSheet({ show, route, isNew, endpointUsage, ignoreUpstreamCo
 
 						<div className="bg-card sticky bottom-0 z-10 flex justify-end gap-2 border-t px-4 py-4 md:px-8">
 							<Button type="button" variant="outline" onClick={onCancel}>
-								Cancel
+								{localeMessages.t("ui.upstream.cancel", { ns: "common" })}
 							</Button>
 							<Button type="submit" disabled={disabled} isLoading={saving} data-testid="relay-route-save">
-								{isNew ? "Add Route" : "Save Route"}
+								{isNew
+									? localeMessages.t("ui.upstream.addRoute", { ns: "common" })
+									: localeMessages.t("ui.upstream.saveRoute", { ns: "common" })}
 							</Button>
 						</div>
 					</form>

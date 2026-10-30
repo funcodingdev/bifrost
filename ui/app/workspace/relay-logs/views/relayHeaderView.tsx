@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { ColumnConfigDropdown, type ColumnConfigEntry } from "@/components/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,8 +37,8 @@ import { RelayLogsExportDialog } from "./relayLogsExportDialog";
 export type RelayLogSearchMode = Extract<LogSearchMode, "auto" | "request_id">;
 
 const SEARCH_PLACEHOLDERS: Record<RelayLogSearchMode, string> = {
-	auto: "Search path, route, model or paste a request ID",
-	request_id: "Search by request ID",
+	auto: localeMessages.t("ui.upstream.searchPathRouteModelOrPaste", { ns: "common" }),
+	request_id: localeMessages.t("ui.upstream.searchByRequestId", { ns: "common" }),
 };
 
 interface RelayHeaderViewProps {
@@ -156,7 +157,7 @@ export function RelayHeaderView({
 				data-testid="relay-logs-header-refresh-btn"
 			>
 				<RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-				Refresh
+				{localeMessages.t("ui.upstream.refresh", { ns: "common" })}
 			</Button>
 			<Button
 				variant={polling ? "default" : "outline"}
@@ -166,7 +167,7 @@ export function RelayHeaderView({
 				data-testid="relay-logs-header-live-btn"
 			>
 				{polling ? <Radio className="h-4 w-4 animate-pulse" /> : <Radio className="h-4 w-4" />}
-				Live
+				{localeMessages.t("ui.upstream.live", { ns: "common" })}
 			</Button>
 			{/* Full width while the row wraps, so the search field owns its own line instead of
 			    squeezing to its 12rem minimum beside the date picker. */}
@@ -188,7 +189,7 @@ export function RelayHeaderView({
 							</Badge>
 						</TooltipTrigger>
 						<TooltipContent sideOffset={6} className="max-w-64">
-							Looking up this request ID exactly.
+							{localeMessages.t("ui.upstream.lookingUpThisRequestIdExactly", { ns: "common" })}
 						</TooltipContent>
 					</Tooltip>
 				)}
@@ -198,7 +199,7 @@ export function RelayHeaderView({
 							variant="ghost"
 							size="sm"
 							className="text-muted-foreground h-7 shrink-0 rounded-none text-xs"
-							title="Choose whether the box searches relay logs or looks up a request ID"
+							title={localeMessages.t("ui.upstream.chooseWhetherTheBoxSearchesRelay", { ns: "common" })}
 							data-testid="relay-logs-search-mode-trigger"
 						>
 							{LOG_SEARCH_MODE_LABELS[searchMode]}
@@ -208,10 +209,10 @@ export function RelayHeaderView({
 					<DropdownMenuContent align="end" className="w-44">
 						<DropdownMenuRadioGroup value={searchMode} onValueChange={(value) => handleSearchModeChange(value as RelayLogSearchMode)}>
 							<DropdownMenuRadioItem value="auto" className="text-xs" data-testid="relay-logs-search-mode-auto">
-								Auto detect
+								{localeMessages.t("ui.upstream.autoDetect", { ns: "common" })}
 							</DropdownMenuRadioItem>
 							<DropdownMenuRadioItem value="request_id" className="text-xs" data-testid="relay-logs-search-mode-request-id">
-								Request ID search
+								{localeMessages.t("ui.upstream.requestIdSearch", { ns: "common" })}
 							</DropdownMenuRadioItem>
 						</DropdownMenuRadioGroup>
 					</DropdownMenuContent>
@@ -247,18 +248,24 @@ export function RelayHeaderView({
 						size="sm"
 						className="h-7.5"
 						onClick={() => setExportDialogOpen(true)}
-						aria-label="Export CSV"
+						aria-label={localeMessages.t("ui.upstream.exportCsv", { ns: "common" })}
 					>
 						<Download className="h-4 w-4" />
-						<span className="hidden @5xl/relay-logs-header:inline">Export CSV</span>
+						<span className="hidden @5xl/relay-logs-header:inline">{localeMessages.t("ui.upstream.exportCsv", { ns: "common" })}</span>
 					</Button>
 				</TooltipTrigger>
-				<TooltipContent sideOffset={6}>Export CSV</TooltipContent>
+				<TooltipContent sideOffset={6}>{localeMessages.t("ui.upstream.exportCsv", { ns: "common" })}</TooltipContent>
 			</Tooltip>
 
 			<Popover open={openMoreActionsPopover} onOpenChange={setOpenMoreActionsPopover}>
 				<PopoverTrigger asChild>
-					<Button variant="outline" size="sm" className="h-7.5 w-7.5" aria-label="More actions" data-testid="relay-logs-more-menu">
+					<Button
+						variant="outline"
+						size="sm"
+						className="h-7.5 w-7.5"
+						aria-label={localeMessages.t("ui.upstream.moreActions", { ns: "common" })}
+						data-testid="relay-logs-more-menu"
+					>
 						<MoreVertical className="h-4 w-4" aria-hidden="true" />
 					</Button>
 				</PopoverTrigger>
@@ -275,8 +282,10 @@ export function RelayHeaderView({
 							>
 								<Download className="text-muted-foreground size-4" />
 								<div className="flex flex-col">
-									<span className="text-sm">Export CSV</span>
-									<span className="text-muted-foreground text-xs">Download matching relay logs as CSV</span>
+									<span className="text-sm">{localeMessages.t("ui.upstream.exportCsv", { ns: "common" })}</span>
+									<span className="text-muted-foreground text-xs">
+										{localeMessages.t("ui.upstream.downloadMatchingRelayLogsAsCsv", { ns: "common" })}
+									</span>
 								</div>
 							</CommandItem>
 						</CommandList>

@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { calculateExportTargetCount, collectLogsInBatches, DEFAULT_MAX_EXPORT_LIMIT } from "@/app/workspace/logs/utils/logsExport";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -72,7 +73,7 @@ export function RelayLogsExportDialog({
 			exportRunRef.current++;
 			setIsExporting(false);
 			setProgress(null);
-			toast.info("Export cancelled", { id: "relay-logs-export-cancel" });
+			toast.info(localeMessages.t("ui.upstream.exportCancelled", { ns: "common" }), { id: "relay-logs-export-cancel" });
 		} else {
 			onOpenChange(false);
 		}
@@ -81,7 +82,7 @@ export function RelayLogsExportDialog({
 	const handleExport = async () => {
 		if (exportScope === "current_page") {
 			if (currentPageLogs.length === 0) {
-				toast.info("No relay logs on the current page to export");
+				toast.info(localeMessages.t("ui.upstream.noRelayLogsOnTheCurrent", { ns: "common" }));
 				return;
 			}
 			downloadCSV(relayLogsToCSV(currentPageLogs), "relay-logs");
@@ -92,12 +93,12 @@ export function RelayLogsExportDialog({
 
 		const userCap = exportMaxLimit ? Number(exportMaxLimit) : undefined;
 		if (userCap !== undefined && (!Number.isInteger(userCap) || userCap < 1)) {
-			toast.error("Max entries must be a whole number of at least 1");
+			toast.error(localeMessages.t("ui.upstream.maxEntriesMustBeAWhole", { ns: "common" }));
 			return;
 		}
 		const targetTotal = calculateExportTargetCount(totalLogs, userCap);
 		if (targetTotal === 0 || totalLogs === 0) {
-			toast.info("No relay logs matched the selected filters to export");
+			toast.info(localeMessages.t("ui.upstream.noRelayLogsMatchedTheSelected", { ns: "common" }));
 			return;
 		}
 
@@ -123,11 +124,11 @@ export function RelayLogsExportDialog({
 			});
 
 			if (isRunCancelled()) {
-				toast.info("Export cancelled", { id: "relay-logs-export-cancel" });
+				toast.info(localeMessages.t("ui.upstream.exportCancelled", { ns: "common" }), { id: "relay-logs-export-cancel" });
 				return;
 			}
 			if (collectedLogs.length === 0) {
-				toast.info("No relay logs matched the selected filters to export");
+				toast.info(localeMessages.t("ui.upstream.noRelayLogsMatchedTheSelected", { ns: "common" }));
 				onOpenChange(false);
 				return;
 			}
@@ -158,13 +159,13 @@ export function RelayLogsExportDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-[425px]" data-testid="relay-logs-export-dialog">
 				<DialogHeader className="pb-0">
-					<DialogTitle>Export Relay Logs</DialogTitle>
-					<DialogDescription>Download relay logs as CSV with current filters and sorting applied.</DialogDescription>
+					<DialogTitle>{localeMessages.t("ui.upstream.exportRelayLogs", { ns: "common" })}</DialogTitle>
+					<DialogDescription>{localeMessages.t("ui.upstream.downloadRelayLogsAsCsvWith", { ns: "common" })}</DialogDescription>
 				</DialogHeader>
 
 				<div className="space-y-4">
 					<div className="space-y-2">
-						<Label className="text-sm">Export scope</Label>
+						<Label className="text-sm">{localeMessages.t("ui.upstream.exportScope", { ns: "common" })}</Label>
 						<div className="grid grid-cols-1 gap-2 sm:grid-cols-2" data-testid="relay-logs-export-scope">
 							<button
 								type="button"
@@ -173,8 +174,10 @@ export function RelayLogsExportDialog({
 								onClick={() => setExportScope("current_page")}
 								className={scopeButtonClass(exportScope === "current_page")}
 							>
-								<span className="font-medium">Current page</span>
-								<span className="text-muted-foreground text-xs">{currentPageLogs.length} entries</span>
+								<span className="font-medium">{localeMessages.t("ui.upstream.currentPage", { ns: "common" })}</span>
+								<span className="text-muted-foreground text-xs">
+									{currentPageLogs.length} {localeMessages.t("ui.upstream.entries", { ns: "common" })}
+								</span>
 							</button>
 
 							<button
@@ -184,8 +187,10 @@ export function RelayLogsExportDialog({
 								onClick={() => setExportScope("all")}
 								className={scopeButtonClass(exportScope === "all")}
 							>
-								<span className="font-medium">All entries</span>
-								<span className="text-muted-foreground text-xs">{totalLogs.toLocaleString()} total</span>
+								<span className="font-medium">{localeMessages.t("ui.upstream.allEntries", { ns: "common" })}</span>
+								<span className="text-muted-foreground text-xs">
+									{totalLogs.toLocaleString()} {localeMessages.t("ui.upstream.total", { ns: "common" })}
+								</span>
 							</button>
 						</div>
 					</div>
@@ -193,8 +198,10 @@ export function RelayLogsExportDialog({
 					{exportScope === "all" && (
 						<div className="space-y-2">
 							<Label htmlFor="relay-logs-export-max-limit" className="text-sm">
-								Max entries{" "}
-								<span className="text-muted-foreground font-normal">(optional, up to {DEFAULT_MAX_EXPORT_LIMIT.toLocaleString()})</span>
+								{localeMessages.t("ui.upstream.maxEntries", { ns: "common" })}{" "}
+								<span className="text-muted-foreground font-normal">
+									{localeMessages.t("ui.upstream.optionalUpTo", { ns: "common" })} {DEFAULT_MAX_EXPORT_LIMIT.toLocaleString()})
+								</span>
 							</Label>
 							<Input
 								id="relay-logs-export-max-limit"
@@ -211,19 +218,22 @@ export function RelayLogsExportDialog({
 					)}
 
 					{activeFilters.length > 0 && (
-						<p className="text-muted-foreground text-xs leading-relaxed">Filters applied: {activeFilters.join(", ")}</p>
+						<p className="text-muted-foreground text-xs leading-relaxed">
+							{localeMessages.t("ui.upstream.filtersApplied", { ns: "common" })} {activeFilters.join(", ")}
+						</p>
 					)}
 
 					<div className="text-muted-foreground flex items-center gap-2">
 						<ShieldCheck className="h-3.5 w-3.5 shrink-0" />
-						<p className="text-xs">Request and response bodies and headers are excluded from the export.</p>
+						<p className="text-xs">{localeMessages.t("ui.upstream.requestAndResponseBodiesAndHeaders", { ns: "common" })}</p>
 					</div>
 
 					{isExporting && progress && (
 						<div className="space-y-1.5 pt-1" data-testid="relay-logs-export-progress">
 							<Progress value={progress.total > 0 ? (progress.current / progress.total) * 100 : 0} className="h-1.5" />
 							<p className="text-muted-foreground text-center text-xs">
-								Exporting {progress.current.toLocaleString()} of {progress.total.toLocaleString()} logs...
+								{localeMessages.t("ui.upstream.exporting", { ns: "common" })} {progress.current.toLocaleString()} of{" "}
+								{progress.total.toLocaleString()} {localeMessages.t("ui.upstream.logs", { ns: "common" })}
 							</p>
 						</div>
 					)}
@@ -234,10 +244,10 @@ export function RelayLogsExportDialog({
 						{isExporting ? (
 							<>
 								<X className="mr-1 h-3.5 w-3.5" />
-								Cancel Export
+								{localeMessages.t("ui.upstream.cancelExport", { ns: "common" })}
 							</>
 						) : (
-							"Cancel"
+							localeMessages.t("ui.upstream.cancel", { ns: "common" })
 						)}
 					</Button>
 
@@ -245,12 +255,12 @@ export function RelayLogsExportDialog({
 						{isExporting ? (
 							<>
 								<Loader2 className="h-4 w-4 animate-spin" />
-								Exporting...
+								{localeMessages.t("ui.upstream.exporting2", { ns: "common" })}
 							</>
 						) : (
 							<>
 								<Download className="h-4 w-4" />
-								Export CSV
+								{localeMessages.t("ui.upstream.exportCsv", { ns: "common" })}
 							</>
 						)}
 					</Button>

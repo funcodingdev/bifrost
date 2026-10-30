@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { ExternalLink, Video } from "lucide-react";
 
 import { CopyableId } from "@/components/copyableId";
@@ -218,7 +219,7 @@ export default function VideoView({ videoInput, videoOutput, videoListOutput, re
 											<img
 												className="max-h-96 w-full rounded-sm border object-contain"
 												src={src}
-												alt="Video output frame"
+												alt={localeMessages.t("ui.upstream.videoOutputFrame", { ns: "common" })}
 												data-testid="video-view-output-image"
 											/>
 											{image.url && (
@@ -229,7 +230,7 @@ export default function VideoView({ videoInput, videoOutput, videoListOutput, re
 													data-testid="video-view-open-image-url-link"
 													className="text-primary inline-flex items-center gap-1 text-xs underline"
 												>
-													Open image URL
+													{localeMessages.t("ui.upstream.openImageUrl", { ns: "common" })}
 													<ExternalLink className="h-3 w-3" />
 												</a>
 											)}

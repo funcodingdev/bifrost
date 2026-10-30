@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -27,11 +28,11 @@ import { InfoLabel } from "../fragments/infoLabel";
 import { UsageFields } from "../fragments/usageFields";
 
 const TABS = [
-	{ id: "general", label: "General" },
-	{ id: "authentication", label: "Authentication" },
-	{ id: "advanced", label: "Advanced" },
-	{ id: "network", label: "Network" },
-	{ id: "proxy", label: "Proxy" },
+	{ id: "general", label: localeMessages.t("ui.upstream.general", { ns: "common" }) },
+	{ id: "authentication", label: localeMessages.t("ui.upstream.authentication", { ns: "common" }) },
+	{ id: "advanced", label: localeMessages.t("ui.upstream.advanced", { ns: "common" }) },
+	{ id: "network", label: localeMessages.t("ui.upstream.network", { ns: "common" }) },
+	{ id: "proxy", label: localeMessages.t("ui.upstream.proxy", { ns: "common" }) },
 ] as const;
 
 // Which tab a validation error belongs to, so a refused save opens the tab that needs fixing.
@@ -111,9 +112,9 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 		try {
 			const saved = await updateEndpoint({ name: endpoint.name, data: toRelayConfig(values) }).unwrap();
 			form.reset(toRelayForm(saved));
-			toast.success("Relay configuration updated successfully");
+			toast.success(localeMessages.t("ui.upstream.relayConfigurationUpdatedSuccessfully", { ns: "common" }));
 		} catch (e) {
-			toast.error("Failed to update relay configuration", { description: getErrorMessage(e) });
+			toast.error(localeMessages.t("ui.upstream.failedToUpdateRelayConfiguration", { ns: "common" }), { description: getErrorMessage(e) });
 		}
 	};
 	const onInvalid = (errors: Record<string, unknown>) => {
@@ -124,7 +125,9 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 			return;
 		}
 		// A field this sheet has no input for (routes are edited elsewhere): say so instead of refusing silently.
-		toast.error("Relay configuration is invalid", { description: `Fix the "${first}" field before saving.` });
+		toast.error(localeMessages.t("ui.upstream.relayConfigurationIsInvalid", { ns: "common" }), {
+			description: `Fix the "${first}" field before saving.`,
+		});
 	};
 
 	const saveButton = (label: string) => (
@@ -135,7 +138,7 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 				isLoading={isLoading}
 				data-testid={`relay-save-${label.toLowerCase()}`}
 			>
-				Save {label} Configuration
+				{localeMessages.t("ui.upstream.save", { ns: "common" })} {label} {localeMessages.t("ui.upstream.configuration", { ns: "common" })}
 			</Button>
 		</div>
 	);
@@ -148,7 +151,7 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 					<SheetTitle>
 						<div className="font-lg flex items-center gap-2">
 							<Waypoints className="h-5 w-5" />
-							Relay configuration
+							{localeMessages.t("ui.upstream.relayConfiguration", { ns: "common" })}
 						</div>
 					</SheetTitle>
 				</SheetHeader>
@@ -174,8 +177,8 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 											render={({ field }) => (
 												<FormItem>
 													<InfoLabel
-														label="Base URL (Required)"
-														info="Every request is pinned under this origin and path; callers cannot reach another host."
+														label={localeMessages.t("ui.upstream.baseUrlRequired", { ns: "common" })}
+														info={localeMessages.t("ui.upstream.everyRequestIsPinnedUnderThis", { ns: "common" })}
 													/>
 													<FormControl>
 														<Input placeholder="https://api.example.com" disabled={!canUpdate} data-testid="relay-base-url" {...field} />
@@ -189,7 +192,10 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 											name="description"
 											render={({ field }) => (
 												<FormItem>
-													<InfoLabel label="Description (Optional)" info="Shown in the relay list; for your team only." />
+													<InfoLabel
+														label={localeMessages.t("ui.upstream.descriptionOptional", { ns: "common" })}
+														info={localeMessages.t("ui.upstream.shownInTheRelayListFor", { ns: "common" })}
+													/>
 													<FormControl>
 														<Textarea rows={2} disabled={!canUpdate} {...field} value={field.value ?? ""} />
 													</FormControl>
@@ -200,25 +206,22 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 										<SwitchField
 											control={form.control}
 											name="skip_route_check"
-											label="Relay Any Path"
-											description="Relay requests that match no route instead of refusing them with 404. Unrouted POSTs use the relay pricing."
+											label={localeMessages.t("ui.upstream.relayAnyPath", { ns: "common" })}
+											description={localeMessages.t("ui.upstream.relayRequestsThatMatchNoRoute", { ns: "common" })}
 											disabled={!canUpdate}
 											testId="relay-skip-route-check"
 										/>
 										{skipRouteCheck && (
 											<Alert variant="warning" data-testid="relay-all-routes-warning">
 												<AlertTriangle className="h-4 w-4" />
-												<AlertDescription>
-													Every path on the upstream is reachable with this relay&apos;s credential. Prefer listing routes.
-												</AlertDescription>
+												<AlertDescription>{localeMessages.t("ui.upstream.everyPathOnTheUpstreamIs", { ns: "common" })}</AlertDescription>
 											</Alert>
 										)}
 										<Separator />
 										<div className="space-y-1">
-											<div className="text-sm font-medium">Pricing</div>
+											<div className="text-sm font-medium">{localeMessages.t("ui.upstream.pricing", { ns: "common" })}</div>
 											<p className="text-muted-foreground text-sm">
-												The default price of a counted call. Routes can override any field. The cost is charged to the caller&apos;s virtual
-												key, team and customer budgets.
+												{localeMessages.t("ui.upstream.theDefaultPriceOfACounted", { ns: "common" })}
 											</p>
 										</div>
 										<UsageFields
@@ -229,24 +232,24 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 											ignoreUpstreamCost={form.watch("ignore_upstream_cost")}
 											testIdPrefix="relay-usage"
 										/>
-										{saveButton("General")}
+										{saveButton(localeMessages.t("ui.upstream.general", { ns: "common" }))}
 									</TabsContent>
 
 									<TabsContent value="authentication" className="space-y-6 px-4 md:px-6">
 										<CredentialFields form={form} disabled={!canUpdate} />
-										{saveButton("Authentication")}
+										{saveButton(localeMessages.t("ui.upstream.authentication", { ns: "common" }))}
 									</TabsContent>
 
 									<TabsContent value="advanced" className="space-y-6 px-4 md:px-6">
-										<div className="text-sm font-medium">Streaming</div>
+										<div className="text-sm font-medium">{localeMessages.t("ui.upstream.streaming", { ns: "common" })}</div>
 										<FormField
 											control={form.control}
 											name="streaming.paths"
 											render={({ field }) => (
 												<FormItem>
 													<InfoLabel
-														label="Always-Stream Paths (Optional)"
-														info="One route glob per line; matching paths are always relayed as streams. Otherwise an event-stream reply from the upstream is streamed and anything else is read and priced."
+														label={localeMessages.t("ui.upstream.alwaysStreamPathsOptional", { ns: "common" })}
+														info={localeMessages.t("ui.upstream.oneRouteGlobPerLineMatching", { ns: "common" })}
 													/>
 													<FormControl>
 														<Textarea
@@ -265,17 +268,22 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 											)}
 										/>
 										<Separator />
-										<div className="text-sm font-medium">Usage Extraction</div>
+										<div className="text-sm font-medium">{localeMessages.t("ui.upstream.usageExtraction", { ns: "common" })}</div>
 										<div className="flex w-full flex-row items-start gap-4">
 											{(
 												[
 													[
 														"cost_path",
-														"Reported Cost Path (Optional)",
+														localeMessages.t("ui.upstream.reportedCostPathOptional", { ns: "common" }),
 														"usage.cost",
-														"A USD cost the upstream reports; added to the formula.",
+														localeMessages.t("ui.upstream.aUsdCostTheUpstreamReports", { ns: "common" }),
 													],
-													["model_path", "Model Path (Optional)", "model", "Where the model is read from, for the logs."],
+													[
+														"model_path",
+														localeMessages.t("ui.upstream.modelPathOptional", { ns: "common" }),
+														"model",
+														localeMessages.t("ui.upstream.whereTheModelIsReadFrom", { ns: "common" }),
+													],
 												] as const
 											).map(([key, label, placeholder, description]) => (
 												<FormField
@@ -305,8 +313,8 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 												render={({ field }) => (
 													<FormItem className="w-40">
 														<InfoLabel
-															label="Model Source"
-															info="Whether Model Path names a field of the request body (the default) or a query parameter, as Deepgram's ?model=."
+															label={localeMessages.t("ui.upstream.modelSource", { ns: "common" })}
+															info={localeMessages.t("ui.upstream.whetherModelPathNamesAField", { ns: "common" })}
 														/>
 														<Select onValueChange={field.onChange} value={field.value ?? "body"} disabled={!canUpdate}>
 															<FormControl>
@@ -315,8 +323,8 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 																</SelectTrigger>
 															</FormControl>
 															<SelectContent>
-																<SelectItem value="body">Body</SelectItem>
-																<SelectItem value="query">Query</SelectItem>
+																<SelectItem value="body">{localeMessages.t("ui.upstream.body2", { ns: "common" })}</SelectItem>
+																<SelectItem value="query">{localeMessages.t("ui.upstream.query", { ns: "common" })}</SelectItem>
 															</SelectContent>
 														</Select>
 														<FormMessage />
@@ -327,17 +335,17 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 										<SwitchField
 											control={form.control}
 											name="ignore_upstream_cost"
-											label="Ignore Reported Cost"
-											description="Charge only your fee and unit pricing, never the cost the upstream reports."
+											label={localeMessages.t("ui.upstream.ignoreReportedCost", { ns: "common" })}
+											description={localeMessages.t("ui.upstream.chargeOnlyYourFeeAndUnit", { ns: "common" })}
 											disabled={!canUpdate}
 											testId="relay-ignore-upstream-cost"
 										/>
 										<div className="flex w-full flex-row items-start gap-4">
 											{(
 												[
-													["input_tokens_path", "Input Tokens Path"],
-													["output_tokens_path", "Output Tokens Path"],
-													["total_tokens_path", "Total Tokens Path"],
+													["input_tokens_path", localeMessages.t("ui.upstream.inputTokensPath", { ns: "common" })],
+													["output_tokens_path", localeMessages.t("ui.upstream.outputTokensPath", { ns: "common" })],
+													["total_tokens_path", localeMessages.t("ui.upstream.totalTokensPath", { ns: "common" })],
 												] as const
 											).map(([key, label]) => (
 												<FormField
@@ -346,7 +354,10 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 													name={`usage.${key}`}
 													render={({ field }) => (
 														<FormItem className="flex-1">
-															<InfoLabel label={label} info="Recorded on Relay Logs, never priced." />
+															<InfoLabel
+																label={label}
+																info={localeMessages.t("ui.upstream.recordedOnRelayLogsNeverPriced", { ns: "common" })}
+															/>
 															<FormControl>
 																<Input
 																	placeholder="usage.prompt_tokens"
@@ -364,8 +375,8 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 										<Separator />
 										<div className="space-y-2">
 											<InfoLabel
-												label="Extra Headers (Optional)"
-												info="Sent on every request; a caller's copy of the same header is dropped."
+												label={localeMessages.t("ui.upstream.extraHeadersOptional", { ns: "common" })}
+												info={localeMessages.t("ui.upstream.sentOnEveryRequestACaller", { ns: "common" })}
 												inForm={false}
 											/>
 											<HeaderPairsTable
@@ -379,16 +390,13 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 												testIdPrefix="relay-extra-header"
 											/>
 										</div>
-										{saveButton("Advanced")}
+										{saveButton(localeMessages.t("ui.upstream.advanced", { ns: "common" }))}
 									</TabsContent>
 
 									<TabsContent value="network" className="space-y-6 px-4 md:px-6">
 										<Alert>
 											<Info className="h-4 w-4" />
-											<AlertDescription>
-												How Bifrost talks to the upstream directly: request and stream timeouts, the connection pool and TLS trust. To send
-												the traffic through a forward proxy instead, use the Proxy tab.
-											</AlertDescription>
+											<AlertDescription>{localeMessages.t("ui.upstream.howBifrostTalksToTheUpstream", { ns: "common" })}</AlertDescription>
 										</Alert>
 										{/* Laid out as the provider config's Network tab: plain labels, the help text under each input. */}
 										<div className="flex w-full flex-row items-start gap-4">
@@ -397,7 +405,7 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 												name="network.timeout_seconds"
 												render={({ field }) => (
 													<FormItem className="flex-1">
-														<FormLabel>Timeout (seconds)</FormLabel>
+														<FormLabel>{localeMessages.t("ui.upstream.timeoutSeconds", { ns: "common" })}</FormLabel>
 														<FormControl>
 															<Input
 																placeholder="60"
@@ -415,7 +423,8 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 															/>
 														</FormControl>
 														<FormDescription>
-															{field.value ? `${secondsToHumanReadable(field.value)}. ` : ""}Longest a buffered call may take, end to end.
+															{field.value ? `${secondsToHumanReadable(field.value)}. ` : ""}
+															{localeMessages.t("ui.upstream.longestABufferedCallMayTake", { ns: "common" })}
 														</FormDescription>
 														<FormMessage />
 													</FormItem>
@@ -426,7 +435,7 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 												name="network.stream_idle_timeout_in_seconds"
 												render={({ field }) => (
 													<FormItem className="flex-1">
-														<FormLabel>Stream Idle Timeout (seconds)</FormLabel>
+														<FormLabel>{localeMessages.t("ui.upstream.streamIdleTimeoutSeconds", { ns: "common" })}</FormLabel>
 														<FormControl>
 															<Input
 																placeholder="60"
@@ -444,8 +453,8 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 															/>
 														</FormControl>
 														<FormDescription>
-															{field.value ? `${secondsToHumanReadable(field.value)}. ` : ""}A stream is closed when no data arrives for
-															this long.
+															{field.value ? `${secondsToHumanReadable(field.value)}. ` : ""}
+															{localeMessages.t("ui.upstream.aStreamIsClosedWhenNo", { ns: "common" })}
 														</FormDescription>
 														<FormMessage />
 													</FormItem>
@@ -456,7 +465,7 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 												name="network.max_conns_per_host"
 												render={({ field }) => (
 													<FormItem className="flex-1">
-														<FormLabel>Max Connections per Host</FormLabel>
+														<FormLabel>{localeMessages.t("ui.upstream.maxConnectionsPerHost", { ns: "common" })}</FormLabel>
 														<FormControl>
 															<Input
 																placeholder="5000"
@@ -473,7 +482,9 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 																}}
 															/>
 														</FormControl>
-														<FormDescription>Upper bound on open connections to the upstream.</FormDescription>
+														<FormDescription>
+															{localeMessages.t("ui.upstream.upperBoundOnOpenConnectionsTo", { ns: "common" })}
+														</FormDescription>
 														<FormMessage />
 													</FormItem>
 												)}
@@ -482,8 +493,8 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 										<SwitchField
 											control={form.control}
 											name="network.insecure_skip_verify"
-											label="Insecure Skip Verify"
-											description="Skip TLS verification of the upstream. Only for self-signed certificates."
+											label={localeMessages.t("ui.upstream.insecureSkipVerify", { ns: "common" })}
+											description={localeMessages.t("ui.upstream.skipTlsVerificationOfTheUpstream", { ns: "common" })}
 											disabled={!canUpdate}
 											testId="relay-insecure-skip-verify"
 										/>
@@ -493,8 +504,8 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 											render={({ field }) => (
 												<FormItem>
 													<InfoLabel
-														label="CA Certificate (PEM) (Optional)"
-														info="A CA bundle to trust when the upstream uses a private or self-signed certificate."
+														label={localeMessages.t("ui.upstream.caCertificatePemOptional", { ns: "common" })}
+														info={localeMessages.t("ui.upstream.aCaBundleToTrustWhen", { ns: "common" })}
 													/>
 													<FormControl>
 														<Textarea
@@ -510,15 +521,14 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 												</FormItem>
 											)}
 										/>
-										{saveButton("Network")}
+										{saveButton(localeMessages.t("ui.upstream.network", { ns: "common" }))}
 									</TabsContent>
 
 									<TabsContent value="proxy" className="space-y-6 px-4 md:px-6">
 										<Alert>
 											<Info className="h-4 w-4" />
 											<AlertDescription>
-												Sends this relay&apos;s outbound traffic through a forward proxy (HTTP, SOCKS5, or the HTTP_PROXY environment). With
-												no proxy set, the global proxy is used when it is enabled for inference. Timeouts and TLS live on the Network tab.
+												{localeMessages.t("ui.upstream.sendsThisRelaySOutboundTraffic", { ns: "common" })}
 											</AlertDescription>
 										</Alert>
 										<FormField
@@ -527,8 +537,8 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 											render={({ field }) => (
 												<FormItem>
 													<InfoLabel
-														label="Proxy Type"
-														info="HTTP or SOCKS5 sends traffic through the proxy below; Environment uses HTTP_PROXY, HTTPS_PROXY and NO_PROXY."
+														label={localeMessages.t("ui.upstream.proxyType", { ns: "common" })}
+														info={localeMessages.t("ui.upstream.httpOrSocks5SendsTrafficThrough", { ns: "common" })}
 													/>
 													<Select
 														onValueChange={field.onChange}
@@ -537,14 +547,14 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 													>
 														<FormControl>
 															<SelectTrigger className="w-48" data-testid="relay-proxy-type">
-																<SelectValue placeholder="Global proxy" />
+																<SelectValue placeholder={localeMessages.t("ui.upstream.globalProxy", { ns: "common" })} />
 															</SelectTrigger>
 														</FormControl>
 														<SelectContent>
-															<SelectItem value="none">None (direct)</SelectItem>
+															<SelectItem value="none">{localeMessages.t("ui.upstream.noneDirect", { ns: "common" })}</SelectItem>
 															<SelectItem value="http">HTTP</SelectItem>
 															<SelectItem value="socks5">SOCKS5</SelectItem>
-															<SelectItem value="environment">Environment</SelectItem>
+															<SelectItem value="environment">{localeMessages.t("ui.upstream.environment", { ns: "common" })}</SelectItem>
 														</SelectContent>
 													</Select>
 													<FormMessage />
@@ -562,7 +572,10 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 												name="proxy.url"
 												render={({ field }) => (
 													<FormItem>
-														<InfoLabel label="Proxy URL" info="The proxy address, or an env. reference to it." />
+														<InfoLabel
+															label={localeMessages.t("ui.upstream.proxyUrl", { ns: "common" })}
+															info={localeMessages.t("ui.upstream.theProxyAddressOrAnEnv", { ns: "common" })}
+														/>
 														<FormControl>
 															<SecretVarInput
 																placeholder="http://proxy.example.com or env.PROXY_URL"
@@ -582,7 +595,7 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 													name="proxy.username"
 													render={({ field }) => (
 														<FormItem>
-															<FormLabel>Username</FormLabel>
+															<FormLabel>{localeMessages.t("ui.upstream.username", { ns: "common" })}</FormLabel>
 															<FormControl>
 																<SecretVarInput
 																	placeholder="Proxy username or env.PROXY_USERNAME"
@@ -600,7 +613,7 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 													name="proxy.password"
 													render={({ field }) => (
 														<FormItem>
-															<FormLabel>Password</FormLabel>
+															<FormLabel>{localeMessages.t("ui.upstream.password", { ns: "common" })}</FormLabel>
 															<FormControl>
 																<SecretVarInput
 																	type="password"
@@ -623,8 +636,8 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 												render={({ field }) => (
 													<FormItem>
 														<InfoLabel
-															label="CA Certificate (PEM) (Optional)"
-															info="A PEM-encoded CA certificate to trust for TLS connections through an SSL-intercepting proxy, or an env. reference to it."
+															label={localeMessages.t("ui.upstream.caCertificatePemOptional", { ns: "common" })}
+															info={localeMessages.t("ui.upstream.aPemEncodedCaCertificateTo", { ns: "common" })}
 														/>
 														<FormControl>
 															<SecretVarInput
@@ -655,7 +668,7 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 													void form.handleSubmit(onSubmit, onInvalid)();
 												}}
 											>
-												Remove configuration
+												{localeMessages.t("ui.upstream.removeConfiguration", { ns: "common" })}
 											</Button>
 											<Button
 												type="submit"
@@ -663,7 +676,7 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 												isLoading={isLoading}
 												data-testid="relay-save-proxy"
 											>
-												Save Proxy Configuration
+												{localeMessages.t("ui.upstream.saveProxyConfiguration", { ns: "common" })}
 											</Button>
 										</div>
 									</TabsContent>

@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import type { Status } from "@/lib/constants/logs";
 import { cn } from "@/lib/utils";
@@ -71,7 +72,7 @@ export function HeroStat({
 }
 
 export function CopyInlineButton({ text, testId }: { text: string; testId?: string }) {
-	const { copy } = useCopyToClipboard({ successMessage: "Copied" });
+	const { copy } = useCopyToClipboard({ successMessage: localeMessages.t("ui.upstream.copied", { ns: "common" }) });
 	return (
 		<button
 			type="button"
@@ -80,7 +81,7 @@ export function CopyInlineButton({ text, testId }: { text: string; testId?: stri
 				copy(text);
 			}}
 			className="text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-6 w-6 items-center justify-center rounded-sm transition"
-			aria-label="Copy"
+			aria-label={localeMessages.t("ui.upstream.copy", { ns: "common" })}
 			data-testid={testId}
 		>
 			<Clipboard className="h-3.5 w-3.5" />

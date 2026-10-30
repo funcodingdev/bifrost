@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -29,8 +30,8 @@ export function CredentialFields({ form, disabled }: { form: UseFormReturn<Relay
 				render={({ field }) => (
 					<FormItem>
 						<InfoLabel
-							label="Authentication"
-							info="How the gateway authenticates to the upstream. Callers never send this credential; they authenticate to Bifrost with a virtual key."
+							label={localeMessages.t("ui.upstream.authentication", { ns: "common" })}
+							info={localeMessages.t("ui.upstream.howTheGatewayAuthenticatesToThe", { ns: "common" })}
 						/>
 						<Select onValueChange={field.onChange} value={field.value} disabled={disabled}>
 							<FormControl>
@@ -58,7 +59,10 @@ export function CredentialFields({ form, disabled }: { form: UseFormReturn<Relay
 						name="auth.header_name"
 						render={({ field }) => (
 							<FormItem>
-								<InfoLabel label="Header Name (Required)" info="The request header that carries the credential, such as X-API-Key." />
+								<InfoLabel
+									label={localeMessages.t("ui.upstream.headerNameRequired", { ns: "common" })}
+									info={localeMessages.t("ui.upstream.theRequestHeaderThatCarriesThe", { ns: "common" })}
+								/>
 								<FormControl>
 									<Input placeholder="x-api-key" data-testid="relay-header-name" disabled={disabled} {...field} value={field.value ?? ""} />
 								</FormControl>
@@ -72,8 +76,8 @@ export function CredentialFields({ form, disabled }: { form: UseFormReturn<Relay
 						render={({ field }) => (
 							<FormItem>
 								<InfoLabel
-									label="Value Prefix (Optional)"
-									info="Text put before the credential in the header, such as Token followed by a space."
+									label={localeMessages.t("ui.upstream.valuePrefixOptional", { ns: "common" })}
+									info={localeMessages.t("ui.upstream.textPutBeforeTheCredentialIn", { ns: "common" })}
 								/>
 								<FormControl>
 									<Input placeholder="Token " disabled={disabled} {...field} value={field.value ?? ""} />
@@ -90,7 +94,10 @@ export function CredentialFields({ form, disabled }: { form: UseFormReturn<Relay
 					name="auth.query_param"
 					render={({ field }) => (
 						<FormItem>
-							<InfoLabel label="Query Parameter (Required)" info="The query parameter that carries the credential, such as api_key." />
+							<InfoLabel
+								label={localeMessages.t("ui.upstream.queryParameterRequired", { ns: "common" })}
+								info={localeMessages.t("ui.upstream.theQueryParameterThatCarriesThe", { ns: "common" })}
+							/>
 							<FormControl>
 								<Input placeholder="api_key" data-testid="relay-query-param" disabled={disabled} {...field} value={field.value ?? ""} />
 							</FormControl>
@@ -107,8 +114,12 @@ export function CredentialFields({ form, disabled }: { form: UseFormReturn<Relay
 					render={({ field }) => (
 						<FormItem>
 							<InfoLabel
-								label={authType === "basic" ? "Credentials (Required)" : "API Key (Required)"}
-								info="Stored encrypted and never sent by callers; the gateway adds it to every relayed request."
+								label={
+									authType === "basic"
+										? localeMessages.t("ui.upstream.credentialsRequired", { ns: "common" })
+										: localeMessages.t("ui.upstream.apiKeyRequired", { ns: "common" })
+								}
+								info={localeMessages.t("ui.upstream.storedEncryptedAndNeverSentBy", { ns: "common" })}
 							/>
 							<FormControl>
 								<SecretVarInput
@@ -132,7 +143,10 @@ export function CredentialFields({ form, disabled }: { form: UseFormReturn<Relay
 						name="auth.aws.service"
 						render={({ field }) => (
 							<FormItem>
-								<InfoLabel label="AWS Service (Required)" info="The SigV4 signing name, such as textract, translate or s3." />
+								<InfoLabel
+									label={localeMessages.t("ui.upstream.awsServiceRequired", { ns: "common" })}
+									info={localeMessages.t("ui.upstream.theSigv4SigningNameSuchAs", { ns: "common" })}
+								/>
 								<FormControl>
 									<Input placeholder="textract" data-testid="relay-aws-service" disabled={disabled} {...field} value={field.value ?? ""} />
 								</FormControl>
@@ -142,8 +156,8 @@ export function CredentialFields({ form, disabled }: { form: UseFormReturn<Relay
 					/>
 					<div className="space-y-2">
 						<InfoLabel
-							label="Authentication Method"
-							info="IAM Role uses the credentials of the environment Bifrost runs in (instance role, IRSA, env vars). Explicit uses the keys entered here."
+							label={localeMessages.t("ui.upstream.authenticationMethod", { ns: "common" })}
+							info={localeMessages.t("ui.upstream.iamRoleUsesTheCredentialsOf", { ns: "common" })}
 						/>
 						<Tabs
 							value={awsMode}
@@ -158,23 +172,37 @@ export function CredentialFields({ form, disabled }: { form: UseFormReturn<Relay
 						>
 							<TabsList className="flex w-full justify-start">
 								<TabsTrigger value="iam_role" data-testid="relay-aws-iam-role-tab">
-									IAM Role (Inherited)
+									{localeMessages.t("ui.upstream.iamRoleInherited", { ns: "common" })}
 								</TabsTrigger>
 								<TabsTrigger value="explicit" data-testid="relay-aws-explicit-tab">
-									Explicit Credentials
+									{localeMessages.t("ui.upstream.explicitCredentials", { ns: "common" })}
 								</TabsTrigger>
 							</TabsList>
 						</Tabs>
 						{awsMode === "iam_role" && (
-							<p className="text-muted-foreground text-sm">Uses IAM roles attached to your environment (EC2, Lambda, ECS, EKS).</p>
+							<p className="text-muted-foreground text-sm">
+								{localeMessages.t("ui.upstream.usesIamRolesAttachedToYour", { ns: "common" })}
+							</p>
 						)}
 					</div>
 					{awsMode === "explicit" &&
 						(
 							[
-								["access_key", "Access Key (Required)", "your-aws-access-key or env.AWS_ACCESS_KEY_ID"],
-								["secret_key", "Secret Key (Required)", "your-aws-secret-key or env.AWS_SECRET_ACCESS_KEY"],
-								["session_token", "Session Token (Optional)", "your-aws-session-token or env.AWS_SESSION_TOKEN"],
+								[
+									"access_key",
+									localeMessages.t("ui.upstream.accessKeyRequired", { ns: "common" }),
+									"your-aws-access-key or env.AWS_ACCESS_KEY_ID",
+								],
+								[
+									"secret_key",
+									localeMessages.t("ui.upstream.secretKeyRequired", { ns: "common" }),
+									"your-aws-secret-key or env.AWS_SECRET_ACCESS_KEY",
+								],
+								[
+									"session_token",
+									localeMessages.t("ui.upstream.sessionTokenOptional", { ns: "common" }),
+									"your-aws-session-token or env.AWS_SESSION_TOKEN",
+								],
 							] as const
 						).map(([key, label, placeholder]) => (
 							<FormField
@@ -203,7 +231,10 @@ export function CredentialFields({ form, disabled }: { form: UseFormReturn<Relay
 						name="aws.region"
 						render={({ field }) => (
 							<FormItem>
-								<InfoLabel label="Region (Required)" info="The AWS region requests are signed for, such as us-east-1." />
+								<InfoLabel
+									label={localeMessages.t("ui.upstream.regionRequired", { ns: "common" })}
+									info={localeMessages.t("ui.upstream.theAwsRegionRequestsAreSigned", { ns: "common" })}
+								/>
 								<FormControl>
 									<SecretVarInput
 										placeholder="us-east-1 or env.AWS_REGION"
@@ -223,8 +254,8 @@ export function CredentialFields({ form, disabled }: { form: UseFormReturn<Relay
 						render={({ field }) => (
 							<FormItem>
 								<InfoLabel
-									label="Assume Role ARN (Optional)"
-									info="Assume an IAM role before requests. Works with both explicit credentials and inherited IAM (EC2, ECS, EKS)."
+									label={localeMessages.t("ui.upstream.assumeRoleArnOptional", { ns: "common" })}
+									info={localeMessages.t("ui.upstream.assumeAnIamRoleBeforeRequests", { ns: "common" })}
 								/>
 								<FormControl>
 									<SecretVarInput
@@ -244,8 +275,8 @@ export function CredentialFields({ form, disabled }: { form: UseFormReturn<Relay
 						render={({ field }) => (
 							<FormItem>
 								<InfoLabel
-									label="External ID (Optional)"
-									info={<>Required by the role&apos;s trust policy when using cross-account access</>}
+									label={localeMessages.t("ui.upstream.externalIdOptional", { ns: "common" })}
+									info={<>{localeMessages.t("ui.upstream.requiredByTheRoleSTrust2", { ns: "common" })}</>}
 								/>
 								<FormControl>
 									<SecretVarInput placeholder="external-id or env.AWS_EXTERNAL_ID" disabled={disabled} {...field} value={field.value} />

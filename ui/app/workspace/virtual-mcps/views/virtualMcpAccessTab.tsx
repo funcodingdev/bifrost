@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { VirtualKeySelector } from "@/components/entitySelectors/virtualKeySelector";
 import {
 	AlertDialog,
@@ -171,15 +172,18 @@ export default function VirtualMCPAccessTab({ vmcpId, value, onChange, isCreate,
 			>
 				<AlertDialogContent data-testid="virtual-mcp-assign-owned-vk-dialog">
 					<AlertDialogHeader>
-						<AlertDialogTitle>Assign virtual key?</AlertDialogTitle>
+						<AlertDialogTitle>{localeMessages.t("ui.upstream.assignVirtualKey", { ns: "common" })}</AlertDialogTitle>
 						<AlertDialogDescription>
-							<strong>{pendingOwnedVk?.name}</strong> belongs to the {pendingOwnedVk?.owner.kind}{" "}
-							<strong>{pendingOwnedVk?.owner.name}</strong>. Assigning it lets that {pendingOwnedVk?.owner.kind}&apos;s key reach this
-							Virtual MCP.
+							<strong>{pendingOwnedVk?.name}</strong> {localeMessages.t("ui.upstream.belongsToThe", { ns: "common" })}{" "}
+							{pendingOwnedVk?.owner.kind} <strong>{pendingOwnedVk?.owner.name}</strong>
+							{localeMessages.t("ui.upstream.assigningItLetsThat", { ns: "common" })} {pendingOwnedVk?.owner.kind}
+							{localeMessages.t("ui.upstream.sKeyReachThisVirtualMcp", { ns: "common" })}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel data-testid="virtual-mcp-assign-owned-vk-cancel">Cancel</AlertDialogCancel>
+						<AlertDialogCancel data-testid="virtual-mcp-assign-owned-vk-cancel">
+							{localeMessages.t("ui.upstream.cancel", { ns: "common" })}
+						</AlertDialogCancel>
 						<AlertDialogAction
 							data-testid="virtual-mcp-assign-owned-vk-confirm"
 							onClick={() => {
@@ -187,7 +191,7 @@ export default function VirtualMCPAccessTab({ vmcpId, value, onChange, isCreate,
 								setPendingOwnedVk(null);
 							}}
 						>
-							Assign
+							{localeMessages.t("ui.upstream.assign", { ns: "common" })}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { DateTimePickerWithRange } from "@/components/ui/datePickerWithRange";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -128,14 +129,14 @@ export default function WarpTopicsSection({
 	const onStart = async () => {
 		const window = period ? getRangeForPeriod(period) : { from: start, to: end };
 		if (!window.from || !window.to || window.from >= window.to) {
-			toast.error("Choose a valid time range for topics.");
+			toast.error(localeMessages.t("ui.upstream.chooseAValidTimeRangeFor", { ns: "common" }));
 			return;
 		}
 		try {
 			const started = await startTopics({ start_time: window.from.toISOString(), end_time: window.to.toISOString() }).unwrap();
 			setFinished(null);
 			setActiveID(started.id ?? null);
-			toast.success("Topic seeding started.");
+			toast.success(localeMessages.t("ui.upstream.topicSeedingStarted", { ns: "common" }));
 		} catch (error) {
 			toast.error(getErrorMessage(error));
 		}
@@ -144,7 +145,7 @@ export default function WarpTopicsSection({
 	const onCancel = async () => {
 		try {
 			await cancelTopics(activeID ? { id: activeID } : undefined).unwrap();
-			toast.success("Topic clustering cancellation requested.");
+			toast.success(localeMessages.t("ui.upstream.topicClusteringCancellationRequested", { ns: "common" }));
 		} catch (error) {
 			toast.error(getErrorMessage(error));
 		}
@@ -154,50 +155,46 @@ export default function WarpTopicsSection({
 		<div className="-mx-4 space-y-3 border-t px-4 pt-4" data-testid="warp-topics-section">
 			<div className="space-y-0.5">
 				<div className="flex items-center gap-1.5">
-					<h4 className="text-sm font-medium">Topic clusters</h4>
+					<h4 className="text-sm font-medium">{localeMessages.t("ui.upstream.topicClusters", { ns: "common" })}</h4>
 					<Tooltip>
 						<TooltipTrigger asChild>
 							<button
 								type="button"
 								className="text-muted-foreground hover:text-foreground inline-flex"
-								aria-label="How topics work"
+								aria-label={localeMessages.t("ui.upstream.howTopicsWork", { ns: "common" })}
 								data-testid="warp-topics-info"
 							>
 								<Info className="size-3.5" />
 							</button>
 						</TooltipTrigger>
 						<TooltipContent className="max-w-sm space-y-1.5" data-testid="warp-topics-info-content">
-							<p>Topics group requests by what was asked, so Warp can answer what people ask about.</p>
+							<p>{localeMessages.t("ui.upstream.topicsGroupRequestsByWhatWas", { ns: "common" })}</p>
 							<p>
-								<span className="font-medium">1. Seed, once.</span> A one-time run clusters the indexed requests of a window and names each
-								group. Seeding is once per embedding model.
+								<span className="font-medium">{localeMessages.t("ui.upstream.1SeedOnce", { ns: "common" })}</span>{" "}
+								{localeMessages.t("ui.upstream.aOneTimeRunClustersThe", { ns: "common" })}
 							</p>
 							<p>
-								<span className="font-medium">2. Filed as they arrive.</span> Every request indexed after that is filed under its nearest
-								topic.
+								<span className="font-medium">{localeMessages.t("ui.upstream.2FiledAsTheyArrive", { ns: "common" })}</span>{" "}
+								{localeMessages.t("ui.upstream.everyRequestIndexedAfterThatIs", { ns: "common" })}
 							</p>
 							<p>
-								<span className="font-medium">3. New topics found.</span> Requests that match no topic wait. Once the new topic threshold is
-								reached, an hourly pass groups them into new topics or folds them into existing ones.
+								<span className="font-medium">{localeMessages.t("ui.upstream.3NewTopicsFound", { ns: "common" })}</span>{" "}
+								{localeMessages.t("ui.upstream.requestsThatMatchNoTopicWait", { ns: "common" })}
 							</p>
 							<p>
-								<span className="font-medium">4. Kept tidy.</span> The same pass retires topics with no requests for 30 days and merges
-								topics that come to mean the same thing.
+								<span className="font-medium">{localeMessages.t("ui.upstream.4KeptTidy", { ns: "common" })}</span>{" "}
+								{localeMessages.t("ui.upstream.theSamePassRetiresTopicsWith", { ns: "common" })}
 							</p>
-							<p>Changing the embedding model starts over: its topics are seeded again.</p>
+							<p>{localeMessages.t("ui.upstream.changingTheEmbeddingModelStartsOver", { ns: "common" })}</p>
 						</TooltipContent>
 					</Tooltip>
 				</div>
-				<p className="text-muted-foreground text-xs">
-					Seed topics once from a window of indexed requests. After that they keep themselves up to date as new requests are indexed, with
-					no further runs.
-				</p>
+				<p className="text-muted-foreground text-xs">{localeMessages.t("ui.upstream.seedTopicsOnceFromAWindow", { ns: "common" })}</p>
 			</div>
 
 			{seeded ? (
 				<p className="text-muted-foreground text-xs" data-testid="warp-topics-seeded">
-					Topics are built for this embedding model and keep themselves up to date: new requests are filed as they are indexed, and new
-					topics are found among the ones that match none.
+					{localeMessages.t("ui.upstream.topicsAreBuiltForThisEmbedding", { ns: "common" })}
 				</p>
 			) : (
 				<div className="flex flex-col gap-2 md:flex-row md:items-center">
@@ -235,7 +232,8 @@ export default function WarpTopicsSection({
 								disabled={isCancelling || !hasSettingsUpdateAccess}
 								data-testid="warp-topics-cancel-btn"
 							>
-								{isCancelling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Cancel clustering
+								{isCancelling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{" "}
+								{localeMessages.t("ui.upstream.cancelClustering", { ns: "common" })}
 							</Button>
 						) : (
 							<Button
@@ -256,17 +254,21 @@ export default function WarpTopicsSection({
 								data-testid="warp-topics-start-btn"
 							>
 								{isStarting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-								Seed topics
+								{localeMessages.t("ui.upstream.seedTopics", { ns: "common" })}
 							</Button>
 						)}
 					</div>
 				</div>
 			)}
 
-			{hasChanges && !seeded && <p className="text-muted-foreground text-xs">Save configuration changes before seeding topics.</p>}
+			{hasChanges && !seeded && (
+				<p className="text-muted-foreground text-xs">
+					{localeMessages.t("ui.upstream.saveConfigurationChangesBeforeSeedingTopics", { ns: "common" })}
+				</p>
+			)}
 			{needsBackfill && !seeded && !isActive && (
 				<p className="text-muted-foreground text-xs" data-testid="warp-topics-needs-backfill">
-					Nothing is indexed for this embedding model yet. Backfill a window above first, then seed topics from the same window.
+					{localeMessages.t("ui.upstream.nothingIsIndexedForThisEmbedding", { ns: "common" })}
 				</p>
 			)}
 
@@ -274,9 +276,11 @@ export default function WarpTopicsSection({
 
 			{health && (
 				<p className="text-muted-foreground text-xs" data-testid="warp-topics-health">
-					{health.active_topics} active topic{health.active_topics === 1 ? "" : "s"}
-					{health.themes > 0 ? ` in ${health.themes} theme${health.themes === 1 ? "" : "s"}` : ""} · {health.pooled} request
-					{health.pooled === 1 ? "" : "s"} waiting for a topic
+					{health.active_topics} {localeMessages.t("ui.upstream.activeTopic", { ns: "common" })}
+					{health.active_topics === 1 ? "" : "s"}
+					{health.themes > 0 ? ` in ${health.themes} theme${health.themes === 1 ? "" : "s"}` : ""} · {health.pooled}{" "}
+					{localeMessages.t("ui.upstream.request", { ns: "common" })}
+					{health.pooled === 1 ? "" : "s"} {localeMessages.t("ui.upstream.waitingForATopic", { ns: "common" })}
 					{health.requests_24h > 0
 						? ` · ${Math.round(health.unmatched_share_24h * 100)}% of the last day's ${health.requests_24h} request${health.requests_24h === 1 ? "" : "s"} matched no topic`
 						: " · nothing filed in the last day"}
@@ -287,24 +291,30 @@ export default function WarpTopicsSection({
 					<div className="flex items-center justify-between gap-3">
 						<span className="font-medium capitalize">{shown.status}</span>
 						<span className="text-muted-foreground">
-							{shown.scanned} request{shown.scanned === 1 ? "" : "s"} read
+							{shown.scanned} {localeMessages.t("ui.upstream.request", { ns: "common" })}
+							{shown.scanned === 1 ? "" : "s"} {localeMessages.t("ui.upstream.read", { ns: "common" })}
 						</span>
 					</div>
 					<div className="text-muted-foreground text-xs">
-						{shown.indexed} topic{shown.indexed === 1 ? "" : "s"} written
+						{shown.indexed} {localeMessages.t("ui.upstream.topic", { ns: "common" })}
+						{shown.indexed === 1 ? "" : "s"} {localeMessages.t("ui.upstream.written", { ns: "common" })}
 						{shown.themes ? ` · ${shown.themes} theme${shown.themes === 1 ? "" : "s"}` : ""}
 						{shown.failed > 0 ? ` · ${shown.failed} label${shown.failed === 1 ? "" : "s"} fell back` : ""}
 					</div>
 					{shown.message && <p className="text-muted-foreground text-xs">{shown.message}</p>}
-					{shown.last_error && <p className="text-destructive text-xs">Latest error: {shown.last_error}</p>}
+					{shown.last_error && (
+						<p className="text-destructive text-xs">
+							{localeMessages.t("ui.upstream.latestError", { ns: "common" })} {shown.last_error}
+						</p>
+					)}
 				</div>
 			)}
 
 			{isStatusError && (
 				<p className="text-destructive flex items-center gap-2 text-xs" role="alert" data-testid="warp-topics-status-error">
-					Could not read topic clustering status, so a running job may not be shown.
+					{localeMessages.t("ui.upstream.couldNotReadTopicClusteringStatus", { ns: "common" })}
 					<button type="button" onClick={() => refetchStatus()} className="underline" data-testid="warp-topics-status-retry">
-						Retry
+						{localeMessages.t("ui.upstream.retry", { ns: "common" })}
 					</button>
 				</p>
 			)}

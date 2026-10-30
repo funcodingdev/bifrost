@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -42,7 +43,9 @@ export function UsageFields({ control, name, value, inheritFrom, ignoreUpstreamC
 	const placeholder = (field: keyof RelayUsageConfig, fallback: string) => {
 		if (!isRoute) return fallback;
 		const inherited = inheritFrom?.[field];
-		return inherited !== undefined && inherited !== "" ? `${inherited} (relay default)` : "Inherits relay";
+		return inherited !== undefined && inherited !== ""
+			? `${inherited} (relay default)`
+			: localeMessages.t("ui.upstream.inheritsRelay", { ns: "common" });
 	};
 
 	const numberInput = (field: keyof RelayUsageConfig, label: string, description: string, fallback: string) => (
@@ -72,11 +75,16 @@ export function UsageFields({ control, name, value, inheritFrom, ignoreUpstreamC
 			<div className="flex w-full flex-row items-start gap-4">
 				{numberInput(
 					"cost_per_request",
-					"Fee per Call (USD)",
-					isRoute ? "0 waives the relay fee on this route." : "Added to every counted call.",
+					localeMessages.t("ui.upstream.feePerCallUsd", { ns: "common" }),
+					isRoute ? "0 waives the relay fee on this route." : localeMessages.t("ui.upstream.addedToEveryCountedCall", { ns: "common" }),
 					"0",
 				)}
-				{numberInput("cost_per_unit", "Price per Unit (USD)", "Charged per billed unit.", "0")}
+				{numberInput(
+					"cost_per_unit",
+					localeMessages.t("ui.upstream.pricePerUnitUsd", { ns: "common" }),
+					localeMessages.t("ui.upstream.chargedPerBilledUnit", { ns: "common" }),
+					"0",
+				)}
 			</div>
 			<div className="flex w-full flex-row items-start gap-4">
 				<FormField
@@ -85,8 +93,8 @@ export function UsageFields({ control, name, value, inheritFrom, ignoreUpstreamC
 					render={({ field }) => (
 						<FormItem className="flex-1">
 							<InfoLabel
-								label="Units Read From"
-								info="Whether the billed quantity comes from the request the caller sent or the response the upstream returned."
+								label={localeMessages.t("ui.upstream.unitsReadFrom", { ns: "common" })}
+								info={localeMessages.t("ui.upstream.whetherTheBilledQuantityComesFrom", { ns: "common" })}
 							/>
 							<Select
 								value={(field.value as string) ?? (isRoute ? INHERIT : "response")}
@@ -99,7 +107,7 @@ export function UsageFields({ control, name, value, inheritFrom, ignoreUpstreamC
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
-									{isRoute && <SelectItem value={INHERIT}>Inherit from relay</SelectItem>}
+									{isRoute && <SelectItem value={INHERIT}>{localeMessages.t("ui.upstream.inheritFromRelay", { ns: "common" })}</SelectItem>}
 									{(Object.keys(RelayUnitsSourceLabels) as RelayUnitsSource[]).map((k) => (
 										<SelectItem key={k} value={k}>
 											{RelayUnitsSourceLabels[k]}
@@ -117,8 +125,8 @@ export function UsageFields({ control, name, value, inheritFrom, ignoreUpstreamC
 					render={({ field }) => (
 						<FormItem className="flex-1">
 							<InfoLabel
-								label="Measure"
-								info="Number at path reads a number; Characters counts the text at the path; Body size uses the whole body in bytes or characters."
+								label={localeMessages.t("ui.upstream.measure", { ns: "common" })}
+								info={localeMessages.t("ui.upstream.numberAtPathReadsANumber", { ns: "common" })}
 							/>
 							<Select
 								value={(field.value as string) ?? (isRoute ? INHERIT : "value")}
@@ -131,7 +139,7 @@ export function UsageFields({ control, name, value, inheritFrom, ignoreUpstreamC
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
-									{isRoute && <SelectItem value={INHERIT}>Inherit from relay</SelectItem>}
+									{isRoute && <SelectItem value={INHERIT}>{localeMessages.t("ui.upstream.inheritFromRelay", { ns: "common" })}</SelectItem>}
 									{(Object.keys(RelayUnitsMeasureLabels) as RelayUnitsMeasure[]).map((k) => (
 										<SelectItem key={k} value={k}>
 											{RelayUnitsMeasureLabels[k]}
@@ -150,7 +158,10 @@ export function UsageFields({ control, name, value, inheritFrom, ignoreUpstreamC
 					name={`${name}.units_path`}
 					render={({ field }) => (
 						<FormItem>
-							<InfoLabel label="Units Path" info="A gjson path into the JSON body, such as usage.credits. Arrays are summed." />
+							<InfoLabel
+								label={localeMessages.t("ui.upstream.unitsPath", { ns: "common" })}
+								info={localeMessages.t("ui.upstream.aGjsonPathIntoTheJson", { ns: "common" })}
+							/>
 							<FormControl>
 								<Input
 									placeholder={placeholder("units_path", "usage.credits")}
@@ -166,11 +177,22 @@ export function UsageFields({ control, name, value, inheritFrom, ignoreUpstreamC
 				/>
 			)}
 			<div className="flex w-full flex-row items-start gap-4">
-				{numberInput("units_block_size", "Block Size (Optional)", "Bill per started block of this many units.", "1")}
-				{numberInput("units_minimum", "Minimum Units (Optional)", "Least units billed once a quantity is read.", "0")}
+				{numberInput(
+					"units_block_size",
+					localeMessages.t("ui.upstream.blockSizeOptional", { ns: "common" }),
+					localeMessages.t("ui.upstream.billPerStartedBlockOfThis", { ns: "common" }),
+					"1",
+				)}
+				{numberInput(
+					"units_minimum",
+					localeMessages.t("ui.upstream.minimumUnitsOptional", { ns: "common" }),
+					localeMessages.t("ui.upstream.leastUnitsBilledOnceAQuantity", { ns: "common" }),
+					"0",
+				)}
 			</div>
 			<p className="text-muted-foreground text-sm" data-testid={`${testIdPrefix}-formula`}>
-				Each counted call costs <span className="text-foreground font-medium">{describePricing(effective, ignoreUpstreamCost)}</span>
+				{localeMessages.t("ui.upstream.eachCountedCallCosts", { ns: "common" })}{" "}
+				<span className="text-foreground font-medium">{describePricing(effective, ignoreUpstreamCost)}</span>
 			</p>
 		</div>
 	);

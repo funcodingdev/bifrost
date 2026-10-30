@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { RelaySelector } from "@/components/entitySelectors/relaySelector";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -7,8 +8,8 @@ import type { ReactNode } from "react";
 
 const DEFAULT_TOOLTIP = (
 	<p>
-		Let this key call relays at <span className="font-medium">/relay/&lt;name&gt;/...</span>. Each call's cost is charged to the key's
-		budgets. With no relay granted the key may call none.
+		{localeMessages.t("ui.upstream.letThisKeyCallRelaysAt", { ns: "common" })} <span className="font-medium">/relay/&lt;name&gt;/...</span>
+		{localeMessages.t("ui.upstream.eachCallSCostIsCharged", { ns: "common" })}
 	</p>
 );
 
@@ -29,7 +30,7 @@ interface RelayGrantsEditorProps {
 export function RelayGrantsEditor({
 	value,
 	onChange,
-	label = "Relay access",
+	label = localeMessages.t("ui.upstream.relayAccess", { ns: "common" }),
 	tooltip = DEFAULT_TOOLTIP,
 	testIdPrefix = "vk-relays",
 }: RelayGrantsEditorProps) {
@@ -55,7 +56,13 @@ export function RelayGrantsEditor({
 				</TooltipProvider>
 			</div>
 
-			<RelaySelector mode="add" fullWidth placeholder="Select a relay to add" onSelect={add} excludeIds={value} />
+			<RelaySelector
+				mode="add"
+				fullWidth
+				placeholder={localeMessages.t("ui.upstream.selectARelayToAdd", { ns: "common" })}
+				onSelect={add}
+				excludeIds={value}
+			/>
 			{value.length > 0 && (
 				<div className="divide-y overflow-hidden rounded-md border">
 					{value.map((name) => (

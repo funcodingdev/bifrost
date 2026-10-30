@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import type { RelayAuthConfig, RelayRouteConfig, RelayRouteMethod } from "@/lib/types/relays";
 import { compareRoutes } from "@/lib/utils/relayForm";
 
@@ -27,7 +28,7 @@ const asString = (v: unknown): string | undefined => (typeof v === "string" ? v 
 // is not part of the main bundle.
 export async function parseOpenAPIText(text: string): Promise<Doc> {
 	const trimmed = text.trim();
-	if (!trimmed) throw new Error("The document is empty");
+	if (!trimmed) throw new Error(localeMessages.t("ui.upstream.theDocumentIsEmpty", { ns: "common" }));
 	if (trimmed.startsWith("{")) {
 		// JSON first; a flow-style YAML document ({openapi: 3.0.0, ...}) also starts with "{" and is
 		// parsed as YAML when it is not valid JSON.
@@ -39,13 +40,13 @@ export async function parseOpenAPIText(text: string): Promise<Doc> {
 		}
 		if (json !== undefined) {
 			const parsed = asRecord(json);
-			if (!parsed) throw new Error("The document is not a JSON object");
+			if (!parsed) throw new Error(localeMessages.t("ui.upstream.theDocumentIsNotAJson", { ns: "common" }));
 			return parsed;
 		}
 	}
 	const yaml = await import("yaml");
 	const parsed = asRecord(yaml.parse(trimmed));
-	if (!parsed) throw new Error("The document is not an OpenAPI object");
+	if (!parsed) throw new Error(localeMessages.t("ui.upstream.theDocumentIsNotAnOpenapi", { ns: "common" }));
 	return parsed;
 }
 
@@ -122,7 +123,7 @@ export function authFromSecuritySchemes(doc: Doc, security: unknown = doc.securi
 		// An empty alternative ({}) makes auth optional: the call works without a key, so no scheme
 		// is required of the endpoint.
 		if (security.some(isEmptyRequirement))
-			return { warning: "The document makes authentication optional; set the auth type by hand if the API needs a key" };
+			return { warning: localeMessages.t("ui.upstream.theDocumentMakesAuthenticationOptionalSet", { ns: "common" }) };
 		const warnings: string[] = [];
 		for (const requirement of security) {
 			const names = Object.keys(asRecord(requirement) ?? {});
@@ -132,12 +133,12 @@ export function authFromSecuritySchemes(doc: Doc, security: unknown = doc.securi
 			if (mapped.warning) warnings.push(mapped.warning);
 		}
 		return {
-			warning: warnings[0] ?? "No security alternative in the document is a single scheme the relay can inject; set the auth type by hand",
+			warning: warnings[0] ?? localeMessages.t("ui.upstream.noSecurityAlternativeInTheDocument", { ns: "common" }),
 		};
 	}
 	const names = Object.keys(schemes);
 	if (names.length === 1) return mapScheme(names[0]);
-	return { warning: "The document declares several security schemes and requires none; set the auth type by hand" };
+	return { warning: localeMessages.t("ui.upstream.theDocumentDeclaresSeveralSecuritySchemes", { ns: "common" }) };
 }
 
 // baseUrlFromServers reads the first absolute server URL (OpenAPI 3) or host + basePath (Swagger 2).
@@ -222,7 +223,7 @@ export function importOpenAPI(doc: Doc, documentUrl?: string): OpenAPIImport {
 	// document's. An empty list marks a public operation, which needs no key.
 	const requirements: unknown[] = [];
 	if (!paths) {
-		result.warnings.push("The document declares no paths");
+		result.warnings.push(localeMessages.t("ui.upstream.theDocumentDeclaresNoPaths", { ns: "common" }));
 	} else {
 		const referenced: string[] = [];
 		for (const [template, rawItem] of Object.entries(paths)) {
@@ -250,7 +251,7 @@ export function importOpenAPI(doc: Doc, documentUrl?: string): OpenAPIImport {
 			);
 		}
 		if (result.routes.length === 0 && referenced.length === 0)
-			result.warnings.push("No operation in the document uses a method the relay serves");
+			result.warnings.push(localeMessages.t("ui.upstream.noOperationInTheDocumentUses", { ns: "common" }));
 	}
 	// One endpoint injects one auth, so it is set only when every operation that needs a key agrees.
 	// When operations were read and none needs a key, nothing is inferred: the document's default
@@ -264,7 +265,7 @@ export function importOpenAPI(doc: Doc, documentUrl?: string): OpenAPIImport {
 	const first = candidates[0] ?? {};
 	const agree = candidates.every((c) => JSON.stringify(c.auth) === JSON.stringify(first.auth));
 	if (!agree) {
-		result.warnings.push("The operations require different security schemes, and one endpoint applies one auth; set the auth type by hand");
+		result.warnings.push(localeMessages.t("ui.upstream.theOperationsRequireDifferentSecuritySchemes", { ns: "common" }));
 	} else {
 		if (first.auth) result.auth = first.auth;
 		if (first.warning) result.warnings.push(first.warning);

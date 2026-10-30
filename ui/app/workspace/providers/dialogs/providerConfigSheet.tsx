@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import i18nReview from "@/lib/i18n";
 import Provider from "@/components/provider";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -91,7 +92,7 @@ const availableTabs = (
 	if (hasPassthrough) {
 		tabs.push({
 			id: "passthrough",
-			label: "Passthrough",
+			label: localeMessages.t("ui.upstream.passthrough", { ns: "common" }),
 		});
 	}
 	tabs.push({

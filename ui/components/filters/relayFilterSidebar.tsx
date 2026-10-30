@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { FilterSidebarTrigger } from "@/components/filters/filterSidebarTrigger";
 import { CheckboxFilterItem, FilterSection, SearchableCheckboxList, useAutoFocusOnOpen } from "@/components/filters/primitives";
 import { Button } from "@/components/ui/button";
@@ -75,7 +76,7 @@ export function RelayFilterSidebar({ filters, onFiltersChange }: RelayFilterSide
 			data-testid="relay-filter-sidebar"
 		>
 			<div className="flex h-11 items-center justify-between border-b pr-2 pl-5">
-				<span className="text-sm font-semibold">Filters</span>
+				<span className="text-sm font-semibold">{localeMessages.t("ui.upstream.filters", { ns: "common" })}</span>
 				<div className="flex items-center gap-1">
 					{activeFilterCount > 0 && (
 						<Button
@@ -86,10 +87,17 @@ export function RelayFilterSidebar({ filters, onFiltersChange }: RelayFilterSide
 							data-testid="relay-filter-reset-btn"
 						>
 							<RotateCcw className="size-3" />
-							Reset
+							{localeMessages.t("ui.upstream.reset", { ns: "common" })}
 						</Button>
 					)}
-					<Button variant="ghost" size="icon" className="size-7" onClick={toggleCollapsed} title="Hide filters" aria-label="Hide filters">
+					<Button
+						variant="ghost"
+						size="icon"
+						className="size-7"
+						onClick={toggleCollapsed}
+						title={localeMessages.t("ui.upstream.hideFilters", { ns: "common" })}
+						aria-label={localeMessages.t("ui.upstream.hideFilters", { ns: "common" })}
+					>
 						<PanelLeftClose className="size-4" />
 					</Button>
 				</div>
@@ -97,7 +105,7 @@ export function RelayFilterSidebar({ filters, onFiltersChange }: RelayFilterSide
 			<ScrollArea className="flex flex-1 overflow-y-auto p-2 pb-0" viewportClassName="no-table">
 				<div className="flex grow flex-col gap-1">
 					{/* First two open by default; the rest open only when they carry a value. */}
-					<FilterSection title="Status" defaultOpen testId="relay-status-filter-toggle">
+					<FilterSection title={localeMessages.t("ui.upstream.status", { ns: "common" })} defaultOpen testId="relay-status-filter-toggle">
 						{["success", "error", "cancelled"].map((status) => (
 							<CheckboxFilterItem
 								key={status}
@@ -114,8 +122,8 @@ export function RelayFilterSidebar({ filters, onFiltersChange }: RelayFilterSide
 						onFiltersChange={onFiltersChange}
 						filterKey="relay_names"
 						dimension="relay_names"
-						title="Relay"
-						placeholder="Search relays"
+						title={localeMessages.t("ui.upstream.relay", { ns: "common" })}
+						placeholder={localeMessages.t("ui.upstream.searchRelays", { ns: "common" })}
 						testIdPrefix="relay-filter"
 						defaultOpen
 					/>
@@ -124,33 +132,41 @@ export function RelayFilterSidebar({ filters, onFiltersChange }: RelayFilterSide
 						onFiltersChange={onFiltersChange}
 						filterKey="methods"
 						dimension="methods"
-						title="Method"
-						placeholder="Search methods"
+						title={localeMessages.t("ui.upstream.method", { ns: "common" })}
+						placeholder={localeMessages.t("ui.upstream.searchMethods", { ns: "common" })}
 						testIdPrefix="relay-method-filter"
 					/>
-					<FilterSection title="Billing" defaultOpen={filters.billable !== undefined} testId="relay-billing-filter-toggle">
+					<FilterSection
+						title={localeMessages.t("ui.upstream.billing", { ns: "common" })}
+						defaultOpen={filters.billable !== undefined}
+						testId="relay-billing-filter-toggle"
+					>
 						<CheckboxFilterItem
-							label="Billable"
+							label={localeMessages.t("ui.upstream.billable", { ns: "common" })}
 							checked={filters.billable === true}
 							onCheckedChange={() => onFiltersChange({ ...filters, billable: filters.billable === true ? undefined : true })}
 							testId="relay-billing-filter-checkbox-billable"
 						/>
 						<CheckboxFilterItem
-							label="Not billable"
+							label={localeMessages.t("ui.upstream.notBillable", { ns: "common" })}
 							checked={filters.billable === false}
 							onCheckedChange={() => onFiltersChange({ ...filters, billable: filters.billable === false ? undefined : false })}
 							testId="relay-billing-filter-checkbox-not-billable"
 						/>
 					</FilterSection>
-					<FilterSection title="Kind" defaultOpen={(filters.kinds ?? []).length > 0} testId="relay-kind-filter-toggle">
+					<FilterSection
+						title={localeMessages.t("ui.upstream.kind", { ns: "common" })}
+						defaultOpen={(filters.kinds ?? []).length > 0}
+						testId="relay-kind-filter-toggle"
+					>
 						<CheckboxFilterItem
-							label="Calls"
+							label={localeMessages.t("ui.upstream.calls", { ns: "common" })}
 							checked={(filters.kinds ?? []).includes("call")}
 							onCheckedChange={() => toggle("kinds", "call")}
 							testId="relay-kind-filter-checkbox-call"
 						/>
 						<CheckboxFilterItem
-							label="Job settlements"
+							label={localeMessages.t("ui.upstream.jobSettlements", { ns: "common" })}
 							checked={(filters.kinds ?? []).includes("job")}
 							onCheckedChange={() => toggle("kinds", "job")}
 							testId="relay-kind-filter-checkbox-job"
@@ -162,8 +178,8 @@ export function RelayFilterSidebar({ filters, onFiltersChange }: RelayFilterSide
 						onFiltersChange={onFiltersChange}
 						filterKey="apps"
 						dimension="apps"
-						title="App"
-						placeholder="Search apps"
+						title={localeMessages.t("ui.upstream.app", { ns: "common" })}
+						placeholder={localeMessages.t("ui.upstream.searchApps", { ns: "common" })}
 						testIdPrefix="relay-app-filter"
 						searchable={false}
 					/>
@@ -172,8 +188,8 @@ export function RelayFilterSidebar({ filters, onFiltersChange }: RelayFilterSide
 						onFiltersChange={onFiltersChange}
 						filterKey="virtual_key_ids"
 						dimension="virtual_keys"
-						title="Virtual key"
-						placeholder="Search virtual keys"
+						title={localeMessages.t("ui.upstream.virtualKey2", { ns: "common" })}
+						placeholder={localeMessages.t("ui.upstream.searchVirtualKeys", { ns: "common" })}
 						testIdPrefix="relay-vk-filter"
 					/>
 					<EntityFilter
@@ -181,8 +197,8 @@ export function RelayFilterSidebar({ filters, onFiltersChange }: RelayFilterSide
 						onFiltersChange={onFiltersChange}
 						filterKey="user_ids"
 						dimension="users"
-						title="User"
-						placeholder="Search or add a user"
+						title={localeMessages.t("ui.upstream.user", { ns: "common" })}
+						placeholder={localeMessages.t("ui.upstream.searchOrAddAUser", { ns: "common" })}
 						testIdPrefix="relay-user-filter"
 						allowCustom
 					/>
@@ -191,8 +207,8 @@ export function RelayFilterSidebar({ filters, onFiltersChange }: RelayFilterSide
 						onFiltersChange={onFiltersChange}
 						filterKey="team_ids"
 						dimension="teams"
-						title="Teams"
-						placeholder="Search or add a team"
+						title={localeMessages.t("ui.upstream.teams", { ns: "common" })}
+						placeholder={localeMessages.t("ui.upstream.searchOrAddATeam", { ns: "common" })}
 						testIdPrefix="relay-teams-filter"
 						allowCustom
 					/>
@@ -201,8 +217,8 @@ export function RelayFilterSidebar({ filters, onFiltersChange }: RelayFilterSide
 						onFiltersChange={onFiltersChange}
 						filterKey="customer_ids"
 						dimension="customers"
-						title="Customers"
-						placeholder="Search or add a customer"
+						title={localeMessages.t("ui.upstream.customers", { ns: "common" })}
+						placeholder={localeMessages.t("ui.upstream.searchOrAddACustomer", { ns: "common" })}
 						testIdPrefix="relay-customers-filter"
 						allowCustom
 					/>
@@ -211,8 +227,8 @@ export function RelayFilterSidebar({ filters, onFiltersChange }: RelayFilterSide
 						onFiltersChange={onFiltersChange}
 						filterKey="business_unit_ids"
 						dimension="business_units"
-						title="Business units"
-						placeholder="Search or add a business unit"
+						title={localeMessages.t("ui.upstream.businessUnits", { ns: "common" })}
+						placeholder={localeMessages.t("ui.upstream.searchOrAddABusinessUnit", { ns: "common" })}
 						testIdPrefix="relay-business-units-filter"
 						allowCustom
 					/>
@@ -221,8 +237,8 @@ export function RelayFilterSidebar({ filters, onFiltersChange }: RelayFilterSide
 						onFiltersChange={onFiltersChange}
 						filterKey="project_ids"
 						dimension="projects"
-						title="Projects"
-						placeholder="Search or add a project"
+						title={localeMessages.t("ui.upstream.projects", { ns: "common" })}
+						placeholder={localeMessages.t("ui.upstream.searchOrAddAProject", { ns: "common" })}
 						testIdPrefix="relay-projects-filter"
 						allowCustom
 					/>
@@ -422,7 +438,11 @@ function CostFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentPr
 	};
 
 	return (
-		<FilterSection title="Cost" defaultOpen={defaultOpen || hasActive} testId="relay-cost-filter-toggle">
+		<FilterSection
+			title={localeMessages.t("ui.upstream.cost", { ns: "common" })}
+			defaultOpen={defaultOpen || hasActive}
+			testId="relay-cost-filter-toggle"
+		>
 			<div className="grid grid-cols-2 gap-2 px-3 py-2">
 				<Input
 					type="number"
@@ -433,8 +453,8 @@ function CostFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentPr
 					onChange={(event) => setMinText(event.target.value)}
 					onBlur={(event) => commit("min_cost", event.target.value)}
 					onKeyDown={onKeyDown("min_cost")}
-					placeholder="Min $"
-					aria-label="Minimum cost"
+					placeholder={localeMessages.t("ui.upstream.min", { ns: "common" })}
+					aria-label={localeMessages.t("ui.upstream.minimumCost", { ns: "common" })}
 					className="h-8 text-xs"
 					data-testid="relay-cost-filter-min"
 				/>
@@ -447,8 +467,8 @@ function CostFilter({ filters, onFiltersChange, defaultOpen }: FilterComponentPr
 					onChange={(event) => setMaxText(event.target.value)}
 					onBlur={(event) => commit("max_cost", event.target.value)}
 					onKeyDown={onKeyDown("max_cost")}
-					placeholder="Max $"
-					aria-label="Maximum cost"
+					placeholder={localeMessages.t("ui.upstream.max", { ns: "common" })}
+					aria-label={localeMessages.t("ui.upstream.maximumCost", { ns: "common" })}
 					className="h-8 text-xs"
 					data-testid="relay-cost-filter-max"
 				/>

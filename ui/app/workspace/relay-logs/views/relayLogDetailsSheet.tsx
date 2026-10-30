@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { formatLatency } from "@/app/workspace/dashboard/utils/chartUtils";
 import BlockHeader from "@/app/workspace/logs/views/blockHeader";
 import LogEntryDetailsView from "@/app/workspace/logs/views/logEntryDetailsView";
@@ -61,7 +62,10 @@ const usd = (v?: number | null) => (v === undefined || v === null ? null : forma
 // The chat request type's colour on the LLM sheet (RequestTypeColors["chat.completion"]).
 const RELAY_KIND_PILL_CLASS = "bg-blue-100 text-blue-800";
 
-const KIND_LABELS: Record<RelayLog["kind"], string> = { call: "Call", job: "Job settlement" };
+const KIND_LABELS: Record<RelayLog["kind"], string> = {
+	call: localeMessages.t("ui.upstream.call", { ns: "common" }),
+	job: localeMessages.t("ui.upstream.jobSettlement", { ns: "common" }),
+};
 
 type RelayLogFilterKey = "user_ids" | "team_ids" | "customer_ids" | "business_unit_ids" | "project_ids";
 
@@ -163,16 +167,22 @@ export function RelayLogDetailSheet({
 			>
 				{!display ? (
 					<div className="flex h-full flex-col items-center justify-center gap-3 px-8 text-center" data-testid="relay-log-details-empty">
-						<SheetTitle className="sr-only">{isFetching ? "Loading relay log details" : "Relay log not found"}</SheetTitle>
+						<SheetTitle className="sr-only">
+							{isFetching
+								? localeMessages.t("ui.upstream.loadingRelayLogDetails", { ns: "common" })
+								: localeMessages.t("ui.upstream.relayLogNotFound", { ns: "common" })}
+						</SheetTitle>
 						{isFetching ? (
 							<Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
 						) : (
 							<>
 								<p className="text-muted-foreground text-sm">
-									{isError ? "This relay log could not be loaded." : "This relay log no longer exists."}
+									{isError
+										? localeMessages.t("ui.upstream.thisRelayLogCouldNotBe", { ns: "common" })
+										: localeMessages.t("ui.upstream.thisRelayLogNoLongerExists", { ns: "common" })}
 								</p>
 								<Button variant="outline" size="sm" type="button" onClick={() => onOpenChange(false)} data-testid="relay-log-close-button">
-									Close
+									{localeMessages.t("ui.upstream.close", { ns: "common" })}
 								</Button>
 							</>
 						)}
@@ -190,13 +200,21 @@ export function RelayLogDetailSheet({
 									nextKeys={nextKeys}
 									entityLabel="log"
 								/>
-								<SheetTitle className="text-foreground text-sm font-medium">Request details</SheetTitle>
+								<SheetTitle className="text-foreground text-sm font-medium">
+									{localeMessages.t("ui.upstream.requestDetails", { ns: "common" })}
+								</SheetTitle>
 							</div>
 							<div className="flex items-center gap-3">
 								<AlertDialog>
 									<DropdownMenu>
 										<DropdownMenuTrigger asChild>
-											<Button variant="ghost" className="size-7" type="button" aria-label="Log actions" data-testid="relay-log-actions">
+											<Button
+												variant="ghost"
+												className="size-7"
+												type="button"
+												aria-label={localeMessages.t("ui.upstream.logActions", { ns: "common" })}
+												data-testid="relay-log-actions"
+											>
 												<MoreVertical className="h-3 w-3" />
 											</Button>
 										</DropdownMenuTrigger>
@@ -206,7 +224,7 @@ export function RelayLogDetailSheet({
 												data-testid="export-log-json"
 											>
 												<Download className="h-4 w-4" />
-												Export as JSON
+												{localeMessages.t("ui.upstream.exportAsJson", { ns: "common" })}
 											</DropdownMenuItem>
 											{handleDelete && (
 												<>
@@ -214,7 +232,7 @@ export function RelayLogDetailSheet({
 													<AlertDialogTrigger asChild>
 														<DropdownMenuItem variant="destructive" data-testid="relay-log-delete">
 															<Trash2 className="h-4 w-4" />
-															Delete
+															{localeMessages.t("ui.upstream.delete", { ns: "common" })}
 														</DropdownMenuItem>
 													</AlertDialogTrigger>
 												</>
@@ -223,13 +241,15 @@ export function RelayLogDetailSheet({
 									</DropdownMenu>
 									<AlertDialogContent>
 										<AlertDialogHeader>
-											<AlertDialogTitle>Are you sure you want to delete this log?</AlertDialogTitle>
+											<AlertDialogTitle>{localeMessages.t("ui.upstream.areYouSureYouWantTo", { ns: "common" })}</AlertDialogTitle>
 											<AlertDialogDescription>
-												This action cannot be undone. This will permanently delete the log entry.
+												{localeMessages.t("ui.upstream.thisActionCannotBeUndoneThis", { ns: "common" })}
 											</AlertDialogDescription>
 										</AlertDialogHeader>
 										<AlertDialogFooter>
-											<AlertDialogCancel data-testid="relay-log-delete-cancel">Cancel</AlertDialogCancel>
+											<AlertDialogCancel data-testid="relay-log-delete-cancel">
+												{localeMessages.t("ui.upstream.cancel", { ns: "common" })}
+											</AlertDialogCancel>
 											<AlertDialogAction
 												data-testid="relay-log-delete-confirm"
 												onClick={() =>
@@ -239,7 +259,7 @@ export function RelayLogDetailSheet({
 													)
 												}
 											>
-												Delete
+												{localeMessages.t("ui.upstream.delete", { ns: "common" })}
 											</AlertDialogAction>
 										</AlertDialogFooter>
 									</AlertDialogContent>
@@ -250,7 +270,7 @@ export function RelayLogDetailSheet({
 									type="button"
 									onClick={() => onOpenChange(false)}
 									data-testid="relay-log-close-button"
-									aria-label="Close"
+									aria-label={localeMessages.t("ui.upstream.close", { ns: "common" })}
 								>
 									<X className="h-3 w-3" />
 								</Button>
@@ -272,25 +292,42 @@ export function RelayLogDetailSheet({
 													variant="outline"
 													className="rounded-sm bg-teal-100 px-2 py-0.5 text-teal-800 dark:bg-teal-900 dark:text-teal-200"
 												>
-													Streamed
+													{localeMessages.t("ui.upstream.streamed", { ns: "common" })}
 												</Badge>
 											)}
 											<StatusPill status={display.status as Status} />
 											{!display.billable && (
 												<Badge variant="outline" className="bg-card text-muted-foreground rounded-sm px-2 py-0.5 font-normal">
-													Not billable
+													{localeMessages.t("ui.upstream.notBillable", { ns: "common" })}
 												</Badge>
 											)}
 										</div>
 										<HeroIdRow
-											label={display.kind === "job" ? "Job" : "Route"}
+											label={display.kind === "job" ? "Job" : localeMessages.t("ui.upstream.route", { ns: "common" })}
 											value={requestLine}
 											testId="relay-log-copy-route-button"
 											className="mt-3"
 										/>
-										<HeroIdRow label="Request" value={display.request_id} testId="relay-log-copy-request-id-button" className="mt-1" />
-										{display.route_path && <HeroIdRow label="Matched" value={display.route_path} className="mt-1" />}
-										{display.virtual_key_name && <HeroIdRow label="Virtual key" value={display.virtual_key_name} className="mt-1" />}
+										<HeroIdRow
+											label={localeMessages.t("ui.upstream.request2", { ns: "common" })}
+											value={display.request_id}
+											testId="relay-log-copy-request-id-button"
+											className="mt-1"
+										/>
+										{display.route_path && (
+											<HeroIdRow
+												label={localeMessages.t("ui.upstream.matched", { ns: "common" })}
+												value={display.route_path}
+												className="mt-1"
+											/>
+										)}
+										{display.virtual_key_name && (
+											<HeroIdRow
+												label={localeMessages.t("ui.upstream.virtualKey2", { ns: "common" })}
+												value={display.virtual_key_name}
+												className="mt-1"
+											/>
+										)}
 									</div>
 									<div className="flex shrink-0 items-center gap-1.5 rounded-sm border bg-white px-2 py-1 font-mono text-[12px] font-medium dark:bg-zinc-900">
 										<Waypoints className="text-muted-foreground h-3.5 w-3.5" />
@@ -299,14 +336,18 @@ export function RelayLogDetailSheet({
 								</div>
 								<div className="border-border grid grid-cols-1 border-t sm:grid-cols-2 md:grid-cols-4">
 									<HeroStat
-										label="Latency"
+										label={localeMessages.t("ui.upstream.latency", { ns: "common" })}
 										valueClass="text-primary"
 										value={hasLatency ? formatLatency(display.latency as number) : "—"}
 										sub={hasStart ? (end ? `${format(start, "HH:mm:ss")} → ${format(end, "HH:mm:ss")}` : format(start, "HH:mm:ss")) : ""}
 										hasRightBorder
 									/>
 									<HeroStat
-										label={display.total_tokens ? "Tokens in / out" : "Units"}
+										label={
+											display.total_tokens
+												? localeMessages.t("ui.upstream.tokensInOut", { ns: "common" })
+												: localeMessages.t("ui.upstream.units", { ns: "common" })
+										}
 										mono
 										value={
 											display.total_tokens
@@ -329,7 +370,7 @@ export function RelayLogDetailSheet({
 										hasRightBorder
 									/>
 									<HeroStat
-										label="Cost"
+										label={localeMessages.t("ui.upstream.cost", { ns: "common" })}
 										value={display.cost != null ? formatCostPrecise(display.cost) : "—"}
 										sub={
 											display.cost != null && display.billed_units
@@ -343,7 +384,7 @@ export function RelayLogDetailSheet({
 										hasRightBorder
 									/>
 									<HeroStat
-										label="Bytes out"
+										label={localeMessages.t("ui.upstream.bytesOut", { ns: "common" })}
 										mono
 										value={formatCompactNumber(display.bytes_out)}
 										sub={display.bytes_out.toLocaleString()}
@@ -359,42 +400,48 @@ export function RelayLogDetailSheet({
 								data-testid="relay-log-more-details"
 							>
 								<summary className="hover:bg-muted/30 flex cursor-pointer items-center justify-between px-4 py-2.5 text-sm transition">
-									<span className="text-foreground font-medium">More details</span>
+									<span className="text-foreground font-medium">{localeMessages.t("ui.upstream.moreDetails", { ns: "common" })}</span>
 									<span className="text-muted-foreground flex items-center gap-2 text-xs">
-										<span className="hidden md:inline">timings, cost, request meta, headers</span>
+										<span className="hidden md:inline">
+											{localeMessages.t("ui.upstream.timingsCostRequestMetaHeaders", { ns: "common" })}
+										</span>
 										<ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
 									</span>
 								</summary>
 								<div className="space-y-4 border-t px-4 py-4 md:px-6">
 									<div className="space-y-4">
-										<BlockHeader title="Timings" />
+										<BlockHeader title={localeMessages.t("ui.upstream.timings", { ns: "common" })} />
 										<div className="grid w-full grid-cols-1 items-center gap-4 md:grid-cols-3">
 											<LogEntryDetailsView
 												className="w-full"
-												label="Start Timestamp"
+												label={localeMessages.t("ui.upstream.startTimestamp", { ns: "common" })}
 												value={hasStart ? format(start, "yyyy-MM-dd hh:mm:ss aa") : "N/A"}
 											/>
 											<LogEntryDetailsView
 												className="w-full"
-												label="End Timestamp"
+												label={localeMessages.t("ui.upstream.endTimestamp", { ns: "common" })}
 												value={end ? format(end, "yyyy-MM-dd hh:mm:ss aa") : "N/A"}
 											/>
 											<LogEntryDetailsView
 												className="w-full"
-												label="Latency"
-												tooltip="Total end-to-end request time: upstream plus Bifrost overhead."
-												value={hasLatency ? `${(display.latency as number).toFixed(2)}ms` : "Not recorded"}
+												label={localeMessages.t("ui.upstream.latency", { ns: "common" })}
+												tooltip={localeMessages.t("ui.upstream.totalEndToEndRequestTime", { ns: "common" })}
+												value={
+													hasLatency
+														? `${(display.latency as number).toFixed(2)}ms`
+														: localeMessages.t("ui.upstream.notRecorded", { ns: "common" })
+												}
 											/>
 											<LogEntryDetailsView
 												className="w-full"
-												label="Upstream Latency"
-												tooltip="Time spent waiting on the upstream API."
+												label={localeMessages.t("ui.upstream.upstreamLatency", { ns: "common" })}
+												tooltip={localeMessages.t("ui.upstream.timeSpentWaitingOnTheUpstream", { ns: "common" })}
 												value={display.upstream_latency != null ? `${display.upstream_latency.toFixed(2)}ms` : "N/A"}
 											/>
 											<LogEntryDetailsView
 												className="w-full"
-												label="Bifrost Overhead"
-												tooltip="Time added by Bifrost itself: routing, plugins, and processing."
+												label={localeMessages.t("ui.upstream.bifrostOverhead", { ns: "common" })}
+												tooltip={localeMessages.t("ui.upstream.timeAddedByBifrostItselfRouting", { ns: "common" })}
 												value={display.overhead_latency != null ? `${display.overhead_latency.toFixed(2)}ms` : "N/A"}
 											/>
 										</div>
@@ -404,24 +451,48 @@ export function RelayLogDetailSheet({
 									</div>
 									<DottedSeparator />
 									<div className="space-y-4" data-testid="relay-log-cost">
-										<BlockHeader title="Cost" />
+										<BlockHeader title={localeMessages.t("ui.upstream.cost", { ns: "common" })} />
 										<div className="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
-											<LogEntryDetailsView className="w-full" label="Charged" value={usd(display.cost) ?? "Not charged"} />
-											<LogEntryDetailsView className="w-full" label="Fee per call" value={usd(display.cost_per_request)} />
-											<LogEntryDetailsView className="w-full" label="Price per unit" value={usd(display.cost_per_unit)} />
+											<LogEntryDetailsView
+												className="w-full"
+												label={localeMessages.t("ui.upstream.charged", { ns: "common" })}
+												value={usd(display.cost) ?? localeMessages.t("ui.upstream.notCharged", { ns: "common" })}
+											/>
+											<LogEntryDetailsView
+												className="w-full"
+												label={localeMessages.t("ui.upstream.feePerCall", { ns: "common" })}
+												value={usd(display.cost_per_request)}
+											/>
+											<LogEntryDetailsView
+												className="w-full"
+												label={localeMessages.t("ui.upstream.pricePerUnit", { ns: "common" })}
+												value={usd(display.cost_per_unit)}
+											/>
 											{display.units !== undefined && (
-												<LogEntryDetailsView className="w-full" label="Units read" value={String(display.units)} />
+												<LogEntryDetailsView
+													className="w-full"
+													label={localeMessages.t("ui.upstream.unitsRead", { ns: "common" })}
+													value={String(display.units)}
+												/>
 											)}
 											{display.billed_units !== undefined && (
-												<LogEntryDetailsView className="w-full" label="Units billed" value={String(display.billed_units)} />
+												<LogEntryDetailsView
+													className="w-full"
+													label={localeMessages.t("ui.upstream.unitsBilled", { ns: "common" })}
+													value={String(display.billed_units)}
+												/>
 											)}
 											{display.extracted_cost !== undefined && (
-												<LogEntryDetailsView className="w-full" label="Reported cost" value={usd(display.extracted_cost)} />
+												<LogEntryDetailsView
+													className="w-full"
+													label={localeMessages.t("ui.upstream.reportedCost", { ns: "common" })}
+													value={usd(display.extracted_cost)}
+												/>
 											)}
 											{!!display.total_tokens && (
 												<LogEntryDetailsView
 													className="w-full"
-													label="Tokens (not priced)"
+													label={localeMessages.t("ui.upstream.tokensNotPriced", { ns: "common" })}
 													value={`${display.input_tokens ?? 0} in / ${display.output_tokens ?? 0} out`}
 												/>
 											)}
@@ -429,14 +500,22 @@ export function RelayLogDetailSheet({
 									</div>
 									<DottedSeparator />
 									<div className="space-y-4">
-										<BlockHeader title="Request Details" />
+										<BlockHeader title={localeMessages.t("ui.upstream.requestDetails2", { ns: "common" })} />
 										<div className="grid w-full grid-cols-1 items-start gap-4 md:grid-cols-3">
-											<LogEntryDetailsView className="w-full" label="Relay" value={display.relay_name} />
-											<LogEntryDetailsView className="w-full" label="Kind" value={KIND_LABELS[display.kind]} />
+											<LogEntryDetailsView
+												className="w-full"
+												label={localeMessages.t("ui.upstream.relay", { ns: "common" })}
+												value={display.relay_name}
+											/>
+											<LogEntryDetailsView
+												className="w-full"
+												label={localeMessages.t("ui.upstream.kind", { ns: "common" })}
+												value={KIND_LABELS[display.kind]}
+											/>
 											{detectedApp && (
 												<LogEntryDetailsView
 													className="w-full"
-													label="App"
+													label={localeMessages.t("ui.upstream.app", { ns: "common" })}
 													value={
 														<div className="flex min-w-0 items-center gap-2" title={display.user_agent || undefined}>
 															{detectedAppIcon ? (
@@ -455,26 +534,56 @@ export function RelayLogDetailSheet({
 													}
 												/>
 											)}
-											<LogEntryDetailsView className="w-full" label="Method" value={display.method || "—"} />
-											<LogEntryDetailsView className="w-full" label="Path" value={pathOnly || "—"} />
-											<LogEntryDetailsView className="w-full" label="Matched route" value={display.route_path || "None"} />
-											<LogEntryDetailsView className="w-full" label="Billable" value={display.billable ? "Yes" : "No"} />
-											<LogEntryDetailsView className="w-full" label="Streamed" value={display.streamed ? "Yes" : "No"} />
-											{display.model && <LogEntryDetailsView className="w-full" label="Model" value={display.model} />}
+											<LogEntryDetailsView
+												className="w-full"
+												label={localeMessages.t("ui.upstream.method", { ns: "common" })}
+												value={display.method || "—"}
+											/>
+											<LogEntryDetailsView
+												className="w-full"
+												label={localeMessages.t("ui.upstream.path", { ns: "common" })}
+												value={pathOnly || "—"}
+											/>
+											<LogEntryDetailsView
+												className="w-full"
+												label={localeMessages.t("ui.upstream.matchedRoute", { ns: "common" })}
+												value={display.route_path || localeMessages.t("ui.upstream.none", { ns: "common" })}
+											/>
+											<LogEntryDetailsView
+												className="w-full"
+												label={localeMessages.t("ui.upstream.billable", { ns: "common" })}
+												value={display.billable ? "Yes" : "No"}
+											/>
+											<LogEntryDetailsView
+												className="w-full"
+												label={localeMessages.t("ui.upstream.streamed", { ns: "common" })}
+												value={display.streamed ? "Yes" : "No"}
+											/>
+											{display.model && (
+												<LogEntryDetailsView
+													className="w-full"
+													label={localeMessages.t("ui.upstream.model", { ns: "common" })}
+													value={display.model}
+												/>
+											)}
 											{display.job_id && (
-												<LogEntryDetailsView className="w-full" label="Job" value={`${display.job_id} (${display.job_status ?? "-"})`} />
+												<LogEntryDetailsView
+													className="w-full"
+													label={localeMessages.t("ui.upstream.job", { ns: "common" })}
+													value={`${display.job_id} (${display.job_status ?? "-"})`}
+												/>
 											)}
 											{display.parent_log_id && (
 												<LogEntryDetailsView
 													className="w-full"
-													label="Parent log"
+													label={localeMessages.t("ui.upstream.parentLog", { ns: "common" })}
 													value={<code className="font-mono text-xs">{display.parent_log_id}</code>}
 												/>
 											)}
 											{display.virtual_key_id && (
 												<LogEntryDetailsView
 													className="w-full"
-													label="Virtual key"
+													label={localeMessages.t("ui.upstream.virtualKey2", { ns: "common" })}
 													value={
 														<Link
 															to="/workspace/governance/virtual-keys"
@@ -487,16 +596,36 @@ export function RelayLogDetailSheet({
 													}
 												/>
 											)}
-											<AttributionLink label="User" id={display.user_id} name={display.user_name} filterKey="user_ids" />
-											<AttributionLink label="Team" id={display.team_id} name={display.team_name} filterKey="team_ids" />
-											<AttributionLink label="Customer" id={display.customer_id} name={display.customer_name} filterKey="customer_ids" />
 											<AttributionLink
-												label="Business unit"
+												label={localeMessages.t("ui.upstream.user", { ns: "common" })}
+												id={display.user_id}
+												name={display.user_name}
+												filterKey="user_ids"
+											/>
+											<AttributionLink
+												label={localeMessages.t("ui.upstream.team", { ns: "common" })}
+												id={display.team_id}
+												name={display.team_name}
+												filterKey="team_ids"
+											/>
+											<AttributionLink
+												label={localeMessages.t("ui.upstream.customer", { ns: "common" })}
+												id={display.customer_id}
+												name={display.customer_name}
+												filterKey="customer_ids"
+											/>
+											<AttributionLink
+												label={localeMessages.t("ui.upstream.businessUnit2", { ns: "common" })}
 												id={display.business_unit_id}
 												name={display.business_unit_name}
 												filterKey="business_unit_ids"
 											/>
-											<AttributionLink label="Project" id={display.project_id} name={display.project_name} filterKey="project_ids" />
+											<AttributionLink
+												label={localeMessages.t("ui.upstream.project", { ns: "common" })}
+												id={display.project_id}
+												name={display.project_name}
+												filterKey="project_ids"
+											/>
 										</div>
 									</div>
 									{queryParams.length > 0 && (
@@ -505,7 +634,7 @@ export function RelayLogDetailSheet({
 											{/* Laid out like Matched Headers below: one field per parameter, full value on hover. Names
 											    are shown as sent, since query parameters are case-sensitive. */}
 											<div className="space-y-4" data-testid="relay-log-query">
-												<BlockHeader title="Query Parameters" />
+												<BlockHeader title={localeMessages.t("ui.upstream.queryParameters", { ns: "common" })} />
 												<div className="grid w-full grid-cols-1 items-start gap-4 md:grid-cols-3">
 													{queryParams.map(([key, value], i) => (
 														<LogEntryDetailsView key={`${key}-${i}`} className="w-full" label={key} rawLabel value={value || "—"} />
@@ -518,7 +647,7 @@ export function RelayLogDetailSheet({
 										<>
 											<DottedSeparator />
 											<div className="space-y-4">
-												<BlockHeader title="Metadata" />
+												<BlockHeader title={localeMessages.t("ui.upstream.metadata", { ns: "common" })} />
 												<div className="grid w-full grid-cols-1 items-start justify-between gap-4 md:grid-cols-3">
 													{Object.entries(display.metadata)
 														.sort(([a], [b]) => a.localeCompare(b))
@@ -533,7 +662,7 @@ export function RelayLogDetailSheet({
 										<>
 											<DottedSeparator />
 											<div className="space-y-4">
-												<BlockHeader title="Matched Headers" />
+												<BlockHeader title={localeMessages.t("ui.upstream.matchedHeaders", { ns: "common" })} />
 												<HeadersGrid headers={display.request_headers} />
 											</div>
 										</>
@@ -548,19 +677,19 @@ export function RelayLogDetailSheet({
 								>
 									<div className="flex items-center gap-2 text-red-700 dark:text-red-400">
 										<AlertCircle className="h-4 w-4 shrink-0" />
-										<span className="text-[12.5px] font-semibold">Error</span>
+										<span className="text-[12.5px] font-semibold">{localeMessages.t("ui.upstream.error", { ns: "common" })}</span>
 										{errorMessage ? <CopyInlineButton text={errorMessage} /> : null}
 									</div>
 									<div className="mt-2 text-[13px] leading-relaxed break-words whitespace-pre-wrap text-red-700 dark:text-red-400">
 										{errorMessage ??
 											(display.status_code
 												? `The relay returned an error (HTTP ${display.status_code}) without a message.`
-												: "The relay returned an error without a message.")}
+												: localeMessages.t("ui.upstream.theRelayReturnedAnErrorWithout", { ns: "common" }))}
 									</div>
 									{errorRaw != null ? (
 										<details className="group mt-3 rounded-sm border border-red-200/70 bg-white/40 dark:border-red-900/70 dark:bg-red-950/40">
 											<summary className="flex cursor-pointer items-center justify-between px-3 py-2 text-[12px] text-red-700 hover:bg-red-50/80 dark:text-red-400 dark:hover:bg-red-950/60">
-												<span className="font-medium">Details</span>
+												<span className="font-medium">{localeMessages.t("ui.upstream.details", { ns: "common" })}</span>
 												<ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
 											</summary>
 											<div className="custom-scrollbar max-h-[400px] overflow-y-auto border-t border-red-200/70 px-3 py-2 font-mono text-[11.5px] leading-[1.6] break-words whitespace-pre-wrap text-red-900 dark:border-red-900/70 dark:text-red-300">
@@ -573,15 +702,23 @@ export function RelayLogDetailSheet({
 
 							{display.content_hidden ? (
 								<div className="text-muted-foreground rounded-sm border px-4 py-3 text-sm" data-testid="relay-log-content-hidden">
-									Content logging has been disabled for this request.
+									{localeMessages.t("ui.upstream.contentLoggingHasBeenDisabledFor", { ns: "common" })}
 								</div>
 							) : (
 								<>
 									{display.request_body && (
-										<PassthroughBodyBox title="Request Body" body={display.request_body} testId="relay-log-request-body" />
+										<PassthroughBodyBox
+											title={localeMessages.t("ui.upstream.requestBody", { ns: "common" })}
+											body={display.request_body}
+											testId="relay-log-request-body"
+										/>
 									)}
 									{display.response_body && display.status !== "processing" && (
-										<PassthroughBodyBox title="Response Body" body={display.response_body} testId="relay-log-response-body" />
+										<PassthroughBodyBox
+											title={localeMessages.t("ui.upstream.responseBody", { ns: "common" })}
+											body={display.response_body}
+											testId="relay-log-response-body"
+										/>
 									)}
 								</>
 							)}

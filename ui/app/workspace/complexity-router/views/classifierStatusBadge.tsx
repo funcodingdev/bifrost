@@ -158,11 +158,7 @@ export function ClassifierStatusBadge({
 				)}
 
 				{state === "failed" && status && (
-					<p
-						className={
-							status.serving_previous || semanticFallback !== "none" ? "text-amber-700 dark:text-amber-400" : "text-destructive"
-						}
-					>
+					<p className={status.serving_previous || semanticFallback !== "none" ? "text-amber-700 dark:text-amber-400" : "text-destructive"}>
 						{semanticWarmupImpactMessage(status, semanticFallback)}
 					</p>
 				)}

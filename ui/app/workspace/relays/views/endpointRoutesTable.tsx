@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -48,19 +49,23 @@ function RouteActionsMenu({
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant="ghost" aria-label="Route actions" data-testid={`relay-route-actions-${index}`}>
+				<Button
+					variant="ghost"
+					aria-label={localeMessages.t("ui.upstream.routeActions", { ns: "common" })}
+					data-testid={`relay-route-actions-${index}`}
+				>
 					<EllipsisIcon className="h-5 w-5" aria-hidden="true" />
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
 				<DropdownMenuItem onSelect={onEdit} disabled={!hasUpdateAccess} data-testid={`relay-route-edit-${index}`}>
 					<PencilIcon className="mr-1 h-4 w-4" />
-					Edit
+					{localeMessages.t("ui.upstream.edit", { ns: "common" })}
 				</DropdownMenuItem>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem variant="destructive" onSelect={onDelete} disabled={!hasUpdateAccess} data-testid={`relay-route-remove-${index}`}>
 					<TrashIcon className="mr-1 h-4 w-4" />
-					Delete
+					{localeMessages.t("ui.upstream.delete", { ns: "common" })}
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
@@ -85,7 +90,7 @@ export function EndpointRoutesTable({ endpoint, headerActions }: { endpoint: Rel
 			toast.success(success);
 			return true;
 		} catch (e) {
-			toast.error("Failed to update routes", { description: getErrorMessage(e) });
+			toast.error(localeMessages.t("ui.upstream.failedToUpdateRoutes", { ns: "common" }), { description: getErrorMessage(e) });
 			return false;
 		}
 	};
@@ -94,7 +99,7 @@ export function EndpointRoutesTable({ endpoint, headerActions }: { endpoint: Rel
 	const stageImport = (result: OpenAPIImport) => {
 		for (const w of result.warnings) toast.warning(w);
 		if (result.routes.length === 0) {
-			toast.error("The document has no operations to import, so the routes were left unchanged");
+			toast.error(localeMessages.t("ui.upstream.theDocumentHasNoOperationsTo", { ns: "common" }));
 			return;
 		}
 		// A route the document still lists keeps what the import cannot express: its pricing
@@ -123,15 +128,15 @@ export function EndpointRoutesTable({ endpoint, headerActions }: { endpoint: Rel
 		<div className="w-full">
 			<CardHeader className="mb-4 px-0">
 				<CardTitle className="flex flex-col items-stretch gap-3 md:flex-row md:items-center md:justify-between">
-					<div className="flex items-center gap-2">Routes</div>
+					<div className="flex items-center gap-2">{localeMessages.t("ui.upstream.routes", { ns: "common" })}</div>
 					<div className="flex min-w-0 flex-wrap items-center gap-2">
 						{headerActions}
 						{canUpdate && (
 							<HeaderActionButton
 								variant="outline"
 								icon={<FileUpIcon className="h-4 w-4" />}
-								label="Import OpenAPI"
-								aria-label="Import OpenAPI"
+								label={localeMessages.t("ui.upstream.importOpenapi", { ns: "common" })}
+								aria-label={localeMessages.t("ui.upstream.importOpenapi", { ns: "common" })}
 								disabled={saving}
 								onClick={() => setImportOpen(true)}
 								data-testid="relay-routes-import"
@@ -140,8 +145,8 @@ export function EndpointRoutesTable({ endpoint, headerActions }: { endpoint: Rel
 						{canUpdate && (
 							<HeaderActionButton
 								icon={<PlusIcon className="h-4 w-4" />}
-								label="Add Route"
-								aria-label="Add Route"
+								label={localeMessages.t("ui.upstream.addRoute", { ns: "common" })}
+								aria-label={localeMessages.t("ui.upstream.addRoute", { ns: "common" })}
 								disabled={saving}
 								onClick={() => setEditing({ index: -1, route: { method: "POST", path: "/", headers: [], enabled: true } })}
 								data-testid="relay-routes-add"
@@ -161,10 +166,10 @@ export function EndpointRoutesTable({ endpoint, headerActions }: { endpoint: Rel
 					</colgroup>
 					<TableHeader>
 						<TableRow>
-							<TableHead>Method</TableHead>
-							<TableHead>Route</TableHead>
-							<TableHead>Price</TableHead>
-							<TableHead>Enabled</TableHead>
+							<TableHead>{localeMessages.t("ui.upstream.method", { ns: "common" })}</TableHead>
+							<TableHead>{localeMessages.t("ui.upstream.route", { ns: "common" })}</TableHead>
+							<TableHead>{localeMessages.t("ui.upstream.price", { ns: "common" })}</TableHead>
+							<TableHead>{localeMessages.t("ui.upstream.enabled", { ns: "common" })}</TableHead>
 							<TableHead className="text-right" />
 						</TableRow>
 					</TableHeader>
@@ -173,8 +178,8 @@ export function EndpointRoutesTable({ endpoint, headerActions }: { endpoint: Rel
 							<TableRow data-testid="relay-routes-empty">
 								<TableCell colSpan={5} className="py-6 text-center">
 									{endpoint.skip_route_check
-										? "No routes; every path is relayed with the relay pricing."
-										: "No routes found. Add one or import an OpenAPI document."}
+										? localeMessages.t("ui.upstream.noRoutesEveryPathIsRelayed", { ns: "common" })
+										: localeMessages.t("ui.upstream.noRoutesFoundAddOneOr", { ns: "common" })}
 								</TableCell>
 							</TableRow>
 						)}
@@ -196,7 +201,7 @@ export function EndpointRoutesTable({ endpoint, headerActions }: { endpoint: Rel
 									<TableCell className="overflow-hidden">
 										<div className="flex min-w-0 items-center gap-2">
 											<span className="truncate font-mono text-sm">{route.path}</span>
-											{route.job && <Badge variant="outline">job</Badge>}
+											{route.job && <Badge variant="outline">{localeMessages.t("ui.upstream.job2", { ns: "common" })}</Badge>}
 										</div>
 										{route.headers
 											.filter((h) => h.name)
@@ -210,11 +215,11 @@ export function EndpointRoutesTable({ endpoint, headerActions }: { endpoint: Rel
 										{billable ? (
 											describePricing(mergeUsage(endpointUsage, override), endpoint.ignore_upstream_cost)
 										) : (
-											<span className="text-muted-foreground">Free</span>
+											<span className="text-muted-foreground">{localeMessages.t("ui.upstream.free", { ns: "common" })}</span>
 										)}
 										{override && billable && (
 											<Badge variant="outline" className="ml-2">
-												override
+												{localeMessages.t("ui.upstream.override", { ns: "common" })}
 											</Badge>
 										)}
 									</TableCell>
@@ -260,18 +265,26 @@ export function EndpointRoutesTable({ endpoint, headerActions }: { endpoint: Rel
 				onSave={async (route) => {
 					if (!editing) return;
 					const next = editing.index < 0 ? [...routes, route] : routes.map((r, i) => (i === editing.index ? route : r));
-					if (await save(next, editing.index < 0 ? "Route added successfully" : "Route updated successfully")) setEditing(null);
+					if (
+						await save(
+							next,
+							editing.index < 0
+								? localeMessages.t("ui.upstream.routeAddedSuccessfully", { ns: "common" })
+								: localeMessages.t("ui.upstream.routeUpdatedSuccessfully", { ns: "common" }),
+						)
+					)
+						setEditing(null);
 				}}
 			/>
 			<AlertDialog open={deleting !== null}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Delete Route</AlertDialogTitle>
-						<AlertDialogDescription>Are you sure you want to delete this route? This action cannot be undone.</AlertDialogDescription>
+						<AlertDialogTitle>{localeMessages.t("ui.upstream.deleteRoute", { ns: "common" })}</AlertDialogTitle>
+						<AlertDialogDescription>{localeMessages.t("ui.upstream.areYouSureYouWantTo3", { ns: "common" })}</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter className="pt-4">
 						<AlertDialogCancel onClick={() => setDeleting(null)} disabled={saving}>
-							Cancel
+							{localeMessages.t("ui.upstream.cancel", { ns: "common" })}
 						</AlertDialogCancel>
 						<AlertDialogAction
 							disabled={saving || !canUpdate}
@@ -281,13 +294,13 @@ export function EndpointRoutesTable({ endpoint, headerActions }: { endpoint: Rel
 								if (
 									await save(
 										routes.filter((_, i) => i !== deleting),
-										"Route deleted successfully",
+										localeMessages.t("ui.upstream.routeDeletedSuccessfully", { ns: "common" }),
 									)
 								)
 									setDeleting(null);
 							}}
 						>
-							Delete
+							{localeMessages.t("ui.upstream.delete", { ns: "common" })}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
@@ -296,25 +309,28 @@ export function EndpointRoutesTable({ endpoint, headerActions }: { endpoint: Rel
 			<AlertDialog open={pendingImport !== null} onOpenChange={(o) => !o && setPendingImport(null)}>
 				<AlertDialogContent data-testid="relay-import-review">
 					<AlertDialogHeader>
-						<AlertDialogTitle>Replace the routes with the imported ones?</AlertDialogTitle>
+						<AlertDialogTitle>{localeMessages.t("ui.upstream.replaceTheRoutesWithTheImported", { ns: "common" })}</AlertDialogTitle>
 						<AlertDialogDescription asChild>
 							<div className="space-y-2">
 								<p>
-									{pendingImport?.routes.length ?? 0} route{pendingImport?.routes.length === 1 ? "" : "s"} will replace the current list.
-									Routes the document still lists keep their pricing override, job, billing, streaming and enabled settings; the rest use
-									the relay pricing and the method default.
+									{pendingImport?.routes.length ?? 0} {localeMessages.t("ui.upstream.route2", { ns: "common" })}
+									{pendingImport?.routes.length === 1 ? "" : "s"}{" "}
+									{localeMessages.t("ui.upstream.willReplaceTheCurrentListRoutes", { ns: "common" })}
 								</p>
 								{pendingImport && pendingImport.dropped.length > 0 && (
 									<p className="text-destructive">
-										{pendingImport.dropped.length} route{pendingImport.dropped.length === 1 ? "" : "s"} with a pricing override or job will
-										be removed: {pendingImport.dropped.join(", ")}
+										{pendingImport.dropped.length} {localeMessages.t("ui.upstream.route2", { ns: "common" })}
+										{pendingImport.dropped.length === 1 ? "" : "s"}{" "}
+										{localeMessages.t("ui.upstream.withAPricingOverrideOrJob", { ns: "common" })} {pendingImport.dropped.join(", ")}
 									</p>
 								)}
 							</div>
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel data-testid="relay-import-review-cancel">Keep current routes</AlertDialogCancel>
+						<AlertDialogCancel data-testid="relay-import-review-cancel">
+							{localeMessages.t("ui.upstream.keepCurrentRoutes", { ns: "common" })}
+						</AlertDialogCancel>
 						<AlertDialogAction
 							data-testid="relay-import-review-apply"
 							disabled={saving}
@@ -326,7 +342,7 @@ export function EndpointRoutesTable({ endpoint, headerActions }: { endpoint: Rel
 								if (await save(imported, `Imported ${imported.length} route${imported.length === 1 ? "" : "s"}`)) setPendingImport(null);
 							}}
 						>
-							Apply import
+							{localeMessages.t("ui.upstream.applyImport", { ns: "common" })}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

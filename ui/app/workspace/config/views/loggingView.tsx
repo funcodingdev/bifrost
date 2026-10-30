@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import PageTitle from "@/components/pageTitle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -168,11 +169,10 @@ export default function LoggingView() {
 									{t("logging.disableContentLogging")}
 								</label>
 								<p className="text-muted-foreground text-sm">
-									Applies to LLM, MCP, agent and relay logs. When enabled, only usage metadata (latency, cost, token count, status, routing
-									IDs, etc.) is logged. Request/response content (messages, params, tool calls, and any raw provider bytes) is dropped from
-									log records, even when <code className="text-xs">store_raw_request_response</code> is on. Raw-byte send-back to callers
-									via <code className="text-xs">send_back_raw_*</code> is unaffected. Agent protocol bodies follow this setting; upstream
-									raw captures also require Capture Raw Request and Response in Agent Gateway settings.
+									{localeMessages.t("ui.upstream.appliesToLlmMcpAgentAnd", { ns: "common" })}{" "}
+									<code className="text-xs">store_raw_request_response</code>{" "}
+									{localeMessages.t("ui.upstream.isOnRawByteSendBack", { ns: "common" })} <code className="text-xs">send_back_raw_*</code>{" "}
+									{localeMessages.t("ui.upstream.isUnaffectedAgentProtocolBodiesFollow", { ns: "common" })}
 								</p>
 							</div>
 							<Switch
@@ -296,12 +296,13 @@ export default function LoggingView() {
 							{t("logging.loggingHeaders")}
 						</label>
 						<p className="text-muted-foreground text-sm">
-							Comma-separated list of request headers to capture in log metadata. Supports exact names and wildcard patterns (e.g.{" "}
-							<code className="text-xs">x-custom-*</code> captures all headers with that prefix, <code className="text-xs">*</code> logs all
-							headers; note that <code className="text-xs">*</code> will capture sensitive headers like Authorization). Values are extracted
-							from incoming requests and stored in the metadata field of log entries. Headers with the{" "}
-							<code className="text-xs">x-bf-lh-</code> prefix are always captured automatically. Relay Logs carry the same metadata, and
-							beside it the headers a relay&apos;s routes match on; no other header, and never the reply&apos;s, is stored.
+							{localeMessages.t("ui.upstream.commaSeparatedListOfRequestHeaders", { ns: "common" })}{" "}
+							<code className="text-xs">x-custom-*</code>{" "}
+							{localeMessages.t("ui.upstream.capturesAllHeadersWithThatPrefix", { ns: "common" })} <code className="text-xs">*</code>{" "}
+							{localeMessages.t("ui.upstream.logsAllHeadersNoteThat", { ns: "common" })} <code className="text-xs">*</code>{" "}
+							{localeMessages.t("ui.upstream.willCaptureSensitiveHeadersLikeAuthorization", { ns: "common" })}{" "}
+							<code className="text-xs">x-bf-lh-</code>{" "}
+							{localeMessages.t("ui.upstream.prefixAreAlwaysCapturedAutomaticallyRelay", { ns: "common" })}
 						</p>
 						<Textarea
 							id="logging-headers"

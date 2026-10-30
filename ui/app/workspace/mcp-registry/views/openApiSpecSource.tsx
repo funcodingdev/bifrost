@@ -52,7 +52,11 @@ export interface OpenAPISpecSourceProps {
 }
 
 const ALL_SOURCE_MODES: OpenAPISourceMode[] = ["paste", "url", "upload"];
-const SOURCE_MODE_LABELS: Record<OpenAPISourceMode, string> = { paste: "Paste", url: "URL", upload: "Upload" };
+const SOURCE_MODE_LABELS: Record<OpenAPISourceMode, string> = {
+	paste: localeMessages.t("ui.upstream.paste", { ns: "common" }),
+	url: "URL",
+	upload: "Upload",
+};
 
 /**
  * The three ways to hand Bifrost an OpenAPI document: paste it, point at a URL,
@@ -216,7 +220,7 @@ export function OpenAPISpecSource({
 						{controls.showButton && parseButton}
 					</div>
 					<p className="text-muted-foreground text-xs">
-						{urlHint ?? "Bifrost fetches the document once and stores it with the server; the URL is kept as its source."}
+						{urlHint ?? localeMessages.t("ui.upstream.bifrostFetchesTheDocumentOnceAnd", { ns: "common" })}
 					</p>
 				</TabsContent>
 

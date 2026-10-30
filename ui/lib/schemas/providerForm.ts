@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import i18nReview from "@/lib/i18n";
 import { KnownProvidersNames } from "@/lib/constants/logs";
 import { aliasConfigSchema, oauthKeyConfigComplete, oauthKeyConfigSchema, secretVarSchema } from "@/lib/types/schemas";
@@ -213,7 +214,7 @@ const SageMakerKeyConfigSchema = z
 		access_key: z.string(),
 		secret_key: z.string(),
 		session_token: z.string().optional(),
-		region: z.string().min(1, "Region is required for SageMaker keys"),
+		region: z.string().min(1, localeMessages.t("ui.upstream.regionIsRequiredForSagemakerKeys", { ns: "common" })),
 		role_arn: z.string().optional(),
 		external_id: z.string().optional(),
 		session_name: z.string().optional(),
@@ -231,7 +232,7 @@ const SageMakerKeyConfigSchema = z
 			return bothEmpty || (accessKey !== "" && secretKey !== "");
 		},
 		{
-			message: "For SageMaker: either provide both Access Key and Secret Key, or leave both empty to use the default AWS credential chain",
+			message: localeMessages.t("ui.upstream.forSagemakerEitherProvideBothAccess", { ns: "common" }),
 			path: ["access_key"],
 		},
 	);

@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import type { Relay } from "@/lib/types/relays";
@@ -23,7 +24,7 @@ export function EndpointView({ endpoint, onRequestDelete }: { endpoint: Relay; o
 					variant="outline"
 					onClick={onRequestDelete}
 					className="text-destructive hover:bg-destructive/10 hover:text-destructive size-9 px-0"
-					aria-label="Delete relay"
+					aria-label={localeMessages.t("ui.upstream.deleteRelay2", { ns: "common" })}
 					data-testid="relay-delete"
 				>
 					<Trash className="h-4 w-4" />
@@ -32,17 +33,25 @@ export function EndpointView({ endpoint, onRequestDelete }: { endpoint: Relay; o
 			<HeaderActionButton
 				variant="outline"
 				icon={<FlaskConical className="h-4 w-4" />}
-				label="Test Pricing"
+				label={localeMessages.t("ui.upstream.testPricing", { ns: "common" })}
 				onClick={() => setShowTestSheet(true)}
-				aria-label="Test pricing"
+				aria-label={localeMessages.t("ui.upstream.testPricing2", { ns: "common" })}
 				data-testid="relay-preview-toggle"
 			/>
 			<HeaderActionButton
 				variant="outline"
 				icon={<SettingsIcon className="h-4 w-4" />}
-				label={canUpdate ? "Edit Relay Config" : "View Relay Config"}
+				label={
+					canUpdate
+						? localeMessages.t("ui.upstream.editRelayConfig", { ns: "common" })
+						: localeMessages.t("ui.upstream.viewRelayConfig", { ns: "common" })
+				}
 				onClick={() => setShowConfigSheet(true)}
-				aria-label={canUpdate ? "Edit relay configuration" : "View relay configuration"}
+				aria-label={
+					canUpdate
+						? localeMessages.t("ui.upstream.editRelayConfiguration", { ns: "common" })
+						: localeMessages.t("ui.upstream.viewRelayConfiguration", { ns: "common" })
+				}
 				data-testid="relay-edit-config"
 			/>
 		</div>
@@ -54,9 +63,10 @@ export function EndpointView({ endpoint, onRequestDelete }: { endpoint: Relay; o
 			<Sheet open={showTestSheet} onOpenChange={setShowTestSheet}>
 				<SheetContent className="p-0 pt-4 sm:max-w-[50%]" data-testid="relay-preview-sheet">
 					<SheetHeader className="flex flex-col items-start py-4" headerClassName="mb-0 sticky -top-4 bg-card z-10 px-4 md:px-8">
-						<SheetTitle>Test pricing</SheetTitle>
+						<SheetTitle>{localeMessages.t("ui.upstream.testPricing2", { ns: "common" })}</SheetTitle>
 						<SheetDescription>
-							Runs a sample call through the saved routes and pricing of {endpoint.name}. Nothing is sent upstream.
+							{localeMessages.t("ui.upstream.runsASampleCallThroughThe", { ns: "common" })} {endpoint.name}
+							{localeMessages.t("ui.upstream.nothingIsSentUpstream", { ns: "common" })}
 						</SheetDescription>
 					</SheetHeader>
 					<div className="flex grow flex-col gap-6 pt-4">

@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { dateFnsLocale } from "@/lib/i18n/dateLocale";
 import { getLocale as getUILocale } from "@/lib/i18n";
 import { BudgetOverrideDialog } from "@/components/budgetOverrideDialog";
@@ -690,11 +691,11 @@ export default function VirtualKeyDetailSheet({
 
 							{/* Relay access: the relays granted by name. */}
 							<div className="space-y-4" data-testid="vk-details-relay-access">
-								<h3 className="font-semibold">Relay access</h3>
+								<h3 className="font-semibold">{localeMessages.t("ui.upstream.relayAccess", { ns: "common" })}</h3>
 
 								{!virtualKey.relay_grants || virtualKey.relay_grants.length === 0 ? (
 									<span className="text-muted-foreground text-sm" data-testid="vk-details-relay-none">
-										No relays granted
+										{localeMessages.t("ui.upstream.noRelaysGranted", { ns: "common" })}
 									</span>
 								) : (
 									<div className="flex flex-wrap gap-1">

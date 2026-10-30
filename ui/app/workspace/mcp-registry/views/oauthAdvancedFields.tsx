@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { SecretVarInput } from "@/components/ui/secretVarInput";
@@ -96,11 +97,11 @@ export function OAuthAdvancedFields({
 					render={({ field }) => (
 						<FormItem className="flex flex-row items-center justify-between gap-4 rounded-md border px-4 py-3">
 							<div className="flex flex-col gap-1">
-								<FormLabel htmlFor="use-client-metadata-document">Use Bifrost&apos;s client metadata document</FormLabel>
+								<FormLabel htmlFor="use-client-metadata-document">
+									{localeMessages.t("ui.upstream.useBifrostSClientMetadataDocument", { ns: "common" })}
+								</FormLabel>
 								<p className="text-muted-foreground text-xs">
-									Register as Bifrost through its client metadata document even when the authorization server does not advertise support,
-									for example when its endpoints are entered by hand. Bifrost must be reachable over public HTTPS. When off, the document is
-									still used wherever the server advertises support.
+									{localeMessages.t("ui.upstream.registerAsBifrostThroughItsClient", { ns: "common" })}
 								</p>
 							</div>
 							<FormControl>

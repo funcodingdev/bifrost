@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { CodeEditor } from "@/components/ui/codeEditor";
@@ -26,7 +27,12 @@ function CodeBlock({ code }: { code: string }) {
 	return (
 		<div className="relative">
 			<div className="absolute top-4 right-4 z-10 flex items-center gap-2">
-				<Button variant="ghost" size="icon" onClick={() => copyToClipboard(code)} aria-label="Copy to clipboard">
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={() => copyToClipboard(code)}
+					aria-label={localeMessages.t("ui.upstream.copyToClipboard", { ns: "common" })}
+				>
 					<Copy className="size-4" />
 				</Button>
 			</div>
@@ -59,7 +65,7 @@ curl -X POST "${baseUrl}/relay/<relay-name>/<path>" \\
 # Every relayed call appears here with its status, latency and cost.`;
 	}, []);
 
-	const isUnexpectedError = error && error.includes("An unexpected error occurred");
+	const isUnexpectedError = error && error.includes(localeMessages.t("ui.upstream.anUnexpectedErrorOccurred", { ns: "common" }));
 
 	return (
 		<div className="dark:bg-card flex w-full flex-col items-center justify-center space-y-8 bg-white" data-testid="relay-logs-empty">
@@ -67,7 +73,7 @@ curl -X POST "${baseUrl}/relay/<relay-name>/<path>" \\
 				<Alert>
 					<AlertTriangle className="h-4 w-4" />
 					<AlertDescription>
-						{isUnexpectedError ? "Looks like you haven't configured the log store in your config file." : error}
+						{isUnexpectedError ? localeMessages.t("ui.upstream.looksLikeYouHavenTConfigured", { ns: "common" }) : error}
 					</AlertDescription>
 				</Alert>
 			)}
@@ -75,14 +81,14 @@ curl -X POST "${baseUrl}/relay/<relay-name>/<path>" \\
 			<div className="w-full space-y-6">
 				<div className="flex flex-row items-center gap-2">
 					<div>
-						<h3 className="text-lg font-semibold">Get Started with Relays</h3>
-						<p className="text-muted-foreground text-sm">Relay your first request to an upstream API to see logs appear</p>
+						<h3 className="text-lg font-semibold">{localeMessages.t("ui.upstream.getStartedWithRelays", { ns: "common" })}</h3>
+						<p className="text-muted-foreground text-sm">{localeMessages.t("ui.upstream.relayYourFirstRequestToAn", { ns: "common" })}</p>
 					</div>
 					{canOpenRelays && (
 						<div className="ml-auto">
 							<Button asChild variant="outline" size="sm" data-testid="relay-logs-empty-open-relays">
 								<Link to="/workspace/relays">
-									Open Relays
+									{localeMessages.t("ui.upstream.openRelays", { ns: "common" })}
 									<ArrowRight className="size-4" />
 								</Link>
 							</Button>
@@ -92,36 +98,40 @@ curl -X POST "${baseUrl}/relay/<relay-name>/<path>" \\
 
 				<Tabs defaultValue="request" className="w-full rounded-lg border">
 					<TabsList className="flex h-10 w-full justify-start rounded-t-lg rounded-b-none">
-						<TabsTrigger value="request">Relay a Request</TabsTrigger>
+						<TabsTrigger value="request">{localeMessages.t("ui.upstream.relayARequest", { ns: "common" })}</TabsTrigger>
 					</TabsList>
 
 					<TabsContent value="request" className="px-4">
 						<div className="text-muted-foreground mb-3 text-sm">
-							<p>The request is relayed as-is to the relay&apos;s base URL, with the relay&apos;s credential added.</p>
+							<p>{localeMessages.t("ui.upstream.theRequestIsRelayedAsIs", { ns: "common" })}</p>
 						</div>
 						<CodeBlock code={example} />
 					</TabsContent>
 				</Tabs>
 
 				<div className="bg-muted/50 rounded-lg border p-4">
-					<h4 className="mb-2 text-sm font-semibold">Prerequisites</h4>
+					<h4 className="mb-2 text-sm font-semibold">{localeMessages.t("ui.upstream.prerequisites", { ns: "common" })}</h4>
 					<ul className="text-muted-foreground space-y-1 text-sm">
 						<li className="flex items-start gap-2">
 							<span className="text-primary">1.</span>
-							<span>Add a relay in Relays with its base URL and credential</span>
+							<span>{localeMessages.t("ui.upstream.addARelayInRelaysWith", { ns: "common" })}</span>
 						</li>
 						<li className="flex items-start gap-2">
 							<span className="text-primary">2.</span>
 							<span>
-								Replace <code className="bg-muted rounded px-1">&lt;relay-name&gt;</code> with its name and{" "}
-								<code className="bg-muted rounded px-1">&lt;path&gt;</code> with one of its routes, or turn on Relay Any Path
+								{localeMessages.t("ui.upstream.replace", { ns: "common" })}{" "}
+								<code className="bg-muted rounded px-1">&lt;relay-name&gt;</code>{" "}
+								{localeMessages.t("ui.upstream.withItsNameAnd", { ns: "common" })}{" "}
+								<code className="bg-muted rounded px-1">&lt;path&gt;</code>{" "}
+								{localeMessages.t("ui.upstream.withOneOfItsRoutesOr", { ns: "common" })}
 							</span>
 						</li>
 						<li className="flex items-start gap-2">
 							<span className="text-primary">3.</span>
 							<span>
-								Use a virtual key that grants the relay (or all relays), or drop the <code className="bg-muted rounded px-1">x-bf-vk</code>{" "}
-								header when authentication is disabled
+								{localeMessages.t("ui.upstream.useAVirtualKeyThatGrants", { ns: "common" })}{" "}
+								<code className="bg-muted rounded px-1">x-bf-vk</code>{" "}
+								{localeMessages.t("ui.upstream.headerWhenAuthenticationIsDisabled", { ns: "common" })}
 							</span>
 						</li>
 					</ul>

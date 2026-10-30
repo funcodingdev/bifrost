@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import i18n from "@/lib/i18n";
 import type { SidekiqJob } from "@/lib/types/sidekiq";
 
@@ -60,9 +61,9 @@ export function countActiveSidekiqJobs(jobs: Pick<SidekiqJob, "status">[]): numb
 const SIDEKIQ_JOB_LABELS: Record<string, string> = {
 	logs_recalculate_cost: "Recalculating log costs",
 	warp_log_embedding_backfill: "Indexing logs for Warp",
-	warp_topic_clustering: "Computing Warp topics",
-	warp_topic_discovery: "Discovering new Warp topics",
-	warp_topic_upkeep: "Maintaining Warp topics",
+	warp_topic_clustering: localeMessages.t("ui.upstream.computingWarpTopics", { ns: "common" }),
+	warp_topic_discovery: localeMessages.t("ui.upstream.discoveringNewWarpTopics", { ns: "common" }),
+	warp_topic_upkeep: localeMessages.t("ui.upstream.maintainingWarpTopics", { ns: "common" }),
 	vk_expiry_cleanup: "Virtual key expiry cleanup",
 };
 

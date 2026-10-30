@@ -1360,13 +1360,13 @@ export function LogDetailView({
 								<LogEntryDetailsView
 									className="w-full"
 									label={localeMessages.t("labels.latency", { ns: "observability" })}
-									tooltip="Time this call took end to end: upstream plus Bifrost overhead."
+									tooltip={localeMessages.t("ui.upstream.timeThisCallTookEndTo", { ns: "common" })}
 									value={log.latency == null || isNaN(log.latency) ? "N/A" : <div>{log.latency.toFixed(2)}ms</div>}
 								/>
 								<LogEntryDetailsView
 									className="w-full"
 									label={localeMessages.t("logs.detail.upstreamLatency", { ns: "observability" })}
-									tooltip="Time this call spent waiting on the provider, including its retries."
+									tooltip={localeMessages.t("ui.upstream.timeThisCallSpentWaitingOn", { ns: "common" })}
 									value={
 										log.latency == null || isNaN(log.latency) ? (
 											localeMessages.t("labels.nA", { ns: "observability" })

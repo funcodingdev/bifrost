@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -30,14 +31,14 @@ export function DeleteEndpointDialog({
 		<AlertDialog open={show}>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>Delete Relay</AlertDialogTitle>
+					<AlertDialogTitle>{localeMessages.t("ui.upstream.deleteRelay", { ns: "common" })}</AlertDialogTitle>
 					<AlertDialogDescription>
-						Are you sure you want to delete this relay? Calls to /relay/{name} stop working and its virtual key grants are removed. This
-						action cannot be undone.
+						{localeMessages.t("ui.upstream.areYouSureYouWantTo2", { ns: "common" })}
+						{name} {localeMessages.t("ui.upstream.stopWorkingAndItsVirtualKey", { ns: "common" })}
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
+					<AlertDialogCancel onClick={onCancel}>{localeMessages.t("ui.upstream.cancel", { ns: "common" })}</AlertDialogCancel>
 					<AlertDialogAction
 						data-testid="relay-delete-confirm"
 						disabled={isLoading || !canDelete}
@@ -45,13 +46,15 @@ export function DeleteEndpointDialog({
 							deleteEndpoint(name)
 								.unwrap()
 								.then(() => {
-									toast.success("Relay deleted successfully");
+									toast.success(localeMessages.t("ui.upstream.relayDeletedSuccessfully", { ns: "common" }));
 									onDeleted();
 								})
-								.catch((err) => toast.error("Failed to delete relay", { description: getErrorMessage(err) }))
+								.catch((err) =>
+									toast.error(localeMessages.t("ui.upstream.failedToDeleteRelay", { ns: "common" }), { description: getErrorMessage(err) }),
+								)
 						}
 					>
-						{isLoading ? "Deleting..." : "Delete"}
+						{isLoading ? "Deleting..." : localeMessages.t("ui.upstream.delete", { ns: "common" })}
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

@@ -53,13 +53,22 @@ export function OpenAIConfigFormFragment({ provider }: OpenAIConfigFormFragmentP
 		)
 			.unwrap()
 			.then(() => {
-				toast.success(isFireworks ? "Configuration updated successfully" : "OpenAI configuration updated successfully");
+				toast.success(
+					isFireworks
+						? localeMessages.t("ui.upstream.configurationUpdatedSuccessfully", { ns: "common" })
+						: localeMessages.t("ui.upstream.openaiConfigurationUpdatedSuccessfully", { ns: "common" }),
+				);
 				form.reset(data);
 			})
 			.catch((err) => {
-				toast.error(isFireworks ? "Failed to update configuration" : "Failed to update OpenAI configuration", {
-					description: getErrorMessage(err),
-				});
+				toast.error(
+					isFireworks
+						? localeMessages.t("ui.upstream.failedToUpdateConfiguration", { ns: "common" })
+						: localeMessages.t("ui.upstream.failedToUpdateOpenaiConfiguration", { ns: "common" }),
+					{
+						description: getErrorMessage(err),
+					},
+				);
 			});
 	};
 
@@ -76,11 +85,10 @@ export function OpenAIConfigFormFragment({ provider }: OpenAIConfigFormFragmentP
 									<div className="space-y-0.5">
 										<FormLabel>{localeMessages.t("providers.openaiForm.disableStore", { ns: "models" })}</FormLabel>
 										<p className="text-muted-foreground text-xs">
-											With the Responses API, store defaults to true, and when it is on, the generated response is stored for later
-											retrieval via API.{" "}
+											{localeMessages.t("ui.upstream.withTheResponsesApiStoreDefaults", { ns: "common" })}{" "}
 											{isFireworks
-												? "Turn off store for fireworks."
-												: "OpenAI exposes endpoints to retrieve and delete stored responses, so your response IDs become durable server-side objects instead of one-shot IDs."}
+												? localeMessages.t("ui.upstream.turnOffStoreForFireworks", { ns: "common" })
+												: localeMessages.t("ui.upstream.openaiExposesEndpointsToRetrieveAnd", { ns: "common" })}
 										</p>
 									</div>
 									<FormControl>
@@ -108,7 +116,9 @@ export function OpenAIConfigFormFragment({ provider }: OpenAIConfigFormFragmentP
 						disabled={!form.formState.isDirty || !form.formState.isValid || !hasUpdateProviderAccess || isUpdatingProvider}
 						isLoading={isUpdatingProvider}
 					>
-						{isFireworks ? "Save Configuration" : "Save OpenAI Configuration"}
+						{isFireworks
+							? localeMessages.t("ui.upstream.saveConfiguration", { ns: "common" })
+							: localeMessages.t("ui.upstream.saveOpenaiConfiguration", { ns: "common" })}
 					</Button>
 				</div>
 			</form>

@@ -61,8 +61,8 @@ export default function MCPRegistryOAuthCallbackPage() {
 				</h1>
 				<p className="text-muted-foreground mt-2 max-w-md text-sm leading-6">
 					{isSuccess
-						? "The MCP server is connected. You can close this tab and return to the MCP registry."
-						: "The MCP server could not be authorized. Return to the MCP registry and try again."}
+						? localeMessages.t("ui.upstream.theMcpServerIsConnectedYou", { ns: "common" })
+						: localeMessages.t("ui.upstream.theMcpServerCouldNotBe", { ns: "common" })}
 				</p>
 				{error && (
 					<p
@@ -79,7 +79,11 @@ export default function MCPRegistryOAuthCallbackPage() {
 							{localeMessages.t("ui.page.backToMCPRegistry", { ns: "mcp" })}
 						</Link>
 					</Button>
-					<p className="text-muted-foreground text-xs">{closeAttempted ? "You can close this tab." : "This window can be closed."}</p>
+					<p className="text-muted-foreground text-xs">
+						{closeAttempted
+							? localeMessages.t("ui.upstream.youCanCloseThisTab", { ns: "common" })
+							: localeMessages.t("ui.upstream.thisWindowCanBeClosed", { ns: "common" })}
+					</p>
 				</div>
 			</section>
 		</div>

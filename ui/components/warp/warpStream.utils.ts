@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import type { WarpTurn, WarpTurnToolCall } from "@/lib/contexts/warpContext";
 import i18n from "@/lib/i18n";
 import type { WarpLogIndexStatus, WarpStoredMessage } from "@/lib/types/warp";
@@ -147,7 +148,10 @@ const WARP_TOOL_LABELS: Record<string, { running: string; done: string }> = {
 	render_chart: { running: "Drawing a chart", done: "Drew a chart" },
 	describe_filter_space: { running: "Checking available values", done: "Checked available values" },
 	describe_virtual_key: { running: "Checking virtual key limits", done: "Checked virtual key limits" },
-	list_topics: { running: "Listing topics", done: "Listed topics" },
+	list_topics: {
+		running: localeMessages.t("ui.upstream.listingTopics", { ns: "common" }),
+		done: localeMessages.t("ui.upstream.listedTopics", { ns: "common" }),
+	},
 	ask_user: { running: "Asking a question", done: "Asked a question" },
 };
 

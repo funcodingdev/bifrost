@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import type { Relay, RelayJobConfig, RelayRouteConfig, RelaySecret, RelayUsageConfig } from "@/lib/types/relays";
 import {
 	type RelayFormValues,
@@ -365,7 +366,7 @@ export function cleanJob(job: Omit<RelayJobConfig, "usage"> & { usage?: RelayUsa
 /** A one-line summary of what a call costs under a mapping, for the route table and pricing tab. */
 // ignoreUpstreamCost drops the reported cost, as the server does when the relay ignores it.
 export function describePricing(u: RelayUsageConfig | undefined, ignoreUpstreamCost = false): string {
-	if (!u) return "Free";
+	if (!u) return localeMessages.t("ui.upstream.free", { ns: "common" });
 	const parts: string[] = [];
 	if (u.cost_per_request) parts.push(`$${u.cost_per_request} / call`);
 	if (u.cost_per_unit) {
@@ -375,7 +376,7 @@ export function describePricing(u: RelayUsageConfig | undefined, ignoreUpstreamC
 		parts.push(`$${u.cost_per_unit}${block}${u.units_minimum ? `, min ${u.units_minimum}` : ""}`);
 	}
 	if (u.cost_path && !ignoreUpstreamCost) parts.push(`+ reported cost`);
-	return parts.length ? parts.join(" + ") : "Free";
+	return parts.length ? parts.join(" + ") : localeMessages.t("ui.upstream.free", { ns: "common" });
 }
 
 /** The mapping a route resolves to: the endpoint's, overridden field by field. */

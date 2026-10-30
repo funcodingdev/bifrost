@@ -455,7 +455,13 @@ export function LogsHeaderView({
 			/>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
-					<Button variant="outline" size="sm" className="h-7.5 w-7.5" aria-label={localeMessages.t("ui.logsHeaderView.moreActions", { ns: "observability" })} data-testid="logs-more-actions-btn">
+					<Button
+						variant="outline"
+						size="sm"
+						className="h-7.5 w-7.5"
+						aria-label={localeMessages.t("ui.logsHeaderView.moreActions", { ns: "observability" })}
+						data-testid="logs-more-actions-btn"
+					>
 						<MoreVertical className="h-4 w-4" aria-hidden="true" />
 					</Button>
 				</DropdownMenuTrigger>
@@ -463,8 +469,10 @@ export function LogsHeaderView({
 					<DropdownMenuItem className="cursor-pointer items-start" onSelect={() => setExportDialogOpen(true)} data-testid="logs-export-btn">
 						<Download className="mt-0.5" />
 						<div className="flex flex-col">
-							<span>Export CSV</span>
-							<span className="text-muted-foreground text-xs">Download matching logs as CSV</span>
+							<span>{localeMessages.t("ui.upstream.exportCsv", { ns: "common" })}</span>
+							<span className="text-muted-foreground text-xs">
+								{localeMessages.t("ui.upstream.downloadMatchingLogsAsCsv", { ns: "common" })}
+							</span>
 						</div>
 					</DropdownMenuItem>
 					{/* While a job runs this doubles as the cancel control, so the run can
@@ -482,13 +490,19 @@ export function LogsHeaderView({
 					>
 						{isRecalcRunning ? <RefreshCw className="mt-0.5 animate-spin" /> : <Calculator className="mt-0.5" />}
 						<div className="flex flex-col">
-							<span>{recalcCancelRequested ? "Cancelling…" : isRecalcRunning ? "Cancel recalculation" : "Recalculate costs"}</span>
+							<span>
+								{recalcCancelRequested
+									? "Cancelling…"
+									: isRecalcRunning
+										? localeMessages.t("ui.upstream.cancelRecalculation", { ns: "common" })
+										: localeMessages.t("ui.upstream.recalculateCosts", { ns: "common" })}
+							</span>
 							<span className="text-muted-foreground text-xs">
 								{recalcCancelRequested
-									? "Finishing the current batch"
+									? localeMessages.t("ui.upstream.finishingTheCurrentBatch", { ns: "common" })
 									: isRecalcRunning
-										? "Stop the running recalculation; costs already updated are kept"
-										: "Recompute cost for logs in this view"}
+										? localeMessages.t("ui.upstream.stopTheRunningRecalculationCostsAlready", { ns: "common" })
+										: localeMessages.t("ui.upstream.recomputeCostForLogsInThis", { ns: "common" })}
 							</span>
 						</div>
 					</DropdownMenuItem>

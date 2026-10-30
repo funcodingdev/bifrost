@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { ArrowUpRight, Waypoints } from "lucide-react";
 
@@ -10,23 +11,25 @@ export function EndpointsEmptyState({ onCreate, canCreate }: { onCreate: () => v
 				<Waypoints className="h-[5.5rem] w-[5.5rem]" strokeWidth={1} />
 			</div>
 			<div className="flex flex-col gap-1">
-				<h1 className="text-muted-foreground text-xl font-medium">Relays put non-LLM APIs behind the gateway</h1>
+				<h1 className="text-muted-foreground text-xl font-medium">
+					{localeMessages.t("ui.upstream.relaysPutNonLlmApisBehind", { ns: "common" })}
+				</h1>
 				<div className="text-muted-foreground mx-auto mt-2 w-full max-w-[600px] text-sm font-normal">
-					Relay non-LLM APIs through Bifrost with one credential, per-route pricing, virtual key access and budgets.
+					{localeMessages.t("ui.upstream.relayNonLlmApisThroughBifrost", { ns: "common" })}
 				</div>
 				<div className="mx-auto mt-6 flex flex-row flex-wrap items-center justify-center gap-2">
 					<Button
 						variant="outline"
-						aria-label="Read more about relays (opens in new tab)"
+						aria-label={localeMessages.t("ui.upstream.readMoreAboutRelaysOpensIn", { ns: "common" })}
 						data-testid="relays-button-read-more"
 						onClick={() => {
 							window.open(`${RELAYS_DOCS_URL}?utm_source=bfd`, "_blank", "noopener,noreferrer");
 						}}
 					>
-						Read more <ArrowUpRight className="text-muted-foreground h-3 w-3" />
+						{localeMessages.t("ui.upstream.readMore", { ns: "common" })} <ArrowUpRight className="text-muted-foreground h-3 w-3" />
 					</Button>
 					<Button onClick={onCreate} disabled={!canCreate} data-testid="relays-create-first">
-						Add Relay
+						{localeMessages.t("ui.upstream.addRelay", { ns: "common" })}
 					</Button>
 				</div>
 			</div>

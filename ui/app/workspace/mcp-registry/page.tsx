@@ -143,7 +143,14 @@ export default function MCPServersPage() {
 	}
 
 	if (showLoadError(isMCPNotConfigured(error) ? undefined : error, mcpClientsData)) {
-		return <LoadErrorView entity="MCP servers" error={error} onRetry={() => void refetch()} testId="mcp-servers-load-error" />;
+		return (
+			<LoadErrorView
+				entity={localeMessages.t("ui.upstream.mcpServers", { ns: "common" })}
+				error={error}
+				onRetry={() => void refetch()}
+				testId="mcp-servers-load-error"
+			/>
+		);
 	}
 
 	const handleSearchChange = (value: string) => void setUrlState({ search: value, offset: 0 });

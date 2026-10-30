@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { HeadersTable } from "@/components/ui/headersTable";
 import { Input } from "@/components/ui/input";
@@ -72,7 +73,7 @@ export function UsagePreviewPanel({ endpoint }: { endpoint: Relay }) {
 			<div className="grow space-y-4 px-4 md:px-8" data-testid="relay-preview-panel">
 				<div className="flex w-full flex-row items-start gap-4">
 					<div className="w-32 space-y-2">
-						<Label>Method</Label>
+						<Label>{localeMessages.t("ui.upstream.method", { ns: "common" })}</Label>
 						<Select value={method} onValueChange={setMethod}>
 							<SelectTrigger className="w-full" data-testid="relay-preview-method">
 								<SelectValue />
@@ -87,12 +88,12 @@ export function UsagePreviewPanel({ endpoint }: { endpoint: Relay }) {
 						</Select>
 					</div>
 					<div className="flex-1 space-y-2">
-						<Label>Path</Label>
+						<Label>{localeMessages.t("ui.upstream.path", { ns: "common" })}</Label>
 						<Input value={path} onChange={(e) => setPath(e.target.value)} placeholder="/v1/search?q=1" data-testid="relay-preview-path" />
 						{errors.path && <p className="text-destructive text-sm">{errors.path}</p>}
 					</div>
 					<div className="w-28 space-y-2">
-						<Label>Status</Label>
+						<Label>{localeMessages.t("ui.upstream.status", { ns: "common" })}</Label>
 						<Input
 							value={status}
 							inputMode="numeric"
@@ -105,7 +106,7 @@ export function UsagePreviewPanel({ endpoint }: { endpoint: Relay }) {
 					</div>
 				</div>
 				<div className="space-y-2">
-					<Label>Request Headers</Label>
+					<Label>{localeMessages.t("ui.upstream.requestHeaders", { ns: "common" })}</Label>
 					<HeadersTable
 						label=""
 						value={headers}
@@ -114,11 +115,11 @@ export function UsagePreviewPanel({ endpoint }: { endpoint: Relay }) {
 						valuePlaceholder="Textract.AnalyzeDocument"
 						testIdPrefix="relay-preview-request-header"
 					/>
-					<p className="text-muted-foreground text-xs">For routes that match on request headers.</p>
+					<p className="text-muted-foreground text-xs">{localeMessages.t("ui.upstream.forRoutesThatMatchOnRequest", { ns: "common" })}</p>
 				</div>
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 					<div className="space-y-2">
-						<Label>Request Body</Label>
+						<Label>{localeMessages.t("ui.upstream.requestBody", { ns: "common" })}</Label>
 						<Textarea
 							className="h-44 resize-none overflow-auto font-mono text-xs"
 							value={requestBody}
@@ -128,7 +129,7 @@ export function UsagePreviewPanel({ endpoint }: { endpoint: Relay }) {
 						/>
 					</div>
 					<div className="space-y-2">
-						<Label>Response Body</Label>
+						<Label>{localeMessages.t("ui.upstream.responseBody", { ns: "common" })}</Label>
 						<Textarea
 							className="h-44 resize-none overflow-auto font-mono text-xs"
 							value={responseBody}
@@ -139,7 +140,9 @@ export function UsagePreviewPanel({ endpoint }: { endpoint: Relay }) {
 					</div>
 				</div>
 				<div className="space-y-2">
-					<Label htmlFor="relay-preview-response-content-type">Response Content-Type</Label>
+					<Label htmlFor="relay-preview-response-content-type">
+						{localeMessages.t("ui.upstream.responseContentType", { ns: "common" })}
+					</Label>
 					<Input
 						id="relay-preview-response-content-type"
 						value={responseType}
@@ -147,10 +150,7 @@ export function UsagePreviewPanel({ endpoint }: { endpoint: Relay }) {
 						placeholder="application/json"
 						data-testid="relay-preview-response-content-type"
 					/>
-					<p className="text-muted-foreground text-xs">
-						What the upstream replies with. A JSON body is read for units, cost and model; text/event-stream previews the streamed path;
-						anything else is measured as bytes or characters only.
-					</p>
+					<p className="text-muted-foreground text-xs">{localeMessages.t("ui.upstream.whatTheUpstreamRepliesWithA", { ns: "common" })}</p>
 				</div>
 				{requestError && <p className="text-destructive text-sm">{requestError}</p>}
 				{result && (
@@ -161,7 +161,7 @@ export function UsagePreviewPanel({ endpoint }: { endpoint: Relay }) {
 			</div>
 			<div className="bg-card sticky bottom-0 z-10 flex justify-end gap-2 border-t px-4 py-4 md:px-8">
 				<Button type="button" onClick={run} isLoading={isLoading} data-testid="relay-preview-run">
-					Run Test
+					{localeMessages.t("ui.upstream.runTest", { ns: "common" })}
 				</Button>
 			</div>
 		</>

@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import type { ComponentProps } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MCP_MAX_PROTOCOL_VERSION_OPTIONS, MCP_PROTOCOL_VERSION_USE_GLOBAL, mcpMaxProtocolVersionLabel } from "@/lib/constants/mcp";
@@ -14,7 +15,10 @@ interface MaxProtocolVersionSelectProps extends Pick<ComponentProps<typeof Selec
 /** Picks one MCP server's max protocol version: the global setting, Auto, or a fixed version. */
 export function MaxProtocolVersionSelect({ value, onChange, globalValue, disabled, ...triggerProps }: MaxProtocolVersionSelectProps) {
 	const selected = value ? value : MCP_PROTOCOL_VERSION_USE_GLOBAL;
-	const globalLabel = globalValue === undefined ? "Use global setting" : `Use global setting (${mcpMaxProtocolVersionLabel(globalValue)})`;
+	const globalLabel =
+		globalValue === undefined
+			? localeMessages.t("ui.upstream.useGlobalSetting", { ns: "common" })
+			: `Use global setting (${mcpMaxProtocolVersionLabel(globalValue)})`;
 	return (
 		<Select value={selected} onValueChange={(v) => onChange(v === MCP_PROTOCOL_VERSION_USE_GLOBAL ? "" : v)} disabled={disabled}>
 			<SelectTrigger {...triggerProps} className="w-56" data-testid="mcp-client-max-protocol-version-select">

@@ -286,8 +286,8 @@ export function BetaHeadersFormFragment({ provider }: BetaHeadersFormFragmentPro
 				<div className="space-y-2 px-4 pb-6 md:px-6">
 					<p className="text-muted-foreground text-xs">
 						{typesafeHeaders
-							? "Configure which TypeSafe headers Bifrost may send for this provider. Override a default to stop Bifrost from sending it."
-							: "Configure which Anthropic beta headers are allowed for this provider. Override the defaults when a provider adds or removes support for a beta feature."}
+							? localeMessages.t("ui.upstream.configureWhichTypesafeHeadersBifrostMay", { ns: "common" })
+							: localeMessages.t("ui.upstream.configureWhichAnthropicBetaHeadersAre", { ns: "common" })}
 					</p>
 					<div className="rounded-md border">
 						<table className="w-full text-sm">

@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -82,7 +83,7 @@ export function LogsExportDialog({
 			exportRunRef.current++;
 			setIsExporting(false);
 			setProgress(null);
-			toast.info("Export cancelled", { id: "logs-export-cancel" });
+			toast.info(localeMessages.t("ui.upstream.exportCancelled", { ns: "common" }), { id: "logs-export-cancel" });
 		} else {
 			onOpenChange(false);
 		}
@@ -91,7 +92,7 @@ export function LogsExportDialog({
 	const handleExport = async () => {
 		if (exportScope === "current_page") {
 			if (currentPageLogs.length === 0) {
-				toast.info("No logs on the current page to export");
+				toast.info(localeMessages.t("ui.upstream.noLogsOnTheCurrentPage", { ns: "common" }));
 				return;
 			}
 			const csv = logsToCSV(currentPageLogs);
@@ -104,13 +105,13 @@ export function LogsExportDialog({
 		// Scope: All matching entries (client-side batched collection)
 		const userCap = exportMaxLimit ? Number(exportMaxLimit) : undefined;
 		if (userCap !== undefined && (!Number.isInteger(userCap) || userCap < 1)) {
-			toast.error("Max entries must be a whole number of at least 1");
+			toast.error(localeMessages.t("ui.upstream.maxEntriesMustBeAWhole", { ns: "common" }));
 			return;
 		}
 		const targetTotal = calculateExportTargetCount(totalLogs, userCap);
 
 		if (targetTotal === 0 || totalLogs === 0) {
-			toast.info("No logs matched the selected filters to export");
+			toast.info(localeMessages.t("ui.upstream.noLogsMatchedTheSelectedFilters", { ns: "common" }));
 			return;
 		}
 
@@ -148,12 +149,12 @@ export function LogsExportDialog({
 			});
 
 			if (isRunCancelled()) {
-				toast.info("Export cancelled", { id: "logs-export-cancel" });
+				toast.info(localeMessages.t("ui.upstream.exportCancelled", { ns: "common" }), { id: "logs-export-cancel" });
 				return;
 			}
 
 			if (collectedLogs.length === 0) {
-				toast.info("No logs matched the selected filters to export");
+				toast.info(localeMessages.t("ui.upstream.noLogsMatchedTheSelectedFilters", { ns: "common" }));
 				onOpenChange(false);
 				return;
 			}
@@ -178,13 +179,13 @@ export function LogsExportDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader className="pb-0">
-					<DialogTitle>Export Logs</DialogTitle>
-					<DialogDescription>Download logs as CSV with current filters and sorting applied.</DialogDescription>
+					<DialogTitle>{localeMessages.t("ui.upstream.exportLogs", { ns: "common" })}</DialogTitle>
+					<DialogDescription>{localeMessages.t("ui.upstream.downloadLogsAsCsvWithCurrent", { ns: "common" })}</DialogDescription>
 				</DialogHeader>
 
 				<div className="space-y-4">
 					<div className="space-y-2">
-						<Label className="text-sm">Export scope</Label>
+						<Label className="text-sm">{localeMessages.t("ui.upstream.exportScope", { ns: "common" })}</Label>
 						<div className="grid grid-cols-1 gap-2 sm:grid-cols-2" data-testid="logs-export-scope">
 							<button
 								type="button"
@@ -199,8 +200,10 @@ export function LogsExportDialog({
 									isExporting && "cursor-not-allowed opacity-60",
 								)}
 							>
-								<span className="font-medium">Current page</span>
-								<span className="text-muted-foreground text-xs">{currentPageLogs.length} entries</span>
+								<span className="font-medium">{localeMessages.t("ui.upstream.currentPage", { ns: "common" })}</span>
+								<span className="text-muted-foreground text-xs">
+									{currentPageLogs.length} {localeMessages.t("ui.upstream.entries", { ns: "common" })}
+								</span>
 							</button>
 
 							<button
@@ -216,8 +219,10 @@ export function LogsExportDialog({
 									isExporting && "cursor-not-allowed opacity-60",
 								)}
 							>
-								<span className="font-medium">All entries</span>
-								<span className="text-muted-foreground text-xs">{totalLogs.toLocaleString()} total</span>
+								<span className="font-medium">{localeMessages.t("ui.upstream.allEntries", { ns: "common" })}</span>
+								<span className="text-muted-foreground text-xs">
+									{totalLogs.toLocaleString()} {localeMessages.t("ui.upstream.total", { ns: "common" })}
+								</span>
 							</button>
 						</div>
 					</div>
@@ -225,7 +230,10 @@ export function LogsExportDialog({
 					{exportScope === "all" && (
 						<div className="space-y-2">
 							<Label htmlFor="logs-export-max-limit" className="text-sm">
-								Max entries <span className="text-muted-foreground font-normal">(optional, up to 10,000)</span>
+								{localeMessages.t("ui.upstream.maxEntries", { ns: "common" })}{" "}
+								<span className="text-muted-foreground font-normal">
+									{localeMessages.t("ui.upstream.optionalUpTo10000", { ns: "common" })}
+								</span>
 							</Label>
 							<Input
 								id="logs-export-max-limit"
@@ -242,19 +250,22 @@ export function LogsExportDialog({
 					)}
 
 					{activeFilters.length > 0 && (
-						<p className="text-muted-foreground text-xs leading-relaxed">Filters applied: {activeFilters.join(", ")}</p>
+						<p className="text-muted-foreground text-xs leading-relaxed">
+							{localeMessages.t("ui.upstream.filtersApplied", { ns: "common" })} {activeFilters.join(", ")}
+						</p>
 					)}
 
 					<div className="text-muted-foreground flex items-center gap-2">
 						<ShieldCheck className="h-3.5 w-3.5 shrink-0" />
-						<p className="text-xs">Prompt and response message bodies are excluded from the export.</p>
+						<p className="text-xs">{localeMessages.t("ui.upstream.promptAndResponseMessageBodiesAre", { ns: "common" })}</p>
 					</div>
 
 					{isExporting && progress && (
 						<div className="space-y-1.5 pt-1" data-testid="logs-export-progress">
 							<Progress value={progress.total > 0 ? (progress.current / progress.total) * 100 : 0} className="h-1.5" />
 							<p className="text-muted-foreground text-center text-xs">
-								Exporting {progress.current.toLocaleString()} of {progress.total.toLocaleString()} logs...
+								{localeMessages.t("ui.upstream.exporting", { ns: "common" })} {progress.current.toLocaleString()} of{" "}
+								{progress.total.toLocaleString()} {localeMessages.t("ui.upstream.logs", { ns: "common" })}
 							</p>
 						</div>
 					)}
@@ -265,10 +276,10 @@ export function LogsExportDialog({
 						{isExporting ? (
 							<>
 								<X className="mr-1 h-3.5 w-3.5" />
-								Cancel Export
+								{localeMessages.t("ui.upstream.cancelExport", { ns: "common" })}
 							</>
 						) : (
-							"Cancel"
+							localeMessages.t("ui.upstream.cancel", { ns: "common" })
 						)}
 					</Button>
 
@@ -276,12 +287,12 @@ export function LogsExportDialog({
 						{isExporting ? (
 							<>
 								<Loader2 className="h-4 w-4 animate-spin" />
-								Exporting...
+								{localeMessages.t("ui.upstream.exporting2", { ns: "common" })}
 							</>
 						) : (
 							<>
 								<Download className="h-4 w-4" />
-								Export CSV
+								{localeMessages.t("ui.upstream.exportCsv", { ns: "common" })}
 							</>
 						)}
 					</Button>

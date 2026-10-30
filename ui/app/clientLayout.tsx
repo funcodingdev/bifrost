@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import FullPageLoader from "@/components/fullPageLoader";
 import NotAvailableBanner from "@/components/notAvailableBanner";
 import OnboardingWidget from "@/components/onboardingWidget";
@@ -21,7 +22,7 @@ import { RbacProvider, useRbacContext } from "@enterprise/lib/contexts/rbacConte
 import { useLocation, useMatches } from "@tanstack/react-router";
 import { RefreshCw, WifiOff } from "lucide-react";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
-import { lazy, Suspense, useEffect } from "react";
+import { Fragment, lazy, Suspense, useEffect } from "react";
 import { CookiesProvider } from "react-cookie";
 import { I18nextProvider, useTranslation } from "react-i18next";
 import { toast, Toaster } from "sonner";
@@ -45,6 +46,9 @@ function StoreSyncInitializer() {
 }
 
 function AppContent({ children }: { children: React.ReactNode }) {
+	// Pages translate through the shared i18n instance (localeMessages.t), so remount the page
+	// tree when the language changes to make every string re-resolve.
+	const { i18n: i18nInstance } = useTranslation();
 	// Routes can declare `staticData: { tempTokenScoped: true }` to advertise that
 	// they're reachable via a server-emitted, temp-token-bearing URL by visitors
 	// without a dashboard session. The actual layout choice is made per-visitor:
@@ -144,7 +148,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
 												<FullPageLoader />
 											) : (
 												<FullPage config={bifrostConfig} hasError={!!error} isRetrying={isFetching} onRetry={refetch}>
-													{children}
+													<Fragment key={i18nInstance.resolvedLanguage}>{children}</Fragment>
 												</FullPage>
 											)}
 										</main>

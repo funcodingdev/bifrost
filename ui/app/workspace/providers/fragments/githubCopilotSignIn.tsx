@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { getErrorMessage, usePollGithubCopilotSignInMutation, useStartGithubCopilotSignInMutation } from "@/lib/store";
@@ -46,7 +47,11 @@ export function GithubCopilotSignIn({ provider, onToken }: Props) {
 					onToken(result.token);
 					setLogin(result.login || "");
 				} else {
-					setError(result.status === "expired" ? "The code expired. Start again." : "The sign-in was denied on GitHub.");
+					setError(
+						result.status === "expired"
+							? localeMessages.t("ui.upstream.theCodeExpiredStartAgain", { ns: "common" })
+							: localeMessages.t("ui.upstream.theSignInWasDeniedOn", { ns: "common" }),
+					);
 				}
 			} catch (err) {
 				if (gen !== generation.current) return;
@@ -84,7 +89,7 @@ export function GithubCopilotSignIn({ provider, onToken }: Props) {
 					<li className="flex items-center gap-2">
 						<StepNumber n={1} />
 						<span>
-							Open{" "}
+							{localeMessages.t("ui.upstream.open", { ns: "common" })}{" "}
 							<a
 								href={code.verification_uri}
 								target="_blank"
@@ -98,7 +103,7 @@ export function GithubCopilotSignIn({ provider, onToken }: Props) {
 					</li>
 					<li className="flex items-center gap-2">
 						<StepNumber n={2} />
-						<span>Enter</span>
+						<span>{localeMessages.t("ui.upstream.enter", { ns: "common" })}</span>
 						<code data-testid="copilot-sign-in-user-code" className="bg-muted rounded-sm px-2 py-0.5 font-mono text-base">
 							{code.user_code}
 						</code>
@@ -107,20 +112,20 @@ export function GithubCopilotSignIn({ provider, onToken }: Props) {
 							variant="ghost"
 							size="sm"
 							onClick={() => copy(code.user_code)}
-							aria-label="Copy code"
+							aria-label={localeMessages.t("ui.upstream.copyCode", { ns: "common" })}
 							data-testid="copilot-sign-in-copy-code"
 						>
 							{copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
 						</Button>
-						<span>and approve access.</span>
+						<span>{localeMessages.t("ui.upstream.andApproveAccess", { ns: "common" })}</span>
 					</li>
 					<li className="flex items-center gap-2">
 						<StepNumber n={3} />
 						<span className="text-muted-foreground inline-flex items-center gap-1">
-							<Loader2 className="h-3 w-3 animate-spin" /> Waiting for approval
+							<Loader2 className="h-3 w-3 animate-spin" /> {localeMessages.t("ui.upstream.waitingForApproval", { ns: "common" })}
 						</span>
 						<Button type="button" variant="ghost" size="sm" onClick={cancel} data-testid="copilot-sign-in-cancel">
-							Cancel
+							{localeMessages.t("ui.upstream.cancel", { ns: "common" })}
 						</Button>
 					</li>
 				</ol>
@@ -132,11 +137,13 @@ export function GithubCopilotSignIn({ provider, onToken }: Props) {
 		<div className="space-y-2">
 			<Button type="button" variant="outline" onClick={start} disabled={isStarting} data-testid="copilot-sign-in-button">
 				{isStarting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Github className="h-4 w-4" />}
-				Sign in with GitHub
+				{localeMessages.t("ui.upstream.signInWithGithub", { ns: "common" })}
 			</Button>
 			{login !== null && (
 				<p className="text-sm" data-testid="copilot-sign-in-status">
-					Signed in{login ? ` as @${login}` : ""}. Save the key to use the token.
+					{localeMessages.t("ui.upstream.signedIn", { ns: "common" })}
+					{login ? ` as @${login}` : ""}
+					{localeMessages.t("ui.upstream.saveTheKeyToUseThe", { ns: "common" })}
 				</p>
 			)}
 			{error && (
