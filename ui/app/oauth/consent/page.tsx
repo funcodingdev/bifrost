@@ -136,12 +136,28 @@ function ConsentView({ flowId }: { flowId: string }) {
 				<div className="bg-primary/10 mx-auto mb-4 flex size-14 items-center justify-center rounded-full">
 					<ShieldCheck className="text-primary size-7" />
 				</div>
-				<h1 className="text-xl font-semibold tracking-tight">{t("consent.wantsToConnect", { name: clientName })}</h1>
-				<p className="text-muted-foreground mt-1.5 text-sm">{t("consent.chooseIdentity")}</p>
-				<p className="mt-4 text-sm">{t("ui.page.continueOnlyIfYouRecognizeThisApplicationAndIts", { ns: "login" })}</p>
-				<p className="mt-2 font-mono text-sm break-all" data-testid="oauth-consent-redirect-uri">
+				<h1 className="text-xl font-semibold tracking-tight">{clientName} wants to connect</h1>
+				{flow.client_host && (
+					<p className="text-muted-foreground mt-1 text-sm" data-testid="oauth-consent-client-host">
+						Published by <span className="text-foreground font-mono">{flow.client_host}</span>
+					</p>
+				)}
+				<p className="text-muted-foreground mt-1.5 text-sm">{localeMessages.t("consent.chooseIdentity", { ns: "login" })}</p>
+				<p className="mt-4 text-sm">{localeMessages.t("ui.page.continueOnlyIfYouRecognizeThisApplicationAndIts", { ns: "login" })}</p>
+				<p className="mt-2 text-sm font-semibold break-all" data-testid="oauth-consent-redirect-host">
+					{flow.redirect_host}
+				</p>
+				<p className="text-muted-foreground mt-1 font-mono text-xs break-all" data-testid="oauth-consent-redirect-uri">
 					{flow.redirect_uri}
 				</p>
+				{flow.localhost_only_redirect && (
+					<p
+						className="mt-3 rounded-sm border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-700 dark:text-amber-400"
+						data-testid="oauth-consent-localhost-warning"
+					>
+						This application only returns to your own computer, so its name cannot be verified. Any app running locally could use it.
+					</p>
+				)}
 			</div>
 
 			<div className="space-y-3">

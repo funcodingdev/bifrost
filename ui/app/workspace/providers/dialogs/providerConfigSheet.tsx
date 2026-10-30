@@ -11,15 +11,17 @@ import {
 	GovernanceFormFragment,
 	InjectedToolsFormFragment,
 	OpenAIConfigFormFragment,
+	PassthroughFormFragment,
 	PricingFormFragment,
 	ProxyFormFragment,
 } from "../fragments";
-import { isTypesafeBased } from "../fragments/betaHeadersFormFragment";
+import { sendsTypesafeHeaders } from "../fragments/betaHeadersFormFragment";
 import { DebuggingFormFragment } from "../fragments/debuggingFormFragment";
 import { PromptCacheFormFragment } from "../fragments/promptCacheFormFragment";
 import { NetworkFormFragment } from "../fragments/networkFormFragment";
 import { PerformanceFormFragment } from "../fragments/performanceFormFragment";
 import { useTranslation } from "react-i18next";
+import { passthroughRoutePrefix } from "../fragments/passthroughForm.utils";
 
 interface Props {
 	show: boolean;
@@ -29,11 +31,18 @@ interface Props {
 
 const ANTHROPIC_FAMILY_PROVIDERS = ["anthropic", "vertex", "bedrock", "bedrock_mantle", "azure"];
 
+// Providers whose openai_config (disable_store) is honoured, mapped to their config tab label.
+const OPENAI_CONFIG_TAB_LABELS: Record<string, string> = {
+	openai: "OpenAI Config",
+	fireworks: "OpenAI Config",
+};
+
 const availableTabs = (
 	hasCustomProviderConfig: boolean,
 	hasGovernanceAccess: boolean,
-	isOpenAI: boolean,
+	openAIConfigTabLabel: string | undefined,
 	hasBetaHeaders: boolean,
+	hasPassthrough: boolean,
 	t: (key: string) => string,
 ) => {
 	const tabs = [];
@@ -79,11 +88,17 @@ const availableTabs = (
 		id: "tools",
 		label: i18nReview.t("ui.providerConfigSheet.tools", { ns: "models" }),
 	});
+	if (hasPassthrough) {
+		tabs.push({
+			id: "passthrough",
+			label: "Passthrough",
+		});
+	}
 	tabs.push({
 		id: "debugging",
 		label: t("providers.debuggingTab"),
 	});
-	if (isOpenAI) {
+	if (openAIConfigTabLabel) {
 		tabs.push({
 			id: "openai-config",
 			label: t("providers.openaiConfig"),
@@ -97,12 +112,13 @@ export default function ProviderConfigSheet({ show, onCancel, provider }: Props)
 	const [selectedTab, setSelectedTab] = useState<string | undefined>(undefined);
 	const hasGovernanceAccess = useRbac(RbacResource.Governance, RbacOperation.View);
 	const hasCustomProviderConfig = !!provider.custom_provider_config;
-	const isOpenAI = provider.name === "openai";
-	const hasBetaHeaders = ANTHROPIC_FAMILY_PROVIDERS.includes(provider.name.toLowerCase()) || isTypesafeBased(provider);
+	const openAIConfigTabLabel = OPENAI_CONFIG_TAB_LABELS[provider.name];
+	const hasBetaHeaders = ANTHROPIC_FAMILY_PROVIDERS.includes(provider.name.toLowerCase()) || sendsTypesafeHeaders(provider);
+	const hasPassthrough = passthroughRoutePrefix(provider) !== undefined;
 
 	const tabs = useMemo(() => {
-		return availableTabs(hasCustomProviderConfig, hasGovernanceAccess, isOpenAI, hasBetaHeaders, t);
-	}, [hasCustomProviderConfig, hasGovernanceAccess, isOpenAI, hasBetaHeaders, t]);
+		return availableTabs(hasCustomProviderConfig, hasGovernanceAccess, openAIConfigTabLabel, hasBetaHeaders, hasPassthrough, t);
+	}, [hasCustomProviderConfig, hasGovernanceAccess, openAIConfigTabLabel, hasBetaHeaders, hasPassthrough, t]);
 
 	useEffect(() => {
 		setSelectedTab((previousTab) => {
@@ -180,6 +196,9 @@ export default function ProviderConfigSheet({ show, onCancel, provider }: Props)
 							</TabsContent>
 							<TabsContent value="tools">
 								<InjectedToolsFormFragment provider={provider} />
+							</TabsContent>
+							<TabsContent value="passthrough">
+								<PassthroughFormFragment provider={provider} />
 							</TabsContent>
 							<TabsContent value="debugging">
 								<DebuggingFormFragment provider={provider} />

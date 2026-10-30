@@ -103,6 +103,7 @@ export default function LogsPage() {
 			customer_ids: parseAsSafeArrayOf.withDefault([]),
 			business_unit_ids: parseAsSafeArrayOf.withDefault([]),
 			project_ids: parseAsSafeArrayOf.withDefault([]),
+			topic_ids: parseAsSafeArrayOf.withDefault([]),
 			content_search: parseAsSafeString.withDefault(""),
 			request_id: parseAsSafeString.withDefault(""),
 			// No default: these are genuinely unset most of the time, and 0 is a
@@ -169,6 +170,7 @@ export default function LogsPage() {
 			customer_ids: urlState.customer_ids,
 			business_unit_ids: urlState.business_unit_ids,
 			project_ids: urlState.project_ids,
+			topic_ids: urlState.topic_ids,
 			content_search: urlState.content_search,
 			request_id: urlState.request_id,
 			min_latency: urlState.min_latency ?? undefined,
@@ -221,6 +223,7 @@ export default function LogsPage() {
 			urlState.customer_ids,
 			urlState.business_unit_ids,
 			urlState.project_ids,
+			urlState.topic_ids,
 			urlState.content_search,
 			urlState.request_id,
 			urlState.parent_request_id,
@@ -294,6 +297,7 @@ export default function LogsPage() {
 				customer_ids: newFilters.customer_ids || [],
 				business_unit_ids: newFilters.business_unit_ids || [],
 				project_ids: newFilters.project_ids || [],
+				topic_ids: newFilters.topic_ids || [],
 				content_search: newFilters.content_search || "",
 				request_id: newFilters.request_id || "",
 				min_latency: newFilters.min_latency ?? null,
@@ -973,6 +977,9 @@ export default function LogsPage() {
 								columnLabels={COLUMN_LABELS}
 								onToggleColumnVisibility={toggleColumnVisibility}
 								onResetColumns={resetColumns}
+								currentPageLogs={logs}
+								sortBy={urlState.sort_by}
+								order={urlState.order}
 							/>
 						</div>
 						{/* The four queries resolve independently, so `data` can hold the

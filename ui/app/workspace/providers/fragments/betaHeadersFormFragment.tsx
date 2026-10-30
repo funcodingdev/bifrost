@@ -102,7 +102,7 @@ const KNOWN_BETA_HEADERS = [
 
 const KNOWN_PREFIXES = new Set<string>(KNOWN_BETA_HEADERS.map((h) => h.prefix));
 
-// Headers TypeSafe-based providers send, keyed as in beta_header_overrides. Each is
+// Headers Bifrost sends to TypeSafe models, keyed as in beta_header_overrides. Each is
 // added only to requests that need it. The key is the header's lowercased name, as
 // typesafeImagesHeaderAllowed in core/providers/typesafe/utils.go reads it.
 const TYPESAFE_BETA_HEADERS = [
@@ -113,9 +113,12 @@ const TYPESAFE_BETA_HEADERS = [
 	},
 ] as const;
 
-// isTypesafeBased reports whether the provider is TypeSafe or a custom provider built on it.
-export function isTypesafeBased(provider: ModelProvider): boolean {
-	return provider.name.toLowerCase() === "typesafe" || provider.custom_provider_config?.base_provider_type === "typesafe";
+// sendsTypesafeHeaders reports whether Bifrost sends TypeSafe's headers for the provider:
+// TypeSafe or a custom provider built on it, or Databricks, whose Unity Gateway serves
+// TypeSafe's System One models.
+export function sendsTypesafeHeaders(provider: ModelProvider): boolean {
+	const name = provider.name.toLowerCase();
+	return name === "typesafe" || name === "databricks" || provider.custom_provider_config?.base_provider_type === "typesafe";
 }
 
 type ProviderKey = "anthropic" | "vertex" | "bedrock" | "bedrock_mantle" | "azure";
@@ -140,7 +143,7 @@ export function BetaHeadersFormFragment({ provider }: BetaHeadersFormFragmentPro
 	const hasUpdateProviderAccess = useRbac(RbacResource.ModelProvider, RbacOperation.Update);
 	const [updateProvider, { isLoading: isUpdatingProvider }] = useUpdateProviderMutation();
 	const providerKey = getProviderKey(provider.name);
-	const isTypesafe = isTypesafeBased(provider);
+	const typesafeHeaders = sendsTypesafeHeaders(provider);
 	const [newPrefix, setNewPrefix] = useState("");
 	const [newPrefixError, setNewPrefixError] = useState<string | null>(null);
 
@@ -176,17 +179,17 @@ export function BetaHeadersFormFragment({ provider }: BetaHeadersFormFragmentPro
 
 	// Custom prefixes are anthropic-beta overrides that don't match any known prefix
 	const customPrefixes = useMemo(() => {
-		if (isTypesafe) return [];
+		if (typesafeHeaders) return [];
 		return Object.keys(overrides).filter((prefix) => !KNOWN_PREFIXES.has(prefix));
-	}, [isTypesafe, overrides]);
+	}, [typesafeHeaders, overrides]);
 
 	const headerRows = useMemo(() => {
-		if (isTypesafe) {
+		if (typesafeHeaders) {
 			return TYPESAFE_BETA_HEADERS.map((header) => ({ ...header, name: header.header, defaultSupported: true }));
 		}
 		if (!providerKey) return [];
 		return KNOWN_BETA_HEADERS.map((header) => ({ ...header, name: `${header.prefix}*`, defaultSupported: header.defaults[providerKey] }));
-	}, [isTypesafe, providerKey]);
+	}, [typesafeHeaders, providerKey]);
 
 	const onSubmit = (data: BetaHeadersFormSchema) => {
 		const cleanedOverrides: Record<string, boolean> = {};
@@ -275,16 +278,16 @@ export function BetaHeadersFormFragment({ provider }: BetaHeadersFormFragmentPro
 		return override ? "enabled" : "disabled";
 	};
 
-	if (!providerKey && !isTypesafe) return null;
+	if (!providerKey && !typesafeHeaders) return null;
 
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} data-testid="provider-config-beta-headers-content">
 				<div className="space-y-2 px-4 pb-6 md:px-6">
 					<p className="text-muted-foreground text-xs">
-						{isTypesafe
-							? t("ui.betaHeadersFormFragment.configureWhichTypeSafeHeadersBifrostMaySendForThis", { ns: "models" })
-							: localeMessages.t("providers.betaHeaders.intro", { ns: "models" })}
+						{typesafeHeaders
+							? "Configure which TypeSafe headers Bifrost may send for this provider. Override a default to stop Bifrost from sending it."
+							: "Configure which Anthropic beta headers are allowed for this provider. Override the defaults when a provider adds or removes support for a beta feature."}
 					</p>
 					<div className="rounded-md border">
 						<table className="w-full text-sm">
@@ -383,7 +386,7 @@ export function BetaHeadersFormFragment({ provider }: BetaHeadersFormFragmentPro
 						</table>
 					</div>
 
-					{!isTypesafe && (
+					{!typesafeHeaders && (
 						<div className="flex items-start gap-2 pt-2">
 							<div className="flex-1">
 								<Input

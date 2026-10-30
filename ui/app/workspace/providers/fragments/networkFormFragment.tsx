@@ -29,10 +29,6 @@ import { Trans, useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { buildProviderUpdatePayload } from "../views/utils";
 
-interface NetworkFormFragmentProps {
-	provider: ModelProvider;
-}
-
 // seconds to human readable time
 const secondsToHumanReadable = (seconds: number, t: TFunction) => {
 	// Handle edge cases
@@ -72,6 +68,10 @@ const secondsToHumanReadable = (seconds: number, t: TFunction) => {
 	if (remainingSeconds > 0) parts.push(unit("second", remainingSeconds));
 	return parts.join(" ");
 };
+
+interface NetworkFormFragmentProps {
+	provider: ModelProvider;
+}
 
 export function NetworkFormFragment({ provider }: NetworkFormFragmentProps) {
 	const { t } = useTranslation("models");

@@ -1,13 +1,6 @@
 import i18nReview from "@/lib/i18n";
 import { KnownProvidersNames } from "@/lib/constants/logs";
-import {
-	aliasConfigSchema,
-	githubCopilotKeyConfigComplete,
-	githubCopilotKeyConfigSchema,
-	oauthKeyConfigComplete,
-	oauthKeyConfigSchema,
-	secretVarSchema,
-} from "@/lib/types/schemas";
+import { aliasConfigSchema, oauthKeyConfigComplete, oauthKeyConfigSchema, secretVarSchema } from "@/lib/types/schemas";
 import { isValidAliases, isValidVertexAuthCredentials } from "@/lib/utils/validation";
 import { z } from "zod";
 
@@ -87,6 +80,8 @@ const AzureKeyConfigSchema = z.object({
 	client_id: z.string().optional(),
 	client_secret: z.string().optional(),
 	tenant_id: z.string().optional(),
+	use_speech_endpoints: z.boolean().optional(),
+	use_voice_live_endpoints: z.boolean().optional(),
 });
 
 // AWS → GCP Workload Identity Federation block; see VertexAWSWorkloadIdentityConfig.
@@ -213,6 +208,34 @@ const BedrockMantleKeyConfigSchema = z
 		},
 	);
 
+const SageMakerKeyConfigSchema = z
+	.object({
+		access_key: z.string(),
+		secret_key: z.string(),
+		session_token: z.string().optional(),
+		region: z.string().min(1, "Region is required for SageMaker keys"),
+		role_arn: z.string().optional(),
+		external_id: z.string().optional(),
+		session_name: z.string().optional(),
+		endpoints: z.object({ runtime: VPCEndpointHostSchema }).optional(),
+	})
+	.refine(
+		(data) => {
+			const accessKey = data.access_key?.trim() || "";
+			const secretKey = data.secret_key?.trim() || "";
+			const bothEmpty = accessKey === "" && secretKey === "";
+			// A session token alone cannot mint a bearer token; reject it without both keys.
+			if (bothEmpty && (data.session_token?.trim() || "") !== "") {
+				return false;
+			}
+			return bothEmpty || (accessKey !== "" && secretKey !== "");
+		},
+		{
+			message: "For SageMaker: either provide both Access Key and Secret Key, or leave both empty to use the default AWS credential chain",
+			path: ["access_key"],
+		},
+	);
+
 // Optional for the same reason as replicateKeyConfigSchema in lib/types/schemas.ts:
 // the registered-but-untouched switch leaves an empty object behind.
 const ReplicateKeyConfigSchema = z.object({
@@ -235,8 +258,8 @@ const KeySchema = z.object({
 	vertex_key_config: VertexKeyConfigSchema.optional(),
 	bedrock_key_config: BedrockKeyConfigSchema.optional(),
 	bedrock_mantle_key_config: BedrockMantleKeyConfigSchema.optional(),
+	sagemaker_key_config: SageMakerKeyConfigSchema.optional(),
 	replicate_key_config: ReplicateKeyConfigSchema.optional(),
-	github_copilot_key_config: githubCopilotKeyConfigSchema.optional(),
 	oauth_key_config: oauthKeyConfigSchema.optional(),
 	use_for_batch_api: z.boolean().optional(),
 });
@@ -331,18 +354,7 @@ export const ProviderFormSchema = z
 			// Validate individual key values based on provider type
 			const effectiveProviderType = data.baseProviderType || data.selectedProvider;
 			data.keys.forEach((key, index) => {
-				// GitHub Copilot is checked separately below: the credential can live entirely
-				// in github_copilot_key_config, so an empty top-level value is only a fault
-				// when the App credentials are absent too.
-				if (effectiveProviderType === "github-copilot") {
-					if (!key.value.trim() && !githubCopilotKeyConfigComplete(key.github_copilot_key_config)) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: i18nReview.t("validation.providerForm.copilotCredentials", { ns: "common" }),
-							path: ["keys", index, "value"],
-						});
-					}
-				} else if (
+				if (
 					effectiveProviderType !== "vertex" &&
 					effectiveProviderType !== "bedrock" &&
 					!key.value.trim() &&

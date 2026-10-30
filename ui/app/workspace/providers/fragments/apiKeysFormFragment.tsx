@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { ModelAccessSelector } from "@/components/modelAccess";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -11,12 +12,13 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TagInput } from "@/components/ui/tagInput";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { hasCopilotApiToken, isRedacted } from "@/lib/utils/validation";
+import { isRedacted } from "@/lib/utils/validation";
 import { Info } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Control, UseFormReturn } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
 import { DeploymentsTable } from "./deploymentsTable";
+import { GithubCopilotSignIn } from "./githubCopilotSignIn";
 
 // Providers that support batch APIs
 // Vertex authentication methods offered by the key form. The backend picks the mode from which
@@ -91,6 +93,17 @@ const BEDROCK_VPC_ENDPOINT_SERVICES = [
 	},
 ];
 
+// The one runtime host SageMaker endpoints are invoked on; an interface VPC endpoint, FIPS or
+// dual-stack host can replace it.
+const SAGEMAKER_VPC_ENDPOINT_SERVICES = [
+	{
+		name: "runtime",
+		label: "Runtime",
+		description: "Serves all endpoint invocations.",
+		placeholder: "vpce-0abc123-x1y2z3.runtime.sagemaker.us-east-1.vpce.amazonaws.com",
+	},
+];
+
 // VPC endpoint host overrides for AWS PrivateLink. Collapsed by default: most deployments reach
 // Bedrock over the public regional endpoints and never set these.
 function VPCEndpointsFormField({
@@ -147,6 +160,7 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 	const effectiveProvider = baseProviderType ?? providerName;
 	const isBedrock = effectiveProvider === "bedrock";
 	const isBedrockMantle = effectiveProvider === "bedrock_mantle";
+	const isSageMaker = effectiveProvider === "sagemaker";
 	const isVertex = effectiveProvider === "vertex";
 	const isAzure = effectiveProvider === "azure";
 	const isReplicate = effectiveProvider === "replicate";
@@ -161,10 +175,6 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 	// openai, and every custom provider built on the openai base, may mint its bearer from
 	// oauth_key_config instead of carrying a static API key.
 	const isOpenAICompatible = effectiveProvider === "openai";
-	// Reactive, so the App-credential labels stay truthful. Once a Copilot token is present
-	// those fields genuinely are optional, and a static "(Required)" would contradict the
-	// section note telling the operator they can leave them blank.
-	const copilotAppSuffix = hasCopilotApiToken(form.watch("key.value")) ? t("providers.optionalParen") : t("providers.requiredParen");
 	const isKeylessProvider = isOllama || isSGL;
 	const supportsBatchAPI = BATCH_SUPPORTED_PROVIDERS.includes(effectiveProvider);
 
@@ -176,6 +186,9 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 
 	// Auth type state for Bedrock Mantle: 'iam_role', 'explicit', or 'api_key'
 	const [bedrockMantleAuthType, setBedrockMantleAuthType] = useState<"iam_role" | "explicit" | "api_key">("iam_role");
+
+	// Auth type state for SageMaker: 'iam_role' (default AWS credential chain), 'explicit', or 'api_key' (pre-minted token)
+	const [sageMakerAuthType, setSageMakerAuthType] = useState<"iam_role" | "explicit" | "api_key">("iam_role");
 
 	// Auth type state for Databricks: 'pat' (personal access token) or 'oauth_m2m' (service principal)
 	const [databricksAuthType, setDatabricksAuthType] = useState<"pat" | "oauth_m2m">("pat");
@@ -301,6 +314,26 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 		// repopulates an existing key via form.reset(...) after mount, not only on first render.
 	}, [isBedrockMantle, form, form.formState.defaultValues]);
 
+	useEffect(() => {
+		if (form.formState.isDirty) return;
+		if (isSageMaker) {
+			const accessKey = form.getValues("key.sagemaker_key_config.access_key");
+			const secretKey = form.getValues("key.sagemaker_key_config.secret_key");
+			const apiKey = form.getValues("key.value");
+			const hasExplicitCreds = accessKey?.value || accessKey?.ref || secretKey?.value || secretKey?.ref;
+			const hasApiKey = apiKey?.value || apiKey?.ref;
+			let detected: "iam_role" | "explicit" | "api_key" = "iam_role";
+			if (hasExplicitCreds) {
+				detected = "explicit";
+			} else if (hasApiKey) {
+				detected = "api_key";
+			}
+			setSageMakerAuthType(detected);
+			form.setValue("key.sagemaker_key_config._auth_type", detected);
+		}
+		// Re-run when ProviderKeyForm repopulates an existing key via form.reset(...) after mount.
+	}, [isSageMaker, form, form.formState.defaultValues]);
+
 	return (
 		<div data-tab="api-keys" className="space-y-4 overflow-hidden">
 			<div className="flex items-start gap-4 px-0.5">
@@ -369,29 +402,28 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 				/>
 			</div>
 			{/* Hide API Key field for providers with dedicated auth tabs */}
-			{!isAzure && !isBedrock && !isBedrockMantle && !isVertex && !isDatabricks && !isOpenAICompatible && (
-				<FormField
-					control={control}
-					name={`key.value`}
-					render={({ field }) => (
-						<FormItem className="px-0.5">
-							<FormLabel>
-								{isGithubCopilot ? t("providers.keys.copilotApiToken") : t("providers.apiKey")}{" "}
-								{isVLLM || isGithubCopilot ? t("providers.optionalParen") : ""}
-							</FormLabel>
-							{isGithubCopilot && <FormDescription>{t("providers.keys.copilotTokenHelp")}</FormDescription>}
-							<FormControl>
-								<SecretVarInput
-									placeholder={isGithubCopilot ? t("providers.keys.copilotTokenPlaceholder") : t("providers.keys.apiKeyOrEnv")}
-									type="text"
-									{...field}
-								/>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-			)}
+			{!isAzure &&
+				!isBedrock &&
+				!isBedrockMantle &&
+				!isSageMaker &&
+				!isVertex &&
+				!isDatabricks &&
+				!isOpenAICompatible &&
+				!isGithubCopilot && (
+					<FormField
+						control={control}
+						name={`key.value`}
+						render={({ field }) => (
+							<FormItem className="px-0.5">
+								<FormLabel>API Key {isVLLM ? "(Optional)" : ""}</FormLabel>
+								<FormControl>
+									<SecretVarInput placeholder={localeMessages.t("providers.keys.apiKeyOrEnv", { ns: "models" })} type="text" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				)}
 			<>
 				<FormField
 					control={control}
@@ -642,6 +674,48 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 							/>
 						</>
 					)}
+					<FormField
+						control={control}
+						name="key.azure_key_config.use_speech_endpoints"
+						render={({ field }) => (
+							<FormItem className="flex flex-row items-center justify-between rounded-sm border p-2">
+								<div className="space-y-1.5">
+									<FormLabel>Use Azure Speech endpoints</FormLabel>
+									<FormDescription>
+										Send speech and transcription requests to Azure AI Speech instead of Azure OpenAI. A deployment can override this.
+									</FormDescription>
+								</div>
+								<FormControl>
+									<Switch
+										data-testid="apikey-azure-use-speech-endpoints-switch"
+										checked={field.value ?? false}
+										onCheckedChange={field.onChange}
+									/>
+								</FormControl>
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={control}
+						name="key.azure_key_config.use_voice_live_endpoints"
+						render={({ field }) => (
+							<FormItem className="flex flex-row items-center justify-between rounded-sm border p-2">
+								<div className="space-y-1.5">
+									<FormLabel>Use Azure Voice Live endpoints</FormLabel>
+									<FormDescription>
+										Send realtime WebSocket sessions to Azure Voice Live instead of Azure OpenAI. A deployment can override this.
+									</FormDescription>
+								</div>
+								<FormControl>
+									<Switch
+										data-testid="apikey-azure-use-voice-live-endpoints-switch"
+										checked={field.value ?? false}
+										onCheckedChange={field.onChange}
+									/>
+								</FormControl>
+							</FormItem>
+						)}
+					/>
 					{supportsBatchAPI && <BatchAPIFormField control={control} form={form} />}
 				</div>
 			)}
@@ -1578,174 +1652,36 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 			{isGithubCopilot && (
 				<div className="space-y-4">
 					<Separator />
-					<div className="bg-muted/50 flex items-start gap-2 rounded-md border p-3">
-						<Info className="text-muted-foreground mt-0.5 h-4 w-4 shrink-0" />
-						<p className="text-muted-foreground text-sm">
-							<Trans
-								t={t}
-								i18nKey="providers.keys.copilotEither"
-								components={{
-									strong: <strong />,
-									appLink: (
-										<a
-											href="https://docs.github.com/en/copilot/how-tos/copilot-sdk/auth/server-to-server-tokens"
-											target="_blank"
-											rel="noopener noreferrer"
-											className="text-primary hover:underline"
-											data-testid="copilot-docs-link-server-to-server"
-										/>
-									),
-									tokenLink: (
-										<a
-											href="https://docs.github.com/en/copilot/how-tos/copilot-sdk/authenticate-copilot-sdk/authenticate-copilot-sdk"
-											target="_blank"
-											rel="noopener noreferrer"
-											className="text-primary hover:underline"
-											data-testid="copilot-docs-link-api-token"
-										/>
-									),
-								}}
-							/>
-						</p>
-					</div>
+					<FormField
+						control={control}
+						name="key.value"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>GitHub Token or Copilot API Token</FormLabel>
+								<FormDescription>
+									A fine-grained personal access token (<code>github_pat_…</code>) with the <strong>Copilot Requests</strong> permission.
+									Your organization must enable the <strong>Copilot CLI</strong> policy.
+								</FormDescription>
+								<FormControl>
+									<SecretVarInput
+										data-testid="key-input-copilot-token"
+										placeholder="github_pat_… or ghu_… token, or a Copilot API token"
+										type="text"
+										{...field}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<Separator />
 					<div className="space-y-1.5">
-						{/* Label, not FormLabel: this heads a section rather than labelling one
-						    control, so there is no FormItem id for htmlFor to point at. */}
-						<Label>{t("providers.keys.githubAppCredentials")}</Label>
-						<p className="text-muted-foreground text-sm">{t("providers.keys.githubAppHelp")}</p>
+						<p className="text-muted-foreground text-sm">Or sign in with GitHub to fill in a token.</p>
+						<GithubCopilotSignIn
+							provider={providerName}
+							onToken={(token) => form.setValue("key.value", { value: token, ref: "" }, { shouldDirty: true, shouldValidate: true })}
+						/>
 					</div>
-					<FormField
-						control={control}
-						name="key.github_copilot_key_config.app_id"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>
-									{t("providers.keys.appId")} {copilotAppSuffix}
-								</FormLabel>
-								<FormDescription>
-									<Trans
-										t={t}
-										i18nKey="providers.keys.appIdHelp"
-										components={{
-											link: (
-												<a
-													href="https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app"
-													target="_blank"
-													rel="noopener noreferrer"
-													className="text-primary hover:underline"
-													data-testid="copilot-docs-link-create-app"
-												/>
-											),
-										}}
-									/>
-								</FormDescription>
-								<FormControl>
-									<SecretVarInput
-										data-testid="key-input-copilot-app-id"
-										placeholder={t("providers.keys.copilotAppIdPlaceholder")}
-										{...field}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={control}
-						name="key.github_copilot_key_config.installation_id"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>
-									{t("providers.keys.installationId")} {copilotAppSuffix}
-								</FormLabel>
-								<FormDescription>
-									<Trans
-										t={t}
-										i18nKey="providers.keys.installationIdHelp"
-										components={{
-											link: (
-												<a
-													href="https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-an-installation-access-token-for-a-github-app"
-													target="_blank"
-													rel="noopener noreferrer"
-													className="text-primary hover:underline"
-													data-testid="copilot-docs-link-installation-id"
-												/>
-											),
-										}}
-									/>
-								</FormDescription>
-								<FormControl>
-									<SecretVarInput
-										data-testid="key-input-copilot-installation-id"
-										placeholder={t("providers.keys.copilotInstallationIdPlaceholder")}
-										{...field}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={control}
-						name="key.github_copilot_key_config.repository_id"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>
-									{t("providers.keys.repositoryId")} {copilotAppSuffix}
-								</FormLabel>
-								<FormDescription>{t("providers.keys.repositoryIdHelp")}</FormDescription>
-								<FormControl>
-									<SecretVarInput
-										data-testid="key-input-copilot-repository-id"
-										placeholder={t("providers.keys.copilotRepositoryIdPlaceholder")}
-										{...field}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={control}
-						name="key.github_copilot_key_config.private_key"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>
-									{t("providers.keys.privateKey")} {copilotAppSuffix}
-								</FormLabel>
-								<FormDescription>{t("providers.keys.privateKeyHelp")}</FormDescription>
-								<FormControl>
-									<SecretVarInput
-										data-testid="key-input-copilot-private-key"
-										variant="textarea"
-										rows={4}
-										placeholder={t("providers.keys.copilotPrivateKeyPlaceholder")}
-										{...field}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={control}
-						name="key.github_copilot_key_config.github_domain"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>{t("providers.keys.githubEnterpriseDomain")}</FormLabel>
-								<FormDescription>{t("providers.keys.githubEnterpriseHelp")}</FormDescription>
-								<FormControl>
-									<SecretVarInput
-										data-testid="key-input-copilot-github-domain"
-										placeholder={t("providers.keys.copilotDomainPlaceholder")}
-										{...field}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
 				</div>
 			)}
 			{(isSGL || isDeepseek || isFireworks || isVLLM) && (
@@ -2224,6 +2160,220 @@ export function ApiKeyFormFragment({ control, providerName, baseProviderType, fo
 						configKey="key.bedrock_mantle_key_config"
 						services={BEDROCK_VPC_ENDPOINT_SERVICES.filter((s) => s.name === "mantle")}
 					/>
+				</div>
+			)}
+
+			{isSageMaker && (
+				<div className="space-y-4" data-testid="apikey-sagemaker-section">
+					<Separator className="my-6" />
+					<div className="space-y-2">
+						<FormLabel>{localeMessages.t("providers.keys.authMethod", { ns: "models" })}</FormLabel>
+						<Tabs
+							value={sageMakerAuthType}
+							onValueChange={(v) => {
+								setSageMakerAuthType(v as "iam_role" | "explicit" | "api_key");
+								form.setValue("key.sagemaker_key_config._auth_type", v, { shouldDirty: true, shouldValidate: true });
+								if (v === "iam_role") {
+									// Clear explicit credentials and the pre-minted token when switching to the default chain (an empty value, not undefined: updates keep omitted fields)
+									form.setValue("key.sagemaker_key_config.access_key", undefined, { shouldDirty: true });
+									form.setValue("key.sagemaker_key_config.secret_key", undefined, { shouldDirty: true });
+									form.setValue("key.sagemaker_key_config.session_token", undefined, { shouldDirty: true });
+									form.setValue("key.value", { value: "", ref: "" }, { shouldDirty: true });
+								} else if (v === "explicit") {
+									form.setValue("key.value", { value: "", ref: "" }, { shouldDirty: true });
+								} else if (v === "api_key") {
+									// A pre-minted token carries its own identity: clear AWS credentials and assume-role fields
+									form.setValue("key.sagemaker_key_config.access_key", undefined, { shouldDirty: true });
+									form.setValue("key.sagemaker_key_config.secret_key", undefined, { shouldDirty: true });
+									form.setValue("key.sagemaker_key_config.session_token", undefined, { shouldDirty: true });
+									form.setValue("key.sagemaker_key_config.role_arn", undefined, { shouldDirty: true });
+									form.setValue("key.sagemaker_key_config.external_id", undefined, { shouldDirty: true });
+									form.setValue("key.sagemaker_key_config.session_name", undefined, { shouldDirty: true });
+								}
+							}}
+						>
+							<TabsList className="flex w-full justify-start">
+								<TabsTrigger data-testid="apikey-sagemaker-iam-role-tab" value="iam_role">
+									{localeMessages.t("providers.keys.iamRoleInherited", { ns: "models" })}
+								</TabsTrigger>
+								<TabsTrigger data-testid="apikey-sagemaker-explicit-credentials-tab" value="explicit">
+									{localeMessages.t("providers.keys.explicitCredentials", { ns: "models" })}
+								</TabsTrigger>
+								<TabsTrigger data-testid="apikey-sagemaker-api-key-tab" value="api_key">
+									Bearer Token
+								</TabsTrigger>
+							</TabsList>
+						</Tabs>
+						{sageMakerAuthType === "iam_role" && (
+							<p className="text-muted-foreground text-sm">
+								Uses the default AWS credential chain (IAM role, IRSA, environment). Bifrost mints the SageMaker bearer token from it.
+							</p>
+						)}
+						{sageMakerAuthType === "explicit" && (
+							<p className="text-muted-foreground text-sm">Bifrost mints the SageMaker bearer token from these AWS credentials.</p>
+						)}
+						{sageMakerAuthType === "api_key" && (
+							<p className="text-muted-foreground text-sm">
+								Sends a pre-minted sagemaker-api-key-... token as-is. Such tokens expire within 12 hours.
+							</p>
+						)}
+					</div>
+
+					{sageMakerAuthType === "explicit" && (
+						<>
+							<FormField
+								control={control}
+								name={`key.sagemaker_key_config.access_key`}
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>{localeMessages.t("providers.keys.accessKeyRequired", { ns: "models" })}</FormLabel>
+										<FormControl>
+											<SecretVarInput
+												data-testid="apikey-sagemaker-access-key-input"
+												placeholder={localeMessages.t("providers.keys.awsAccessKeyPlaceholder", { ns: "models" })}
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={control}
+								name={`key.sagemaker_key_config.secret_key`}
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>{localeMessages.t("providers.keys.secretKeyRequired", { ns: "models" })}</FormLabel>
+										<FormControl>
+											<SecretVarInput
+												data-testid="apikey-sagemaker-secret-key-input"
+												placeholder={localeMessages.t("providers.keys.awsSecretKeyPlaceholder", { ns: "models" })}
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={control}
+								name={`key.sagemaker_key_config.session_token`}
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>{localeMessages.t("providers.keys.sessionTokenOptional", { ns: "models" })}</FormLabel>
+										<FormControl>
+											<SecretVarInput
+												data-testid="apikey-sagemaker-session-token-input"
+												placeholder={localeMessages.t("providers.keys.awsSessionTokenPlaceholder", { ns: "models" })}
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</>
+					)}
+
+					{sageMakerAuthType === "api_key" && (
+						<FormField
+							control={control}
+							name={`key.value`}
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Bearer Token</FormLabel>
+									<FormControl>
+										<SecretVarInput
+											data-testid="apikey-sagemaker-api-key-input"
+											placeholder="sagemaker-api-key-... or env.SAGEMAKER_API_KEY"
+											type="text"
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					)}
+
+					<FormField
+						control={control}
+						name={`key.sagemaker_key_config.region`}
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>{localeMessages.t("providers.keys.regionRequired", { ns: "models" })}</FormLabel>
+								<FormDescription>
+									Region of your endpoints. A model id can override it with a prefix: us-west-2/my-endpoint.
+								</FormDescription>
+								<FormControl>
+									<SecretVarInput data-testid="apikey-sagemaker-region-input" placeholder={localeMessages.t("providers.keys.awsRegionPlaceholder", { ns: "models" })} {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					{sageMakerAuthType !== "api_key" && (
+						<>
+							<FormField
+								control={control}
+								name={`key.sagemaker_key_config.role_arn`}
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>{localeMessages.t("providers.keys.assumeRoleArnOptional", { ns: "models" })}</FormLabel>
+										<FormDescription>
+											Assume an IAM role before minting tokens. Works with both explicit credentials and the inherited IAM role.
+										</FormDescription>
+										<FormControl>
+											<SecretVarInput
+												data-testid="apikey-sagemaker-role-arn-input"
+												placeholder={localeMessages.t("providers.keys.roleArnPlaceholder", { ns: "models" })}
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={control}
+								name={`key.sagemaker_key_config.external_id`}
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>{localeMessages.t("providers.keys.externalIdOptional", { ns: "models" })}</FormLabel>
+										<FormDescription>Required by the role&apos;s trust policy when using cross-account access.</FormDescription>
+										<FormControl>
+											<SecretVarInput
+												data-testid="apikey-sagemaker-external-id-input"
+												placeholder={localeMessages.t("providers.keys.externalIdPlaceholder", { ns: "models" })}
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={control}
+								name={`key.sagemaker_key_config.session_name`}
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>{localeMessages.t("providers.keys.sessionNameOptional", { ns: "models" })}</FormLabel>
+										<FormDescription>{localeMessages.t("providers.keys.sessionNameHelpPeriod", { ns: "models" })}</FormDescription>
+										<FormControl>
+											<SecretVarInput
+												data-testid="apikey-sagemaker-session-name-input"
+												placeholder={localeMessages.t("providers.keys.sessionNamePlaceholder", { ns: "models" })}
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</>
+					)}
+					<VPCEndpointsFormField control={control} configKey="key.sagemaker_key_config" services={SAGEMAKER_VPC_ENDPOINT_SERVICES} />
 				</div>
 			)}
 		</div>

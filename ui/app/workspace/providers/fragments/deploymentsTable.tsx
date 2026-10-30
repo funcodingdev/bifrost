@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { SecretVarInput } from "@/components/ui/secretVarInput";
@@ -9,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { AliasConfig, ModelFamily, ModelFamilyValues } from "@/lib/types/config";
 import { SecretVar } from "@/lib/types/schemas";
 import { cn } from "@/lib/utils";
+import { parseVertexEndpointURL } from "@/lib/vertexEndpoint";
 import { ChevronDown, ChevronRight, Trash } from "lucide-react";
 import { useId, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -59,10 +61,12 @@ function normalize(value: DeploymentsValue): Record<string, AliasConfig> {
 const emptySecretVar: SecretVar = { value: "", ref: "" };
 const isEmptySecretVar = (v: SecretVar | undefined): boolean => !v || (!v.value && !v.ref);
 
-function FieldRow({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+function FieldRow({ label, hint, htmlFor, children }: { label: string; hint?: string; htmlFor?: string; children: React.ReactNode }) {
 	return (
 		<div className="space-y-1.5">
-			<label className="text-sm font-medium">{label}</label>
+			<label htmlFor={htmlFor} className="text-sm font-medium">
+				{label}
+			</label>
 			{children}
 			{hint && <p className="text-muted-foreground text-xs">{hint}</p>}
 		</div>
@@ -204,14 +208,100 @@ function AzureSection({ config, onChange, disabled }: ProviderSectionProps) {
 					disabled={disabled}
 				/>
 			</FieldRow>
+			<TriStateOverrideRow
+				label="Use Azure Speech endpoints"
+				hint="Send this deployment's speech and transcription requests to Azure AI Speech instead of Azure OpenAI."
+				value={config.use_speech_endpoints}
+				onChange={(next) => onChange({ use_speech_endpoints: next })}
+				disabled={disabled}
+				testId="deployment-azure-use-speech-endpoints"
+			/>
+			<TriStateOverrideRow
+				label="Use Azure Voice Live endpoints"
+				hint="Send this deployment's realtime WebSocket sessions to Azure Voice Live instead of Azure OpenAI."
+				value={config.use_voice_live_endpoints}
+				onChange={(next) => onChange({ use_voice_live_endpoints: next })}
+				disabled={disabled}
+				testId="deployment-azure-use-voice-live-endpoints"
+			/>
 		</div>
 	);
 }
 
 function VertexSection({ config, onChange, disabled }: ProviderSectionProps) {
 	const { t } = useTranslation("models");
+	const endpoint = config.vertex_endpoint;
+	const servingId = useId();
+	const endpointId = useId();
+	const endpointInvalid = !!endpoint && !/^[A-Za-z0-9_-]+$/.test(endpoint.endpoint_id);
 	return (
 		<div className="space-y-4">
+			<FieldRow
+				htmlFor={servingId}
+				label="Serving mode"
+				hint="Use a custom endpoint when your deployed container accepts OpenAI chat completions."
+			>
+				<Select
+					value={endpoint ? (endpoint.method ?? "raw_predict") : "standard"}
+					onValueChange={(value) =>
+						onChange({
+							vertex_endpoint:
+								value === "standard"
+									? undefined
+									: {
+											endpoint_id: endpoint?.endpoint_id ?? "",
+											format: "openai_chat",
+											method: value as "raw_predict" | "chat_completions",
+										},
+						})
+					}
+					disabled={disabled}
+				>
+					<SelectTrigger id={servingId} className="w-full" data-testid="deployment-vertex-serving-mode">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="standard">Standard Vertex</SelectItem>
+						<SelectItem value="raw_predict">OpenAI-compatible — Raw prediction</SelectItem>
+						<SelectItem value="chat_completions">OpenAI-compatible — Chat completions</SelectItem>
+					</SelectContent>
+				</Select>
+			</FieldRow>
+			{endpoint && (
+				<FieldRow
+					htmlFor={endpointId}
+					label="Vertex endpoint ID or URL"
+					hint="The Model ID above is the served model name sent in the body. Uses Google credentials from this key. Supports chat and Responses-to-chat conversion."
+				>
+					<Input
+						id={endpointId}
+						aria-invalid={endpointInvalid}
+						aria-describedby={endpointInvalid ? `${endpointId}-error` : undefined}
+						value={endpoint.endpoint_id}
+						onChange={(event) => {
+							const value = event.target.value;
+							const parsed = parseVertexEndpointURL(value);
+							if (parsed) {
+								onChange({
+									vertex_endpoint: { ...parsed.endpoint, format: endpoint.format },
+									project_id: { value: parsed.projectId, ref: "" },
+									region: { value: parsed.region, ref: "" },
+								});
+							} else {
+								onChange({ vertex_endpoint: { ...endpoint, endpoint_id: value } });
+							}
+						}}
+						placeholder="2222222222 or https://us-west1-aiplatform.googleapis.com/v1/projects/…"
+						disabled={disabled}
+						data-testid="deployment-vertex-endpoint"
+					/>
+					{endpointInvalid && (
+						<p id={`${endpointId}-error`} className="text-destructive text-xs" data-testid="deployment-vertex-endpoint-error">
+							Enter a Vertex endpoint ID or paste a supported endpoint URL.
+						</p>
+					)}
+				</FieldRow>
+			)}
 			<SectionHeader
 				title={t("providers.deployments.vertexOverrides")}
 				description={t("providers.deployments.overrideDefaults", { provider: "Vertex" })}
@@ -224,15 +314,24 @@ function VertexSection({ config, onChange, disabled }: ProviderSectionProps) {
 					disabled={disabled}
 				/>
 			</FieldRow>
-			<FieldRow label={t("providers.deployments.projectNumber")} hint={t("providers.deployments.projectNumberHint")}>
-				<SecretVarField
-					value={config.project_number}
-					onChange={(v) => onChange({ project_number: v })}
-					placeholder={t("providers.deployments.vertexProjectNumberPlaceholder")}
-					disabled={disabled}
-				/>
-			</FieldRow>
-			<FieldRow label={t("providers.deployments.region")} hint={t("providers.deployments.regionHint")}>
+			{!endpoint && (
+				<FieldRow label={localeMessages.t("providers.deployments.projectNumber", { ns: "models" })} hint="Required for fine-tuned models.">
+					<SecretVarField
+						value={config.project_number}
+						onChange={(v) => onChange({ project_number: v })}
+						placeholder={localeMessages.t("providers.deployments.vertexProjectNumberPlaceholder", { ns: "models" })}
+						disabled={disabled}
+					/>
+				</FieldRow>
+			)}
+			<FieldRow
+				label={localeMessages.t("providers.deployments.region", { ns: "models" })}
+				hint={
+					endpoint
+						? "Use the deployment's region, such as us-west1. Custom endpoints do not use global or multi-region locations."
+						: "Multi-region-only models are auto-routed to a multi-region endpoint unless Force single region is on."
+				}
+			>
 				<SecretVarField
 					value={config.region}
 					onChange={(v) => onChange({ region: v })}
@@ -240,20 +339,24 @@ function VertexSection({ config, onChange, disabled }: ProviderSectionProps) {
 					disabled={disabled}
 				/>
 			</FieldRow>
-			<div className="flex items-start justify-between gap-4 rounded-md border p-3">
-				<div className="space-y-0.5">
-					<label htmlFor="force-single-region" className="text-sm font-medium">
-						{t("providers.keys.forceSingleRegion")}
-					</label>
-					<p className="text-muted-foreground text-xs">{t("providers.deployments.forceSingleRegionHint")}</p>
+			{!endpoint && (
+				<div className="flex items-start justify-between gap-4 rounded-md border p-3">
+					<div className="space-y-0.5">
+						<label htmlFor="force-single-region" className="text-sm font-medium">
+							{localeMessages.t("providers.keys.forceSingleRegion", { ns: "models" })}
+						</label>
+						<p className="text-muted-foreground text-xs">
+							{localeMessages.t("providers.deployments.forceSingleRegionHint", { ns: "models" })}
+						</p>
+					</div>
+					<Switch
+						id="force-single-region"
+						checked={config.force_single_region ?? false}
+						onCheckedChange={(checked) => onChange({ force_single_region: checked })}
+						disabled={disabled}
+					/>
 				</div>
-				<Switch
-					id="force-single-region"
-					checked={config.force_single_region ?? false}
-					onCheckedChange={(checked) => onChange({ force_single_region: checked })}
-					disabled={disabled}
-				/>
-			</div>
+			)}
 		</div>
 	);
 }

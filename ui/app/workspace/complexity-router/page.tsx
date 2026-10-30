@@ -612,6 +612,7 @@ export default function ComplexityRouterPage() {
 											<>
 												<ClassifierStatusBadge
 													status={semanticStatus}
+													semanticFallback={data.semantic?.fallback ?? "none"}
 													isLoading={statusLoading}
 													isNotConfigured={!isClassifierConfigured}
 													isNotSaved={isClassifierConfigured && !data.semantic}

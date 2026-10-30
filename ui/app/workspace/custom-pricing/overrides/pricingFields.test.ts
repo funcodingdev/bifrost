@@ -91,7 +91,7 @@ describe("pricingFieldUnit", () => {
 			expect(byUnit[unit], `${field.key} resolved to unexpected unit ${unit}`).toBeDefined();
 			byUnit[unit].push(field.key);
 		}
-		expect(PRICING_FIELDS).toHaveLength(119);
+		expect(PRICING_FIELDS).toHaveLength(129);
 		expect(byUnit.multiplier).toEqual(["inference_geo_us_multiplier", "off_peak_cost_multiplier"]);
 		expect(byUnit.character).toEqual(["input_cost_per_character"]);
 		// Sanity: the split is real, not everything collapsing into one bucket.
@@ -155,23 +155,15 @@ describe("request type groups", () => {
 		const plain = PRICING_FIELDS.find((f) => f.key === "input_cost_per_token");
 		expect(plain?.requestTypeGroups).not.toContain("decisions");
 	});
-});
-import i18n from "@/lib/i18n";
-import { fieldLabelByKey } from "./pricingFields";
 
-it("updates pricing labels and validation after switching languages without changing API fields", async () => {
-	const keys = PRICING_FIELDS.map((field) => field.key);
-	const english = fieldLabelByKey.input_cost_per_token;
-	try {
-		await i18n.changeLanguage("zh-CN");
-		expect(fieldLabelByKey.input_cost_per_token).toBe("输入 / Token");
-		expect(getRequestTypeGroup("embedding")).toBe("嵌入");
-		expect(pricingFieldError("input_cost_per_token", "-1")).toBe("不能小于 0");
-		expect(PRICING_FIELDS.map((field) => field.key)).toEqual(keys);
-		await i18n.changeLanguage("en");
-		expect(fieldLabelByKey.input_cost_per_token).toBe(english);
-		expect(pricingFieldError("input_cost_per_token", "-1")).toBe("Must be >= 0");
-	} finally {
-		await i18n.changeLanguage("en");
-	}
+	// Voice Live turns are priced in the responses mode, so an override scoped to
+	// responses (the chat group) must offer the Voice Live fields.
+	it("offers the Voice Live fields under the chat group", () => {
+		const voiceLive = PRICING_FIELDS.filter((f) => f.key.endsWith("_voice_live"));
+		expect(voiceLive).toHaveLength(9);
+		for (const f of voiceLive) {
+			expect(f.requestTypeGroups, f.key).toContain("chat");
+			expect(f.requestTypeGroups, f.key).toContain("audio");
+		}
+	});
 });

@@ -94,16 +94,7 @@ type ExportScope = "current_page" | "all";
 
 function virtualKeysToCSV(vks: VirtualKey[]): string {
 	const t = i18n.t.bind(i18n);
-	const headers = [
-		t("virtualKeys.name", { ns: "models" }),
-		t("virtualKeys.status", { ns: "models" }),
-		t("virtualKeys.assignedTo", { ns: "models" }),
-		t("virtualKeys.budgetLimit", { ns: "models" }),
-		t("virtualKeys.budgetSpent", { ns: "models" }),
-		t("virtualKeys.budgetReset", { ns: "models" }),
-		t("virtualKeys.description", { ns: "models" }),
-		t("virtualKeys.createdAt", { ns: "models" }),
-	];
+	const headers = ["Name", "Status", "Assigned To", "Assigned User Email", "Budget Limit", "Budget Spent", "Budget Reset", "Description", "Created At"];
 	const rows = vks.map((vk) => {
 		const isExhausted =
 			vk.budgets?.some((b) => b.current_usage >= getEffectiveBudgetLimit(b)) ||
@@ -125,7 +116,7 @@ function virtualKeysToCSV(vks: VirtualKey[]): string {
 		const budgetLimit = vk.budgets?.length ? vk.budgets.map((b) => formatCurrency(getEffectiveBudgetLimit(b))).join("; ") : "";
 		const budgetSpent = vk.budgets?.length ? vk.budgets.map((b) => formatCurrency(b.current_usage)).join("; ") : "";
 		const budgetReset = vk.budgets?.length ? vk.budgets.map((b) => formatResetDuration(b.reset_duration)).join("; ") : "";
-		return [vk.name, status, assignedTo, budgetLimit, budgetSpent, budgetReset, vk.description || "", vk.created_at];
+		return [vk.name, status, assignedTo, vk.assigned_user?.email ?? "", budgetLimit, budgetSpent, budgetReset, vk.description || "", vk.created_at];
 	});
 	return [headers, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
 }
@@ -302,10 +293,10 @@ function VKActiveSwitch({
 	onToggle: (vk: VirtualKey, checked: boolean) => Promise<void>;
 }) {
 	const { t } = useTranslation("models");
-	const { isManagedByProfile } = useVirtualKeyUsage(vk);
-	// Managed takes precedence: an access-profile-managed VK can't be toggled here even by a
-	// caller who does have update access.
-	const disabledReason = isManagedByProfile
+	const { isUserProfileManaged } = useVirtualKeyUsage(vk);
+	// A user's managed key can't be toggled here even by a caller who does have update access. A
+	// key its owner's access profile governs is still the owner's key, toggled like any other.
+	const disabledReason = isUserProfileManaged
 		? "This virtual key is managed by an access profile. Enable or disable it from the profile."
 		: !hasUpdateAccess
 			? "You don't have permission to update virtual keys."
@@ -355,7 +346,9 @@ function VKActionsMenu({
 	const { t } = useTranslation("models");
 	const { t: tc } = useTranslation("common");
 	const [isOpen, setIsOpen] = useState(false);
-	const { isManagedByProfile } = useVirtualKeyUsage(vk);
+	// Only a user's managed key is locked against delete; a key its owner's profile governs is the
+	// owner's key, deleted like any other.
+	const { isUserProfileManaged } = useVirtualKeyUsage(vk);
 	const [deleteOpen, setDeleteOpen] = useState(false);
 
 	return (
@@ -397,7 +390,7 @@ function VKActionsMenu({
 							hasDeleteAccess,
 							"delete",
 							"virtual keys",
-							isManagedByProfile ? localeMessages.t("virtualKeys.managedCantDelete", { ns: "models" }) : undefined,
+							isUserProfileManaged ? t("virtualKeys.managedCantDelete") : undefined,
 						)}
 						variant="destructive"
 						className="cursor-pointer"

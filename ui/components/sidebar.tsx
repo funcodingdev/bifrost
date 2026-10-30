@@ -56,6 +56,7 @@ import {
 	Wallet,
 	WalletCards,
 	Webhook,
+	Waypoints,
 } from "lucide-react";
 
 import { WarpIcon } from "@/components/ui/icons";
@@ -173,7 +174,13 @@ const getSidebarItemHref = (item: Pick<SidebarItem, "url" | "queryParam">) => {
 
 const slug = (s: string) => s.toLowerCase().replace(/\s+/g, "-");
 
-const TimeFilterPages = new Set(["/workspace/dashboard", "/workspace/logs", "/workspace/mcp-logs", "/workspace/agent-logs"]);
+const TimeFilterPages = new Set([
+	"/workspace/dashboard",
+	"/workspace/logs",
+	"/workspace/mcp-logs",
+	"/workspace/agent-logs",
+	"/workspace/relay-logs",
+]);
 
 const preserveTimeFilters = (baseHref: string, subItemUrl: string, pathname: string, search: string): string => {
 	if (TimeFilterPages.has(subItemUrl) && TimeFilterPages.has(pathname)) {
@@ -600,6 +607,8 @@ export default function AppSidebar() {
 	const hasAgentLogsAccess = useRbac(RbacResource.AgentLogs, RbacOperation.View);
 	const hasVirtualMCPsAccess = useRbac(RbacResource.VirtualMCPs, RbacOperation.View);
 	const hasMCPLogsAccess = useRbac(RbacResource.MCPLogs, RbacOperation.View);
+	const hasRelaysAccess = useRbac(RbacResource.Relays, RbacOperation.View);
+	const hasRelayLogsAccess = useRbac(RbacResource.RelayLogs, RbacOperation.View);
 	const hasPluginsAccess = useRbac(RbacResource.Plugins, RbacOperation.View);
 	const hasUsersAccess = useRbac(RbacResource.Users, RbacOperation.View);
 	const hasUserProvisioningAccess = useRbac(RbacResource.UserProvisioning, RbacOperation.View);
@@ -694,7 +703,13 @@ export default function AppSidebar() {
 				icon: Telescope,
 				description: t("navDesc.observability", { ns: "shell" }),
 				hasAccess:
-					hasLogsAccess || hasDashboardAccess || hasMCPLogsAccess || hasAgentLogsAccess || hasObservabilityAccess || hasSettingsAccess,
+					hasLogsAccess ||
+					hasDashboardAccess ||
+					hasMCPLogsAccess ||
+					hasAgentLogsAccess ||
+					hasRelayLogsAccess ||
+					hasObservabilityAccess ||
+					hasSettingsAccess,
 				subItems: [
 					{
 						id: "observability.dashboard",
@@ -728,6 +743,15 @@ export default function AppSidebar() {
 						icon: Bot,
 						description: t("ui.sidebar.agentRequestLogs", { ns: "common" }),
 						hasAccess: hasAgentLogsAccess,
+					},
+					{
+						id: "relay-logs",
+						title: t("nav.relayLogs"),
+						testId: "relay-logs",
+						url: "/workspace/relay-logs",
+						icon: Waypoints,
+						description: t("navDesc.relayLogs"),
+						hasAccess: hasRelayLogsAccess,
 					},
 					{
 						id: "connectors",
@@ -889,7 +913,6 @@ export default function AppSidebar() {
 				icon: Bot,
 				description: t("ui.sidebar.registerAndManageA2AAgents", { ns: "common" }),
 				hasAccess: hasAgentGatewayAccess,
-				new: true,
 				subItems: [
 					{
 						id: "agent-catalog",
@@ -919,6 +942,15 @@ export default function AppSidebar() {
 						hasAccess: hasSettingsAccess,
 					},
 				],
+			},
+			{
+				id: "relays",
+				title: t("nav.relays"),
+				testId: "relays",
+				url: "/workspace/relays",
+				icon: Waypoints,
+				description: t("navDesc.relays"),
+				hasAccess: hasRelaysAccess,
 			},
 			{
 				id: "plugins",
@@ -1181,7 +1213,7 @@ export default function AppSidebar() {
 						title: t("nav.adaptiveRoutingSettings", { ns: "shell" }),
 						testId: "settings",
 						url: "/workspace/cluster/settings",
-						icon: Settings2Icon,
+						icon: Settings,
 						description: t("ui.sidebar.monitoringSampleRetentionAndMemoryThreshold", { ns: "common" }),
 						// The settings API sits under the Settings resource; saving also needs Settings update.
 						hasAccess: hasClusterConfigAccess && hasSettingsAccess,
@@ -1391,6 +1423,8 @@ export default function AppSidebar() {
 			hasAgentLogsAccess,
 			hasVirtualMCPsAccess,
 			hasMCPLogsAccess,
+			hasRelaysAccess,
+			hasRelayLogsAccess,
 			hasPluginsAccess,
 			hasUsersAccess,
 			hasUserProvisioningAccess,
