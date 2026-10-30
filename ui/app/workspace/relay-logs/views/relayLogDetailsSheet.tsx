@@ -91,7 +91,9 @@ function AttributionLink({ label, id, name, filterKey }: { label: string; id?: s
 							{name || id}
 						</Link>
 					</TooltipTrigger>
-					<TooltipContent sideOffset={6}>{name ? id : `Filter by ${label.toLowerCase()}`}</TooltipContent>
+					<TooltipContent sideOffset={6}>
+						{name ? id : localeMessages.t("ui.upstream.filterBy", { ns: "common", v0: label.toLowerCase() })}
+					</TooltipContent>
 				</Tooltip>
 			}
 		/>
@@ -360,7 +362,7 @@ export function RelayLogDetailSheet({
 										}
 										sub={
 											display.total_tokens
-												? `total ${formatCompactNumber(display.total_tokens)} · not priced`
+												? localeMessages.t("ui.upstream.totalNotPriced", { ns: "common", v0: formatCompactNumber(display.total_tokens) })
 												: display.billed_units !== undefined && display.units !== undefined && display.billed_units !== display.units
 													? `${formatCompactNumber(display.units)} read`
 													: display.model
@@ -374,9 +376,12 @@ export function RelayLogDetailSheet({
 										value={display.cost != null ? formatCostPrecise(display.cost) : "—"}
 										sub={
 											display.cost != null && display.billed_units
-												? `≈ ${formatCostPrecise(display.cost / display.billed_units)} per unit`
+												? localeMessages.t("ui.upstream.perUnit", {
+														ns: "common",
+														v0: formatCostPrecise(display.cost / display.billed_units),
+													})
 												: display.cost_per_request != null
-													? `${formatCostPrecise(display.cost_per_request)} per call`
+													? localeMessages.t("ui.upstream.perCall", { ns: "common", v0: formatCostPrecise(display.cost_per_request) })
 													: display.cost == null
 														? "not charged"
 														: ""
@@ -683,7 +688,7 @@ export function RelayLogDetailSheet({
 									<div className="mt-2 text-[13px] leading-relaxed break-words whitespace-pre-wrap text-red-700 dark:text-red-400">
 										{errorMessage ??
 											(display.status_code
-												? `The relay returned an error (HTTP ${display.status_code}) without a message.`
+												? localeMessages.t("ui.upstream.theRelayReturnedAnError", { ns: "common", v0: display.status_code })
 												: localeMessages.t("ui.upstream.theRelayReturnedAnErrorWithout", { ns: "common" }))}
 									</div>
 									{errorRaw != null ? (

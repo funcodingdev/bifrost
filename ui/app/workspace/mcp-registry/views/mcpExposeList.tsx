@@ -49,7 +49,7 @@ export function MCPExposeList({
 						<TriStateCheckbox
 							allIds={allKeys}
 							selectedIds={selected}
-							ariaLabel={`Serve all ${kind} (${status})`}
+							ariaLabel={localeMessages.t("ui.upstream.serveAll", { ns: "common", v0: kind, v1: status })}
 							data-testid={`mcp-expose-${kind}-all`}
 							onChange={(next) => onChange(next.length === allKeys.length ? ["*"] : next)}
 						/>
@@ -85,7 +85,7 @@ export function MCPExposeList({
 													title={byRule ? localeMessages.t("ui.upstream.servedByAPatternRule", { ns: "common" }) : undefined}
 													aria-label={
 														byRule
-															? `${item.label} is served by a pattern rule`
+															? localeMessages.t("ui.upstream.isServedByAPattern", { ns: "common", v0: item.label })
 															: `${exposed ? localeMessages.t("ui.upstream.stopServing", { ns: "common" }) : localeMessages.t("ui.upstream.serve", { ns: "common" })} ${item.label}`
 													}
 													data-testid={`mcp-expose-${kind}-toggle-${item.key}`}

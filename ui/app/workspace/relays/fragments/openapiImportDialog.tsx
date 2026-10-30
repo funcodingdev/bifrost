@@ -149,7 +149,7 @@ export function OpenAPIImportDialog({ open, onClose, onImport }: OpenAPIImportDi
 							) : (
 								localeMessages.t("ui.upstream.noServerListedKeepTheBase", { ns: "common" })
 							)}
-							{result.auth ? ` · Auth suggestion: ${result.auth.type}` : ""}
+							{result.auth ? localeMessages.t("ui.upstream.authSuggestion", { ns: "common", v0: result.auth.type }) : ""}
 						</div>
 						{result.warnings.length > 0 && (
 							<ul className="list-disc space-y-0.5 pl-4 text-xs text-amber-700 dark:text-amber-400">

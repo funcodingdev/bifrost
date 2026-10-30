@@ -887,9 +887,11 @@ export function LogDetailView({
 				}
 				const errorMessage: string | null =
 					item?.error?.message ||
-					(item?.result?.type && item.result.type !== "succeeded" ? `Batch item ${item.result.type}` : null) ||
+					(item?.result?.type && item.result.type !== "succeeded"
+						? localeMessages.t("ui.upstream.batchItem", { ns: "common", v0: item.result.type })
+						: null) ||
 					(typeof item?.response?.status_code === "number" && item.response.status_code >= 400
-						? `Provider returned HTTP ${item.response.status_code}`
+						? localeMessages.t("ui.upstream.providerReturnedHttp", { ns: "common", v0: item.response.status_code })
 						: null);
 				return { customId, model, message, rawFallback, errorMessage };
 			})
@@ -1287,7 +1289,7 @@ export function LogDetailView({
 							}
 							sub={
 								log.cost != null && audioSeconds
-									? `≈ ${(log.cost / audioSeconds).toFixed(6)}＄ per second`
+									? localeMessages.t("ui.upstream.perSecond", { ns: "common", v0: (log.cost / audioSeconds).toFixed(6) })
 									: log.cost != null && log.token_usage?.total_tokens
 										? `≈ ${((log.cost / log.token_usage.total_tokens) * 1000).toFixed(6)}＄ per 1k`
 										: ""
@@ -3332,9 +3334,12 @@ export function LogDetailView({
 								<div className="mt-2 text-[13px] leading-relaxed break-words whitespace-pre-wrap text-red-700 dark:text-red-400">
 									{displayErrorMessage ??
 										(log.content_hidden
-											? `The error message was not stored because content logging is disabled for this request${statusCode ? ` (HTTP ${statusCode})` : ""}.`
+											? localeMessages.t("ui.upstream.theErrorMessageWasNot", {
+													ns: "common",
+													v0: statusCode ? ` (HTTP ${statusCode})` : "",
+												})
 											: statusCode
-												? `The provider returned an error (HTTP ${statusCode}) without a message.`
+												? localeMessages.t("ui.upstream.theProviderReturnedAnError", { ns: "common", v0: statusCode })
 												: "The provider returned an error without a message.")}
 								</div>
 								{log.error_details?.error.error != null ? (

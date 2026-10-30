@@ -92,7 +92,7 @@ export function authFromSecuritySchemes(doc: Doc, security: unknown = doc.securi
 	if (!schemes) return {};
 	const mapScheme = (name: string): { auth?: RelayAuthConfig; warning?: string } => {
 		const scheme = asRecord(schemes[name]);
-		if (!scheme) return { warning: `Security scheme ${name} is required but not declared; set the auth type by hand` };
+		if (!scheme) return { warning: localeMessages.t("ui.upstream.securitySchemeIsRequiredBut", { ns: "common", v0: name }) };
 		const type = asString(scheme.type)?.toLowerCase();
 		if (type === "apikey") {
 			const location = asString(scheme.in)?.toLowerCase();
@@ -104,17 +104,21 @@ export function authFromSecuritySchemes(doc: Doc, security: unknown = doc.securi
 			}
 			if (location === "query" && paramName) return { auth: { type: "query", query_param: paramName } };
 			return {
-				warning: `Security scheme ${name} uses an apiKey in ${location ?? "an unsupported location"}, which the relay cannot inject`,
+				warning: localeMessages.t("ui.upstream.securitySchemeUsesAnApikey", {
+					ns: "common",
+					v0: name,
+					v1: location ?? "an unsupported location",
+				}),
 			};
 		}
 		if (type === "http") {
 			const httpScheme = asString(scheme.scheme)?.toLowerCase();
 			if (httpScheme === "bearer") return { auth: { type: "bearer" } };
 			if (httpScheme === "basic") return { auth: { type: "basic" } };
-			return { warning: `Security scheme ${name} uses HTTP ${httpScheme ?? "?"} auth, which the relay cannot inject` };
+			return { warning: localeMessages.t("ui.upstream.securitySchemeUsesHttpAuth", { ns: "common", v0: name, v1: httpScheme ?? "?" }) };
 		}
 		if (type === "basic") return { auth: { type: "basic" } };
-		return { warning: `Security scheme ${name} is ${type ?? "unknown"}; set the auth type by hand` };
+		return { warning: localeMessages.t("ui.upstream.securitySchemeIsSetThe", { ns: "common", v0: name, v1: type ?? "unknown" }) };
 	};
 	// The document's top-level security lists alternatives; schemes inside one alternative are
 	// required together, which one injected key cannot satisfy. The first alternative that is a
@@ -247,7 +251,11 @@ export function importOpenAPI(doc: Doc, documentUrl?: string): OpenAPIImport {
 		if (referenced.length > 0) {
 			result.partial = true;
 			result.warnings.push(
-				`${referenced.join(", ")} ${referenced.length === 1 ? "is" : "are"} defined by $ref, which the import does not resolve, so those operations were not imported; add their routes by hand and review the routes list.`,
+				localeMessages.t("ui.upstream.definedByRefWhichThe", {
+					ns: "common",
+					v0: referenced.join(", "),
+					v1: referenced.length === 1 ? "is" : "are",
+				}),
 			);
 		}
 		if (result.routes.length === 0 && referenced.length === 0)
@@ -273,8 +281,6 @@ export function importOpenAPI(doc: Doc, documentUrl?: string): OpenAPIImport {
 	const server = serverBase(doc, documentUrl);
 	result.baseUrl = server.baseUrl;
 	if (server.droppedQuery)
-		result.warnings.push(
-			`The server URL's query (${server.droppedQuery}) is left out of the suggested base URL, since a relay base URL cannot carry one; callers must send it themselves.`,
-		);
+		result.warnings.push(localeMessages.t("ui.upstream.theServerUrlSQuery", { ns: "common", v0: server.droppedQuery }));
 	return result;
 }

@@ -126,8 +126,8 @@ export function formatRelayActiveFiltersSummary(filters: RelayLogFilters): strin
 	}
 	if (filters.statuses && filters.statuses.length > 0) summary.push(`status: ${filters.statuses.join(", ")}`);
 	if (filters.billable !== undefined) summary.push(filters.billable ? "billable only" : "non-billable only");
-	if (filters.min_cost !== undefined) summary.push(`min cost ${filters.min_cost}`);
-	if (filters.max_cost !== undefined) summary.push(`max cost ${filters.max_cost}`);
+	if (filters.min_cost !== undefined) summary.push(localeMessages.t("ui.upstream.minCost", { ns: "common", v0: filters.min_cost }));
+	if (filters.max_cost !== undefined) summary.push(localeMessages.t("ui.upstream.maxCost", { ns: "common", v0: filters.max_cost }));
 	if (filters.period) summary.push(`period ${filters.period}`);
 	return summary;
 }

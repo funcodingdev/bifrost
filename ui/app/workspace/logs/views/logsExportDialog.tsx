@@ -97,7 +97,7 @@ export function LogsExportDialog({
 			}
 			const csv = logsToCSV(currentPageLogs);
 			downloadCSV(csv, "logs");
-			toast.success(`Exported ${currentPageLogs.length} logs`);
+			toast.success(localeMessages.t("ui.upstream.exportedLogs2", { ns: "common", v0: currentPageLogs.length }));
 			onOpenChange(false);
 			return;
 		}
@@ -161,11 +161,11 @@ export function LogsExportDialog({
 
 			const csv = logsToCSV(collectedLogs);
 			downloadCSV(csv, "logs");
-			toast.success(`Exported ${collectedLogs.length} logs`);
+			toast.success(localeMessages.t("ui.upstream.exportedLogs", { ns: "common", v0: collectedLogs.length }));
 			onOpenChange(false);
 		} catch (error) {
 			if (!isRunCancelled()) {
-				toast.error(`Export failed: ${getErrorMessage(error)}`);
+				toast.error(localeMessages.t("ui.upstream.exportFailed", { ns: "common", v0: getErrorMessage(error) }));
 			}
 		} finally {
 			if (!isRunCancelled()) {
@@ -242,7 +242,10 @@ export function LogsExportDialog({
 								min="1"
 								max="10000"
 								disabled={isExporting}
-								placeholder={`Default ${Math.min(DEFAULT_MAX_EXPORT_LIMIT, totalLogs || DEFAULT_MAX_EXPORT_LIMIT).toLocaleString()}`}
+								placeholder={localeMessages.t("ui.upstream.default", {
+									ns: "common",
+									v0: Math.min(DEFAULT_MAX_EXPORT_LIMIT, totalLogs || DEFAULT_MAX_EXPORT_LIMIT).toLocaleString(),
+								})}
 								value={exportMaxLimit}
 								onChange={(e) => setExportMaxLimit(e.target.value)}
 							/>

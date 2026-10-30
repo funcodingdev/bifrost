@@ -225,7 +225,7 @@ export function EndpointRoutesTable({ endpoint, headerActions }: { endpoint: Rel
 									</TableCell>
 									<TableCell>
 										<Switch
-											aria-label={`Enable ${route.method} ${route.path}`}
+											aria-label={localeMessages.t("ui.upstream.enable", { ns: "common", v0: route.method, v1: route.path })}
 											size="md"
 											checked={enabled}
 											disabled={!canUpdate || saving}
@@ -233,7 +233,9 @@ export function EndpointRoutesTable({ endpoint, headerActions }: { endpoint: Rel
 											onAsyncCheckedChange={async (checked) => {
 												await save(
 													routes.map((r, i) => (i === index ? { ...r, enabled: checked } : r)),
-													`Route ${checked ? "enabled" : "disabled"}`,
+													checked
+														? localeMessages.t("ui.upstream.routeEnabled", { ns: "common" })
+														: localeMessages.t("ui.upstream.routeDisabled", { ns: "common" }),
 												);
 											}}
 										/>
@@ -339,7 +341,16 @@ export function EndpointRoutesTable({ endpoint, headerActions }: { endpoint: Rel
 								e.preventDefault();
 								if (!pendingImport) return;
 								const imported = pendingImport.routes;
-								if (await save(imported, `Imported ${imported.length} route${imported.length === 1 ? "" : "s"}`)) setPendingImport(null);
+								if (
+									await save(
+										imported,
+										localeMessages.t("ui.upstream.importedRoute", {
+											ns: "common",
+											v0: imported.length,
+										}),
+									)
+								)
+									setPendingImport(null);
 							}}
 						>
 							{localeMessages.t("ui.upstream.applyImport", { ns: "common" })}

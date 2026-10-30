@@ -124,7 +124,7 @@ export function FallbackChainBanner({ chain, currentId, onOpenLog }: FallbackCha
 	const current = chain[position - 1];
 	const isFinal = current?.id === last.id;
 	const copy = outcomeCopy[outcome];
-	let summary = `Attempt ${position} of ${chain.length}`;
+	let summary = localeMessages.t("ui.upstream.attemptOf", { ns: "common", v0: position, v1: chain.length });
 	if (!isFinal && current?.status === "error" && outcome === "succeeded") {
 		summary += `. This attempt failed and the request fell back to ${attemptLabel(last)}.`;
 	} else if (!isFinal) {

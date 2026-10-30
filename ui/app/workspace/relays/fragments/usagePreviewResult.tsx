@@ -7,8 +7,8 @@ import type { Relay, RelayUnitsMeasure, UsagePreview } from "@/lib/types/relays"
 export const usd = (v: number) => `$${Number(v.toFixed(6))}`;
 
 const MEASURE: Record<RelayUnitsMeasure, (path: string) => string> = {
-	value: (path) => `the number at ${path}`,
-	chars: (path) => `the characters of ${path}`,
+	value: (path) => localeMessages.t("ui.upstream.theNumberAt", { ns: "common", v0: path }),
+	chars: (path) => localeMessages.t("ui.upstream.theCharactersOf", { ns: "common", v0: path }),
 	body_bytes: () => "the size of the body in bytes",
 	body_chars: () => "the characters of the body",
 };
@@ -30,7 +30,7 @@ export function UsagePreviewResult({ result, endpoint }: { result: UsagePreview;
 	const billedUnits = result.units_billed ?? 0;
 	const unitCharge = result.units !== null && result.cost_per_unit > 0 ? billedUnits * result.cost_per_unit : 0;
 	const rounding = [
-		result.units_block_size > 1 ? `per started block of ${result.units_block_size}` : "",
+		result.units_block_size > 1 ? localeMessages.t("ui.upstream.perStartedBlockOf", { ns: "common", v0: result.units_block_size }) : "",
 		result.units_minimum > 0 ? `at least ${result.units_minimum}` : "",
 	]
 		.filter(Boolean)
@@ -80,7 +80,7 @@ export function UsagePreviewResult({ result, endpoint }: { result: UsagePreview;
 			) : !result.counted ? (
 				<p className="text-muted-foreground">
 					{refusal
-						? `The relay refuses this request before it is sent (${refusal}), so nothing is relayed or charged.`
+						? localeMessages.t("ui.upstream.theRelayRefusesThisRequest", { ns: "common", v0: refusal })
 						: result.billable
 							? localeMessages.t("ui.upstream.theUpstreamReplyIsNotA", { ns: "common" })
 							: localeMessages.t("ui.upstream.thisRouteIsNotBillableSo", { ns: "common" })}

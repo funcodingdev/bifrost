@@ -86,7 +86,7 @@ export function RelayLogsExportDialog({
 				return;
 			}
 			downloadCSV(relayLogsToCSV(currentPageLogs), "relay-logs");
-			toast.success(`Exported ${currentPageLogs.length} relay logs`);
+			toast.success(localeMessages.t("ui.upstream.exportedRelayLogs2", { ns: "common", v0: currentPageLogs.length }));
 			onOpenChange(false);
 			return;
 		}
@@ -134,10 +134,10 @@ export function RelayLogsExportDialog({
 			}
 
 			downloadCSV(relayLogsToCSV(collectedLogs), "relay-logs");
-			toast.success(`Exported ${collectedLogs.length} relay logs`);
+			toast.success(localeMessages.t("ui.upstream.exportedRelayLogs", { ns: "common", v0: collectedLogs.length }));
 			onOpenChange(false);
 		} catch (error) {
-			if (!isRunCancelled()) toast.error(`Export failed: ${getErrorMessage(error)}`);
+			if (!isRunCancelled()) toast.error(localeMessages.t("ui.upstream.exportFailed2", { ns: "common", v0: getErrorMessage(error) }));
 		} finally {
 			if (!isRunCancelled()) {
 				setIsExporting(false);
@@ -210,7 +210,10 @@ export function RelayLogsExportDialog({
 								min="1"
 								max={DEFAULT_MAX_EXPORT_LIMIT}
 								disabled={isExporting}
-								placeholder={`Default ${Math.min(DEFAULT_MAX_EXPORT_LIMIT, totalLogs || DEFAULT_MAX_EXPORT_LIMIT).toLocaleString()}`}
+								placeholder={localeMessages.t("ui.upstream.default2", {
+									ns: "common",
+									v0: Math.min(DEFAULT_MAX_EXPORT_LIMIT, totalLogs || DEFAULT_MAX_EXPORT_LIMIT).toLocaleString(),
+								})}
 								value={exportMaxLimit}
 								onChange={(e) => setExportMaxLimit(e.target.value)}
 							/>

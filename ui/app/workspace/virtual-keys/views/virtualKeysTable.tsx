@@ -598,7 +598,11 @@ export default function VirtualKeysTable({
 				vkId: vk.id,
 				data: { is_active: checked },
 			}).unwrap();
-			toast.success(`Virtual key ${checked ? "enabled" : "disabled"}`);
+			toast.success(
+				checked
+					? localeMessages.t("ui.upstream.virtualKeyEnabled", { ns: "common" })
+					: localeMessages.t("ui.upstream.virtualKeyDisabled", { ns: "common" }),
+			);
 		} catch (error) {
 			toast.error(getErrorMessage(error));
 			throw error;
@@ -630,11 +634,20 @@ export default function VirtualKeysTable({
 
 			const failureCount = result.errors ? Object.keys(result.errors).length : 0;
 			const graceUntil = latestGraceDeadline(result.virtual_keys);
-			const graceNote = graceUntil ? ` Previous keys remain valid until ${new Date(graceUntil).toLocaleString()}.` : "";
+			const graceNote = graceUntil
+				? localeMessages.t("ui.upstream.previousKeysRemainValidUntil", { ns: "common", v0: new Date(graceUntil).toLocaleString() })
+				: "";
 			if (failureCount > 0) {
-				toast.warning(`Rotated ${result.virtual_keys.length} virtual keys. ${failureCount} failed.${graceNote}`);
+				toast.warning(
+					localeMessages.t("ui.upstream.rotatedVirtualKeysFailed", {
+						ns: "common",
+						v0: result.virtual_keys.length,
+						v1: failureCount,
+						v2: graceNote,
+					}),
+				);
 			} else {
-				toast.success(`Rotated ${result.virtual_keys.length} virtual keys.${graceNote}`);
+				toast.success(localeMessages.t("ui.upstream.rotatedVirtualKeys", { ns: "common", v0: result.virtual_keys.length, v1: graceNote }));
 			}
 		} catch (error) {
 			toast.error(getErrorMessage(error));
@@ -772,7 +785,7 @@ export default function VirtualKeysTable({
 	const handleExportCSV = async () => {
 		if (exportScope === "current_page") {
 			downloadCSV(virtualKeysToCSV(virtualKeys));
-			toast.success(`Exported ${virtualKeys.length} virtual keys`);
+			toast.success(localeMessages.t("ui.upstream.exportedVirtualKeys2", { ns: "common", v0: virtualKeys.length }));
 			setShowExportDialog(false);
 			return;
 		}
@@ -796,10 +809,10 @@ export default function VirtualKeysTable({
 			}).unwrap();
 
 			downloadCSV(virtualKeysToCSV(result.virtual_keys));
-			toast.success(`Exported ${result.virtual_keys.length} virtual keys`);
+			toast.success(localeMessages.t("ui.upstream.exportedVirtualKeys", { ns: "common", v0: result.virtual_keys.length }));
 			setShowExportDialog(false);
 		} catch (error) {
-			toast.error(`Export failed: ${getErrorMessage(error)}`);
+			toast.error(localeMessages.t("ui.upstream.exportFailed3", { ns: "common", v0: getErrorMessage(error) }));
 		}
 	};
 

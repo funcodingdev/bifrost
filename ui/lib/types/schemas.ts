@@ -1223,7 +1223,11 @@ export const passthroughRouteRuleSchema = z
 	.superRefine((rule, ctx) => {
 		rule.methods?.forEach((method, index) => {
 			if (!isPassthroughMethod(method)) {
-				ctx.addIssue({ code: "custom", path: ["methods", index], message: `Unsupported method ${method}` });
+				ctx.addIssue({
+					code: "custom",
+					path: ["methods", index],
+					message: localeMessages.t("ui.upstream.unsupportedMethod", { ns: "common", v0: method }),
+				});
 			}
 		});
 		const issue = passthroughPathIssue(rule.path ?? "");
@@ -2559,7 +2563,14 @@ export const relayFormSchema = z
 					if (!p.trim()) return;
 					const parsed = relayGlob.safeParse(p);
 					if (!parsed.success)
-						ctx.addIssue({ code: "custom", message: `Line ${i + 1}: ${parsed.error.issues[0]?.message ?? "invalid path"}` });
+						ctx.addIssue({
+							code: "custom",
+							message: localeMessages.t("ui.upstream.line", {
+								ns: "common",
+								v0: i + 1,
+								v1: parsed.error.issues[0]?.message ?? "invalid path",
+							}),
+						});
 				});
 			}),
 		}),
@@ -2599,7 +2610,7 @@ export const relayFormSchema = z
 		if (broken && !relayUsageUnitsPathError(form.usage)) {
 			ctx.addIssue({
 				code: "custom",
-				message: `Units path is required: route ${broken.method} ${broken.path} charges per unit and inherits it from the relay`,
+				message: localeMessages.t("ui.upstream.unitsPathIsRequiredRoute", { ns: "common", v0: broken.method, v1: broken.path }),
 				path: ["usage", "units_path"],
 			});
 		}

@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import { PROVIDER_SUPPORTED_REQUESTS } from "../constants/config";
 import { BaseProvider } from "../types/config";
 
@@ -68,14 +69,22 @@ export class Validator {
 		};
 	}
 
-	static minValue(value: number, min: number, message = `Must be at least ${min}`): ValidationRule {
+	static minValue(
+		value: number,
+		min: number,
+		message = localeMessages.t("ui.upstream.mustBeAtLeast", { ns: "common", v0: min }),
+	): ValidationRule {
 		return {
 			isValid: !isNaN(value) && value >= min,
 			message,
 		};
 	}
 
-	static maxValue(value: number, max: number, message = `Must be at most ${max}`): ValidationRule {
+	static maxValue(
+		value: number,
+		max: number,
+		message = localeMessages.t("ui.upstream.mustBeAtMost", { ns: "common", v0: max }),
+	): ValidationRule {
 		return {
 			isValid: !isNaN(value) && value <= max,
 			message,
@@ -97,28 +106,44 @@ export class Validator {
 		return this.pattern(value, /^https?:\/\/.+/, message);
 	}
 
-	static minLength(value: string, min: number, message = `Must be at least ${min} characters`): ValidationRule {
+	static minLength(
+		value: string,
+		min: number,
+		message = localeMessages.t("ui.upstream.mustBeAtLeastCharacters", { ns: "common", v0: min }),
+	): ValidationRule {
 		return {
 			isValid: (value || "").length >= min,
 			message,
 		};
 	}
 
-	static maxLength(value: string, max: number, message = `Must be at most ${max} characters`): ValidationRule {
+	static maxLength(
+		value: string,
+		max: number,
+		message = localeMessages.t("ui.upstream.mustBeAtMostCharacters", { ns: "common", v0: max }),
+	): ValidationRule {
 		return {
 			isValid: (value || "").length <= max,
 			message,
 		};
 	}
 
-	static arrayMinLength<T>(array: T[], min: number, message = `Must have at least ${min} items`): ValidationRule {
+	static arrayMinLength<T>(
+		array: T[],
+		min: number,
+		message = localeMessages.t("ui.upstream.mustHaveAtLeastItems", { ns: "common", v0: min }),
+	): ValidationRule {
 		return {
 			isValid: array?.length >= min,
 			message,
 		};
 	}
 
-	static arrayMaxLength<T>(array: T[], max: number, message = `Must have at most ${max} items`): ValidationRule {
+	static arrayMaxLength<T>(
+		array: T[],
+		max: number,
+		message = localeMessages.t("ui.upstream.mustHaveAtMostItems", { ns: "common", v0: max }),
+	): ValidationRule {
 		return {
 			isValid: array?.length <= max,
 			message,

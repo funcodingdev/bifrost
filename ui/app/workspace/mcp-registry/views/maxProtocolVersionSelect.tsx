@@ -18,7 +18,7 @@ export function MaxProtocolVersionSelect({ value, onChange, globalValue, disable
 	const globalLabel =
 		globalValue === undefined
 			? localeMessages.t("ui.upstream.useGlobalSetting", { ns: "common" })
-			: `Use global setting (${mcpMaxProtocolVersionLabel(globalValue)})`;
+			: localeMessages.t("ui.upstream.useGlobalSetting2", { ns: "common", v0: mcpMaxProtocolVersionLabel(globalValue) });
 	return (
 		<Select value={selected} onValueChange={(v) => onChange(v === MCP_PROTOCOL_VERSION_USE_GLOBAL ? "" : v)} disabled={disabled}>
 			<SelectTrigger {...triggerProps} className="w-56" data-testid="mcp-client-max-protocol-version-select">

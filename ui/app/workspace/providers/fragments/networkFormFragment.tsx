@@ -136,7 +136,7 @@ export function NetworkFormFragment({ provider }: NetworkFormFragmentProps) {
 			? toExtraHeadersPayload(data.network_config.extra_headers, storedHeaderNames)
 			: undefined;
 		if (extraHeaders && extraHeaders.missingValues.length > 0) {
-			toast.error(`Enter a value for extra header ${extraHeaders.missingValues.join(", ")}`);
+			toast.error(localeMessages.t("ui.upstream.enterAValueForExtra", { ns: "common", v0: extraHeaders.missingValues.join(", ") }));
 			return;
 		}
 		// extra_headers_secret_vars is response-only, so it is not sent back

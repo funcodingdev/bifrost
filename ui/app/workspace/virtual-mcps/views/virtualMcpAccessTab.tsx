@@ -104,7 +104,7 @@ export default function VirtualMCPAccessTab({ vmcpId, value, onChange, isCreate,
 			setCheckingOwner(false);
 		}
 		if (picked.outcome === "lookupFailed") {
-			toast.error(`Could not check who owns "${label}", so it was not assigned. Try again.`);
+			toast.error(localeMessages.t("ui.upstream.couldNotCheckWhoOwns", { ns: "common", v0: label }));
 			return;
 		}
 		if (picked.outcome === "owned") {

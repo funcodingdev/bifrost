@@ -105,7 +105,7 @@ export const createRelayColumns = (
 			const routeLabel = !log.route_path
 				? localeMessages.t("ui.upstream.noRoute", { ns: "common" })
 				: log.route_path !== pathOnly
-					? `Route ${log.route_path}`
+					? localeMessages.t("ui.upstream.route3", { ns: "common", v0: log.route_path })
 					: null;
 			// "Streamed" is not repeated here as plain text: it's already a colored badge on the
 			// detail sheet, the same way LLM's streaming variants get a distinct badge color/label
@@ -113,7 +113,7 @@ export const createRelayColumns = (
 			// of place next to that pattern.
 			const secondary =
 				log.kind === "job"
-					? `Settled: ${log.job_status ?? "-"}`
+					? localeMessages.t("ui.upstream.settled", { ns: "common", v0: log.job_status ?? "-" })
 					: [routeLabel, log.billable ? "" : "not billable"].filter(Boolean).join(" · ");
 			return (
 				<div className="flex min-w-0 flex-col leading-tight">

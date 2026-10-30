@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import i18nReview from "@/lib/i18n";
 import type {
 	MCPOpenAPIConfig,
@@ -172,7 +173,7 @@ export function securitySchemeToInputs(scheme: MCPOpenAPISecurityScheme): OpenAP
 	if (scheme.type === "http" && scheme.scheme === "basic") {
 		return {
 			scheme,
-			label: `${scheme.name} · Basic authentication`,
+			label: localeMessages.t("ui.upstream.basicAuthentication", { ns: "common", v0: scheme.name }),
 			fields: [
 				{
 					field: "username",
@@ -190,7 +191,7 @@ export function securitySchemeToInputs(scheme: MCPOpenAPISecurityScheme): OpenAP
 	}
 	return {
 		scheme,
-		label: `${scheme.name} · Bearer token`,
+		label: localeMessages.t("ui.upstream.bearerToken2", { ns: "common", v0: scheme.name }),
 		fields: [
 			{
 				field: "value",
@@ -314,9 +315,9 @@ export function summarizeSpecSource(cfg: MCPOpenAPIConfig | undefined): string {
 	if (!cfg) return "-";
 	const parts: string[] = [];
 	const title = cfg.spec_title
-		? `${cfg.spec_title}${cfg.openapi_version ? ` (OpenAPI ${cfg.openapi_version})` : ""}`
+		? `${cfg.spec_title}${cfg.openapi_version ? localeMessages.t("ui.upstream.openapi2", { ns: "common", v0: cfg.openapi_version }) : ""}`
 		: cfg.openapi_version
-			? `OpenAPI ${cfg.openapi_version}`
+			? localeMessages.t("ui.upstream.openapi", { ns: "common", v0: cfg.openapi_version })
 			: "";
 	if (title) parts.push(title);
 	parts.push(cfg.spec_url ? cfg.spec_url : "inline spec");
@@ -405,7 +406,7 @@ export async function readUploadedSpec(file: {
 	if (isSpecTooLarge(file.size)) {
 		return {
 			text: "",
-			error: `The file exceeds the ${formatBytes(OPENAPI_MAX_SPEC_BYTES)} limit for OpenAPI documents.`,
+			error: localeMessages.t("ui.upstream.theFileExceedsTheLimit", { ns: "common", v0: formatBytes(OPENAPI_MAX_SPEC_BYTES) }),
 		};
 	}
 	let text: string;
@@ -414,7 +415,10 @@ export async function readUploadedSpec(file: {
 	} catch (error) {
 		return {
 			text: "",
-			error: `The file could not be read: ${error instanceof Error ? error.message : String(error)}`,
+			error: localeMessages.t("ui.upstream.theFileCouldNotBe", {
+				ns: "common",
+				v0: error instanceof Error ? error.message : String(error),
+			}),
 		};
 	}
 	return { text, error: text.trim() ? null : "The file is empty." };

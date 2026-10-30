@@ -157,7 +157,13 @@ export function JobFields({ form, inheritFrom, disabled }: JobFieldsProps) {
 	}, [hasErrors]);
 	const control = form.control;
 	const summary = job
-		? `Polls ${job.poll.method || "GET"} ${job.poll.path || "…"} until ${job.status_path || "…"} is ${job.succeeded.join(" or ") || "…"}`
+		? localeMessages.t("ui.upstream.pollsUntilIs", {
+				ns: "common",
+				v0: job.poll.method || "GET",
+				v1: job.poll.path || "…",
+				v2: job.status_path || "…",
+				v3: job.succeeded.join(" or ") || "…",
+			})
 		: localeMessages.t("ui.upstream.thisRouteAnswersRightAway", { ns: "common" });
 	// The settlement charges only a fee the job sets itself: the start call already paid the route fee.
 	const jobInherit = inheritFrom ? { ...inheritFrom, cost_per_request: undefined } : undefined;

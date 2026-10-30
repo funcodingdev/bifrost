@@ -282,7 +282,12 @@ export default function WarpTopicsSection({
 					{localeMessages.t("ui.upstream.request", { ns: "common" })}
 					{health.pooled === 1 ? "" : "s"} {localeMessages.t("ui.upstream.waitingForATopic", { ns: "common" })}
 					{health.requests_24h > 0
-						? ` · ${Math.round(health.unmatched_share_24h * 100)}% of the last day's ${health.requests_24h} request${health.requests_24h === 1 ? "" : "s"} matched no topic`
+						? localeMessages.t("ui.upstream.ofTheLastDayS", {
+								ns: "common",
+								v0: Math.round(health.unmatched_share_24h * 100),
+								v1: health.requests_24h,
+								v2: health.requests_24h === 1 ? "" : "s",
+							})
 						: " · nothing filed in the last day"}
 				</p>
 			)}
@@ -299,7 +304,7 @@ export default function WarpTopicsSection({
 						{shown.indexed} {localeMessages.t("ui.upstream.topic", { ns: "common" })}
 						{shown.indexed === 1 ? "" : "s"} {localeMessages.t("ui.upstream.written", { ns: "common" })}
 						{shown.themes ? ` · ${shown.themes} theme${shown.themes === 1 ? "" : "s"}` : ""}
-						{shown.failed > 0 ? ` · ${shown.failed} label${shown.failed === 1 ? "" : "s"} fell back` : ""}
+						{shown.failed > 0 ? localeMessages.t("ui.upstream.labelFellBack", { ns: "common", v0: shown.failed }) : ""}
 					</div>
 					{shown.message && <p className="text-muted-foreground text-xs">{shown.message}</p>}
 					{shown.last_error && (

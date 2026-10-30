@@ -44,7 +44,7 @@ export function UsageFields({ control, name, value, inheritFrom, ignoreUpstreamC
 		if (!isRoute) return fallback;
 		const inherited = inheritFrom?.[field];
 		return inherited !== undefined && inherited !== ""
-			? `${inherited} (relay default)`
+			? localeMessages.t("ui.upstream.relayDefault", { ns: "common", v0: inherited })
 			: localeMessages.t("ui.upstream.inheritsRelay", { ns: "common" });
 	};
 

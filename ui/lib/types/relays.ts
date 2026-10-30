@@ -1,3 +1,4 @@
+import localeMessages from "@/lib/i18n";
 import type { BifrostError, OverheadBucket } from "@/lib/types/logs";
 
 // Types for Relays (/api/relays) and Relay Logs
@@ -14,24 +15,48 @@ export const RelayAuthTypes: RelayAuthType[] = ["bearer", "header", "query", "ba
 export const RelayRouteMethods: RelayRouteMethod[] = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"];
 
 export const RelayAuthTypeLabels: Record<RelayAuthType, string> = {
-	bearer: "Bearer token",
-	header: "Custom header",
-	query: "Query parameter",
-	basic: "Basic auth",
-	aws_sigv4: "AWS SigV4",
-	none: "No authentication",
+	get bearer() {
+		return localeMessages.t("ui.upstream.bearerToken", { ns: "common" });
+	},
+	get header() {
+		return localeMessages.t("ui.upstream.customHeader", { ns: "common" });
+	},
+	get query() {
+		return localeMessages.t("ui.upstream.queryParameter", { ns: "common" });
+	},
+	get basic() {
+		return localeMessages.t("ui.upstream.basicAuth", { ns: "common" });
+	},
+	get aws_sigv4() {
+		return localeMessages.t("ui.upstream.awsSigV4", { ns: "common" });
+	},
+	get none() {
+		return localeMessages.t("ui.upstream.noAuthentication", { ns: "common" });
+	},
 };
 
 export const RelayUnitsSourceLabels: Record<RelayUnitsSource, string> = {
-	response: "Response body",
-	request: "Request body",
+	get response() {
+		return localeMessages.t("ui.upstream.responseBody", { ns: "common" });
+	},
+	get request() {
+		return localeMessages.t("ui.upstream.requestBody", { ns: "common" });
+	},
 };
 
 export const RelayUnitsMeasureLabels: Record<RelayUnitsMeasure, string> = {
-	value: "Number at path",
-	chars: "Characters of the string at path",
-	body_bytes: "Size of the whole body (bytes)",
-	body_chars: "Characters of the whole body",
+	get value() {
+		return localeMessages.t("ui.upstream.numberAtPath", { ns: "common" });
+	},
+	get chars() {
+		return localeMessages.t("ui.upstream.charactersOfTheStringAtPath", { ns: "common" });
+	},
+	get body_bytes() {
+		return localeMessages.t("ui.upstream.sizeOfTheWholeBodyBytes", { ns: "common" });
+	},
+	get body_chars() {
+		return localeMessages.t("ui.upstream.charactersOfTheWholeBody", { ns: "common" });
+	},
 };
 
 /** A secret as the API carries it: a value (redacted on read), or an env./vault reference. */

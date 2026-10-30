@@ -47,7 +47,11 @@ export function RelayGrantsEditor({
 				<TooltipProvider>
 					<Tooltip>
 						<TooltipTrigger asChild>
-							<button type="button" aria-label={`About ${label.toLowerCase()}`} className="inline-flex">
+							<button
+								type="button"
+								aria-label={localeMessages.t("ui.upstream.about", { ns: "common", v0: label.toLowerCase() })}
+								className="inline-flex"
+							>
 								<Info className="text-muted-foreground h-3 w-3" />
 							</button>
 						</TooltipTrigger>
@@ -71,7 +75,13 @@ export function RelayGrantsEditor({
 								<span className="truncate text-sm font-medium">{name}</span>
 								<span className="text-muted-foreground truncate text-xs">/relay/{name}</span>
 							</div>
-							<Button type="button" variant="ghost" size="sm" aria-label={`Remove ${name}`} onClick={() => remove(name)}>
+							<Button
+								type="button"
+								variant="ghost"
+								size="sm"
+								aria-label={localeMessages.t("ui.upstream.remove2", { ns: "common", v0: name })}
+								onClick={() => remove(name)}
+							>
 								<Trash2 className="h-4 w-4" />
 							</Button>
 						</div>

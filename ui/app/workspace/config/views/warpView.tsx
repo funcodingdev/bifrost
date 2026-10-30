@@ -1137,10 +1137,18 @@ export default function WarpView() {
 										label={localeMessages.t("ui.upstream.newTopicThreshold", { ns: "common" })}
 										htmlFor="warp-topic-discovery-min-requests"
 										className="max-w-xs"
-										hint={`How many requests that matched no topic have to be waiting before Warp groups them into new topics, checked hourly. Lower finds new subjects sooner from fewer examples; higher waits for clearer patterns. ${MIN_TOPIC_DISCOVERY_MIN_REQUESTS} to ${MAX_TOPIC_DISCOVERY_MIN_REQUESTS}.`}
+										hint={localeMessages.t("ui.upstream.howManyRequestsThatMatched", {
+											ns: "common",
+											v0: MIN_TOPIC_DISCOVERY_MIN_REQUESTS,
+											v1: MAX_TOPIC_DISCOVERY_MIN_REQUESTS,
+										})}
 										error={
 											discoveryInvalid
-												? `Must be a whole number from ${MIN_TOPIC_DISCOVERY_MIN_REQUESTS} to ${MAX_TOPIC_DISCOVERY_MIN_REQUESTS}`
+												? localeMessages.t("ui.upstream.mustBeAWholeNumber", {
+														ns: "common",
+														v0: MIN_TOPIC_DISCOVERY_MIN_REQUESTS,
+														v1: MAX_TOPIC_DISCOVERY_MIN_REQUESTS,
+													})
 												: undefined
 										}
 									>

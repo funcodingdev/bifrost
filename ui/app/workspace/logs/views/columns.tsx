@@ -400,7 +400,11 @@ export function LogTimeCell({ timestamp, testId = "logs-row-open-btn" }: { times
 		<button
 			type="button"
 			data-testid={testId}
-			aria-label={`${format(date, "MMM dd HH:mm:ss")} ${formatDistanceToNow(date, { addSuffix: true })}, open log details`}
+			aria-label={localeMessages.t("ui.upstream.openLogDetails", {
+				ns: "common",
+				v0: format(date, "MMM dd HH:mm:ss"),
+				v1: formatDistanceToNow(date, { addSuffix: true }),
+			})}
 			className="focus-visible:ring-ring flex cursor-pointer flex-col rounded-sm text-left leading-tight focus-visible:ring-2 focus-visible:outline-none"
 		>
 			<span className="font-mono text-xs tabular-nums">{format(date, "MMM dd  HH:mm:ss")}</span>
@@ -496,9 +500,13 @@ export const createColumns = (
 											ariaLabel={
 												isExpanded
 													? localeMessages.t("logs.collapseFallbackChain", { ns: "observability" })
-													: `Expand ${chainSummary(log, childCount)} of this turn`
+													: localeMessages.t("ui.upstream.expandOfThisTurn", { ns: "common", v0: chainSummary(log, childCount) })
 											}
-											tooltip={`${nestedRowLabel(log)} of this session, with ${chainSummary(log, childCount)} (same parent_request_id)`}
+											tooltip={localeMessages.t("ui.upstream.ofThisSessionWithSame", {
+												ns: "common",
+												v0: nestedRowLabel(log),
+												v1: chainSummary(log, childCount),
+											})}
 											isExpanded={isExpanded}
 											isLoading={meta.loadingChainIds.has(log.id)}
 											onToggle={() => meta.onToggleChain(log)}
@@ -550,11 +558,13 @@ export const createColumns = (
 								className="pl-1"
 								stubX={TREE_TRUNK_X[0]}
 								label={<span className="truncate tabular-nums">{summary}</span>}
-								ariaLabel={isExpanded ? t("logs.collapseFallbackChain") : `Expand ${summary}`}
+								ariaLabel={
+									isExpanded ? t("logs.collapseFallbackChain") : localeMessages.t("ui.upstream.expand", { ns: "common", v0: summary })
+								}
 								tooltip={
 									log.batch_debug || log.video_debug
-										? `${summary} row${childCount === 1 ? "" : "s"}: the settled cost (same parent_request_id)`
-										: `${summary} of this request (same parent_request_id)`
+										? localeMessages.t("ui.upstream.rowTheSettledCostSame", { ns: "common", v0: summary })
+										: localeMessages.t("ui.upstream.ofThisRequestSameParent", { ns: "common", v0: summary })
 								}
 								isExpanded={isExpanded}
 								isLoading={meta.loadingChainIds.has(log.id)}

@@ -33,8 +33,11 @@ export function semanticWarmupImpactMessage(status: SemanticStatusInfo, fallback
 		return localeMessages.t("ui.upstream.thePreviousClassifierIsStillRouting", { ns: "common" });
 	}
 	if (fallback !== "none") {
-		const classifier = fallback === "llm" ? "the LLM classifier" : "the decision model";
-		return `Until the classifier is ready, ${classifier} fallback classifies each request instead. Complexity-tier rules match only when it returns a tier. Other routing rules continue normally.`;
+		const classifier =
+			fallback === "llm"
+				? localeMessages.t("ui.upstream.theLlmClassifier", { ns: "common" })
+				: localeMessages.t("ui.upstream.theDecisionModel", { ns: "common" });
+		return localeMessages.t("ui.upstream.untilTheClassifierIsReady", { ns: "common", v0: classifier });
 	}
 	return localeMessages.t("ui.upstream.complexityTierRulesArePausedUntil", { ns: "common" });
 }

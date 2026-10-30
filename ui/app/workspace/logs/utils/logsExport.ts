@@ -206,7 +206,8 @@ export function formatActiveFiltersSummary(filters: LogFilters): string[] {
 	if (filters.models && filters.models.length > 0) summary.push(`models (${filters.models.length})`);
 	if (filters.status && filters.status.length > 0) summary.push(`status: ${filters.status.join(", ")}`);
 	if (filters.session_id) summary.push(`session "${filters.session_id}"`);
-	if (filters.virtual_key_ids && filters.virtual_key_ids.length > 0) summary.push(`virtual keys (${filters.virtual_key_ids.length})`);
+	if (filters.virtual_key_ids && filters.virtual_key_ids.length > 0)
+		summary.push(localeMessages.t("ui.upstream.virtualKeys", { ns: "common", v0: filters.virtual_key_ids.length }));
 	if (filters.team_ids && filters.team_ids.length > 0) summary.push(`teams (${filters.team_ids.length})`);
 	if (filters.customer_ids && filters.customer_ids.length > 0) summary.push(`customers (${filters.customer_ids.length})`);
 	if (filters.period) summary.push(`period ${filters.period}`);

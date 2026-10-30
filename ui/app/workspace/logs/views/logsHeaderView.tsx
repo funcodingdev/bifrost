@@ -243,7 +243,13 @@ export function LogsHeaderView({
 				// report the partial result rather than framing it as a failure.
 				toast.info(t("logs.recalc.toastCancelled"), {
 					id: RECALC_TOAST_ID,
-					description: recalcJobStatus.message || `Stopped after ${recalcJobStatus.updated} updated, ${recalcJobStatus.skipped} skipped`,
+					description:
+						recalcJobStatus.message ||
+						localeMessages.t("ui.upstream.stoppedAfterUpdatedSkipped", {
+							ns: "common",
+							v0: recalcJobStatus.updated,
+							v1: recalcJobStatus.skipped,
+						}),
 					duration: 5000,
 				});
 			} else {
@@ -572,7 +578,7 @@ async function readRecalculateCostError(response: Response): Promise<Error> {
 	try {
 		return parseRecalculateCostStreamError(await response.text());
 	} catch {
-		return new Error(`Failed to recalculate costs (${response.status})`);
+		return new Error(localeMessages.t("ui.upstream.failedToRecalculateCosts", { ns: "common", v0: response.status }));
 	}
 }
 

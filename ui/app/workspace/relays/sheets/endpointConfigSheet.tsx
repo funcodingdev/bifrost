@@ -126,7 +126,7 @@ export function EndpointConfigSheet({ show, onCancel, endpoint }: { show: boolea
 		}
 		// A field this sheet has no input for (routes are edited elsewhere): say so instead of refusing silently.
 		toast.error(localeMessages.t("ui.upstream.relayConfigurationIsInvalid", { ns: "common" }), {
-			description: `Fix the "${first}" field before saving.`,
+			description: localeMessages.t("ui.upstream.fixTheFieldBeforeSaving", { ns: "common", v0: first }),
 		});
 	};
 
