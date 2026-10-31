@@ -2030,8 +2030,19 @@ func (l *MCPToolLog) BeforeCreate(tx *gorm.DB) error {
 	if l.Timestamp.IsZero() {
 		l.Timestamp = time.Now().UTC()
 	}
-	return l.SerializeFields()
+	if err := l.SerializeFields(); err != nil {
+		return err
+	}
+	if hook := BeforeMCPWriteHook; hook != nil {
+		return hook(l)
+	}
+	return nil
 }
+
+// BeforeMCPWriteHook is BeforeWriteHook for MCP tool log rows: it runs after
+// the row's fields are serialized and before it is written, so a build can
+// apply l.RedactionData to the stored arguments and result.
+var BeforeMCPWriteHook func(l *MCPToolLog) error
 
 // AfterFind GORM hook to deserialize JSON fields
 func (l *MCPToolLog) AfterFind(tx *gorm.DB) error {
