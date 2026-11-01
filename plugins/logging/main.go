@@ -1891,6 +1891,9 @@ func (p *LoggerPlugin) PreLLMHook(ctx *schemas.BifrostContext, req *schemas.Bifr
 		p.logger.Error("context is nil in PreLLMHook")
 		return req, nil, nil
 	}
+	if skip, _ := ctx.Value(schemas.BifrostContextKeySkipLogging).(bool); skip {
+		return req, nil, nil
+	}
 
 	// Extract request ID from context
 	requestID, ok := ctx.Value(schemas.BifrostContextKeyRequestID).(string)
@@ -2049,6 +2052,9 @@ func (p *LoggerPlugin) PostLLMHook(ctx *schemas.BifrostContext, result *schemas.
 	if ctx == nil {
 		// Log error but don't fail the request
 		p.logger.Error("context is nil in PostLLMHook")
+		return result, bifrostErr, nil
+	}
+	if skip, _ := ctx.Value(schemas.BifrostContextKeySkipLogging).(bool); skip {
 		return result, bifrostErr, nil
 	}
 	requestID, ok := ctx.Value(schemas.BifrostContextKeyRequestID).(string)
